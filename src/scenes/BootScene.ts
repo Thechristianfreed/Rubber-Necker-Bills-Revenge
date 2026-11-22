@@ -3,6 +3,7 @@ import '@fontsource/bangers/latin-400.css';
 import '@fontsource/permanent-marker/latin-400.css';
 import { loadPhotoArt } from '../art/photos';
 import { buildTextures } from '../art/textures';
+import { levelById, sceneFor } from '../data/levels';
 import glare from '../assets/bill/head-glare.png';
 import grin from '../assets/bill/head-grin.png';
 import sideeye from '../assets/bill/head-sideeye.png';
@@ -54,7 +55,8 @@ export class BootScene extends Phaser.Scene {
       buildTextures(this);
       return loadPhotoArt(this);
     }).then(() => {
-      this.scene.start(new URLSearchParams(location.search).has('auto') ? 'game' : 'title');
+      const q = new URLSearchParams(location.search);
+      this.scene.start(q.has('auto') ? sceneFor(levelById(q.get('level'))) : 'title');
     });
   }
 }

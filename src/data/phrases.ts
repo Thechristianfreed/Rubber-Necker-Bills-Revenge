@@ -37,6 +37,16 @@ export const PHRASES = {
     { text: 'EXTRA! EXTRA!' },
     { text: 'READ ALL ABOUT IT!' },
   ] as Phrase[],
+  /** The bonus level, in the school hallway. */
+  comboLocker: [
+    { text: 'FIFTEEN-LOVE!' },
+    { text: 'RETURN TO SENDER!' },
+    { text: "THAT'S NOT PEANUT BUTTER!" },
+  ] as Phrase[],
+  rageLocker: [
+    { text: 'OH PISS UP A ROPE!', real: true },
+    { text: 'GAME, SET, MATCH!' },
+  ] as Phrase[],
   rageStreet: [
     { text: 'OH PISS UP A ROPE!', real: true },
     { text: 'READ ALL ABOUT IT!' },

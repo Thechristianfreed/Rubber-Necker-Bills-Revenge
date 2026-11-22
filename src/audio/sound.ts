@@ -166,6 +166,18 @@ class Sound {
     this.tone({ type: 'square', f0: 1760, dur: 0.1, vol: 0.09, at: 0.06 });
   }
 
+  /** Something wet hitting something flat. */
+  splat(): void {
+    this.noise({ dur: 0.16, vol: 0.5, filter: 'lowpass', f0: 1400, f1: 180 });
+    this.tone({ type: 'sine', f0: 170, f1: 60, dur: 0.14, vol: 0.4 });
+  }
+
+  /** Something hard bouncing off the floor. */
+  tock(): void {
+    this.tone({ type: 'triangle', f0: 520, f1: 260, dur: 0.07, vol: 0.3 });
+    this.noise({ dur: 0.03, vol: 0.2, filter: 'highpass', f0: 2200 });
+  }
+
   rageReady(): void {
     [330, 415, 494, 659].forEach((f, i) => this.tone({ type: 'sawtooth', f0: f, dur: 0.14, vol: 0.14, at: i * 0.07 }));
   }

@@ -4,6 +4,7 @@ import { Ctx, PhotoOpts, makeArt, makePhotoArt, makePhotoTile, star } from './st
 import { ARM_TINTS, VEHICLES, VehicleSpec, makeNeck, setHeadStyles } from './textures';
 import { PAPERS, addPaper } from './paper';
 import { buildPaperUi } from './ui';
+import { buildHallArt } from './hallway';
 import { buildStreetArt } from './street';
 
 /** Photo cutouts that replace drawn art. Each piece takes over the texture key
@@ -220,6 +221,7 @@ export async function loadPhotoArt(scene: Phaser.Scene): Promise<void> {
   }
   buildPaperUi(scene);
   buildStreetArt(scene, loaded.get('head4.png'), loaded.get('head4-dazed.png'));
+  buildHallArt(scene);
 
   for (const p of PIECES) {
     const im = loaded.get(p.file);

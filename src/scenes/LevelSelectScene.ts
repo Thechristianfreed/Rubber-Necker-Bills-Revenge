@@ -1,9 +1,9 @@
 import Phaser from 'phaser';
 import { H, HEAD_SRC_H, INK, MAX_W, TEX, view } from '../config';
-import { ART, Ctx, img } from '../art/sticker';
+import { ART, Ctx, img, star } from '../art/sticker';
 import { cutText, fillPaper, glued, makePaperArt, tapePath, textWidth } from '../art/paper';
 import { sound } from '../audio/sound';
-import { LEVELS, LevelDef, Theme } from '../data/levels';
+import { LEVELS, LevelDef, Theme, sceneFor } from '../data/levels';
 import { RIGS } from '../objects/Bill';
 import { loadStars } from '../data/progress';
 import { MARKER, written } from '../ui/text';
@@ -14,7 +14,7 @@ const CARD_H = 320;
 /** Pick a level: each one is a snapshot stuck in the scrapbook, with the best
  *  star rating earned so far underneath. */
 export class LevelSelectScene extends Phaser.Scene {
-  private cards: { x: number; y: number; level: LevelDef }[] = [];
+  private cards: { x: number; y: number; k: number; level: LevelDef }[] = [];
 
   constructor() {
     super('levels');
@@ -49,17 +49,20 @@ export class LevelSelectScene extends Phaser.Scene {
     img(this, W / 2, 50, 'levels_header').setRotation(-0.02);
 
     const best = loadStars();
-    const gap = Math.min(350, (W - 60) / LEVELS.length);
+    const gap = Math.min(350, (W - 40) / LEVELS.length);
+    // on a narrow screen the snapshots shrink to fit side by side
+    const k = Math.min(1, (gap - 14) / CARD_W);
     LEVELS.forEach((level, i) => {
       const x = W / 2 + (i - (LEVELS.length - 1) / 2) * gap, y = 286;
       const tilt = i % 2 ? 0.025 : -0.03;
       this.buildCard(level);
-      img(this, x, y, `card_${level.id}`).setRotation(tilt);
+      const card = img(this, x, y, `card_${level.id}`).setRotation(tilt);
+      card.setScale(card.scale * k);
       for (let s = 0; s < 3; s++) {
-        const st = img(this, x - 46 + s * 46, y + 124, s < (best[level.id] ?? 0) ? 'star_big' : 'star_big_off');
-        st.setScale(st.scale * 0.42).setRotation(tilt + (s - 1) * 0.14);
+        const st = img(this, x + (s - 1) * 46 * k, y + 124 * k, s < (best[level.id] ?? 0) ? 'star_big' : 'star_big_off');
+        st.setScale(st.scale * 0.42 * k).setRotation(tilt + (s - 1) * 0.14);
       }
-      this.cards.push({ x, y, level });
+      this.cards.push({ x, y, k, level });
     });
 
     const tape = img(this, W / 2, H - 24, 'tape_m');
@@ -68,11 +71,11 @@ export class LevelSelectScene extends Phaser.Scene {
 
     const start = (level: LevelDef) => {
       sound.unlock();
-      this.scene.start('game', { level: level.id });
+      this.scene.start(sceneFor(level), { level: level.id });
     };
     this.input.on('pointerdown', (p: Phaser.Input.Pointer) => {
       const w = this.cameras.main.getWorldPoint(p.x, p.y);
-      const hit = this.cards.find((c) => Math.abs(w.x - c.x) < CARD_W / 2 && Math.abs(w.y - c.y) < CARD_H / 2);
+      const hit = this.cards.find((c) => Math.abs(w.x - c.x) < (CARD_W * c.k) / 2 && Math.abs(w.y - c.y) < (CARD_H * c.k) / 2);
       if (hit) start(hit.level);
     });
     this.input.keyboard?.on('keydown', (e: KeyboardEvent) => {
@@ -148,6 +151,20 @@ export class LevelSelectScene extends Phaser.Scene {
         this.place(c, 'mailbox0_hit', px + 44, road + 3, 0.7);
         this.place(c, 'mailbox1', px + 232, road + 3, 0.7);
         this.placeBill(c, 'street', 'bill-grin', px + 140, py + ph - 3, 0.52);
+      } else if (level.theme === 'locker') {
+        // the hallway over his shoulder: lockers, the open one, and what is coming out of it
+        c.beginPath(); c.rect(px, py, pw, ph); fillPaper(c, 'cream');
+        const lk = 0.5, top = py + 12, floorY = top + ART.lockers.h * lk;
+        const src = this.textures.get('lockers').getSourceImage() as HTMLCanvasElement;
+        for (let x = px - 8; x < px + pw; x += ART.lockers.w * lk) c.drawImage(src, x, top, ART.lockers.w * lk, ART.lockers.h * lk);
+        const fl = this.textures.get('hall_floor').getSourceImage() as HTMLCanvasElement;
+        c.drawImage(fl, fl.width / 2 - pw / lk, 0, (pw / lk) * 2, ((py + ph - floorY) / lk) * 2, px, floorY, pw, py + ph - floorY);
+        this.place(c, 'locker_open', px + 202, floorY, lk);
+        this.place(c, 'splat0', px + 96, top + 44, 0.26);
+        this.place(c, 'splat1', px + 150, top + 84, 0.2);
+        this.place(c, 'shake', px + 196, top + 34, 0.26);
+        this.place(c, 'jar', px + 168, top + 76, 0.46);
+        this.placeBill(c, 'locker', 'bill-grin', px + 64, py + 142, 0.5);
       } else {
         if (this.textures.exists('postcard')) {
           const src = this.textures.get('postcard').getSourceImage() as HTMLCanvasElement;
@@ -162,7 +179,12 @@ export class LevelSelectScene extends Phaser.Scene {
 
       // the level number on a yellow dot, and the caption
       glued(c, () => { c.beginPath(); c.arc(px + 28, py + 28, 22, 0, Math.PI * 2); fillPaper(c, 'yellow'); });
-      cutText(c, String(level.number), px + 28, py + 30, 34, 'red');
+      if (level.bonus) {
+        star(c, px + 28, py + 29, 16, 7);
+        fillPaper(c, 'red');
+      } else {
+        cutText(c, String(level.number), px + 28, py + 30, 34, 'red');
+      }
       let size = 36;
       while (size > 18 && textWidth(level.name, size) > pw) size -= 2;
       cutText(c, level.name, CARD_W / 2, 224, size, 'red');

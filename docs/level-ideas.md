@@ -1,6 +1,6 @@
 # Level and story ideas
 
-A running list of ideas from the family that are not built yet.
+A running list of ideas from the family, and which of them are built.
 
 ## Bonus levels
 
@@ -15,12 +15,24 @@ They also closed some of it inside his history book. The next day a teacher
 angrily asked why he did not have his book, and he replied: "Someone broke into
 my locker and smushed chocolate milkshake in my book."
 
-- Shape of the level: SKIPPY jars and "chocolate milkshakes" get lobbed out of
-  a school locker and Bill returns them with the tennis racquet, with splats
-  spraying through the strings.
-- Finale: slam the history book shut, then the teacher scene and the
-  "chocolate milkshake" line as the punchline.
-- The tennis racquet's special (a served ball that ricochets) can be introduced here.
+Built, as the bonus level **The SKIPPY Jar** (`src/scenes/LockerScene.ts`):
+
+- The view is over Bill's shoulder, on foot, looking across the hallway at
+  the bully's open locker.
+- SKIPPY jars and chocolate milkshakes come out of the locker straight at the
+  camera, as high lobs, flat drives and ones that bounce off the floor. Tap
+  when one reaches the ring to send it back with the tennis racquet: a
+  perfectly timed hit goes back into the locker, the rest splat on the wall,
+  and some of it goes through the strings.
+- His history book comes out too: hold DUCK, or it costs a heart.
+- The racquet's special is GRAND SLAM: everything in the air goes back at once.
+- After a win, a page of notebook paper tells how it ended: the teacher, and
+  the "chocolate milkshake" line.
+
+Not built yet:
+
+- Slamming the history book shut as a finale.
+- Photos for this level (prompts SJ1 to SJ5 in `docs/art-prompts.md`).
 
 ### The late teacher
 Bill had a teacher who would freak out if anyone was late and lock the door so

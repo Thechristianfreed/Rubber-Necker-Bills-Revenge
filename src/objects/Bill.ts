@@ -10,12 +10,15 @@ import type { Theme } from '../data/levels';
  *  always a real photograph. Every frame is pinned at the same point, and his
  *  head goes on the frame's neck. */
 
-export type Face = 'sideeye' | 'grin' | 'glare';
+/** `back` is the back of his head, for when the camera is behind him. */
+export type Face = 'sideeye' | 'grin' | 'glare' | 'back';
 type Pose = 'rest' | 'windup' | 'swing';
 type XY = [number, number];
 
 /** How long the swing frame is held after the swing has gone through. */
 const HOLD = 0.1;
+/** How long his head takes to turn round. */
+const TURN = 0.14;
 
 /** How each frame leans, and how his head tips with it. */
 const POSES: Record<Pose, { tilt: number; headTilt: number }> = {
@@ -35,6 +38,9 @@ export interface BillRig {
   chin: Record<Pose, XY> & { duck?: XY };
   /** How tall his head is drawn. */
   headH: number;
+  /** The face he wears when nothing is going on (his side-eye, unless the
+   *  camera is behind him: then he only turns round for a moment). */
+  restFace?: Face;
   /** How much the body rocks from frame to frame (0 for a bike, which should not wheelie). */
   lean: number;
   /** How far his head bows in the duck frame, in radians. */
@@ -83,6 +89,22 @@ export const RIGS: Record<Theme, BillRig> = {
     hand: [56, -208],
     dust: [-128, STREET.bikeBase - 4],
   },
+  // standing in the school hallway with the bully's tennis racquet, seen from
+  // over his shoulder: every frame is pinned where his head meets his neck
+  locker: {
+    frames: { rest: 'teen_rest', windup: 'teen_windup', swing: 'teen_swing' },
+    at: [0, 400],
+    chin: { rest: [0, 0], windup: [0, 0], swing: [0, 0] },
+    headH: 124,
+    restFace: 'back',
+    lean: 0.5,
+    duckHeadTilt: 0,
+    duckDepth: 170,
+    sweetDX: 290,
+    // the middle of the racquet as it connects
+    hand: [290, -107],
+    dust: [-3000, 0],
+  },
 };
 
 export class Bill {
@@ -106,6 +128,8 @@ export class Bill {
   private frameKey: string;
   private face: Face = 'sideeye';
   private faceT = 0;
+  /** Counts down while his head is still swinging round to a new face. */
+  private turn = 0;
   private swingT = -1;
   private lock = 0;
   private connected = false;
@@ -124,7 +148,8 @@ export class Bill {
     for (let i = 0; i < 3; i++) {
       this.stars.push(img(scene, 0, 0, 'star').setDepth(DEPTH.billCar + 1).setScale(0.36).setVisible(false));
     }
-    this.setFace('sideeye');
+    this.setFace(this.restFace);
+    this.turn = 0;
     this.update(0);
   }
 
@@ -158,10 +183,16 @@ export class Bill {
     this.connected = true;
   }
 
+  private get restFace(): Face {
+    return this.rig.restFace ?? 'sideeye';
+  }
+
   setFace(face: Face, seconds = 0): void {
+    // turning to or from the camera takes a moment
+    if ((face === 'back') !== (this.face === 'back')) this.turn = TURN;
     this.face = face;
     this.faceT = seconds;
-    this.head.setTexture(`bill-${face}`);
+    this.head.setTexture(this.head.scene.textures.exists(`bill-${face}`) ? `bill-${face}` : 'bill-sideeye');
     this.head.setScale(this.rig.headH / HEAD_SRC_H);
   }
 
@@ -182,9 +213,9 @@ export class Bill {
     if (this.stun > 0) this.stun -= dt;
     if (this.faceT > 0) {
       this.faceT -= dt;
-      if (this.faceT <= 0) this.setFace('sideeye');
+      if (this.faceT <= 0) this.setFace(this.restFace);
     }
-    if (this.wantDuck && this.face !== 'glare') this.setFace('glare', 0.2);
+    if (this.wantDuck && this.face !== 'glare' && this.restFace !== 'back') this.setFace('glare', 0.2);
 
     // which frame of the swing are we on?
     let pose: Pose = 'rest';
@@ -241,6 +272,9 @@ export class Bill {
         pinY + chin[1] - Math.cos(headTilt) * reach + Math.sin(this.t * 7) * 1.1,
       )
       .setRotation(headTilt);
+    if (this.turn > 0) this.turn -= dt;
+    const hs = rig.headH / HEAD_SRC_H;
+    this.head.setScale(hs * (this.turn > 0 ? 1 - 0.8 * (this.turn / TURN) ** 2 : 1), hs);
 
     const showStars = this.stun > 0;
     for (let i = 0; i < this.stars.length; i++) {
