@@ -21,7 +21,13 @@ export interface VehicleSpec {
 }
 
 export const VEHICLES: Record<string, VehicleSpec[]> = { sedan: [], van: [], pickup: [], wagon: [], bus: [] };
-export const HEAD_STYLES = 8;
+/** How many different rubbernecker heads exist (keys head0, head0_dazed, ...). */
+export let HEAD_STYLES = 8;
+export function setHeadStyles(n: number): void {
+  HEAD_STYLES = n;
+}
+/** Skin tone (index into SKIN) of the phone-holding arm for each head style. */
+export const ARM_TONES: number[] = [0, 1, 2, 3, 4, 0, 1, 2];
 
 function wheel(c: Ctx, x: number, y: number, r: number, whitewall = false): void {
   circle(c, x, y, r);

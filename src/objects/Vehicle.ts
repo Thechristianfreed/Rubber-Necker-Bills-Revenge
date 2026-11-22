@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { DEPTH, LANE, SPEED } from '../config';
 import { img } from '../art/sticker';
-import { HEAD_STYLES, VEHICLES, VehicleSpec } from '../art/textures';
+import { ARM_TONES, HEAD_STYLES, VEHICLES, VehicleSpec } from '../art/textures';
 import { NeckKind, NoodleNeck } from './NoodleNeck';
 
 export type VehicleKind = 'car' | 'phone' | 'bus' | 'dog';
@@ -41,7 +41,7 @@ export class Vehicle {
       const style = nextStyle++ % HEAD_STYLES;
       const rider: Rider = { neck: new NoodleNeck(scene, neckKind, style), slot };
       if (kind === 'phone') {
-        rider.arm = img(scene, 0, 0, `armphone${style % 5}`).setDepth(DEPTH.necks + 1).setRotation(2.3);
+        rider.arm = img(scene, 0, 0, `armphone${ARM_TONES[style] ?? 0}`).setDepth(DEPTH.necks + 1).setRotation(2.3);
       }
       this.riders.push(rider);
     }

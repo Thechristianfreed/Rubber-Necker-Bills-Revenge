@@ -142,26 +142,35 @@ export class GameScene extends Phaser.Scene {
   private buildWorld(): void {
     const x0 = -BLEED, ww = MAX_W + BLEED * 2;
 
-    // sky: a faded blue page with printed dots thickening toward the horizon
-    const sky = this.add.graphics().setDepth(DEPTH.sky);
-    sky.fillGradientStyle(0x4d9fd6, 0x4d9fd6, 0xa9d8ea, 0xa9d8ea, 1);
-    sky.fillRect(x0, -BLEED, ww, 210 + BLEED);
-    this.strip('skydots', 0, 0, DEPTH.sky);
-    img(this, 250, 66, 'sun').setDepth(DEPTH.sky + 1);
+    if (this.textures.exists('postcard')) {
+      // the far background is a vintage postcard stuck across the top of the page
+      const sky = this.add.graphics().setDepth(DEPTH.sky);
+      sky.fillStyle(0x7fb0d8, 1);
+      sky.fillRect(x0, -BLEED, ww, BLEED);
+      this.strip('postcard', -10, 0.06, DEPTH.sky);
+    } else {
+      // sky: a faded blue page with printed dots thickening toward the horizon
+      const sky = this.add.graphics().setDepth(DEPTH.sky);
+      sky.fillGradientStyle(0x4d9fd6, 0x4d9fd6, 0xa9d8ea, 0xa9d8ea, 1);
+      sky.fillRect(x0, -BLEED, ww, 210 + BLEED);
+      this.strip('skydots', 0, 0, DEPTH.sky);
+      img(this, 250, 66, 'sun').setDepth(DEPTH.sky + 1);
 
-    for (let i = 0; i < 5; i++) {
-      const im = img(this, (i / 5) * (MAX_W + 200) + Math.random() * 90, 26 + Math.random() * 70, 'cloud')
-        .setDepth(DEPTH.sky + 2);
-      im.setScale(im.scale * (0.6 + Math.random() * 0.5));
-      this.props.push({ im, factor: 0.035 + Math.random() * 0.02, wrap: MAX_W + 260 });
+      for (let i = 0; i < 5; i++) {
+        const im = img(this, (i / 5) * (MAX_W + 200) + Math.random() * 90, 26 + Math.random() * 70, 'cloud')
+          .setDepth(DEPTH.sky + 2);
+        im.setScale(im.scale * (0.6 + Math.random() * 0.5));
+        this.props.push({ im, factor: 0.035 + Math.random() * 0.02, wrap: MAX_W + 260 });
+      }
+      this.strip('hills', 76, 0.1, DEPTH.far);
     }
-    this.strip('hills', 76, 0.1, DEPTH.far);
 
     // the road: two strips of tarmac paper with painted lines
     this.strip('edge', 192, 0, DEPTH.far + 2);
     this.strip('asphalt', 206, 1, DEPTH.road, 184).setTint(0xeeeef6);
     this.strip('asphalt', 402, 1, DEPTH.road, 128);
     const r = this.add.graphics().setDepth(DEPTH.road);
+    r.fillStyle(0xfbf6ea, 1); r.fillRect(x0, 203, ww, 3.5);        // the postcard's white bottom edge
     r.fillStyle(0x1c1820, 0.1); r.fillRect(x0, 300, ww, 90);       // the closed lane sits a shade darker
     r.fillStyle(0x47454f, 1); r.fillRect(x0, 388, ww, 14);         // median
     r.fillStyle(0xf3c53a, 1); r.fillRect(x0, 391, ww, 3); r.fillRect(x0, 396, ww, 3);

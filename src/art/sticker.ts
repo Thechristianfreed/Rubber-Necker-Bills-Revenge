@@ -92,23 +92,48 @@ export function makeArt(
   ART[key] = { w, h, pad, ax: opts.ax ?? w / 2, ay: opts.ay ?? h / 2 };
 }
 
-/** Register a photo cutout (an already-trimmed transparent image) as art.
- *  `w` is its width in design pixels; the height follows the image. The anchor
- *  is given as fractions of the piece (0.5, 1 = bottom centre). */
-export function makePhotoArt(
-  scene: Phaser.Scene, key: string, image: HTMLImageElement, w: number,
-  opts: { border?: number; anchor?: [number, number] } = {},
-): void {
-  const h = (w * image.naturalHeight) / image.naturalWidth;
+export interface PhotoOpts {
+  /** Size on screen in design pixels: give a width or a height, the other follows the image. */
+  w?: number;
+  h?: number;
+  border?: number;
+  /** Anchor as fractions of the piece (0.5, 1 = bottom centre). */
+  anchor?: [number, number];
+  /** Draw on top of the photo (sign lettering and so on), in design pixels. */
+  decorate?: (c: Ctx, w: number, h: number) => void;
+}
+
+/** Register a photo cutout (an already-trimmed transparent image) as art,
+ *  giving it the same white paper border and shadow as everything else. */
+export function makePhotoArt(scene: Phaser.Scene, key: string, image: HTMLImageElement, opts: PhotoOpts): void {
+  const aspect = image.naturalWidth / image.naturalHeight;
+  const w = opts.w ?? (opts.h ?? 100) * aspect;
+  const h = opts.h ?? w / aspect;
   const [inner, c] = makeCanvas(w * TEX, h * TEX);
   c.imageSmoothingEnabled = true;
   c.imageSmoothingQuality = 'high';
   c.drawImage(image, 0, 0, inner.width, inner.height);
+  if (opts.decorate) {
+    c.scale(TEX, TEX);
+    opts.decorate(c, w, h);
+  }
   const [canvas, pad] = stickerize(inner, opts.border ?? 2.5, 0);
   if (scene.textures.exists(key)) scene.textures.remove(key);
   scene.textures.addCanvas(key, canvas);
   const [fx, fy] = opts.anchor ?? [0.5, 0.5];
   ART[key] = { w, h, pad, ax: w * fx, ay: h * fy };
+}
+
+/** Register a photo as a plain repeating strip (no border), `h` design pixels tall. */
+export function makePhotoTile(scene: Phaser.Scene, key: string, image: HTMLImageElement, h: number): void {
+  const w = (h * image.naturalWidth) / image.naturalHeight;
+  const [canvas, c] = makeCanvas(Math.round(w * TEX), Math.round(h * TEX));
+  c.imageSmoothingEnabled = true;
+  c.imageSmoothingQuality = 'high';
+  c.drawImage(image, 0, 0, canvas.width, canvas.height);
+  if (scene.textures.exists(key)) scene.textures.remove(key);
+  scene.textures.addCanvas(key, canvas);
+  ART[key] = { w: canvas.width / TEX, h: canvas.height / TEX, pad: 0, ax: 0, ay: 0 };
 }
 
 /** Origin (0..1) that puts a sprite's anchor at its x/y. */

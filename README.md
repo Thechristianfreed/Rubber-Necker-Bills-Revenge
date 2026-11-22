@@ -59,7 +59,11 @@ Converts that single file into a page fragment for hosts that add their own page
   level script is `src/data/levels.ts`; Bill's lines are `src/data/phrases.ts`.
 - **Ideas backlog:** `docs/level-ideas.md`.
 
-To rebuild Bill's heads after changing the source cutouts:
+Photo cutouts live in `src/assets/scrap` and are listed in `src/art/photos.ts`,
+which swaps each one in over the drawing it replaces. They are built from
+generated images (`art-src/generated`) that Adobe has cut out (`art-src/adobe`).
+
+To rebuild Bill's heads or the photo cutouts after changing the sources:
 
 ```bash
 pip install pillow numpy opencv-python-headless
@@ -67,4 +71,8 @@ pip install pillow numpy opencv-python-headless
 
 ```bash
 python tools/make_heads.py
+```
+
+```bash
+python tools/make_cutouts.py
 ```
