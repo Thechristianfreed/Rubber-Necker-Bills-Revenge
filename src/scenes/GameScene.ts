@@ -276,8 +276,12 @@ export class GameScene extends PlayScene {
     const gain = this.tally(q);
 
     const delivery = neck.kind === 'post';
-    sound.bonk(perfect);
-    if (delivery) sound.cash(); else sound.boing(perfect ? 1.3 : 1);
+    if (delivery) {
+      sound.deliver();
+    } else {
+      sound.bonk(perfect);
+      sound.boing(perfect ? 1.3 : 1);
+    }
     this.hitStop = q === 'rage' || delivery ? 0.02 : perfect ? 0.085 : 0.05;
     this.cameras.main.shake(perfect ? 150 : 90, (perfect ? 0.009 : 0.005) * (delivery ? 0.5 : 1));
     this.burst(hx, hy, perfect);

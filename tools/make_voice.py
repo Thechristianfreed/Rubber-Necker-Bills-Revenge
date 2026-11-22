@@ -41,7 +41,7 @@ CUTS = [
     ("not_peanut_butter", 54.68, 56.24, "That's not peanut butter!"),
     ("game_set_match", 57.84, 59.72, "Game, set, match!"),
     ("teacher_book", 63.16, 64.60, "The teacher: WHERE is your BOOK?!"),
-    ("bully_milkshake", 67.86, 71.50, "The bully: Someone broke into my locker..."),
+    ("bully_milkshake", 65.84, 71.50, "The bully: Ugh... Someone broke into my locker..."),
     ("fx_bonk", 74.74, 75.10, "BONK!"),
     ("fx_boing", 76.48, 77.72, "boi-oi-oi-oing"),
     ("fx_whoosh", 78.84, 79.06, "whoosh"),

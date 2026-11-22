@@ -1,15 +1,21 @@
+import { SFX, SfxGroup } from '../data/sfx';
 import { VOICE, VoiceId } from '../data/voice';
 
 /** The game's sound.
  *
  *  Bill's lines and the mouth sounds (bonk, boing, whoosh, splat...) are the
  *  family's own recording: one file, `voice/lines.mp3`, cut up by
- *  tools/make_voice.py. Until it has loaded, and for the effects nobody has
- *  recorded yet, a stand-in synthesised with the Web Audio API plays instead.
- *  The music is recordings too, one per level, in `music/` (tools/make_music.sh).
- *  Both sit beside the page rather than inside it. */
+ *  tools/make_voice.py. Hits, mailbox clunks, stretches and springs are
+ *  library recordings in `sfx/effects.mp3` (tools/make_sfx.py): several of
+ *  each, picked at random, so nothing is heard twice running. Until those
+ *  files have loaded, and for the effects nobody has recorded, a stand-in
+ *  synthesised with the Web Audio API plays instead. The music is recordings
+ *  too, one per level, in `music/` (tools/make_music.sh). All of it sits
+ *  beside the page rather than inside it. */
 
-const VOICE_FILE = 'voice/lines.mp3';
+/** A file of clips laid end to end: where it is, and (once loaded) its sound. */
+interface Bank { url: string; file?: Promise<ArrayBuffer | null>; sound?: AudioBuffer }
+type Clip = readonly [start: number, length: number];
 /** How far the music drops while somebody is speaking. */
 const DUCK = 0.4;
 
@@ -53,13 +59,15 @@ class Sound {
   private playing?: { track: string; src: AudioBufferSourceNode; fade: GainNode };
   private files = new Map<string, Promise<ArrayBuffer | null>>();
   private decoded?: { track: string; buffer: Promise<AudioBuffer | null> };
-  /** The family's recording: the file as fetched, then as sound. */
-  private voiceFile?: Promise<ArrayBuffer | null>;
-  private voice?: AudioBuffer;
+  /** The family's recording, and the library sound effects. */
+  private voice: Bank = { url: 'voice/lines.mp3' };
+  private effects: Bank = { url: 'sfx/effects.mp3' };
   private voiceOut!: GainNode;
-  /** Lines being spoken right now, and when each mouth sound was last made. */
+  /** Lines being spoken right now. */
   private speaking: AudioBufferSourceNode[] = [];
-  private last: Partial<Record<VoiceId, number>> = {};
+  /** When each sound was last made, and which of a group was picked last. */
+  private last: Record<string, number> = {};
+  private picked: Record<string, number> = {};
   muted = false;
 
   /** Must be called from a tap/click before anything can play. */
@@ -96,49 +104,73 @@ class Sound {
 
   // ---- the family's recording ---------------------------------------------------
 
-  /** Start fetching the recorded lines; they are turned into sound as soon as
+  /** Start fetching the recordings; they are turned into sound as soon as
    *  there is something to play them with (after the first tap). */
   loadVoice(): void {
-    if (!this.voiceFile) {
-      this.voiceFile = fetch(new URL(VOICE_FILE, document.baseURI))
-        .then((r) => (r.ok ? r.arrayBuffer() : null))
-        .catch(() => null);
+    for (const bank of [this.voice, this.effects]) {
+      if (!bank.file) {
+        bank.file = fetch(new URL(bank.url, document.baseURI))
+          .then((r) => (r.ok ? r.arrayBuffer() : null))
+          .catch(() => null);
+      }
+      void bank.file.then(async (bytes) => {
+        if (!bytes || !this.ctx || bank.sound) return;
+        const recording = await this.ctx.decodeAudioData(bytes.slice(0)).catch(() => null);
+        if (recording) bank.sound = recording;
+      });
     }
-    void this.voiceFile.then(async (bytes) => {
-      if (!bytes || !this.ctx || this.voice) return;
-      const recording = await this.ctx.decodeAudioData(bytes.slice(0)).catch(() => null);
-      if (recording) this.voice = recording;
-    });
   }
 
-  /** Play one clip of the recording. */
-  private clip(id: VoiceId, out: AudioNode, rate = 1, vol = 1, after = 0): AudioBufferSourceNode | null {
+  /** Play one clip out of a bank. */
+  private clip(bank: Bank, [start, length]: Clip, out: AudioNode, rate = 1, vol = 1, after = 0): AudioBufferSourceNode | null {
     const ctx = this.ctx;
-    if (!ctx || !this.voice) return null;
-    const [start, length] = VOICE[id];
+    if (!ctx || !bank.sound) return null;
     const src = ctx.createBufferSource();
-    src.buffer = this.voice;
+    src.buffer = bank.sound;
     src.playbackRate.value = rate;
     const g = ctx.createGain();
     g.gain.value = vol;
     src.connect(g).connect(out);
     // a hair early and late: where a clip sits in an MP3 is not exact to the millisecond
-    src.start(ctx.currentTime + after, Math.max(0, start - 0.04), length + 0.08);
+    src.start(ctx.currentTime + after, Math.max(0, start - 0.03), length + 0.06);
     return src;
   }
 
-  /** Make a recorded mouth sound in place of a synthesised effect. False if
-   *  the recording has not loaded, so the caller can synthesise one instead.
-   *  `every` is the least time between two of the same, so a burst of hits
-   *  does not pile them up. */
-  private mouth(id: VoiceId, rate = 1, vol = 1, every = 0): boolean {
-    const ctx = this.ctx;
-    if (!ctx || !this.voice) return false;
-    if (ctx.currentTime - (this.last[id] ?? -9) >= every) {
-      this.last[id] = ctx.currentTime;
-      this.clip(id, this.sfx, rate, vol);
-    }
+  /** True if `every` seconds have gone by since the last sound called `key`
+   *  (and starts the clock again), so a burst of hits does not pile them up. */
+  private due(key: string, every: number): boolean {
+    const now = this.ctx?.currentTime ?? 0;
+    if (now - (this.last[key] ?? -9) < every) return false;
+    this.last[key] = now;
     return true;
+  }
+
+  /** Make a recorded mouth sound in place of a synthesised effect. False if
+   *  the recording has not loaded, so the caller can do something else. */
+  private mouth(id: VoiceId, rate = 1, vol = 1, every = 0): boolean {
+    if (!this.ctx || !this.voice.sound) return false;
+    if (this.due(id, every)) this.clip(this.voice, VOICE[id], this.sfx, rate, vol);
+    return true;
+  }
+
+  /** Play one of a group of library sounds, never the same one twice running.
+   *  False if they have not loaded. */
+  private effect(group: SfxGroup, rate = 1, vol = 1, every = 0): boolean {
+    if (!this.ctx || !this.effects.sound) return false;
+    if (!this.due(group, every)) return true;
+    const clips: readonly Clip[] = SFX[group];
+    let i = Math.floor(Math.random() * clips.length);
+    if (i === this.picked[group]) i = (i + 1) % clips.length;
+    this.picked[group] = i;
+    this.clip(this.effects, clips[i], this.sfx, rate, vol);
+    return true;
+  }
+
+  /** Now and then: true about one time in `n`, but never twice running. */
+  private nowAndThen(key: string, n: number): boolean {
+    const yes = !this.picked[key] && Math.random() < 1 / n;
+    this.picked[key] = yes ? 1 : 0;
+    return yes;
   }
 
   /** Somebody says a recorded line, `after` seconds from now. It cuts off
@@ -146,11 +178,11 @@ class Sound {
    *  the line is (0 if there is no recording to play). */
   say(id: VoiceId | undefined, after = 0): number {
     const ctx = this.ctx;
-    if (!id || !ctx || !this.voice) return 0;
+    if (!id || !ctx || !this.voice.sound) return 0;
     const at = ctx.currentTime + after;
     const length = VOICE[id][1];
     for (const s of this.speaking) s.stop(at);
-    const src = this.clip(id, this.voiceOut, 1, 1, after);
+    const src = this.clip(this.voice, VOICE[id], this.voiceOut, 1, 1, after);
     if (!src) return 0;
     this.speaking.push(src);
     src.onended = () => { this.speaking = this.speaking.filter((s) => s !== src); };
@@ -227,8 +259,14 @@ class Sound {
     this.noise({ dur: 0.13, vol: 0.2, f0: 500, f1: 2600, q: 1.4 });
   }
 
+  /** Something lands on a head: usually a punch, a knock or a clang from the
+   *  library, and now and then the family's own "BONK!". */
   bonk(perfect: boolean): void {
-    if (this.mouth('fx_bonk', perfect ? 1.14 : 0.9 + Math.random() * 0.14, 0.95, 0.07)) {
+    const rate = perfect ? 1.08 : 0.92 + Math.random() * 0.16;
+    const heard = (this.voice.sound && this.nowAndThen('bonk', 7) && this.mouth('fx_bonk', rate, 0.95))
+      || this.effect('hit', rate, 0.9, 0.05)
+      || this.mouth('fx_bonk', rate, 0.95, 0.07);
+    if (heard) {
       // a perfect hit still gets its little chime on top
       if (perfect) this.tone({ type: 'triangle', f0: 1320, dur: 0.25, vol: 0.14, at: 0.02 });
       return;
@@ -243,8 +281,23 @@ class Sound {
   }
 
   /** The rubber-neck stretch: a springy "boi-oi-oing". */
+  /** A newspaper lands in a mailbox: a metal clunk, and the till rings. */
+  deliver(): void {
+    if (!this.effect('clunk', 0.94 + Math.random() * 0.14, 0.85, 0.05)) {
+      this.tone({ type: 'sine', f0: 210, f1: 70, dur: 0.16, vol: 0.7 });
+      this.noise({ dur: 0.05, vol: 0.35, filter: 'highpass', f0: 1800 });
+    }
+    this.cash();
+  }
+
+  /** A neck stretches: mostly a creak of something pulled tight, sometimes a
+   *  spring, and every once in a while the family's "boi-oi-oing". */
   boing(power = 1): void {
-    if (this.mouth('fx_boing', (0.9 + Math.random() * 0.25) * (power > 1.1 ? 1.08 : 1), 0.75, 0.3)) return;
+    if (!this.ctx || !this.due('boing', 0.3)) return;
+    const rate = (0.92 + Math.random() * 0.2) * (power > 1.1 ? 1.06 : 1);
+    if (this.voice.sound && this.nowAndThen('boing', 8) && this.mouth('fx_boing', rate, 0.75)) return;
+    if (Math.random() < 0.35 ? this.effect('spring', rate, 0.7) : this.effect('stretch', rate, 0.9)) return;
+    if (this.mouth('fx_boing', rate, 0.75)) return;
     const f = 150 + Math.random() * 60;
     this.tone({
       type: 'sawtooth', f0: f * 2.4, f1: f * 0.7, dur: 0.55 + power * 0.15, vol: 0.13,

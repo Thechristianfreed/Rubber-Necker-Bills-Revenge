@@ -41,7 +41,7 @@ Writes the web build to `dist/` (this is what the Android wrapper will package).
 npm run build:single
 ```
 
-Writes one `dist-single/index.html` that can be shared as a single file. Everything is inside it except the sound recordings, which sit beside it in `dist-single/music/` and `dist-single/voice/`; without those folders the game still plays, with no music and only synthesised effects.
+Writes one `dist-single/index.html` that can be shared as a single file. Everything is inside it except the sound recordings, which sit beside it in `dist-single/music/`, `dist-single/voice/` and `dist-single/sfx/`; without those folders the game still plays, with no music and only synthesised effects.
 
 ```bash
 node tools/make_artifact.mjs
@@ -59,10 +59,12 @@ Converts that single file into a page fragment for hosts that add their own page
   (`src/art/paper.ts`, `src/art/ui.ts`), filled with small photo sheets of real
   paper. The remaining image prompts are in `docs/art-prompts.md`.
 - **Audio:** Bill's lines and the mouth sounds (bonk, boing, whoosh...) are a
-  family recording, cut up by `tools/make_voice.py` into `public/voice/` (see
-  `docs/voice.md`). The music is one recording per level in `public/music/`
-  (see `docs/music.md` for the tracks and their credit). The few effects left
-  over are synthesised in `src/audio/sound.ts`.
+  family recording, cut up by `tools/make_voice.py` into `public/voice/`.
+  Hits, mailbox clunks, stretches and springs are public-domain library
+  recordings, several of each, built by `tools/make_sfx.py` into `public/sfx/`
+  (see `docs/voice.md` for both). The music is one recording per level in
+  `public/music/` (see `docs/music.md` for the tracks and their credit). The
+  few effects left over are synthesised in `src/audio/sound.ts`.
 - **Tuning:** timing windows and scoring live in `src/config.ts`; the level
   scripts are in `src/data/levels.ts`; Bill's lines are `src/data/phrases.ts`;
   how Bill is assembled in each level (car, bike or on foot) is `RIGS` in

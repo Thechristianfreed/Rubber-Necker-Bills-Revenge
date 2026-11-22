@@ -1,4 +1,4 @@
-# Voices and mouth sounds
+# Voices, mouth sounds and sound effects
 
 Bill's lines, the two voices on the SKIPPY Jar's story page, and eight mouth
 sounds come from one family recording, `audio-src/voice/Record1.wav`: every
@@ -29,9 +29,9 @@ game where each clip is in that file.
 | `not_peanut_butter` | "That's not peanut butter!" | SKIPPY Jar combos |
 | `game_set_match` | "Game, set, match!" | SKIPPY Jar special |
 | `teacher_book` | "WHERE is your BOOK?!" | story page, the teacher |
-| `bully_milkshake` | "Someone broke into my locker..." | story page, the bully |
-| `fx_bonk` | "BONK!" | every hit |
-| `fx_boing` | "boi-oi-oi-oing" | a neck stretching |
+| `bully_milkshake` | "Ugh... Someone broke into my locker..." | story page, the bully |
+| `fx_bonk` | "BONK!" | about one hit in eight (the rest are library sounds) |
+| `fx_boing` | "boi-oi-oi-oing" | about one neck stretch in nine |
 | `fx_whoosh` | "whoosh" | every swing |
 | `fx_splat` | "SPLAT!" | something landing on the lockers |
 | `fx_ow` | "OW!" | Bill gets hit (and, higher, the mailman) |
@@ -44,6 +44,28 @@ not sound identical, and the music dips while a line is being spoken. Effects
 nobody has recorded (the sign's clang, the cash register, the special) are
 still synthesised in `src/audio/sound.ts`.
 
+## Library sound effects
+
+So that the same sound is not heard on every hit, most hits and neck
+stretches use recordings from a free library, several of each, picked at
+random and never the same one twice running:
+
+| Group | What is in it | Where the game uses it |
+| --- | --- | --- |
+| `hit` | 11 sounds: punches, a wooden gavel knock, a shovel clang, a slap | something landing on a head, or the racquet connecting |
+| `clunk` | 3 sounds of post going into a metal mailbox | a newspaper landing in a mailbox |
+| `stretch` | 9 creaks of rope being pulled tight | a neck stretching, a bit over half the time |
+| `spring` | 9 sounds: cartoon twangs, a large spring, a door spring | a neck stretching, about a third of the time |
+
+They are all from BigSoundBank.com (Joseph Sardin), released under Creative
+Commons CC0 1.0: free for any use, no credit required. The title screen
+credits the site anyway. `tools/make_sfx.py` downloads them, cuts out the
+parts listed in its `CLIPS`, and builds `public/sfx/effects.mp3` and
+`src/data/sfx.ts`. To add variety, add a line to `CLIPS` (the group, the
+sound's number on the site, and the start and end of the part to use) and run
+it again. How often the mouth sounds turn up instead is set in `bonk()` and
+`boing()` in `src/audio/sound.ts`.
+
 ## Changing or adding a line
 
 - **A new take of an existing line:** add it to the end of the recording (or
@@ -53,6 +75,3 @@ still synthesised in `src/audio/sound.ts`.
   the phrase that id in `src/data/phrases.ts` (`voice: 'the_id'`).
 - **Different words for a line:** change its `text` in `src/data/phrases.ts`
   so the speech bubble matches what is said.
-
-One sound in the recording is not used: something short just before the
-bully's line (at about 66 seconds).

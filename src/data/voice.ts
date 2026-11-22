@@ -18,15 +18,15 @@ export const VOICE = {
   not_peanut_butter: [24.630, 1.850],   // That's not peanut butter!
   game_set_match: [26.780, 1.990],      // Game, set, match!
   teacher_book: [29.070, 1.650],        // The teacher: WHERE is your BOOK?!
-  bully_milkshake: [31.020, 4.070],     // The bully: Someone broke into my locker...
-  fx_bonk: [35.390, 0.479],             // BONK!
-  fx_boing: [36.169, 1.302],            // boi-oi-oi-oing
-  fx_whoosh: [37.771, 0.450],           // whoosh
-  fx_splat: [38.521, 0.303],            // SPLAT!
-  fx_ow: [39.124, 0.690],               // OW!
-  fx_yelp: [40.114, 0.491],             // a dog yelp
-  fx_woohoo: [40.905, 0.872],           // WOO-HOO!
-  fx_groan: [42.077, 1.079],            // a long groan
+  bully_milkshake: [31.020, 5.960],     // The bully: Ugh... Someone broke into my locker...
+  fx_bonk: [37.280, 0.479],             // BONK!
+  fx_boing: [38.059, 1.302],            // boi-oi-oi-oing
+  fx_whoosh: [39.661, 0.450],           // whoosh
+  fx_splat: [40.411, 0.303],            // SPLAT!
+  fx_ow: [41.014, 0.690],               // OW!
+  fx_yelp: [42.004, 0.491],             // a dog yelp
+  fx_woohoo: [42.795, 0.872],           // WOO-HOO!
+  fx_groan: [43.967, 1.079],            // a long groan
 } as const;
 
 export type VoiceId = keyof typeof VOICE;
