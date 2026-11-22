@@ -292,7 +292,7 @@ def kid():
     frame's ground anchor (as a fraction of the saved image) and where the
     chin was, in source pixels from that anchor."""
     ground = (512, 548)
-    for name, src in (("rest", "T1-kid-rest"), ("windup", "T2-kid-windup"), ("swing", "T3-kid-swing"), ("duck", "T4-kid-duck")):
+    for name, src in (("rest", "T1-kid-rest"), ("windup", "T2-kid-windup"), ("swing", "T3b-kid-throw"), ("duck", "T4-kid-duck")):
         cut = load(f"{src}-cutout.png")
         m = load(f"{src}-headmask.png")
         head = ((m[..., 3] if m[..., 3].std() > 0.01 else m[..., :3].mean(axis=2)) > 0.5).astype(np.uint8)
@@ -312,8 +312,8 @@ def kid():
         print(f"  kid-{name}: anchor ({(ground[0] - x0) / (x1 - x0):.3f}, {(ground[1] - y0) / (y1 - y0):.3f}),"
               f" chin {chin[0] - ground[0]:+.0f}, {chin[1] - ground[1]:+.0f} px from it")
 
-    # A rolled-up newspaper to throw: the free end of the one in his outstretched
-    # hand, turned level and mirrored to make a whole roll.
+    # A rolled-up newspaper to throw: the free end of the one he holds out in the
+    # first version of the throwing frame, turned level and mirrored to make a whole roll.
     cut = load("T3-kid-swing-cutout.png")
     piece = cut[78:140, 596:682]
     h, w = piece.shape[:2]
@@ -392,6 +392,26 @@ def concrete():
     path = os.path.join(OUT, "concrete.jpg")
     Image.fromarray((np.clip(rgb, 0, 1) * 255).astype(np.uint8), "RGB").save(path, quality=88)
     print("concrete.jpg", (rgb.shape[1], rgb.shape[0]), os.path.getsize(path), "bytes")
+
+
+def mailboxes():
+    """Mailboxes on posts: silver and red, each waiting and with a paper
+    delivered. The posts in the photo are short, so the bottom of each is
+    stretched (along the grain) to stand the box at throwing height. Prints
+    where each post meets the ground, and how high the box sits above it."""
+    sheet = sorted(pieces(load("U-mailboxes-strip-cutout.png"), 3000), key=lambda p: p[0])
+    for name, (_, _, piece) in zip(("silver", "silver-hit", "red", "red-hit"), sheet):
+        post = cv2.resize(piece[-38:], (piece.shape[1], 110), interpolation=cv2.INTER_LINEAR)
+        tall = np.concatenate([piece[:-38], post], axis=0)
+        save(f"mailbox-{name}.png", tall)
+        solid = tall[..., 3] > 0.5
+        base_y = np.where(solid.any(axis=1))[0].max() + 1
+        base = np.where(solid[base_y - 12:base_y].any(axis=0))[0]
+        line = f"  mailbox-{name}: post base at ({(base.min() + base.max()) / 2 / tall.shape[1]:.3f}, {base_y / tall.shape[0]:.3f})"
+        if not name.endswith("hit"):
+            box = np.where(solid.sum(axis=1) > 100)[0]
+            line += f", box centre {base_y - (box.min() + box.max()) / 2:.0f}px above it, box {solid.sum(axis=1).max()}px wide"
+        print(line)
 
 
 def asphalt():
@@ -538,6 +558,7 @@ if __name__ == "__main__":
     bill()
     kid()
     mailman()
+    mailboxes()
     tree()
     fence()
     houses()

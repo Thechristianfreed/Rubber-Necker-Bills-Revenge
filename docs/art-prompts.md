@@ -31,32 +31,16 @@ these images. The tarmac is a public-domain photo texture (`art-src/library`).
 ## Level 1, Paper Route
 
 Bill the paperboy rides his Stingray down a 1950s street tossing papers into
-mailboxes. In the game: T1 to T4 (the boy on the bike: riding, winding up,
-throwing, ducking; the flying newspaper is cut from T3), V (the mailman),
-W (the tree), X (the houses) and Y (the picket fence). The pavement is the
-public-domain tarmac photo, bleached to concrete.
+mailboxes. Every image for this level is in the game: T1, T2, T3b and T4 (the
+boy on the bike: riding, winding up, throwing with an empty hand, ducking),
+U (mailboxes on posts, waiting and delivered), V (the mailman), W (the tree),
+X (the houses) and Y (the picket fence). The flying newspaper is cut from T3,
+the first version of the throwing frame. The pavement is the public-domain
+tarmac photo, bleached to concrete.
 
-Still to come, replacing the last cut-paper stand-ins:
-
-### U. Mailboxes on posts
-
-```text
-Four separate photographs in a row with clear gaps between them, on a plain flat light-grey background. Each is a classic American curbside mailbox mounted on a short square wooden post, seen in exact side view with its door end on the left. The whole post is in frame down to its base.
-1. A galvanized silver mailbox, door shut, red flag down.
-2. The same silver mailbox with its door open and a rolled-up newspaper sticking out of it, red flag up.
-3. A red painted mailbox, door shut, yellow flag down.
-4. The same red mailbox with its door open and a rolled-up newspaper sticking out of it, yellow flag up.
-All four the same size, with identical posts. Soft even daylight, slightly faded 1950s Kodachrome colour. No text or numbers on the mailboxes, no ground, no shadows, no borders. Wide 16:9 image.
-```
-
-### T3b. Throwing, hand empty
-
-In the throwing frame Bill is still holding a paper while another one flies.
-Send this as an edit of T3 for a cleaner release.
-
-```text
-Edit this image. Keep the bicycle, the boy, his clothes, his pose, the framing, the lighting and the background exactly the same. Remove the rolled-up newspaper from his outstretched right hand: the hand is now open and empty, fingers spread, as if he has just let go of it.
-```
+Note for sheets of several objects: ask for one plain backdrop behind all of
+them. Objects each sitting on their own card or panel have to be cut apart by
+hand first, because background removal keeps the cards.
 
 ## Later
 

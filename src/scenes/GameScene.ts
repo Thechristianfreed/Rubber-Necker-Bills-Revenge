@@ -530,7 +530,7 @@ export class GameScene extends Phaser.Scene {
 
   /** The open end of a mailbox, where the paper goes in. */
   private doorOf(neck: NoodleNeck): Point {
-    return { x: neck.headX - 16, y: neck.headY };
+    return { x: neck.headX - 22, y: neck.headY };
   }
 
   /** Bill lets go of a paper. Whatever is in the ring gets it: a mailbox, or

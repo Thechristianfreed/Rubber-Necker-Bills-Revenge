@@ -61,6 +61,8 @@ const HEADS: HeadFit[] = [
 /** Bill's body is drawn small under his big photo head (design pixels per image pixel). */
 const BODY_SCALE = 0.58;
 const KID_SCALE = 0.5;
+/** Puts the middle of a mailbox 68 pixels above the kerb (MAILBOX_UP in NoodleNeck.ts). */
+const MAILBOX_SCALE = 0.352;
 
 const WORDS = ['bonk', 'whack', 'thwack', 'pow', 'bop', 'perfect'];
 
@@ -82,10 +84,16 @@ const PIECES: Piece[] = [
   // are pinned on the ground under it (anchors from tools/make_cutouts.py).
   { key: 'kid_rest', file: 'kid-rest.png', scale: KID_SCALE, anchor: [0.499, 0.993] },
   { key: 'kid_windup', file: 'kid-windup.png', scale: KID_SCALE, anchor: [0.499, 0.994] },
-  { key: 'kid_swing', file: 'kid-swing.png', scale: KID_SCALE, anchor: [0.499, 0.994] },
+  { key: 'kid_swing', file: 'kid-swing.png', scale: KID_SCALE, anchor: [0.499, 0.993] },
   { key: 'kid_duck', file: 'kid-duck.png', scale: KID_SCALE, anchor: [0.499, 0.993] },
   { key: 'paper_roll', file: 'paper-roll.png', w: 30, border: 1.4 },
-  // the street: the mailman (standing on the same spot in both photos) and the tree to duck
+  // the street: mailboxes on posts, waiting and with a paper delivered, each
+  // pinned where its post meets the ground (anchors from tools/make_cutouts.py)
+  { key: 'mailbox0', file: 'mailbox-silver.png', scale: MAILBOX_SCALE, border: 2, anchor: [0.519, 0.972] },
+  { key: 'mailbox0_hit', file: 'mailbox-silver-hit.png', scale: MAILBOX_SCALE, border: 2, anchor: [0.603, 0.973] },
+  { key: 'mailbox1', file: 'mailbox-red.png', scale: MAILBOX_SCALE, border: 2, anchor: [0.516, 0.968] },
+  { key: 'mailbox1_hit', file: 'mailbox-red-hit.png', scale: MAILBOX_SCALE, border: 2, anchor: [0.601, 0.97] },
+  // the mailman (standing on the same spot in both photos) and the tree to duck
   { key: 'mailman', file: 'mailman.png', h: 138, border: 2, anchor: [0.557, 0.985] },
   { key: 'mailman_mad', file: 'mailman-mad.png', h: 136, border: 2, anchor: [0.49, 0.985] },
   { key: 'branch', file: 'tree.png', h: 264, border: 2, anchor: [0.497, 0.985] },

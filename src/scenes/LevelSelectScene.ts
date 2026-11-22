@@ -1,9 +1,10 @@
 import Phaser from 'phaser';
-import { H, INK, MAX_W, TEX, view } from '../config';
+import { H, HEAD_SRC_H, INK, MAX_W, TEX, view } from '../config';
 import { ART, Ctx, img } from '../art/sticker';
 import { cutText, fillPaper, glued, makePaperArt, tapePath, textWidth } from '../art/paper';
 import { sound } from '../audio/sound';
-import { LEVELS, LevelDef } from '../data/levels';
+import { LEVELS, LevelDef, Theme } from '../data/levels';
+import { RIGS } from '../objects/Bill';
 import { loadStars } from '../data/progress';
 import { MARKER, written } from '../ui/text';
 
@@ -88,6 +89,32 @@ export class LevelSelectScene extends Phaser.Scene {
     c.drawImage(src, x - w / 2, bottom - h, w, h);
   }
 
+  /** Draw a piece of art on a card with its anchor at (x, y), at `k` card pixels per game pixel. */
+  private place(c: Ctx, key: string, x: number, y: number, k: number): void {
+    if (!this.textures.exists(key)) return;
+    const a = ART[key];
+    const src = this.textures.get(key).getSourceImage() as HTMLCanvasElement;
+    c.drawImage(src, x - (a.pad + a.ax) * k, y - (a.pad + a.ay) * k, (a.w + a.pad * 2) * k, (a.h + a.pad * 2) * k);
+  }
+
+  /** Bill, put together the way the game does it: his body frame, his head on
+   *  its neck, and his ride in front. (x, groundY) is where his wheels touch the road. */
+  private placeBill(c: Ctx, theme: Theme, face: string, x: number, groundY: number, k: number): void {
+    const rig = RIGS[theme];
+    const ground = rig.ride?.baseY ?? rig.at[1];
+    const X = (dx: number) => x + dx * k;
+    const Y = (dy: number) => groundY + (dy - ground) * k;
+    this.place(c, rig.frames.rest, X(rig.at[0]), Y(rig.at[1]), k);
+    if (this.textures.exists(face)) {
+      const src = this.textures.get(face).getSourceImage() as HTMLCanvasElement;
+      const s = (rig.headH / HEAD_SRC_H) * k;
+      const cx = X(rig.at[0] + rig.chin.rest[0]);
+      const cy = Y(rig.at[1] + rig.chin.rest[1]) - rig.headH * 0.415 * k;
+      c.drawImage(src, cx - (src.width * s) / 2, cy - (src.height * s) / 2, src.width * s, src.height * s);
+    }
+    if (rig.ride) this.place(c, rig.ride.key, X(0), Y(rig.ride.baseY), k);
+  }
+
   private buildCard(level: LevelDef): void {
     makePaperArt(this, `card_${level.id}`, CARD_W, CARD_H, (c) => {
       // a snapshot: a white print with a picture and a caption
@@ -118,9 +145,9 @@ export class LevelSelectScene extends Phaser.Scene {
           for (let x = px; x < px + pw; x += fw) c.drawImage(src, x, road - fh, fw, fh);
         }
         c.beginPath(); c.rect(px, road, pw, ph); fillPaper(c, 'grey');
-        this.stamp(c, 'mailbox0', px + 52, road - 2, 40);
-        this.stamp(c, 'mailbox1', px + 224, road - 2, 40);
-        this.stamp(c, 'kid_rest', px + 136, py + ph + 2, 150);
+        this.place(c, 'mailbox0_hit', px + 44, road + 3, 0.7);
+        this.place(c, 'mailbox1', px + 232, road + 3, 0.7);
+        this.placeBill(c, 'street', 'bill-grin', px + 140, py + ph - 3, 0.52);
       } else {
         if (this.textures.exists('postcard')) {
           const src = this.textures.get('postcard').getSourceImage() as HTMLCanvasElement;
@@ -129,7 +156,7 @@ export class LevelSelectScene extends Phaser.Scene {
         c.beginPath(); c.rect(px, py + 122, pw, ph); fillPaper(c, 'grey');
         this.stamp(c, 'sedan_red', px + 182, py + 150, 150);
         this.stamp(c, 'head1', px + 150, py + 128, 44);
-        this.stamp(c, 'bug', px + 96, py + ph + 4, 136);
+        this.placeBill(c, 'highway', 'bill-sideeye', px + 92, py + ph - 1, 0.47);
       }
       c.restore();
 

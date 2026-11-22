@@ -80,7 +80,7 @@ export const RIGS: Record<Theme, BillRig> = {
     duckHeadTilt: 0.5,
     duckDepth: 0,
     sweetDX: 230,
-    hand: [74, -216],
+    hand: [56, -208],
     dust: [-128, STREET.bikeBase - 4],
   },
 };
