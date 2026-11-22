@@ -64,6 +64,11 @@ const KID_SCALE = 0.5;
 /** Puts the middle of a mailbox 68 pixels above the kerb (MAILBOX_UP in NoodleNeck.ts). */
 const MAILBOX_SCALE = 0.352;
 
+/** The tree the birdhouse sits in: how tall it is drawn, and where the
+ *  birdhouse is in the photo, measured from the foot of the trunk as fractions
+ *  of the tree's height (from tools/make_cutouts.py). */
+export const TREE = { h: 341, birdUp: 0.2227, birdAcross: 0.0115 };
+
 const WORDS = ['bonk', 'whack', 'thwack', 'pow', 'bop', 'perfect'];
 
 const PIECES: Piece[] = [
@@ -87,15 +92,18 @@ const PIECES: Piece[] = [
   { key: 'kid_swing', file: 'kid-swing.png', scale: KID_SCALE, anchor: [0.499, 0.993] },
   { key: 'kid_duck', file: 'kid-duck.png', scale: KID_SCALE, anchor: [0.499, 0.993] },
   { key: 'paper_roll', file: 'paper-roll.png', w: 30, border: 1.4 },
+  // The front-yard tree with a birdhouse in its fork, pinned where its trunk
+  // meets the ground, and the birdhouse again on its own: it is drawn a size
+  // larger in front of Bill, over the one in the tree, as the thing to duck.
+  { key: 'tree', file: 'tree.png', h: TREE.h, border: 2, anchor: [0.496, 0.997] },
+  { key: 'birdhouse', file: 'birdhouse.png', w: 62, border: 2, anchor: [0.5, 0.98] },
   // the street: mailboxes on posts, waiting and with a paper delivered, each
   // pinned where its post meets the ground (anchors from tools/make_cutouts.py)
   { key: 'mailbox0', file: 'mailbox-silver.png', scale: MAILBOX_SCALE, border: 2, anchor: [0.519, 0.972] },
   { key: 'mailbox0_hit', file: 'mailbox-silver-hit.png', scale: MAILBOX_SCALE, border: 2, anchor: [0.603, 0.973] },
   { key: 'mailbox1', file: 'mailbox-red.png', scale: MAILBOX_SCALE, border: 2, anchor: [0.516, 0.968] },
   { key: 'mailbox1_hit', file: 'mailbox-red-hit.png', scale: MAILBOX_SCALE, border: 2, anchor: [0.601, 0.97] },
-  // the mailman, standing on the same spot in both photos, and the big street
-  // tree the birdhouse sits in (pinned where its trunk meets the ground)
-  { key: 'tree', file: 'tree.png', h: 420, border: 2, anchor: [0.497, 0.985] },
+  // the mailman, standing on the same spot in both photos
   { key: 'mailman', file: 'mailman.png', h: 138, border: 2, anchor: [0.557, 0.985] },
   { key: 'mailman_mad', file: 'mailman-mad.png', h: 136, border: 2, anchor: [0.49, 0.985] },
 

@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { BILL, DEPTH, H, HEAD_SRC_H, INK, LANE, MAX_W, SCORE, SPEED, STREET, SWING, TEX, view } from '../config';
 import { BLEED } from '../art/finish';
+import { TREE } from '../art/photos';
 import { ART, img } from '../art/sticker';
 import { sound } from '../audio/sound';
 import { HIGHWAY_JAM, LevelDef, Move, Spawn, countHeads, levelById } from '../data/levels';
@@ -42,9 +43,11 @@ interface Paper {
 
 /** Where the things Bill ducks stand: on the median, or on the far pavement. */
 const SIGN_BASE_Y = 398;
-/** The street tree stands at the kerb; the birdhouse sits in its fork, this far up. */
-const TREE_BASE_Y = STREET.kerbY + 2;
-const BIRDHOUSE_UP = 118;
+/** The tree stands in a front yard, its foot behind the picket fence. The
+ *  birdhouse sits in its fork: this far up, and this far across from the trunk. */
+const TREE_BASE_Y = 300;
+const BIRDHOUSE_UP = TREE.h * TREE.birdUp;
+const BIRDHOUSE_DX = TREE.h * TREE.birdAcross;
 const HIT_WORDS = ['bonk', 'whack', 'thwack', 'bop', 'pow'];
 const DELIVERY_WORDS = ['delivered', 'nicetoss', 'inthebox'];
 
@@ -675,11 +678,11 @@ export class GameScene extends Phaser.Scene {
         if (remaining > (view.W + (birdhouse ? 250 : 110) - head) / speed) continue;
         const x = head + speed * remaining;
         if (birdhouse) {
-          // The tree stands at the kerb behind everything on the pavement. The
-          // birdhouse in its fork is at head height and drawn in front of Bill,
-          // so it is plainly the thing he has to get his head under.
+          // The tree stands in a front yard, behind the fence. The birdhouse in
+          // its fork is at head height and drawn again in front of Bill, so it
+          // is plainly the thing he has to get his head under.
           const back = this.textures.exists('tree')
-            ? img(this, x, TREE_BASE_Y, 'tree').setDepth(DEPTH.farCars)
+            ? img(this, x - BIRDHOUSE_DX, TREE_BASE_Y, 'tree').setDepth(DEPTH.far + 2)
             : undefined;
           const im = img(this, x, TREE_BASE_Y - BIRDHOUSE_UP, 'birdhouse').setDepth(DEPTH.billCar + 1);
           this.signs.push({ im, x, half: 34, done: false, back, kick: 0, kickT: 0 });
@@ -834,7 +837,7 @@ export class GameScene extends Phaser.Scene {
       const s = this.signs[i];
       s.x -= scroll;
       s.im.x = s.x;
-      if (s.back) s.back.x = s.x;
+      if (s.back) s.back.x = s.x - BIRDHOUSE_DX;
       if (s.kick > 0.002) {
         // a birdhouse rattles on its perch after it has clocked him
         s.kick *= Math.exp(-dt * 4);

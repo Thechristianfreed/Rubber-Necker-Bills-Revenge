@@ -334,19 +334,37 @@ def mailman():
 
 
 def tree():
-    """The street tree Bill has to duck under. Loose leaves floating clear of
-    the crown are dropped; prints where the trunk meets the ground."""
-    cut = load("W-tree-cutout.png").copy()
+    """The street tree with a birdhouse sitting in its fork. The tree (birdhouse
+    and all) is the backdrop; the birdhouse is also saved on its own, to be
+    drawn again in front of Bill. Prints where the trunk meets the ground, and
+    where the birdhouse sits relative to that, as fractions of the tree's height."""
+    cut = load("Z-tree-birdhouse-cutout.png").copy()
     n, lab, st, _ = cv2.connectedComponentsWithStats((cut[..., 3] > 0.3).astype(np.uint8), 8)
     biggest = 1 + int(np.argmax(st[1:, cv2.CC_STAT_AREA]))
     near = cv2.dilate((lab == biggest).astype(np.uint8), np.ones((5, 5), np.uint8)).astype(bool)
-    cut[~near] = 0
-    piece = trim(cut)
+    cut[~near] = 0   # loose leaves floating clear of the crown
+
+    m = load("Z-tree-birdhouse-mask.png")
+    sel = (m[..., 3] if m[..., 3].std() > 0.01 else m[..., :3].mean(axis=2)) > 0.5
+    bird = cut.copy()
+    bird[..., 3] = np.minimum(bird[..., 3], cv2.GaussianBlur(sel.astype(np.float32), (0, 0), 0.8))
+    bys, bxs = np.where(sel)
+    save("birdhouse.png", bird[bys.min() - 2:bys.max() + 3, bxs.min() - 2:bxs.max() + 3])
+
+    ys, xs = np.where(cut[..., 3] > 0.08)
+    x0, x1, y0, y1 = xs.min() - 2, xs.max() + 3, ys.min() - 2, ys.max() + 3
+    solid = cut[..., 3] > 0.5
+    base_y = np.where(solid.any(axis=1))[0].max() + 1
+    base = np.where(solid[base_y - 24:base_y - 8].any(axis=0))[0]
+    base_x = (base.min() + base.max()) / 2
+    height = y1 - y0
+    print(f"  tree: trunk base at ({(base_x - x0) / (x1 - x0):.3f}, {(base_y - y0) / height:.3f});"
+          f" birdhouse sits {((bxs.min() + bxs.max()) / 2 - base_x) / height:+.4f} across and"
+          f" {(base_y - bys.max() - 1) / height:.4f} up (of the tree's height),"
+          f" {(bxs.max() - bxs.min() + 1) / height:.4f} wide")
+    piece = cut[y0:y1, x0:x1]
     k = 620 / piece.shape[0]
-    piece = cv2.resize(piece, (round(piece.shape[1] * k), 620), interpolation=cv2.INTER_AREA)
-    save("tree.png", piece)
-    base = np.where(piece[int(piece.shape[0] * 0.97):, :, 3].max(axis=0) > 0.5)[0]
-    print(f"  tree: trunk base x (fraction) {(base.min() + base.max()) / 2 / piece.shape[1]:.3f}")
+    save("tree.png", cv2.resize(piece, (round(piece.shape[1] * k), 620), interpolation=cv2.INTER_AREA))
 
 
 def fence():

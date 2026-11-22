@@ -33,28 +33,15 @@ these images. The tarmac is a public-domain photo texture (`art-src/library`).
 Bill the paperboy rides his Stingray down a 1950s street tossing papers into
 mailboxes. Every image for this level is in the game: T1, T2, T3b and T4 (the
 boy on the bike: riding, winding up, throwing with an empty hand, ducking),
-U (mailboxes on posts, waiting and delivered), V (the mailman), W (the tree),
-X (the houses) and Y (the picket fence). The flying newspaper is cut from T3,
+U (mailboxes on posts, waiting and delivered), V (the mailman), X (the houses),
+Y (the picket fence) and Z (the tree with a birdhouse in it). The flying newspaper is cut from T3,
 the first version of the throwing frame. The pavement is the public-domain
 tarmac photo, bleached to concrete.
 
-The thing to duck is a birdhouse sitting in the fork of the street tree (W).
-The tree stands behind Bill; the birdhouse is drawn in front of him at head
-height. The birdhouse is a cut-paper stand-in until image Z arrives.
-
-### Z. The tree with a birdhouse in it
-
-Send this as an edit of the tree image (W), so the tree stays exactly as it is.
-
-```text
-Edit this image. Keep the tree, the framing, the lighting and the plain background exactly the same. Add one small wooden birdhouse sitting in the fork of the tree, right where the trunk splits into its main branches, resting in the fork and facing the camera. The birdhouse has a red pitched roof, pale yellow walls, a round entrance hole and a small perch under the hole. Make it about one and a half times as wide as the trunk, in full view in front of the leaves, with nothing covering it.
-```
-
-If the tree image is no longer to hand, this makes the whole thing from scratch:
-
-```text
-A photograph of a single leafy street tree, a sycamore or maple, seen straight on and complete from the base of its trunk to the top of its crown, with a wide, heavy canopy. A small wooden birdhouse sits in the fork of the tree, right where the trunk splits into its main branches, facing the camera: red pitched roof, pale yellow walls, a round entrance hole and a small perch under the hole. The birdhouse is about one and a half times as wide as the trunk and in full view in front of the leaves, with nothing covering it. Summer foliage. Soft even daylight, slightly faded 1950s Kodachrome colour. One plain flat light-grey backdrop: no ground, no shadow, no text, no border. Square image.
-```
+The thing to duck is the birdhouse sitting in the fork of the front-yard tree
+(image Z, an edit of the tree W that added the birdhouse). The tree stands
+behind the fence; the birdhouse is lifted onto its own layer and drawn again,
+a size larger, in front of Bill at head height.
 
 Note for sheets of several objects: ask for one plain backdrop behind all of
 them. Objects each sitting on their own card or panel have to be cut apart by
