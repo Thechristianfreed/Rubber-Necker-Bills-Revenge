@@ -322,12 +322,32 @@ def effects():
 
 
 def phone_arm():
+    """A hand holding a phone up to film. Only the hand and wrist are kept: in
+    the game the wrist tucks behind the gawker's head, so the phone is held out
+    in front of their face."""
     sheet = load("O-phone-arm-cutout.png")
-    save("arm-phone.png", trim(sheet))
+    full = trim(sheet)
+    hand = trim(full[:, :290])
+    save("hand-phone.png", hand)
+    rows = np.where(hand[:, -8:, 3].max(axis=1) > 0.5)[0]
+    print("  hand-phone wrist centre y (fraction):", round((rows.min() + rows.max()) / 2 / hand.shape[0], 3))
     # the phone on its own, for when it gets knocked flying: the half above the
     # fingers, mirrored to make a whole phone
     top = sheet[112:230, 236:300]
     save("phone.png", trim(np.concatenate([top, top[::-1]], axis=0)))
+
+
+def birds():
+    """Two frames of a bluebird in flight (wings up, wings down), facing left.
+    Prints where the orange chest is in each, so both frames can be pinned at
+    the same point and only the wings appear to move."""
+    sheet = sorted(pieces(load("P-bluebirds-cutout.png"), 2000), key=lambda p: p[0])
+    for name, (_, _, piece) in zip(("up", "down"), sheet):
+        save(f"bird-{name}.png", piece)
+        h = hsv(piece)
+        chest = (h[..., 0] > 8) & (h[..., 0] < 38) & (h[..., 1] > 0.35) & (piece[..., 3] > 0.9)
+        ys, xs = np.where(chest)
+        print(f"  bird-{name}: chest at ({xs.mean() / piece.shape[1]:.3f}, {ys.mean() / piece.shape[0]:.3f})")
 
 
 def papers():
@@ -407,6 +427,7 @@ if __name__ == "__main__":
     guardrail()
     effects()
     phone_arm()
+    birds()
     papers()
     asphalt()
     dogs()

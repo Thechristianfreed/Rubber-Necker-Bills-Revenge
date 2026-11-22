@@ -47,7 +47,9 @@ export class NoodleNeck {
   private restLen = 0;
   private targetLen = 0;
   private floorY = LANE.headY + 34 + Math.random() * 16;
+  /** What circles a whacked head: gold stars, or little bluebirds. */
   private stars: Phaser.GameObjects.Image[] = [];
+  private birds = false;
   private shake = 0;
   private motion: Motion;
   private tilt = 0;
@@ -142,9 +144,10 @@ export class NoodleNeck {
     this.head.setDepth(DEPTH.fx + 2);
     this.rope.setDepth(DEPTH.fx + 1);
     this.shadow.setDepth(DEPTH.fx);
+    this.birds = this.scene.textures.exists('bird_up') && Math.random() < 0.4;
     for (let i = 0; i < 3; i++) {
-      const star = img(this.scene, 0, 0, 'star').setDepth(DEPTH.fx + 3);
-      this.stars.push(star.setScale(star.scale * 0.72));
+      const star = img(this.scene, 0, 0, this.birds ? 'bird_up' : 'star').setDepth(DEPTH.fx + 3);
+      this.stars.push(this.birds ? star : star.setScale(star.scale * 0.72));
     }
   }
 
@@ -256,9 +259,15 @@ export class NoodleNeck {
     if (this.stars.length) {
       const life = 2.6;
       for (let i = 0; i < this.stars.length; i++) {
-        const ang = this.t * 9 + (i * Math.PI * 2) / 3;
-        this.stars[i]
-          .setPosition(this.headX + Math.cos(ang) * 30, this.headY - 30 + Math.sin(ang) * 8)
+        const s = this.stars[i];
+        const ang = this.t * (this.birds ? 6.5 : 9) + (i * Math.PI * 2) / 3;
+        if (this.birds) {
+          // flap by swapping wing frames, and face whichever way it is flying
+          const key = Math.floor(this.t * 12 + i * 0.6) % 2 ? 'bird_up' : 'bird_down';
+          if (s.texture.key !== key) applyArt(s, key);
+          s.setFlipX(Math.sin(ang) < 0);
+        }
+        s.setPosition(this.headX + Math.cos(ang) * (this.birds ? 36 : 30), this.headY - (this.birds ? 34 : 30) + Math.sin(ang) * 8)
           .setAlpha(Phaser.Math.Clamp((life - this.t) * 2, 0, 1));
       }
       if (this.t > life) {

@@ -104,7 +104,11 @@ const PIECES: Piece[] = [
   { key: 'puff', file: 'puff.png', w: 40, border: 0.8 },
   { key: 'burst', file: 'burst.png', w: 130, border: 2.5 },
   ...WORDS.map((w): Piece => ({ key: `word_${w}`, file: `word-${w}.png`, w: w === 'perfect' ? 124 : 106, border: 2.5 })),
-  { key: 'armphone', file: 'arm-phone.png', w: 84, border: 1.8, anchor: [0.98, 0.74] },
+  // a hand holding a phone, pinned at the wrist (which hides behind the gawker's head)
+  { key: 'armphone', file: 'hand-phone.png', w: 54, border: 1.6, anchor: [0.97, 0.822] },
+  // a bluebird, wings up and wings down, both pinned at the chest so only the wings move
+  { key: 'bird_up', file: 'bird-up.png', scale: 0.08, border: 1.2, anchor: [0.371, 0.774] },
+  { key: 'bird_down', file: 'bird-down.png', scale: 0.08, border: 1.2, anchor: [0.251, 0.253] },
   { key: 'phone', file: 'phone.png', h: 26, border: 1.4 },
 ];
 
@@ -198,7 +202,7 @@ export async function loadPhotoArt(scene: Phaser.Scene): Promise<void> {
   while (loaded.has(`head${heads}.png`) && loaded.has(`head${heads}-dazed.png`)) heads++;
   if (heads > 0) {
     setHeadStyles(heads);
-    const armPhoto = loaded.get('arm-phone.png');
+    const armPhoto = loaded.get('hand-phone.png');
     const arm = (armPhoto && sample(armPhoto, 0.45, 0.5, 0.8, 0.85)) ?? [205, 160, 130];
     ARM_TINTS.length = 0;
     for (let i = 0; i < heads; i++) {

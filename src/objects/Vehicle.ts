@@ -41,8 +41,9 @@ export class Vehicle {
       const style = nextStyle++ % HEAD_STYLES;
       const rider: Rider = { neck: new NoodleNeck(scene, neckKind, style, motion), slot };
       if (kind === 'phone' && scene.textures.exists('armphone')) {
-        // an arm out of the window, phone held up toward the wreck
-        rider.arm = img(scene, 0, 0, 'armphone').setDepth(DEPTH.heads + 1).setTint(ARM_TINTS[style] ?? 0xffffff);
+        // a hand holding a phone up in front of their face; it sits behind the
+        // head so the wrist disappears behind their jaw
+        rider.arm = img(scene, 0, 0, 'armphone').setDepth(DEPTH.heads - 1).setTint(ARM_TINTS[style] ?? 0xffffff);
       }
       this.riders.push(rider);
     }
@@ -61,14 +62,15 @@ export class Vehicle {
     for (const r of this.riders) {
       const ax = this.x + r.slot.x, ay = y + r.slot.y;
       r.neck.update(dt, ax, ay, this.vx);
-      if (r.arm) r.arm.setPosition(ax + 16, ay + 20).setRotation(-0.2 + Math.sin(this.t * 4) * 0.05);
+      // the phone hand goes wherever the head goes
+      if (r.arm) r.arm.setPosition(r.neck.headX + 6, r.neck.headY + 15).setRotation(-0.08 + Math.sin(this.t * 4) * 0.05);
     }
   }
 
   /** Knock the phone out of a filmer's hand (returns where it was). */
   dropPhone(rider: Rider): { x: number; y: number } | null {
     if (!rider.arm) return null;
-    const pos = { x: rider.arm.x - 74, y: rider.arm.y - 2 };
+    const pos = { x: rider.arm.x - 46, y: rider.arm.y - 27 };
     rider.arm.destroy();
     rider.arm = undefined;
     return pos;
