@@ -251,6 +251,12 @@ export class Bill {
     return result;
   }
 
+  /** Where the middle of his head is when he is sitting up: what a sign or a
+   *  birdhouse has to reach to clock him. */
+  get headX0(): number {
+    return this.x + this.rig.at[0] + this.rig.chin.rest[0];
+  }
+
   get headTop(): { x: number; y: number } {
     return { x: this.head.x, y: this.head.y - this.rig.headH / 2 };
   }

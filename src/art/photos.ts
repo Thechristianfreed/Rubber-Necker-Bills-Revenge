@@ -93,10 +93,11 @@ const PIECES: Piece[] = [
   { key: 'mailbox0_hit', file: 'mailbox-silver-hit.png', scale: MAILBOX_SCALE, border: 2, anchor: [0.603, 0.973] },
   { key: 'mailbox1', file: 'mailbox-red.png', scale: MAILBOX_SCALE, border: 2, anchor: [0.516, 0.968] },
   { key: 'mailbox1_hit', file: 'mailbox-red-hit.png', scale: MAILBOX_SCALE, border: 2, anchor: [0.601, 0.97] },
-  // the mailman (standing on the same spot in both photos) and the tree to duck
+  // the mailman, standing on the same spot in both photos, and the big street
+  // tree the birdhouse sits in (pinned where its trunk meets the ground)
+  { key: 'tree', file: 'tree.png', h: 420, border: 2, anchor: [0.497, 0.985] },
   { key: 'mailman', file: 'mailman.png', h: 138, border: 2, anchor: [0.557, 0.985] },
   { key: 'mailman_mad', file: 'mailman-mad.png', h: 136, border: 2, anchor: [0.49, 0.985] },
-  { key: 'branch', file: 'tree.png', h: 264, border: 2, anchor: [0.497, 0.985] },
 
   // roadside
   { key: 'palm', file: 'palm.png', h: 172, border: 2, anchor: [0.48, 0.97] },

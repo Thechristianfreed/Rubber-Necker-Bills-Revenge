@@ -15,8 +15,18 @@ import { DISPLAY, bubblePath, cutText, fillPaper, glued, makePaperArt, tapePath,
 
 interface Strip { ts: Phaser.GameObjects.TileSprite; factor: number; tex: number }
 interface Prop { im: Phaser.GameObjects.Image; factor: number; wrap?: number }
-/** Something Bill has to duck: a road sign, a low branch. */
-interface Sign { im: Phaser.GameObjects.Image; x: number; half: number; done: boolean }
+/** Something Bill has to duck: a road sign, or a birdhouse sitting in a tree. */
+interface Sign {
+  im: Phaser.GameObjects.Image;
+  x: number;
+  half: number;
+  done: boolean;
+  /** What it sits in, drawn behind Bill: the tree a birdhouse is in. */
+  back?: Phaser.GameObjects.Image;
+  /** How hard it is still rattling after clocking him, and when that started. */
+  kick: number;
+  kickT: number;
+}
 type Quality = 'good' | 'perfect' | 'rage';
 type Point = { x: number; y: number };
 /** A thrown newspaper in mid-air. */
@@ -31,8 +41,10 @@ interface Paper {
 }
 
 /** Where the things Bill ducks stand: on the median, or on the far pavement. */
-const HAZARD_BASE_Y = { highway: 398, street: STREET.kerbY + 2 };
-const HAZARD_DEPTH = { highway: DEPTH.median, street: DEPTH.median };
+const SIGN_BASE_Y = 398;
+/** The street tree stands at the kerb; the birdhouse sits in its fork, this far up. */
+const TREE_BASE_Y = STREET.kerbY + 2;
+const BIRDHOUSE_UP = 118;
 const HIT_WORDS = ['bonk', 'whack', 'thwack', 'bop', 'pow'];
 const DELIVERY_WORDS = ['delivered', 'nicetoss', 'inthebox'];
 
@@ -483,7 +495,7 @@ export class GameScene extends Phaser.Scene {
     this.cameras.main.flash(120, 255, 90, 80);
     const top = this.bill.headTop;
     this.burst(top.x, top.y + 20, false);
-    this.popWord(top.x, top.y - 24, this.street ? 'thwack' : 'clang');
+    this.popWord(top.x, top.y - 24, this.street ? 'bonk' : 'clang');
     this.say(pick(PHRASES.hurt).text);
     if (this.hearts <= 0) this.finish('bonked');
   }
@@ -656,16 +668,27 @@ export class GameScene extends Phaser.Scene {
     for (let i = 0; i < this.pending.length; i++) {
       const s = this.pending[i];
       const remaining = s.t - this.levelT;
-      if (s.type === 'sign' || s.type === 'branch') {
+      if (s.type === 'sign' || s.type === 'birdhouse') {
         // something to duck: it stands still, so it arrives with the scenery
-        const branch = s.type === 'branch';
-        if (remaining > (view.W + 170 - this.bill.x) / speed) continue;
-        const x = this.bill.x + speed * remaining;
-        const key = branch ? 'branch' : `sign${Math.random() < 0.5 ? 0 : 1}`;
-        const im = img(this, x, HAZARD_BASE_Y[this.level.theme], key).setDepth(HAZARD_DEPTH[this.level.theme]);
-        // a tree has to be ducked for as long as he is under its low branches
-        this.signs.push({ im, x, half: branch ? 92 : 34, done: false });
-        this.teach('duck', branch ? 'Low branch - HOLD DUCK!' : 'Sign coming - HOLD DUCK!');
+        const birdhouse = s.type === 'birdhouse';
+        const head = this.bill.headX0;
+        if (remaining > (view.W + (birdhouse ? 250 : 110) - head) / speed) continue;
+        const x = head + speed * remaining;
+        if (birdhouse) {
+          // The tree stands at the kerb behind everything on the pavement. The
+          // birdhouse in its fork is at head height and drawn in front of Bill,
+          // so it is plainly the thing he has to get his head under.
+          const back = this.textures.exists('tree')
+            ? img(this, x, TREE_BASE_Y, 'tree').setDepth(DEPTH.farCars)
+            : undefined;
+          const im = img(this, x, TREE_BASE_Y - BIRDHOUSE_UP, 'birdhouse').setDepth(DEPTH.billCar + 1);
+          this.signs.push({ im, x, half: 34, done: false, back, kick: 0, kickT: 0 });
+          this.teach('duck', 'Birdhouse in the tree - HOLD DUCK!');
+        } else {
+          const im = img(this, x, SIGN_BASE_Y, `sign${Math.random() < 0.5 ? 0 : 1}`).setDepth(DEPTH.median);
+          this.signs.push({ im, x, half: 34, done: false, kick: 0, kickT: 0 });
+          this.teach('duck', 'Sign coming - HOLD DUCK!');
+        }
       } else {
         const roadside = s.type === 'mailbox' || s.type === 'mailbox2' || s.type === 'mailman';
         const closing = roadside ? speed : speed + SPEED.crawl;
@@ -806,18 +829,28 @@ export class GameScene extends Phaser.Scene {
       }
     }
 
-    // signs standing in the closed lane
+    // things to duck: signs on the median, birdhouses in their trees
     for (let i = this.signs.length - 1; i >= 0; i--) {
       const s = this.signs[i];
       s.x -= scroll;
       s.im.x = s.x;
+      if (s.back) s.back.x = s.x;
+      if (s.kick > 0.002) {
+        // a birdhouse rattles on its perch after it has clocked him
+        s.kick *= Math.exp(-dt * 4);
+        s.im.rotation = s.kick * Math.sin((this.levelT - s.kickT) * 26);
+      }
       if (!s.done && !this.over) {
-        const dx = s.x - this.bill.x;
+        const dx = s.x - this.bill.headX0;
         if (dx < s.half && dx > -s.half && this.bill.exposed) {
           s.done = true;
-          // a sign gets knocked askew; a tree only shudders
-          const sign = s.im.texture.key.startsWith('sign');
-          this.tweens.add({ targets: s.im, rotation: sign ? 0.5 : 0.06, duration: 160, ease: 'Back.out', yoyo: !sign });
+          if (s.back) {
+            s.kick = 0.4;
+            s.kickT = this.levelT;
+          } else {
+            // a sign gets knocked askew
+            this.tweens.add({ targets: s.im, rotation: 0.5, duration: 160, ease: 'Back.out' });
+          }
           this.hurtBill();
         } else if (dx <= -s.half) {
           s.done = true;
@@ -825,12 +858,13 @@ export class GameScene extends Phaser.Scene {
             this.cash += SCORE.dodge;
             this.hud.setCash(this.cash);
             sound.dodge();
-            this.popWord(this.bill.x - 10, 262, 'dodged');
+            this.popWord(this.bill.headX0, this.street ? 300 : 262, 'dodged');
           }
         }
       }
-      if (s.x < -200) {
+      if (s.x < (s.back ? -260 : -120)) {
         s.im.destroy();
+        s.back?.destroy();
         this.signs.splice(i, 1);
       }
     }
@@ -845,7 +879,8 @@ export class GameScene extends Phaser.Scene {
    *  plays badly: never ducks, hits dogs, skips heads). */
   private autoplay(): void {
     const clumsy = this.auto === 'clumsy';
-    this.duckKey = !clumsy && this.signs.some((s) => !s.done && s.x - this.bill.x < s.half + 80 && s.x - this.bill.x > -s.half - 14);
+    const head = this.bill.headX0;
+    this.duckKey = !clumsy && this.signs.some((s) => !s.done && s.x - head < s.half + 80 && s.x - head > -s.half - 14);
     const lead = (this.level.speed + (this.street ? 0 : SPEED.crawl)) * SWING.windup;
     let onScreen = 0;
     for (const v of this.vehicles) {

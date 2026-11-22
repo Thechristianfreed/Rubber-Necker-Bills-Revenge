@@ -3,7 +3,7 @@
 
 export type SpawnType =
   | 'car' | 'phone' | 'bus' | 'dog' | 'sign'              // the highway
-  | 'mailbox' | 'mailbox2' | 'mailman' | 'branch';        // the street
+  | 'mailbox' | 'mailbox2' | 'mailman' | 'birdhouse';        // the street
 
 export type Theme = 'street' | 'highway';
 
@@ -60,16 +60,16 @@ export const PAPER_ROUTE: LevelDef = {
     // learn to throw
     [4.5, 'mailbox'], [2.4, 'mailbox'], [2.0, 'mailbox'],
     // learn to duck
-    [2.4, 'branch'],
+    [2.4, 'birdhouse'],
     [1.9, 'mailbox'], [1.3, 'mailbox'],
     // learn who NOT to hit
     [2.3, 'mailman'],
     [1.9, 'mailbox'], [1.2, 'mailbox'], [1.2, 'mailbox'],
-    [1.6, 'branch'], [1.5, 'mailbox'], [1.0, 'mailbox'], [1.0, 'mailbox'],
+    [1.6, 'birdhouse'], [1.5, 'mailbox'], [1.0, 'mailbox'], [1.0, 'mailbox'],
     // quick pairs
     [1.8, 'mailbox'], [0.8, 'mailbox'], [1.5, 'mailbox'], [0.8, 'mailbox'],
-    [2.0, 'mailman'], [1.4, 'mailbox'], [0.9, 'mailbox'], [1.5, 'branch'], [1.4, 'mailbox'], [0.8, 'mailbox'], [1.2, 'mailbox'], [0.9, 'mailbox'],
-    [1.7, 'mailman'], [1.3, 'mailbox'], [0.85, 'mailbox'], [0.85, 'mailbox'], [1.5, 'branch'], [1.3, 'mailbox'], [0.7, 'mailbox'], [1.2, 'mailbox'], [0.7, 'mailbox'],
+    [2.0, 'mailman'], [1.4, 'mailbox'], [0.9, 'mailbox'], [1.5, 'birdhouse'], [1.4, 'mailbox'], [0.8, 'mailbox'], [1.2, 'mailbox'], [0.9, 'mailbox'],
+    [1.7, 'mailman'], [1.3, 'mailbox'], [0.85, 'mailbox'], [0.85, 'mailbox'], [1.5, 'birdhouse'], [1.3, 'mailbox'], [0.7, 'mailbox'], [1.2, 'mailbox'], [0.7, 'mailbox'],
     // the home stretch
     [1.7, 'mailbox'], [0.8, 'mailbox'], [0.8, 'mailbox'], [0.8, 'mailbox'],
   ]),

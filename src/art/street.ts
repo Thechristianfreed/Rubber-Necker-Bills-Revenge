@@ -85,17 +85,13 @@ function mailman(c: Ctx, head: HTMLImageElement | undefined): void {
   });
 }
 
-/** A street tree with a canopy low enough to clip a kid on a bike (190 x 252). */
-function tree(c: Ctx): void {
-  poly(c, [84, 252, 106, 252, 101, 110, 89, 110]);
-  fillPaper(c, 'brown');
-  const blobs: [number, number, number][] = [[34, 88, 32], [142, 78, 40], [55, 62, 46], [105, 52, 50], [92, 92, 42]];
-  for (const [x, y, r] of blobs) { circle(c, x, y, r); fillPaper(c, 'green'); }
-  // a little depth: shade underneath, light on top
-  c.fillStyle = 'rgba(16, 48, 20, 0.2)';
-  for (const [x, y, r] of blobs) { c.beginPath(); c.arc(x, y + r * 0.2, r * 0.82, 0.15, Math.PI - 0.15); c.fill(); }
-  c.fillStyle = 'rgba(255, 255, 230, 0.12)';
-  for (const [x, y, r] of blobs.slice(2)) { circle(c, x - r * 0.25, y - r * 0.35, r * 0.4); c.fill(); }
+/** A birdhouse, on a 76 x 86 canvas. It sits in the fork of the street tree. */
+function birdhouse(c: Ctx): void {
+  rect(c, 14, 38, 48, 42, 'yellow');
+  circle(c, 38, 54, 8.5); fillPaper(c, 'black');
+  circle(c, 38, 70, 2.6); fillPaper(c, 'brown');
+  glued(c, () => rect(c, 8, 79, 60, 7, 'brown'));
+  glued(c, () => { poly(c, [38, 2, 2, 43, 74, 43]); fillPaper(c, 'red'); });
 }
 
 function house(c: Ctx, x: number, w: number, body: Paper, roof: Paper, door: Paper): void {
@@ -122,7 +118,7 @@ export function buildStreetArt(scene: Phaser.Scene, mailmanHead?: HTMLImageEleme
   makePaperArt(scene, 'mailman', 64, 106, (c) => mailman(c, mailmanHead), { border: 2, ax: 32, ay: 106 });
   makePaperArt(scene, 'mailman_mad', 64, 106, (c) => mailman(c, mailmanMad ?? mailmanHead), { border: 2, ax: 32, ay: 106 });
 
-  makePaperArt(scene, 'branch', 190, 252, tree, { border: 2.5, ax: 95, ay: 251 });
+  makePaperArt(scene, 'birdhouse', 76, 86, birdhouse, { border: 2, ax: 38, ay: 86 });
 
   // what pops up when a paper lands
   makeWord(scene, 'word_delivered', 'DELIVERED!', 'blue', 'white', 122, 24, 9);
