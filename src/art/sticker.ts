@@ -92,6 +92,25 @@ export function makeArt(
   ART[key] = { w, h, pad, ax: opts.ax ?? w / 2, ay: opts.ay ?? h / 2 };
 }
 
+/** Register a photo cutout (an already-trimmed transparent image) as art.
+ *  `w` is its width in design pixels; the height follows the image. The anchor
+ *  is given as fractions of the piece (0.5, 1 = bottom centre). */
+export function makePhotoArt(
+  scene: Phaser.Scene, key: string, image: HTMLImageElement, w: number,
+  opts: { border?: number; anchor?: [number, number] } = {},
+): void {
+  const h = (w * image.naturalHeight) / image.naturalWidth;
+  const [inner, c] = makeCanvas(w * TEX, h * TEX);
+  c.imageSmoothingEnabled = true;
+  c.imageSmoothingQuality = 'high';
+  c.drawImage(image, 0, 0, inner.width, inner.height);
+  const [canvas, pad] = stickerize(inner, opts.border ?? 2.5, 0);
+  if (scene.textures.exists(key)) scene.textures.remove(key);
+  scene.textures.addCanvas(key, canvas);
+  const [fx, fy] = opts.anchor ?? [0.5, 0.5];
+  ART[key] = { w, h, pad, ax: w * fx, ay: h * fy };
+}
+
 /** Origin (0..1) that puts a sprite's anchor at its x/y. */
 export function originOf(key: string): [number, number] {
   const a = ART[key];

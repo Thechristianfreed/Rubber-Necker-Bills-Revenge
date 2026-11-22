@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import '@fontsource/bangers/latin-400.css';
 import '@fontsource/permanent-marker/latin-400.css';
+import { loadPhotoArt } from '../art/photos';
 import { buildTextures } from '../art/textures';
 import glare from '../assets/bill/head-glare.png';
 import grin from '../assets/bill/head-grin.png';
@@ -51,6 +52,8 @@ export class BootScene extends Phaser.Scene {
     ]);
     void Promise.all([fontReady, heads]).then(() => {
       buildTextures(this);
+      return loadPhotoArt(this);
+    }).then(() => {
       this.scene.start(new URLSearchParams(location.search).has('auto') ? 'game' : 'title');
     });
   }

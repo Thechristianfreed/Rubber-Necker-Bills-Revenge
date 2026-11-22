@@ -31,6 +31,14 @@ and flustered, she apologised: "Sorry, I got rear-ended." Bill, snidely:
 - Possible shape: a school-era bonus stage where Bill has to beat the bell
   before the door locks, ending on the teacher arriving late and the line.
 
+## Cameos
+
+- **Lady**, the family's golden retriever from when the kids were growing up:
+  get a photo of her to use as the dog (the one you must not hit). The
+  generated dog is only a stand-in until then.
+- The kids in the back seat of Bill's car, reacting to every whack.
+- Family and friends as photo heads on special enemies and bosses.
+
 ## Bill's catchphrases (real)
 
 - "Get off your DAMN PHONE!"
