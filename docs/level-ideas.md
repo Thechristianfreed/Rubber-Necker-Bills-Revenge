@@ -32,8 +32,6 @@ Built, as the bonus level **The SKIPPY Jar** (`src/scenes/LockerScene.ts`):
 Not built yet:
 
 - Slamming the history book shut as a finale.
-- Photos of the jar, the milkshake, the history book and the splats (prompts
-  SJ4 and SJ5 in `docs/art-prompts.md`). The hallway and Bill are photos already.
 
 ### The late teacher
 Bill had a teacher who would freak out if anyone was late and lock the door so

@@ -51,28 +51,20 @@ hand first, because background removal keeps the cards.
 
 The school hallway, seen over Bill's shoulder: jars and milkshakes fly out of
 the bully's open locker straight at the camera and Bill sends them back with
-the bully's tennis racquet.
+the bully's tennis racquet. Every image for this level is in the game:
 
-In the game: SJ1 (the hallway, which is the whole backdrop), SJ2a, SJ2b and
-SJ2c (Bill from behind with the racquet: ready, winding up, hitting) and SJ3
-(the back of his head). Their prompts are in the git history of this file.
-The hitting frame came with a tennis ball on the strings; `make_cutouts.py`
-paints it out with strings from the ready frame.
+- SJ1, the hallway: one photo is the whole backdrop.
+- SJ2a, SJ2b and SJ2c, Bill from behind with the racquet: ready, winding up,
+  hitting. The hitting frame came with a tennis ball on the strings;
+  `make_cutouts.py` paints it out with strings from the ready frame.
+- SJ3, the back of his head.
+- SJ4, the jar, the milkshake and his history book. Each came on a panel of
+  its own, so the three panels were stitched into one plain strip before the
+  background was removed.
+- SJ5, four splats, cut out of their blue backdrop by colour.
 
-Still cut paper (`src/art/hallway.ts`) until these two arrive: the jar, the
-milkshake, the history book and the splats.
-
-### SJ4. What comes out of the locker
-
-```text
-Three photographs side by side with clear gaps between them, all on one plain flat light-grey background. Left: a 1960s glass jar of creamy peanut butter with a red screw-on metal lid and a red, white and blue paper label reading SKIPPY, standing upright, seen straight on. Middle: a chocolate milkshake in a white paper diner cup with red stripes, a dome of chocolate shake over the brim with some of it running down the side, and a red-and-white striped paper straw, seen straight on. Right: a worn green cloth-bound 1960s school textbook, closed, seen from the front, with HISTORY in gold lettering on the cover and something brown squashed between its pages and oozing out along the page edge. Sharp, soft even light, slightly faded 1960s Kodachrome colour. No shadows, no other text, no borders. Wide 16:9 image.
-```
-
-### SJ5. Splats
-
-```text
-Four separate splats of thick chocolate milkshake, photographed from directly above, arranged in a row with clear gaps between them, all on one plain flat pale-blue background. Each is a different shape: a fat central blob with rounded lobes, gobs flung out around it, and a few flecks. Glossy and wet. Two are milk-chocolate brown and two are a darker brown. Soft even light, no shadows, no text, no borders. Wide 16:9 image.
-```
+Their prompts are in the git history of this file. The cut-paper versions in
+`src/art/hallway.ts` are only used if a photo fails to load.
 
 ## Later
 

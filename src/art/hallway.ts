@@ -399,8 +399,10 @@ export function buildHallArt(scene: Phaser.Scene): void {
   makePaperArt(scene, 'jar', 58, 84, jar, { border: 2.5 });
   makePaperArt(scene, 'shake', 60, 98, shake, { border: 2.5 });
   makePaperArt(scene, 'book', 90, 106, book, { border: 2.5 });
-  makePaperArt(scene, 'splat0', 130, 130, (c) => splat(c, 3, false), { border: 2, ax: 65, ay: 54 });
-  makePaperArt(scene, 'splat1', 130, 130, (c) => splat(c, 8, true), { border: 2, ax: 65, ay: 54 });
+  // splats: even numbers are dark (the jar), odd ones milky (the shake)
+  [3, 8, 5, 11].forEach((seed, i) => {
+    makePaperArt(scene, `splat${i}`, 130, 130, (c) => splat(c, seed, i % 2 === 1), { border: 2, ax: 65, ay: 54 });
+  });
   makePaperArt(scene, 'blob', 16, 16, (c) => { circle(c, 8, 8, 7); fillPaper(c, 'brown'); }, { border: 1 });
   makeArt(scene, 'shadow', 70, 22, (c) => {
     ellipse(c, 35, 11, 33, 9.5);

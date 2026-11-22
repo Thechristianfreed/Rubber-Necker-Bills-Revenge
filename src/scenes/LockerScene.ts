@@ -253,10 +253,16 @@ export class LockerScene extends PlayScene {
     this.showTally();
   }
 
+  /** Which splat something leaves: a dark one for the jar (and the book), a
+   *  milky one for the shake. There are two of each. */
+  private splatKey(f: Flyer): string {
+    return `splat${(f.kind === 'shake' ? 1 : 0) + (Math.random() < 0.5 ? 0 : 2)}`;
+  }
+
   /** It lands: a splat on the lockers (or inside the open one). */
   private splat(f: Flyer): void {
     const b = f.back!;
-    const im = img(this, b.to.x, b.to.y, f.kind === 'shake' ? 'splat1' : 'splat0')
+    const im = img(this, b.to.x, b.to.y, this.splatKey(f))
       .setDepth(DEPTH.far + (b.inLocker ? 2 : 3)).setRotation((Math.random() - 0.5) * 0.5);
     const full = im.scale * (b.inLocker ? 0.3 : 0.4 + Math.random() * 0.22);
     im.setScale(full * 0.25);
@@ -274,7 +280,7 @@ export class LockerScene extends PlayScene {
   private lensSplat(f: Flyer): void {
     // off to the racquet side, so it never hides Bill
     const x = Math.min(view.W - 230, this.strike.x + 40 + Math.random() * 140);
-    const im = img(this, x, H - 70, f.kind === 'shake' ? 'splat1' : 'splat0').setDepth(DEPTH.fx + 6).setAlpha(0.94);
+    const im = img(this, x, H - 70, this.splatKey(f)).setDepth(DEPTH.fx + 6).setAlpha(0.94);
     const full = im.scale * 2.6;
     im.setScale(full * 0.5).setRotation((Math.random() - 0.5) * 0.6);
     this.tweens.add({ targets: im, scale: full, duration: 110, ease: 'Back.out' });

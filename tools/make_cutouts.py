@@ -675,6 +675,65 @@ def hallway():
     print("hallway.jpg", big.size, os.path.getsize(path), "bytes")
 
 
+def locker_things():
+    """What comes flying out of the bully's locker: the jar of peanut butter,
+    the chocolate milkshake and his history book. The source photo had each
+    on a panel of its own; the three panels were stitched into one plain
+    strip (SJ4-objects-strip.png) so the background would come away cleanly."""
+    sheet = sorted(pieces(load("SJ4-objects-strip-cutout.png"), 3000), key=lambda p: p[0])
+    for name, (_, _, piece) in zip(("jar", "shake", "book"), sheet):
+        save(f"{name}.png", piece)
+
+
+def splats():
+    """Four splats of chocolate milkshake, photographed on pale blue. Brown on
+    blue keys out by colour alone, which keeps every fleck: the background is
+    whatever the picture is where nothing is brown, and a pixel is as solid as
+    it is far from that. Each splat keeps the flecks nearest to it. Saved
+    dark, light, dark, light; and one fleck on its own, for the bits that go
+    through the racquet strings."""
+    im = np.asarray(Image.open(os.path.join(ROOT, "art-src", "generated", "SJ5-splats.jpg")).convert("RGB"), dtype=np.float32)
+    brown = ((im[..., 0] - im[..., 2]) > 14).astype(np.uint8)
+    clear = 1.0 - cv2.dilate(brown, np.ones((15, 15), np.uint8)).astype(np.float32)
+    # the backdrop behind the splats: a blurred picture of everywhere that is clear of them
+    back = cv2.GaussianBlur(im * clear[..., None], (0, 0), 40) / np.maximum(cv2.GaussianBlur(clear, (0, 0), 40), 1e-3)[..., None]
+    far = np.sqrt(((im - back) ** 2).sum(axis=2))
+    alpha = np.clip((far - 14) / 34, 0, 1)
+    # glints on the wet surface are as pale as the backdrop: fill them back in
+    contours, _ = cv2.findContours((alpha > 0.5).astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    filled = np.zeros(alpha.shape, np.uint8)
+    cv2.drawContours(filled, contours, -1, 1, thickness=cv2.FILLED)
+    alpha = np.maximum(alpha, cv2.erode(filled, np.ones((3, 3), np.uint8)).astype(np.float32))
+    # take the blue back out of the soft edges
+    a3 = np.maximum(alpha, 0.05)[..., None]
+    rgb = np.clip((im - back * (1 - a3)) / a3, 0, 255)
+    rgba = np.dstack([rgb / 255.0, alpha]).astype(np.float32)
+
+    n, lab, st, cen = cv2.connectedComponentsWithStats((alpha > 0.4).astype(np.uint8), 8)
+    order = sorted(range(1, n), key=lambda i: -st[i][cv2.CC_STAT_AREA])
+    mains = sorted(order[:4], key=lambda i: cen[i][0])
+    owner = {}
+    for i in order[4:]:
+        if st[i][cv2.CC_STAT_AREA] < 8:
+            continue
+        owner[i] = min(mains, key=lambda m: np.hypot(*(cen[i] - cen[m])))
+    for slot, m in zip((1, 0, 3, 2), mains):
+        mine = np.isin(lab, [m] + [i for i, o in owner.items() if o == m])
+        near = cv2.dilate(mine.astype(np.uint8), np.ones((5, 5), np.uint8)).astype(bool)
+        piece = rgba.copy()
+        piece[~near] = 0
+        ys, xs = np.where(piece[..., 3] > 0.08)
+        x0, x1, y0, y1 = xs.min() - 2, xs.max() + 3, ys.min() - 2, ys.max() + 3
+        save(f"splat{slot}.png", piece[y0:y1, x0:x1])
+        print(f"  splat{slot}: middle of the blob ({(cen[m][0] - x0) / (x1 - x0):.3f}, {(cen[m][1] - y0) / (y1 - y0):.3f})")
+    # a fleck: the biggest one thrown clear of the second (dark) splat
+    fleck = max((i for i, o in owner.items() if o == mains[1]), key=lambda i: st[i][cv2.CC_STAT_AREA])
+    near = cv2.dilate((lab == fleck).astype(np.uint8), np.ones((5, 5), np.uint8)).astype(bool)
+    piece = rgba.copy()
+    piece[~near] = 0
+    save("blob.png", trim(piece))
+
+
 def postcard():
     """The far background: the top of the postcard, mirrored so it repeats without a seam."""
     im = Image.open(os.path.join(ROOT, "art-src", "generated", "F-postcard.png")).convert("RGB")
@@ -698,6 +757,8 @@ if __name__ == "__main__":
     kid()
     teen()
     hallway()
+    locker_things()
+    splats()
     mailman()
     mailboxes()
     tree()

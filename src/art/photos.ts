@@ -99,6 +99,16 @@ const PIECES: Piece[] = [
   { key: 'teen_rest', file: 'teen-rest.png', scale: TEEN_SCALE, anchor: [0.287, 0.291] },
   { key: 'teen_windup', file: 'teen-windup.png', scale: TEEN_SCALE, anchor: [0.234, 0.007] },
   { key: 'teen_swing', file: 'teen-swing.png', scale: TEEN_SCALE, anchor: [0.376, 0.369] },
+  // what comes out of the bully's locker, and the mess it makes (dark splats
+  // for the jar, light for the milkshake; each is pinned at the middle of its blob)
+  { key: 'jar', file: 'jar.png', h: 86 },
+  { key: 'shake', file: 'shake.png', h: 104 },
+  { key: 'book', file: 'book.png', h: 108 },
+  { key: 'splat0', file: 'splat0.png', w: 120, border: 1.5, anchor: [0.519, 0.476] },
+  { key: 'splat1', file: 'splat1.png', w: 120, border: 1.5, anchor: [0.565, 0.451] },
+  { key: 'splat2', file: 'splat2.png', w: 120, border: 1.5, anchor: [0.46, 0.496] },
+  { key: 'splat3', file: 'splat3.png', w: 120, border: 1.5, anchor: [0.479, 0.492] },
+  { key: 'blob', file: 'blob.png', w: 18, border: 1 },
   { key: 'paper_roll', file: 'paper-roll.png', w: 30, border: 1.4 },
   // The front-yard tree with a birdhouse in its fork, pinned where its trunk
   // meets the ground, and the birdhouse again on its own: it is drawn a size
