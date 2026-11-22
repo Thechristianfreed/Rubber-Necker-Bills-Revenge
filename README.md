@@ -49,9 +49,9 @@ Converts that single file into a page fragment for hosts that add their own page
 - **Art style:** Bill's scrapbook. Every piece is a photo cutout with a white
   paper border and a drop shadow. Bill's head comes from real photos
   (`art-src/photos`), cut out with Adobe (`art-src/adobe`) and built by
-  `tools/make_heads.py`. Pieces still drawn in code (`src/art/textures.ts`) are
-  being replaced by photo cutouts; the remaining image prompts are in
-  `docs/art-prompts.md`.
+  `tools/make_heads.py`. The interface, lettering and road paint are cut paper
+  (`src/art/paper.ts`, `src/art/ui.ts`), filled with small photo sheets of real
+  paper. The remaining image prompts are in `docs/art-prompts.md`.
 - **Audio:** synthesised placeholders in `src/audio/sound.ts`, to be replaced by
   family recordings.
 - **Tuning:** speeds, timing windows and scoring live in `src/config.ts`; the

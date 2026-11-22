@@ -25,6 +25,7 @@ export class Bill {
 
   private car: Phaser.GameObjects.Image;
   private torso: Phaser.GameObjects.Image;
+  private neck?: Phaser.GameObjects.Image;
   private head: Phaser.GameObjects.Image;
   private arm: Phaser.GameObjects.Image;
   private face: Face = 'sideeye';
@@ -38,8 +39,10 @@ export class Bill {
   constructor(scene: Phaser.Scene, x: number) {
     this.x = x;
     this.torso = img(scene, x, 0, 'bill_torso').setDepth(DEPTH.billBack);
-    // the arm sits behind the head so the bat never covers Bill's face
-    this.arm = img(scene, x, 0, 'bill_arm').setDepth(DEPTH.billBack + 1);
+    if (scene.textures.exists('bill_neck')) this.neck = img(scene, x, 0, 'bill_neck').setDepth(DEPTH.billBack + 1.5);
+    // paper-doll style: the arm is behind the shirt, so it comes out of the
+    // shoulder, and behind the head, so the bat never covers Bill's face
+    this.arm = img(scene, x, 0, 'bill_arm').setDepth(DEPTH.billBack - 0.5);
     this.head = scene.add.image(x, 0, 'bill-sideeye').setDepth(DEPTH.billBack + 2);
     this.car = img(scene, x, LANE.billBase, 'bug').setDepth(DEPTH.billCar);
     for (let i = 0; i < 3; i++) {
@@ -140,8 +143,10 @@ export class Bill {
     this.car.setPosition(this.x, carY);
     this.torso.setPosition(bx + lean * 0.4, by).setRotation(lean * 0.012);
     this.torso.scaleY = this.torso.scaleX * (1 - this.duck * 0.8);
+    // the neck runs from under his chin down into the open collar
+    this.neck?.setPosition(bx - 1 + lean * 0.7, by - 74 + drop).setVisible(this.duck < 0.6);
     this.head.setPosition(bx - 4 + lean, by - 102 + drop + Math.sin(this.t * 7) * 1.2).setRotation(lean * 0.02 + (this.stun > 0 ? Math.sin(this.t * 40) * 0.12 : 0));
-    this.arm.setPosition(bx + 31 + lean * 0.5, by - 54 + drop * 0.85).setRotation(angle);
+    this.arm.setPosition(bx + 27 + lean * 0.5, by - 47 + drop * 0.85).setRotation(angle);
 
     const showStars = this.stun > 0;
     for (let i = 0; i < this.stars.length; i++) {

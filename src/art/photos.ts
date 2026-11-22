@@ -2,6 +2,8 @@ import Phaser from 'phaser';
 import { INK } from '../config';
 import { Ctx, PhotoOpts, makeArt, makePhotoArt, makePhotoTile, star } from './sticker';
 import { ARM_TINTS, VEHICLES, VehicleSpec, makeNeck, setHeadStyles } from './textures';
+import { Paper, addPaper } from './paper';
+import { buildPaperUi } from './ui';
 
 /** Photo cutouts that replace drawn art. Each piece takes over the texture key
  *  of the drawing it replaces, so nothing else in the game has to change.
@@ -68,7 +70,9 @@ const PIECES: Piece[] = [
 
   // Bill: aloha shirt, and his arm holding the bat (it pivots at the sleeve)
   { key: 'bill_torso', file: 'shirt.png', w: 90, anchor: [0.5, 0.6] },
-  { key: 'bill_arm', file: 'arm-bat.png', h: 138, border: 2, anchor: [0.414, 0.975] },
+  // the elbow end of the arm tucks behind the shirt's shoulder, which is where it pivots
+  { key: 'bill_arm', file: 'arm-bat.png', h: 124, border: 2, anchor: [0.316, 0.95] },
+  { key: 'bat', file: 'bat.png', h: 84, border: 2, anchor: [0.5, 0.96] },
 
   // roadside
   { key: 'palm', file: 'palm.png', h: 172, border: 2, anchor: [0.48, 0.97] },
@@ -92,6 +96,8 @@ const PIECES: Piece[] = [
 
   // effects
   { key: 'star', file: 'star.png', w: 27, border: 1.4 },
+  { key: 'star_big', file: 'star.png', w: 84, border: 3 },
+  { key: 'star_big_off', file: 'star.png', w: 84, border: 3, filter: 'grayscale(1) brightness(0.5)' },
   { key: 'puff', file: 'puff.png', w: 40, border: 0.8 },
   { key: 'burst', file: 'burst.png', w: 130, border: 2.5 },
   ...WORDS.map((w): Piece => ({ key: `word_${w}`, file: `word-${w}.png`, w: w === 'perfect' ? 124 : 106, border: 2.5 })),
@@ -159,12 +165,23 @@ function loadImage(src: string | undefined): Promise<HTMLImageElement | null> {
 
 /** Load every photo cutout and swap it in over its drawn stand-in. */
 export async function loadPhotoArt(scene: Phaser.Scene): Promise<void> {
-  const names = new Set<string>([...PIECES.map((p) => p.file), ...PHOTO_VEHICLES.map((v) => v.file), 'postcard.jpg', 'rail.png']);
+  const sheets: Paper[] = ['cream', 'white', 'manila', 'yellow', 'red', 'blue', 'green', 'grey', 'black'];
+  const names = new Set<string>([
+    ...PIECES.map((p) => p.file), ...PHOTO_VEHICLES.map((v) => v.file), 'postcard.jpg', 'rail.png', 'skin.png', 'asphalt.jpg',
+    ...sheets.map((n) => `paper-${n}.png`),
+  ]);
   const loaded = new Map<string, HTMLImageElement>();
   await Promise.all([...names].map(async (n) => {
     const im = await loadImage(url(n));
     if (im) loaded.set(n, im);
   }));
+
+  // the cut-paper interface first, so photo pieces with the same key win
+  for (const n of sheets) {
+    const im = loaded.get(`paper-${n}.png`);
+    if (im) addPaper(n, im);
+  }
+  buildPaperUi(scene);
 
   for (const p of PIECES) {
     const im = loaded.get(p.file);
@@ -206,8 +223,28 @@ export async function loadPhotoArt(scene: Phaser.Scene): Promise<void> {
   }
   for (const [pool, specs] of pools) VEHICLES[pool] = specs;
 
+  // Bill's neck: real skin, cut to sit in the open collar under his chin
+  const skin = loaded.get('skin.png');
+  if (skin) {
+    makeArt(scene, 'bill_neck', 30, 44, (c) => {
+      c.beginPath();
+      c.moveTo(3, 0); c.lineTo(27, 0); c.lineTo(30, 18); c.lineTo(15, 44); c.lineTo(0, 18);
+      c.closePath();
+      c.clip();
+      c.drawImage(skin, 0, 0, 30, 44);
+      // the shade under his chin
+      const g = c.createLinearGradient(0, 0, 0, 30);
+      g.addColorStop(0, 'rgba(60,30,20,0.42)');
+      g.addColorStop(1, 'rgba(60,30,20,0)');
+      c.fillStyle = g;
+      c.fillRect(0, 0, 30, 44);
+    }, { ax: 15, ay: 0 });
+  }
+
   const postcard = loaded.get('postcard.jpg');
   if (postcard) makePhotoTile(scene, 'postcard', postcard, 216);
+  const tarmac = loaded.get('asphalt.jpg');
+  if (tarmac) makePhotoTile(scene, 'asphalt', tarmac, 192);
   const rail = loaded.get('rail.png');
   if (rail) makePhotoTile(scene, 'rail', rail, 30);
 

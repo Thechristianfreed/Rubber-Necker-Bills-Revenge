@@ -257,10 +257,28 @@ def more_heads():
 
 def bill():
     save("shirt.png", trim(load("J-shirt-cutout.png")))
-    arm = trim(load("K-arm-bat-cutout.png"))
+    full = trim(load("K-arm-bat-cutout.png"))
+    # the bat on its own (everything above the fist), and a patch of skin for Bill's neck
+    save("bat.png", trim(full[: int(full.shape[0] * 0.455)]))
+    save("skin.png", full[int(full.shape[0] * 0.66): int(full.shape[0] * 0.84), int(full.shape[1] * 0.3): int(full.shape[1] * 0.62)])
+    # the arm, without the scrap of sleeve at its elbow end: that end tucks behind the shirt
+    arm = trim(full[: int(full.shape[0] * 0.895)])
     save("arm-bat.png", arm)
     cols = np.where(arm[-12:, :, 3].max(axis=0) > 0.5)[0]
-    print("  arm-bat shoulder centre x (fraction):", round((cols.min() + cols.max()) / 2 / arm.shape[1], 3))
+    print("  arm-bat pivot centre x (fraction):", round((cols.min() + cols.max()) / 2 / arm.shape[1], 3))
+
+
+def asphalt():
+    """Road surface from a public-domain photo texture (see art-src/library).
+    It already tiles; shrink it and cool it down to sit behind the cutouts."""
+    im = Image.open(os.path.join(ROOT, "art-src", "library", "asphalt031.png")).convert("RGB").resize((384, 384), Image.LANCZOS)
+    rgb = np.asarray(im, dtype=np.float32) / 255.0
+    rgb = (rgb - 0.5) * 0.9 + 0.5
+    rgb = np.clip(rgb * np.array([0.80, 0.79, 0.84]), 0, 1)
+    os.makedirs(OUT, exist_ok=True)
+    path = os.path.join(OUT, "asphalt.jpg")
+    Image.fromarray((rgb * 255).astype(np.uint8), "RGB").save(path, quality=88)
+    print("asphalt.jpg", im.size, os.path.getsize(path), "bytes")
 
 
 def guardrail():
@@ -294,6 +312,38 @@ def phone_arm():
     # fingers, mirrored to make a whole phone
     top = sheet[112:230, 236:300]
     save("phone.png", trim(np.concatenate([top, top[::-1]], axis=0)))
+
+
+def papers():
+    """Sheets of coloured paper for the interface, lettering and road paint.
+    The grain is real: it is lifted from the blank billboard face and the yellow
+    paper burst, flattened, mirrored so it tiles, and then dyed."""
+    def grain_of(name, x0, y0, x1, y1):
+        im = np.asarray(Image.open(os.path.join(OUT, name)).convert("RGB"), dtype=np.float32) / 255.0
+        luma = im[y0:y1, x0:x1].mean(axis=2)
+        flat = luma - cv2.GaussianBlur(luma, (0, 0), 9)      # drop lighting, keep fibres
+        top = np.concatenate([flat, flat[:, ::-1]], axis=1)
+        return np.concatenate([top, top[::-1]], axis=0)
+
+    smooth = grain_of("billboard.png", 22, 14, 84, 54)
+    rough = grain_of("burst.png", 84, 66, 172, 152)
+    sheets = {
+        "cream": ((0.975, 0.955, 0.895), smooth, 1.6),
+        "white": ((0.985, 0.98, 0.955), smooth, 1.3),
+        "manila": ((0.90, 0.78, 0.55), smooth, 1.8),
+        "yellow": ((0.965, 0.77, 0.19), rough, 1.5),
+        "red": ((0.80, 0.19, 0.16), rough, 1.5),
+        "blue": ((0.17, 0.36, 0.68), rough, 1.5),
+        "green": ((0.33, 0.62, 0.30), rough, 1.5),
+        "grey": ((0.42, 0.40, 0.43), rough, 1.5),
+        "black": ((0.14, 0.12, 0.13), rough, 2.2),
+    }
+    os.makedirs(OUT, exist_ok=True)
+    for name, (colour, grain, strength) in sheets.items():
+        rgb = np.clip(np.array(colour)[None, None, :] * (1 + grain[..., None] * strength), 0, 1)
+        path = os.path.join(OUT, f"paper-{name}.png")
+        Image.fromarray((rgb * 255).astype(np.uint8), "RGB").save(path, optimize=True)
+        print(f"paper-{name}.png", rgb.shape[1], "x", rgb.shape[0], os.path.getsize(path), "bytes")
 
 
 def ellipse_crop(rgba, cx, cy, rx, ry, feather=3.0):
@@ -344,6 +394,8 @@ if __name__ == "__main__":
     guardrail()
     effects()
     phone_arm()
+    papers()
+    asphalt()
     dogs()
     props()
     postcard()

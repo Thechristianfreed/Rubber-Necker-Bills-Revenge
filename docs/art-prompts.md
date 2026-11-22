@@ -21,7 +21,26 @@ G (palm, billboard, road sign, cone), J (Bill's shirt), K (his arm and the
 bat), L (guardrail), M (gold star, cotton puff, paper burst), N (hit words),
 O (phone-filming arm). Their prompts are in the git history of this file.
 
+The interface, lettering and road paint are cut from paper sheets built from
+these images. The tarmac is a public-domain photo texture (`art-src/library`).
+
 ## Still to make
+
+### S. Bill's body, in three poses
+
+Bill is currently a shirt with one straight arm-and-bat piece pinned to the
+shoulder, which does not look like a real arm. These three poses replace the
+whole body and get swapped like stop-motion frames. Attach the shirt image
+(J) to the prompt as a reference if the app allows it. The man's head will be
+cut off and replaced with Bill's photo, so it does not matter what he looks like.
+
+```text
+Three photographs of the same man side by side with clear gaps between them, on a plain flat light-grey background. He is a slightly stocky older man with tanned arms and short grey hair, wearing a coral-red short-sleeved aloha shirt with a darker red Polynesian tapa-pattern print. Each photograph shows him from the waist up in three-quarter view, facing toward the right side of the picture, holding a wooden baseball bat in his right hand only (the arm nearest the camera). His left arm hangs relaxed at his side in all three.
+Left: at rest, with the bat resting on his right shoulder.
+Middle: winding up, his right arm raised with the elbow bent and the bat cocked back behind his head, about to swing.
+Right: the end of a hard one-handed swing, his right arm stretched out in front of him at head height and the bat pointing forward toward the right edge of the picture.
+Natural proportions and a natural grip. The same man, the same shirt, the same size and the same framing in all three, with the whole bat in frame each time. Soft even daylight. No shadows, no text, no borders. Wide 16:9 image.
+```
 
 ### P. Bluebirds (optional)
 
@@ -35,5 +54,5 @@ Two photographs of the same small bluebird in flight, side by side with a clear 
 ### Later
 
 - The other five weapons (newspaper, flyswatter, tennis racquet, nail board,
-  kayak oar), each as an arm holding it like image K, when the shop is built.
+  kayak oar), in the same three poses as image S, when the shop is built.
 - A photo of Lady for the dog.

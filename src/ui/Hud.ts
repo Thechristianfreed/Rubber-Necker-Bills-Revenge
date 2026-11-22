@@ -1,21 +1,26 @@
 import Phaser from 'phaser';
-import { BILL, DEPTH, H, SCORE, view } from '../config';
-import { applyArt, img } from '../art/sticker';
-import { marker, tape } from './text';
+import { BILL, DEPTH, H, SCORE, TEX, view } from '../config';
+import { ART, applyArt, img } from '../art/sticker';
+import { INK_MARKER } from '../art/paper';
+import { written } from './text';
 
 const BAR_W = 300;
-const BAR_H = 20;
 const BTN_R = 74;
 
-/** Everything drawn on top of the action: hearts, cash, the jam meter, combo,
- *  and the DUCK / RAGE touch buttons. */
+/** Everything on top of the action, all cut from paper: hearts, the cash
+ *  price tag, the jam meter, the combo, and the DUCK / RAGE buttons. */
 export class Hud {
   private scene: Phaser.Scene;
   private hearts: Phaser.GameObjects.Image[] = [];
+  private tag: Phaser.GameObjects.Image;
   private cash: Phaser.GameObjects.Text;
-  private jamLabel: Phaser.GameObjects.Container;
-  private jamCount: Phaser.GameObjects.Text;
-  private bar: Phaser.GameObjects.Graphics;
+  private jamTape: Phaser.GameObjects.Image;
+  private jamLabel: Phaser.GameObjects.Text;
+  private meter: Phaser.GameObjects.Image;
+  private green: Phaser.GameObjects.TileSprite;
+  private red: Phaser.GameObjects.TileSprite;
+  private marks: Phaser.GameObjects.Image[] = [];
+  private comboTape: Phaser.GameObjects.Image;
   private combo: Phaser.GameObjects.Text;
   private duckBtn: Phaser.GameObjects.Image;
   private rageBtn: Phaser.GameObjects.Image;
@@ -28,16 +33,28 @@ export class Hud {
 
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
-    for (let i = 0; i < BILL.maxHearts; i++) this.hearts.push(img(scene, 0, 0, 'heart').setDepth(DEPTH.hud));
-    this.cash = marker(scene, 0, 0, '$0', 25, '#c9f29b').setOrigin(0, 0.5).setDepth(DEPTH.hud);
-    this.jamLabel = tape(scene, 0, 0, 'Jam cleared').setDepth(DEPTH.hud);
-    this.jamCount = marker(scene, 0, 0, '0/0', 19, '#ffe45c').setOrigin(1, 0.5).setDepth(DEPTH.hud);
-    this.bar = scene.add.graphics().setDepth(DEPTH.hud);
-    this.combo = marker(scene, 0, 0, '', 32, '#ffe45c').setDepth(DEPTH.hud).setVisible(false);
-    this.duckBtn = img(scene, 0, 0, 'btn_duck').setDepth(DEPTH.hud).setAlpha(0.9);
-    this.rageRing = scene.add.graphics().setDepth(DEPTH.hud);
-    this.rageBtn = img(scene, 0, 0, 'btn_rage_off').setDepth(DEPTH.hud).setAlpha(0.9);
-    this.mute = img(scene, 0, 0, 'snd_on').setDepth(DEPTH.hud).setAlpha(0.85);
+    const d = DEPTH.hud;
+    for (let i = 0; i < BILL.maxHearts; i++) this.hearts.push(img(scene, 0, 0, 'heart').setDepth(d));
+    this.tag = img(scene, 0, 0, 'tag').setDepth(d).setRotation(-0.04);
+    this.cash = written(scene, 0, 0, '$0', 21, '#2f6b2b').setOrigin(0, 0.5).setDepth(d + 1).setRotation(-0.04);
+
+    this.jamTape = img(scene, 0, 0, 'tape_m').setDepth(d).setRotation(-0.025);
+    this.jamLabel = written(scene, 0, 0, 'JAM CLEARED  0/0', 15).setDepth(d + 1).setRotation(-0.025);
+    this.meter = img(scene, 0, 0, 'meter').setDepth(d);
+    const strip = (key: string) => scene.add.tileSprite(0, 0, 4, ART[key].h * TEX, key).setOrigin(0, 0.5).setScale(1 / TEX).setDepth(d + 1);
+    this.green = strip('meter_green');
+    this.red = strip('meter_red').setOrigin(1, 0.5);
+    for (let i = 0; i < SCORE.passStars.length; i++) {
+      const s = img(scene, 0, 0, 'star').setDepth(d + 2);
+      this.marks.push(s.setScale(s.scale * 0.62));
+    }
+
+    this.comboTape = img(scene, 0, 0, 'tape_m').setDepth(d).setVisible(false).setRotation(0.02);
+    this.combo = written(scene, 0, 0, '', 22, '#b8372a').setDepth(d + 1).setVisible(false).setRotation(0.02);
+    this.duckBtn = img(scene, 0, 0, 'btn_duck').setDepth(d);
+    this.rageRing = scene.add.graphics().setDepth(d);
+    this.rageBtn = img(scene, 0, 0, 'btn_rage_off').setDepth(d);
+    this.mute = img(scene, 0, 0, 'snd_on').setDepth(d);
     this.layout();
   }
 
@@ -52,13 +69,17 @@ export class Hud {
   layout(): void {
     const W = view.W;
     this.hearts.forEach((h, i) => h.setPosition(30 + i * 34, 28));
-    this.cash.setPosition(14, 64);
-    this.jamLabel.setPosition(W / 2 - 78, 19);
-    this.jamCount.setPosition(W / 2 + BAR_W / 2, 20);
+    this.tag.setPosition(10, 66);
+    this.cash.setPosition(32, 66);
+    this.jamTape.setPosition(W / 2, 17);
+    this.jamLabel.setPosition(W / 2, 17);
+    this.meter.setPosition(W / 2, 46);
+    this.comboTape.setPosition(W / 2, 92);
     this.combo.setPosition(W / 2, 92);
     this.duckBtn.setPosition(this.duckPos.x, this.duckPos.y);
     this.rageBtn.setPosition(this.ragePos.x, this.ragePos.y);
-    this.mute.setPosition(W - 30, 28);
+    this.mute.setPosition(W - 28, 28);
+    this.marks.forEach((s, i) => s.setPosition(W / 2 - BAR_W / 2 + BAR_W * SCORE.passStars[i], 62));
     this.drawBar();
     this.drawRing();
   }
@@ -79,44 +100,26 @@ export class Hud {
 
   setJam(done: number, missed: number, total: number): void {
     this.jam = { done, missed, total };
-    this.jamCount.setText(`${done}/${total}`);
+    this.jamLabel.setText(`JAM CLEARED  ${done}/${total}`);
     this.drawBar();
   }
 
+  /** Lay the green (cleared) and red (missed) paper strips into the trough. */
   private drawBar(): void {
-    const g = this.bar;
-    const x = view.W / 2 - BAR_W / 2, y = 34;
     const { done, missed, total } = this.jam;
-    g.clear();
-    g.fillStyle(0x231d1b, 1);
-    g.fillRoundedRect(x - 4, y - 4, BAR_W + 8, BAR_H + 8, 9);
-    g.fillStyle(0x4a4550, 1);
-    g.fillRoundedRect(x, y, BAR_W, BAR_H, 6);
-    const dw = (BAR_W * done) / total, mw = (BAR_W * missed) / total;
-    if (dw > 2) {
-      g.fillStyle(0x7ed957, 1);
-      g.fillRoundedRect(x, y, Math.max(12, dw), BAR_H, 6);
-    }
-    if (mw > 2) {
-      g.fillStyle(0xe2463f, 1);
-      g.fillRoundedRect(x + BAR_W - Math.max(12, mw), y, Math.max(12, mw), BAR_H, 6);
-    }
-    // star thresholds
-    for (const s of SCORE.passStars) {
-      const sx = x + BAR_W * s;
-      g.fillStyle(0x231d1b, 1);
-      g.fillRect(sx - 1.5, y - 2, 3, BAR_H + 4);
-      g.fillStyle(0xffd23f, 1);
-      g.fillTriangle(sx - 6, y + BAR_H + 4, sx + 6, y + BAR_H + 4, sx, y + BAR_H - 3);
-    }
+    const x = view.W / 2 - BAR_W / 2, y = 46;
+    this.green.setPosition(x, y).setVisible(done > 0);
+    this.green.width = Math.max(1, (BAR_W * done) / total) * TEX;
+    this.red.setPosition(x + BAR_W, y).setVisible(missed > 0);
+    this.red.width = Math.max(1, (BAR_W * missed) / total) * TEX;
   }
 
   setCombo(n: number, mult: number): void {
-    if (n < 2) {
-      this.combo.setVisible(false);
-      return;
-    }
-    this.combo.setVisible(true).setText(mult > 1 ? `${n} COMBO  x${mult}` : `${n} COMBO`);
+    const show = n >= 2;
+    this.combo.setVisible(show);
+    this.comboTape.setVisible(show);
+    if (!show) return;
+    this.combo.setText(mult > 1 ? `${n} COMBO   x${mult}` : `${n} COMBO`);
     this.combo.setScale(1.3);
     this.scene.tweens.add({ targets: this.combo, scale: 1, duration: 140, ease: 'Back.out' });
   }
@@ -138,16 +141,21 @@ export class Hud {
     this.drawRing();
   }
 
+  /** The rage meter: a ring of red paper filling in around the button. */
   private drawRing(): void {
     const g = this.rageRing;
     const { x, y } = this.ragePos;
     g.clear();
-    g.lineStyle(11, 0x231d1b, 0.9);
+    g.lineStyle(12, 0x18100a, 0.28);
+    g.beginPath();
+    g.arc(x + 2, y + 3, 68, 0, Math.PI * 2);
+    g.strokePath();
+    g.lineStyle(11, 0xf9f4e4, 1);
     g.beginPath();
     g.arc(x, y, 68, 0, Math.PI * 2);
     g.strokePath();
     if (this.rageFrac > 0.01) {
-      g.lineStyle(7, this.rageFrac >= 1 ? 0xffd23f : 0xff7a45, 1);
+      g.lineStyle(7, this.rageFrac >= 1 ? 0xf6c430 : 0xcc302a, 1);
       g.beginPath();
       g.arc(x, y, 68, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * this.rageFrac);
       g.strokePath();
@@ -155,7 +163,7 @@ export class Hud {
   }
 
   setDuckPressed(down: boolean): void {
-    this.duckBtn.setTint(down ? 0x9fb8e8 : 0xffffff);
+    this.duckBtn.setTint(down ? 0xb9c6e0 : 0xffffff);
     this.duckBtn.setScale(down ? 0.46 : 0.5);
   }
 
@@ -173,6 +181,8 @@ export class Hud {
   }
 
   overMute(x: number, y: number): boolean {
-    return Math.hypot(x - (view.W - 30), y - 28) < 30;
+    return Math.hypot(x - (view.W - 28), y - 28) < 30;
   }
 }
+
+export { INK_MARKER };

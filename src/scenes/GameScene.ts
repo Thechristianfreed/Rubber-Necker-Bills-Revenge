@@ -9,7 +9,8 @@ import { Bill } from '../objects/Bill';
 import { Motion, NoodleNeck } from '../objects/NoodleNeck';
 import { Vehicle } from '../objects/Vehicle';
 import { Hud } from '../ui/Hud';
-import { label, marker } from '../ui/text';
+import { written } from '../ui/text';
+import { DISPLAY, bubblePath, cutText, fillPaper, glued, makePaperArt, tapePath, textWidth } from '../art/paper';
 
 interface Strip { ts: Phaser.GameObjects.TileSprite; factor: number }
 interface Prop { im: Phaser.GameObjects.Image; factor: number; wrap?: number }
@@ -34,8 +35,9 @@ export class GameScene extends Phaser.Scene {
   private dustFx!: Phaser.GameObjects.Particles.ParticleEmitter;
   private smokeFx?: Phaser.GameObjects.Particles.ParticleEmitter;
   private wreck?: Phaser.GameObjects.Image;
-  private bubble?: Phaser.GameObjects.Container;
-  private hintText?: Phaser.GameObjects.Text;
+  private bubble?: Phaser.GameObjects.Image;
+  private bubbleSeq = 0;
+  private hintNote?: Phaser.GameObjects.Container;
 
   private levelT = 0;
   private propT = 1;
@@ -86,7 +88,7 @@ export class GameScene extends Phaser.Scene {
     this.swingBuffer = 0;
     this.taught = new Set();
     this.bubble = undefined;
-    this.hintText = undefined;
+    this.hintNote = undefined;
     const auto = new URLSearchParams(location.search).get('auto');
     this.auto = auto === null ? '' : auto === 'clumsy' ? 'clumsy' : 'good';
     this.tweens.timeScale = 1;
@@ -172,10 +174,10 @@ export class GameScene extends Phaser.Scene {
     const r = this.add.graphics().setDepth(DEPTH.road);
     r.fillStyle(0xfbf6ea, 1); r.fillRect(x0, 203, ww, 3.5);        // the postcard's white bottom edge
     r.fillStyle(0x1c1820, 0.1); r.fillRect(x0, 206, ww, 92);       // the closed far lane sits a shade darker
-    r.fillStyle(0x47454f, 1); r.fillRect(x0, 388, ww, 14);         // median
-    r.fillStyle(0xf3c53a, 1); r.fillRect(x0, 391, ww, 3); r.fillRect(x0, 396, ww, 3);
-    r.fillStyle(0xf4efe2, 1); r.fillRect(x0, 517, ww, 4);
-    r.fillStyle(0x6ba56a, 1); r.fillRect(x0, 530, ww, 10 + BLEED); // verge, past the bottom edge
+    this.strip('asphalt', 388, 1, DEPTH.road, 14).setTint(0xa9a9b6); // median
+    this.strip('line_yellow', 390.5, 1, DEPTH.road + 1);
+    this.strip('line_yellow', 395.5, 1, DEPTH.road + 1);
+    this.strip('line_white', 516, 1, DEPTH.road + 1);
 
     this.strip('rail', 207 - ART.rail.h, 1, DEPTH.road + 1);                // posts stand on the road's far edge
     this.strip('dash', 297, 1, DEPTH.road + 1);
@@ -241,14 +243,25 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
+  /** The level's name on a paper banner, with the brief on a strip of tape. */
   private intro(): void {
-    const title = label(this, view.W / 2, 150, this.level.name, 76, '#ffe45c', 12).setDepth(DEPTH.overlay).setScale(0.2).setAlpha(0);
-    const sub = marker(this, view.W / 2, 214, this.level.tagline, 27).setDepth(DEPTH.overlay).setAlpha(0);
-    this.tweens.add({ targets: title, scale: 1, alpha: 1, duration: 320, ease: 'Back.out' });
-    this.tweens.add({ targets: sub, alpha: 1, duration: 250, delay: 250 });
+    const name = this.level.name;
+    const w = Math.max(300, textWidth(name, 66) + 70), h = 92;
+    makePaperArt(this, 'intro_banner', w, h, (c) => {
+      tapePath(c, 0, 0, w, h);
+      fillPaper(c, 'red');
+      cutText(c, name, w / 2, h / 2 + 3, 66, 'yellow');
+    }, { border: 3 });
+    const title = img(this, view.W / 2, 150, 'intro_banner').setDepth(DEPTH.overlay).setRotation(-0.03).setAlpha(0);
+    const full = title.scale;
+    title.setScale(full * 0.2);
+    const tape = img(this, view.W / 2, 222, 'tape_l').setDepth(DEPTH.overlay).setAlpha(0).setRotation(0.012);
+    const sub = written(this, view.W / 2, 222, this.level.tagline, 21).setDepth(DEPTH.overlay).setAlpha(0).setRotation(0.012);
+    this.tweens.add({ targets: title, scale: full, alpha: 1, duration: 320, ease: 'Back.out' });
+    this.tweens.add({ targets: [tape, sub], alpha: 1, duration: 250, delay: 250 });
     this.tweens.add({
-      targets: [title, sub], alpha: 0, y: '-=30', duration: 300, delay: 2500,
-      onComplete: () => { title.destroy(); sub.destroy(); },
+      targets: [title, tape, sub], alpha: 0, y: '-=30', duration: 300, delay: 2500,
+      onComplete: () => { title.destroy(); tape.destroy(); sub.destroy(); this.textures.remove('intro_banner'); },
     });
   }
 
@@ -274,9 +287,11 @@ export class GameScene extends Phaser.Scene {
     this.setSlow(0.18);
     sound.rageFire();
     this.say(pick(PHRASES.rage).text);
-    const banner = label(this, view.W / 2, 150, 'ROAD RAGE!', 84, '#ff5a3c', 13).setDepth(DEPTH.overlay).setScale(0.3);
-    this.tweens.add({ targets: banner, scale: 1.05, duration: 60, ease: 'Back.out' });
-    this.tweens.add({ targets: banner, alpha: 0, scale: 1.5, duration: 90, delay: 200, onComplete: () => banner.destroy() });
+    const banner = img(this, view.W / 2, 150, 'word_roadrage').setDepth(DEPTH.overlay).setRotation(-0.04);
+    const full = banner.scale;
+    banner.setScale(full * 0.3);
+    this.tweens.add({ targets: banner, scale: full * 1.05, duration: 60, ease: 'Back.out' });
+    this.tweens.add({ targets: banner, alpha: 0, scale: full * 1.5, duration: 90, delay: 200, onComplete: () => banner.destroy() });
     this.cameras.main.zoomTo(view.RES * 1.06, 380);
   }
 
@@ -331,8 +346,8 @@ export class GameScene extends Phaser.Scene {
       this.cash = Math.max(0, this.cash - SCORE.dogFine);
       this.hud.setCash(this.cash);
       sound.yelp();
-      this.pop(hx, hy - 34, 'BAD BILL!', '#ff6b5e', 34);
-      this.pop(hx, hy + 2, `-$${SCORE.dogFine}`, '#ff6b5e', 24);
+      this.popWord(hx, hy - 40, 'badbill');
+      this.popTag(hx + 6, hy + 6, `-$${SCORE.dogFine}`, '#b8372a', 0.12);
       this.say(pick(PHRASES.dog).text);
       this.bill.setFace('glare', 1);
       this.cameras.main.shake(120, 0.005);
@@ -362,7 +377,7 @@ export class GameScene extends Phaser.Scene {
     this.cameras.main.shake(perfect ? 150 : 90, perfect ? 0.009 : 0.005);
     this.burst(hx, hy, perfect);
     this.popWord(hx + 10, hy - 52, q === 'perfect' ? 'perfect' : pick(HIT_WORDS));
-    this.pop(hx + 34, hy - 6, `+$${gain}`, '#b8f28a', 22, 0.12);
+    this.popTag(hx + 38, hy - 4, `+$${gain}`, '#2f6b2b', 0.12);
     this.bill.setFace('grin', 0.5);
 
     if (neck.kind === 'phone') {
@@ -393,7 +408,7 @@ export class GameScene extends Phaser.Scene {
     this.cameras.main.flash(120, 255, 90, 80);
     const top = this.bill.headTop;
     this.burst(top.x, top.y + 20, false);
-    this.pop(top.x, top.y - 20, 'CLANG!', '#ff6b5e', 38);
+    this.popWord(top.x, top.y - 24, 'clang');
     this.say(pick(PHRASES.hurt).text);
     if (this.hearts <= 0) this.finish('bonked');
   }
@@ -409,20 +424,19 @@ export class GameScene extends Phaser.Scene {
     this.starFx.explode(big ? 10 : 6, x, y);
   }
 
-  private pop(x: number, y: number, text: string, color: string, size: number, delay = 0): void {
-    const t = label(this, x, y, text, size, color).setDepth(DEPTH.fx + 8).setRotation((Math.random() - 0.5) * 0.3).setScale(0.3).setAlpha(0);
-    this.tweens.add({ targets: t, scale: 1, alpha: 1, duration: 110, delay, ease: 'Back.out' });
-    this.tweens.add({ targets: t, y: y - 46, alpha: 0, duration: 380, delay: delay + 430, onComplete: () => t.destroy() });
+  /** A number or note scribbled on a scrap of tape and slapped down. */
+  private popTag(x: number, y: number, text: string, color: string, delay = 0): void {
+    const t = written(this, 0, 0, text, 19, color);
+    const tape = img(this, 0, 0, 'tape_s');
+    tape.setScale(tape.scale * Math.max(0.8, (t.width + 4) / ART.tape_s.w), tape.scale);
+    const c = this.add.container(x, y, [tape, t]).setDepth(DEPTH.fx + 8).setRotation((Math.random() - 0.5) * 0.3).setScale(0.3).setAlpha(0);
+    this.tweens.add({ targets: c, scale: 1, alpha: 1, duration: 110, delay, ease: 'Back.out' });
+    this.tweens.add({ targets: c, y: y - 46, alpha: 0, duration: 380, delay: delay + 430, onComplete: () => c.destroy() });
   }
 
-  /** A hit word: a paper cutout slapped onto the page, falling back to lettering. */
+  /** A word on a jagged paper burst, slapped onto the page. */
   private popWord(x: number, y: number, word: string): void {
-    const key = `word_${word}`;
-    if (!this.textures.exists(key)) {
-      this.pop(x, y, `${word.toUpperCase()}!`, word === 'perfect' ? '#ffe45c' : '#ffffff', word === 'perfect' ? 40 : 32);
-      return;
-    }
-    const im = img(this, x, y, key).setDepth(DEPTH.fx + 8).setRotation((Math.random() - 0.5) * 0.36);
+    const im = img(this, x, y, `word_${word}`).setDepth(DEPTH.fx + 8).setRotation((Math.random() - 0.5) * 0.36);
     const full = im.scale;
     im.setScale(full * 0.3).setAlpha(0);
     this.tweens.add({ targets: im, scale: full, alpha: 1, duration: 110, ease: 'Back.out' });
@@ -447,47 +461,46 @@ export class GameScene extends Phaser.Scene {
     this.tweens.add({ targets: ph, y: 380, duration: 520, delay: 380, ease: 'Quad.in', onComplete: () => ph.destroy() });
   }
 
-  /** Bill's speech bubble. */
+  /** Bill's speech bubble: cut from paper, with a tail toward his head. */
   private say(text: string): void {
     this.bubble?.destroy();
-    const t = this.add.text(0, 0, text, {
-      fontFamily: 'Bangers, Impact, sans-serif', fontSize: '26px', color: INK,
-      padding: { x: 6, y: 4 }, resolution: Math.max(1, Math.ceil(view.RES)),
-    }).setOrigin(0.5).setLetterSpacing(1);
-    const w = t.width + 26, h = t.height + 12;
-    const g = this.add.graphics();
-    g.fillStyle(0xfffaf0, 1);
-    g.lineStyle(3, 0x231d1b, 1);
-    g.fillRoundedRect(-w / 2, -h / 2, w, h, 15);
-    g.strokeRoundedRect(-w / 2, -h / 2, w, h, 15);
-    const tx = w / 2 - 46;
-    g.fillTriangle(tx, h / 2 - 3, tx + 26, h / 2 - 3, tx + 30, h / 2 + 24);
-    g.beginPath();
-    g.moveTo(tx, h / 2);
-    g.lineTo(tx + 30, h / 2 + 24);
-    g.lineTo(tx + 26, h / 2);
-    g.strokePath();
-    g.lineStyle(4, 0xfffaf0, 1);
-    g.lineBetween(tx + 3, h / 2 - 1, tx + 23, h / 2 - 1);
+    const size = 26;
+    const w = textWidth(text, size) + 34, h = 42, tail = 22;
+    const key = `bubble_${this.bubbleSeq++}`;
+    makePaperArt(this, key, w, h + tail, (c) => {
+      bubblePath(c, w, h, w - 74, tail);
+      fillPaper(c, 'white');
+      c.font = `${size}px ${DISPLAY}`;
+      c.textAlign = 'center';
+      c.textBaseline = 'middle';
+      c.fillStyle = INK;
+      c.fillText(text, w / 2, h / 2 + 1);
+    }, { border: 2, ax: w - 44, ay: h + tail });
     const top = this.bill.headTop;
-    const bx = Math.max(w / 2 + 8, top.x - 26 - (w / 2 - 46));
-    const c = this.add.container(bx, top.y - 44 - h / 2, [g, t]).setDepth(DEPTH.fx + 10).setScale(0.3);
-    this.bubble = c;
-    this.tweens.add({ targets: c, scale: 1, duration: 140, ease: 'Back.out' });
+    const x = Math.max(w - 36, top.x - 22);
+    const b = img(this, x, top.y - 6, key).setDepth(DEPTH.fx + 10);
+    const full = b.scale;
+    b.setScale(full * 0.3);
+    this.bubble = b;
+    this.tweens.add({ targets: b, scale: full, duration: 140, ease: 'Back.out' });
     this.tweens.add({
-      targets: c, alpha: 0, duration: 200, delay: 1500,
-      onComplete: () => { if (this.bubble === c) this.bubble = undefined; c.destroy(); },
+      targets: b, alpha: 0, duration: 200, delay: 1500,
+      onComplete: () => { if (this.bubble === b) this.bubble = undefined; b.destroy(); this.textures.remove(key); },
     });
   }
 
+  /** A tip written on a long strip of tape across the top of the page. */
   private hint(text: string): void {
-    this.hintText?.destroy();
-    const t = marker(this, view.W / 2, 152, text, 30, '#ffffff').setDepth(DEPTH.overlay - 1).setScale(0.4).setAlpha(0);
-    this.hintText = t;
-    this.tweens.add({ targets: t, scale: 1, alpha: 1, duration: 180, ease: 'Back.out' });
+    this.hintNote?.destroy();
+    const t = written(this, 0, 0, text, 21);
+    const tape = img(this, 0, 0, 'tape_l');
+    tape.setScale(tape.scale * Math.max(0.5, (t.width + 34) / ART.tape_l.w), tape.scale);
+    const c = this.add.container(view.W / 2, 150, [tape, t]).setDepth(DEPTH.overlay - 1).setRotation(-0.012).setScale(0.4).setAlpha(0);
+    this.hintNote = c;
+    this.tweens.add({ targets: c, scale: 1, alpha: 1, duration: 180, ease: 'Back.out' });
     this.tweens.add({
-      targets: t, alpha: 0, duration: 250, delay: 2300,
-      onComplete: () => { if (this.hintText === t) this.hintText = undefined; t.destroy(); },
+      targets: c, alpha: 0, duration: 250, delay: 2300,
+      onComplete: () => { if (this.hintNote === c) this.hintNote = undefined; c.destroy(); },
     });
   }
 
@@ -621,13 +634,13 @@ export class GameScene extends Phaser.Scene {
           if (n.kind === 'dog') {
             this.cash += SCORE.dodge;
             this.hud.setCash(this.cash);
-            this.pop(n.headX, n.headY - 40, 'GOOD BOY!', '#b8f28a', 24);
+            this.popWord(n.headX, n.headY - 46, 'goodboy');
           } else {
             this.missed++;
             this.combo = 0;
             this.hud.setCombo(0, 1);
             this.hud.setJam(this.whacked, this.missed, this.total);
-            this.pop(n.headX, n.headY - 40, 'MISSED!', '#ff8f85', 24);
+            this.popWord(n.headX, n.headY - 46, 'missed');
           }
         }
       }
@@ -654,7 +667,7 @@ export class GameScene extends Phaser.Scene {
             this.cash += SCORE.dodge;
             this.hud.setCash(this.cash);
             sound.dodge();
-            this.pop(this.bill.x, 300, 'DODGED!', '#9fd0ff', 26);
+            this.popWord(this.bill.x - 10, 262, 'dodged');
           }
         }
       }
@@ -706,28 +719,36 @@ export class GameScene extends Phaser.Scene {
     this.time.delayedCall(won ? 500 : 700, () => this.showResults(won, stars, reason));
   }
 
+  /** The results page: a sheet of paper held by photo corners. */
   private showResults(won: boolean, stars: number, reason: 'end' | 'bonked'): void {
     const W = view.W;
     if (won) sound.win(); else sound.lose();
-    const veil = this.add.rectangle(W / 2, H / 2, MAX_W * 2, H * 2, 0x14121a, 0.62).setDepth(DEPTH.overlay).setAlpha(0);
+    const veil = this.add.rectangle(W / 2, H / 2, MAX_W * 2, H * 2, 0x14121a, 0.55).setDepth(DEPTH.overlay).setAlpha(0);
     this.tweens.add({ targets: veil, alpha: 1, duration: 250 });
 
-    const pw = 560, ph = 400, px = W / 2, py = H / 2 + 6;
-    const g = this.add.graphics().setDepth(DEPTH.overlay + 1);
-    g.fillStyle(0x231d1b, 1);
-    g.fillRoundedRect(px - pw / 2 + 7, py - ph / 2 + 9, pw, ph, 26);
-    g.fillStyle(0xfffaf0, 1);
-    g.lineStyle(5, 0x231d1b, 1);
-    g.fillRoundedRect(px - pw / 2, py - ph / 2, pw, ph, 26);
-    g.strokeRoundedRect(px - pw / 2, py - ph / 2, pw, ph, 26);
-
-    const d = DEPTH.overlay + 2;
+    const pw = 560, ph = 396, px = W / 2, py = H / 2 + 6;
     const title = won ? 'JAM CLEARED!' : reason === 'bonked' ? "BILL'S HAD ENOUGH" : 'THE JAM WINS';
-    label(this, px, py - 150, title, 58, won ? '#ffd23f' : '#ff6b5e', 10).setDepth(d);
+    makePaperArt(this, 'results_page', pw, ph, (c) => {
+      c.beginPath();
+      c.rect(0, 0, pw, ph);
+      fillPaper(c, 'cream');
+      glued(c, () => {
+        for (const [x, y, sx, sy] of [[0, 0, 1, 1], [pw, 0, -1, 1], [0, ph, 1, -1], [pw, ph, -1, -1]]) {
+          c.beginPath();
+          c.moveTo(x, y); c.lineTo(x + 34 * sx, y); c.lineTo(x, y + 34 * sy);
+          c.closePath();
+          fillPaper(c, 'black');
+        }
+      });
+      cutText(c, title, pw / 2, 52, title.length > 13 ? 50 : 60, won ? 'red' : 'blue');
+    }, { border: 0 });
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.textures.remove('results_page'));
+    const d = DEPTH.overlay + 2;
+    img(this, px, py, 'results_page').setDepth(d - 1).setRotation(-0.008);
 
     for (let i = 0; i < 3; i++) {
       const on = i < stars;
-      const s = img(this, px - 92 + i * 92, py - 72 + (i === 1 ? -8 : 0), on ? 'star_big' : 'star_big_off').setDepth(d);
+      const s = img(this, px - 92 + i * 92, py - 76 + (i === 1 ? -8 : 0), on ? 'star_big' : 'star_big_off').setDepth(d).setRotation((i - 1) * 0.12);
       if (on) {
         const full = s.scale;
         s.setScale(0);
@@ -746,22 +767,25 @@ export class GameScene extends Phaser.Scene {
       ['Cash earned', `$${this.cash}`],
     ];
     rows.forEach(([k, v], i) => {
-      const y = py + 2 + i * 34;
-      label(this, px - 220, y, k, 25, INK, 0).setOrigin(0, 0.5).setDepth(d);
-      label(this, px + 220, y, v, 25, '#c2402f', 0).setOrigin(1, 0.5).setDepth(d);
+      const y = py + 2 + i * 33;
+      written(this, px - 222, y, k, 21).setOrigin(0, 0.5).setDepth(d);
+      written(this, px + 222, y, v, 21, '#b8372a').setOrigin(1, 0.5).setDepth(d);
     });
     if (!won && reason === 'end') {
-      label(this, px, py - 20, `Need ${Math.round(SCORE.passStars[0] * 100)}% to clear the jam`, 20, '#7a6a58', 0).setDepth(d);
+      written(this, px, py - 24, `Need ${Math.round(SCORE.passStars[0] * 100)}% to clear the jam`, 16, '#7a6a58').setDepth(d);
     }
 
     const face = this.add.image(px - pw / 2 + 12, py - ph / 2 + 30, won ? 'bill-grin' : 'bill-glare').setDepth(d + 1).setRotation(-0.22);
     face.setScale(121 / HEAD_SRC_H);
 
-    const again = label(this, px, py + 158, 'TAP TO PLAY AGAIN', 32, '#ffffff').setDepth(d).setAlpha(0);
+    const tape = img(this, px, py + 158, 'tape_m').setDepth(d).setAlpha(0);
+    tape.setScale(tape.scale * 1.5, tape.scale * 1.15);
+    const again = written(this, px, py + 158, 'TAP TO PLAY AGAIN', 22).setDepth(d + 1).setAlpha(0);
     this.time.delayedCall(1100, () => {
       this.canRestart = true;
+      tape.setAlpha(1);
       again.setAlpha(1);
-      this.tweens.add({ targets: again, scale: 1.08, duration: 420, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
+      this.tweens.add({ targets: [tape, again], y: '-=5', duration: 420, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
     });
   }
 }

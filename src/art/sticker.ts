@@ -99,6 +99,8 @@ export interface PhotoOpts {
   border?: number;
   /** Anchor as fractions of the piece (0.5, 1 = bottom centre). */
   anchor?: [number, number];
+  /** A canvas filter applied to the photo, e.g. 'grayscale(1)'. */
+  filter?: string;
   /** Draw on top of the photo (sign lettering and so on), in design pixels. */
   decorate?: (c: Ctx, w: number, h: number) => void;
 }
@@ -112,7 +114,9 @@ export function makePhotoArt(scene: Phaser.Scene, key: string, image: HTMLImageE
   const [inner, c] = makeCanvas(w * TEX, h * TEX);
   c.imageSmoothingEnabled = true;
   c.imageSmoothingQuality = 'high';
+  if (opts.filter) c.filter = opts.filter;
   c.drawImage(image, 0, 0, inner.width, inner.height);
+  c.filter = 'none';
   if (opts.decorate) {
     c.scale(TEX, TEX);
     opts.decorate(c, w, h);

@@ -58,3 +58,17 @@ export function tape(scene: Phaser.Scene, x: number, y: number, text: string, si
   g.fillRect(-w / 2, -h / 2, w, 2.5);
   return scene.add.container(x, y, [g, t]).setRotation(-0.025);
 }
+
+/** Marker handwriting in plain ink, for anything written on a scrap of paper. */
+export function written(
+  scene: Phaser.Scene, x: number, y: number, text: string, size: number, color = '#2a2320',
+): Phaser.GameObjects.Text {
+  return scene.add.text(x, y, text, {
+    fontFamily: MARKER,
+    fontSize: `${size}px`,
+    color,
+    align: 'center',
+    padding: { x: 6, y: 5 },
+    resolution: Math.max(1, Math.ceil(view.RES)),
+  }).setOrigin(0.5);
+}

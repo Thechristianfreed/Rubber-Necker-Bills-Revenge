@@ -2,7 +2,8 @@ import Phaser from 'phaser';
 import { H, HEAD_SRC_H, MAX_W, TEX, view } from '../config';
 import { ART, img } from '../art/sticker';
 import { sound } from '../audio/sound';
-import { label } from '../ui/text';
+import { written } from '../ui/text';
+import { cutText, fillPaper, makePaperArt, tapePath } from '../art/paper';
 
 export class TitleScene extends Phaser.Scene {
   constructor() {
@@ -24,36 +25,60 @@ export class TitleScene extends Phaser.Scene {
       const k = (H - 70) / ART.postcard.h;
       this.add.tileSprite(0, 0, (MAX_W / k) * TEX, ART.postcard.h * TEX, 'postcard').setOrigin(0, 0).setScale(k / TEX);
     }
-    const road = this.add.graphics();
-    road.fillStyle(0xfbf6ea, 1); road.fillRect(0, H - 96, MAX_W, 4);
-    road.fillStyle(0x5d5b66, 1); road.fillRect(0, H - 92, MAX_W, 92);
-    road.fillStyle(0xf3c53a, 1); road.fillRect(0, H - 50, MAX_W, 5);
+    const band = (key: string, y: number, h: number) => this.add.tileSprite(0, y, MAX_W * TEX, h * TEX, key).setOrigin(0, 0).setScale(1 / TEX);
+    if (this.textures.exists('asphalt')) band('asphalt', H - 92, 92);
+    else this.add.rectangle(0, H - 92, MAX_W, 92, 0x5d5b66).setOrigin(0, 0);
+    band('line_white', H - 96, ART.line_white.h);
+    band('line_yellow', H - 50, ART.line_yellow.h);
 
-    // Bill, large, giving the side-eye, in front of a paper burst
+    // Bill as a bust portrait in front of a paper burst, bat over his shoulder.
+    // He is framed from the shoulders up so the shirt's sleeves run off the page.
     const bx = W * 0.25;
-    const rays = img(this, bx, H - 250, 'burst');
+    const rays = img(this, bx, H - 232, 'burst');
     rays.setScale(rays.scale * 3.4);
     this.tweens.add({ targets: rays, rotation: Math.PI * 2, duration: 60000, repeat: -1 });
-    const arm = img(this, bx + 82, H - 112, 'bill_arm').setRotation(0.34);
-    arm.setScale(arm.scale * 2.2);
-    const torso = img(this, bx, H - 6, 'bill_torso');
+    if (this.textures.exists('bat')) {
+      const bat = img(this, bx + 70, H - 84, 'bat').setRotation(0.5);
+      bat.setScale(bat.scale * 2.7);
+    }
+    const torso = img(this, bx, H + 40, 'bill_torso');
     torso.setScale(torso.scale * 2.5);
-    const head = this.add.image(bx - 4, H - 268, 'bill-sideeye').setRotation(-0.06);
+    if (this.textures.exists('bill_neck')) {
+      const neck = img(this, bx - 2, H - 150, 'bill_neck');
+      neck.setScale(neck.scale * 2.5);
+    }
+    const head = this.add.image(bx - 4, H - 236, 'bill-sideeye').setRotation(-0.06);
     head.setScale(230 / HEAD_SRC_H);
-    this.tweens.add({ targets: head, y: head.y - 6, rotation: 0.02, duration: 1400, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
-    this.tweens.add({ targets: arm, rotation: 0.24, duration: 900, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
+    this.tweens.add({ targets: head, y: head.y - 4, rotation: 0.0, duration: 1600, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
 
+    // the title: yellow letters glued on a red paper banner
     const tx = W * 0.66;
-    const l1 = label(this, tx, 118, 'RUBBER', 132, '#ffd23f', 18).setRotation(-0.05);
-    const l2 = label(this, tx + 14, 226, 'NECKER', 132, '#ffd23f', 18).setRotation(-0.05);
-    const tag = label(this, tx + 6, 312, "BILL'S REVENGE", 44, '#ffffff', 9).setRotation(-0.05);
-    for (const t of [l1, l2, tag]) t.setShadow(5, 6, '#231d1b', 0, true, true);
+    makePaperArt(this, 'title_card', 440, 232, (c) => {
+      tapePath(c, 0, 0, 440, 232);
+      fillPaper(c, 'red');
+      cutText(c, 'RUBBER', 220, 66, 116, 'yellow');
+      cutText(c, 'NECKER', 220, 166, 116, 'yellow');
+    }, { border: 3.5 });
+    makePaperArt(this, 'title_sub', 290, 50, (c) => {
+      tapePath(c, 0, 0, 290, 50);
+      fillPaper(c, 'blue');
+      cutText(c, "BILL'S REVENGE", 145, 27, 38, 'white');
+    }, { border: 2.5 });
+    img(this, tx, 138, 'title_card').setRotation(-0.045);
+    img(this, tx + 40, 268, 'title_sub').setRotation(-0.02);
 
-    const go = label(this, tx, 400, 'TAP TO PLAY', 46, '#ffffff', 9);
-    this.tweens.add({ targets: go, scale: 1.1, duration: 460, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
-    label(this, tx, 462, 'TAP = swing     HOLD DUCK = dodge signs', 22, '#fffaf0', 5);
-    label(this, tx, 492, "Fill the RAGE meter.  Don't hit the dog.", 22, '#fffaf0', 5);
-    label(this, W - 10, H - 12, 'prototype 0.1', 15, '#fffaf0', 3).setOrigin(1, 0.5).setAlpha(0.7);
+    // notes written on strips of tape
+    const note = (y: number, text: string, size: number, tapeKey: string, stretch: number, tilt: number) => {
+      const t = written(this, 0, 0, text, size);
+      const tape = img(this, 0, 0, tapeKey);
+      tape.setScale(tape.scale * Math.max(0.4, (t.width + 30) / ART[tapeKey].w), tape.scale * stretch);
+      return this.add.container(tx, y, [tape, t]).setRotation(tilt);
+    };
+    const go = note(350, 'TAP TO PLAY', 30, 'tape_m', 1.5, 0.015);
+    this.tweens.add({ targets: go, scale: 1.08, duration: 460, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
+    note(424, 'TAP = swing        HOLD DUCK = dodge signs', 17, 'tape_l', 0.8, -0.01);
+    note(462, "Fill the RAGE meter.  Don't hit the dog.", 17, 'tape_l', 0.8, 0.008);
+    written(this, W - 12, H - 14, 'prototype 0.2', 13, '#fbf6ea').setOrigin(1, 0.5).setAlpha(0.8);
 
     const start = () => {
       sound.unlock();
