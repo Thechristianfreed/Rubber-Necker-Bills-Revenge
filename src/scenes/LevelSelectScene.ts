@@ -4,8 +4,9 @@ import { ART, Ctx, img, star } from '../art/sticker';
 import { cutText, fillPaper, glued, makePaperArt, tapePath, textWidth } from '../art/paper';
 import { sound } from '../audio/sound';
 import { HALL } from '../art/hallway';
-import { LEVELS, LevelDef, Theme, sceneFor } from '../data/levels';
-import { RIGS } from '../objects/Bill';
+import { DOLL, ROOM } from '../art/sleepover';
+import { LEVELS, LevelDef, sceneFor } from '../data/levels';
+import { RIGS, RigName } from '../objects/Bill';
 import { loadStars } from '../data/progress';
 import { MARKER, written } from '../ui/text';
 
@@ -105,7 +106,7 @@ export class LevelSelectScene extends Phaser.Scene {
 
   /** Bill, put together the way the game does it: his body frame, his head on
    *  its neck, and his ride in front. (x, groundY) is where his wheels touch the road. */
-  private placeBill(c: Ctx, theme: Theme, face: string, x: number, groundY: number, k: number): void {
+  private placeBill(c: Ctx, theme: RigName, face: string, x: number, groundY: number, k: number): void {
     const rig = RIGS[theme];
     const ground = rig.ride?.baseY ?? rig.at[1];
     const X = (dx: number) => x + dx * k;
@@ -154,6 +155,21 @@ export class LevelSelectScene extends Phaser.Scene {
         this.place(c, 'mailbox0_hit', px + 44, road + 3, 0.7);
         this.place(c, 'mailbox1', px + 232, road + 3, 0.7);
         this.placeBill(c, 'street', 'bill-grin', px + 140, py + ph - 3, 0.52);
+      } else if (level.theme === 'sleepover') {
+        // the rec room: DJ asleep on the couch, and Neil with the sock
+        const lk = 0.6, floor = py + 132, cx = px + 158;
+        c.beginPath(); c.rect(px, py, pw, ph); fillPaper(c, 'manila');
+        c.fillStyle = 'rgba(90, 55, 20, 0.22)';
+        c.fillRect(px, py, pw, ph);
+        c.beginPath(); c.rect(px, floor, pw, ph); fillPaper(c, 'green');
+        this.place(c, 'rec_window', cx + 60, py + 46, lk);
+        this.place(c, 'kid_forrest', cx + ROOM.forrest[0] * lk, floor + 30 + (ROOM.forrest[1] - ROOM.couchY) * lk, lk);
+        this.place(c, 'rec_couch', cx, floor + 30, lk);
+        this.place(c, 'dj_asleep', cx, floor + 30 + (ROOM.djY - ROOM.couchY) * lk, lk);
+        const nx = cx + ROOM.neil[0] * lk, ny = floor + 30 + (ROOM.neil[1] - ROOM.couchY) * lk;
+        this.place(c, 'kid_neil', nx, ny, lk);
+        this.place(c, 'neil_arm', nx + DOLL.shoulder[0] * lk, ny + DOLL.shoulder[1] * lk, lk);
+        this.place(c, 'word_blap', px + 214, py + 40, 0.62);
       } else if (level.theme === 'locker') {
         // the hallway over his shoulder: lockers, the open one, and what is coming out of it
         c.beginPath(); c.rect(px, py, pw, ph); fillPaper(c, 'cream');

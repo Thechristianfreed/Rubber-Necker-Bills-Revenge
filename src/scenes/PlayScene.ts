@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { BILL, DEPTH, H, HEAD_SRC_H, INK, MAX_W, SCORE, view } from '../config';
 import { ART, img } from '../art/sticker';
 import { sound } from '../audio/sound';
-import { HIGHWAY_JAM, LevelDef, countHeads, levelById } from '../data/levels';
+import { HIGHWAY_JAM, LevelDef, Story, countHeads, levelById } from '../data/levels';
 import { saveStars } from '../data/progress';
 import { PHRASES, Phrase, pick } from '../data/phrases';
 import { Bill } from '../objects/Bill';
@@ -27,6 +27,8 @@ export abstract class PlayScene extends Phaser.Scene {
 
   /** How far across the screen Bill is. */
   protected billFrac = BILL.xFrac;
+  /** Whether this level uses the DUCK and RAGE buttons. */
+  protected buttons = true;
   protected levelT = 0;
   protected total = 0;
   protected whacked = 0;
@@ -62,7 +64,7 @@ export abstract class PlayScene extends Phaser.Scene {
   /** Reset the score sheet. Call first in create(), before building the world. */
   protected begin(): void {
     this.levelT = 0;
-    this.total = countHeads(this.level);
+    this.total = this.level.par ?? countHeads(this.level);
     this.whacked = this.missed = this.perfects = this.combo = this.bestCombo = this.cash = this.rage = 0;
     this.hearts = BILL.maxHearts;
     this.slow = 1;
@@ -86,7 +88,7 @@ export abstract class PlayScene extends Phaser.Scene {
   /** Put the scoreboard on top and start the level. Call last in create(),
    *  once the world and Bill exist. */
   protected ready(): void {
-    this.hud = new Hud(this, this.level.words.meter);
+    this.hud = new Hud(this, this.level.words.meter, this.buttons);
     this.hud.setHearts(this.hearts);
     this.hud.setJam(0, 0, this.total);
     this.hud.setMuted(sound.muted);
@@ -100,9 +102,14 @@ export abstract class PlayScene extends Phaser.Scene {
     this.scale.on('resize', this.onResize, this);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.scale.off('resize', this.onResize, this));
 
-    this.intro();
+    this.opening();
     sound.startMusic(this.level.id);
     (window as unknown as { __rn: unknown }).__rn = this;
+  }
+
+  /** How the level opens: its name on a banner, unless it has more to say first. */
+  protected opening(): void {
+    this.intro();
   }
 
   private fitCamera(): void {
@@ -112,7 +119,7 @@ export abstract class PlayScene extends Phaser.Scene {
   protected onResize(): void {
     this.fitCamera();
     this.hud.layout();
-    this.bill.setX(view.W * this.billFrac);
+    this.bill?.setX(view.W * this.billFrac);
   }
 
   private setupInput(): void {
@@ -163,7 +170,7 @@ export abstract class PlayScene extends Phaser.Scene {
   }
 
   /** The level's name on a paper banner, with the brief on a strip of tape. */
-  private intro(): void {
+  protected intro(): void {
     const name = this.level.name;
     const w = Math.max(300, textWidth(name, 66) + 70), h = 92;
     makePaperArt(this, 'intro_banner', w, h, (c) => {
@@ -300,7 +307,7 @@ export abstract class PlayScene extends Phaser.Scene {
   /** Bill says a line: a speech bubble cut from paper, with a tail toward his
    *  head, and the recording of it if there is one. The voice waits `after`
    *  seconds, so it does not land on top of the whack that set it off. */
-  protected say(line: Phrase, after = 0.3): void {
+  protected say(line: Phrase, after = 0.3, from: Point = this.bill.headTop): void {
     const text = line.text;
     sound.say(line.voice, after);
     this.bubble?.destroy();
@@ -316,8 +323,8 @@ export abstract class PlayScene extends Phaser.Scene {
       c.fillStyle = INK;
       c.fillText(text, w / 2, h / 2 + 1);
     }, { border: 2, ax: w - 44, ay: h + tail });
-    const top = this.bill.headTop;
-    const x = Math.max(w - 36, top.x - 22);
+    const top = from;
+    const x = Phaser.Math.Clamp(top.x - 22, w - 36, view.W - 50);
     const b = img(this, x, Math.max(h + tail + 76, top.y - 6), key).setDepth(DEPTH.fx + 10);
     const full = b.scale;
     b.setScale(full * 0.3);
@@ -370,6 +377,88 @@ export abstract class PlayScene extends Phaser.Scene {
     done();
   }
 
+  /** The two middle lines of the results page. */
+  protected resultRows(): [string, string][] {
+    return [['Perfect hits', `${this.perfects}`], ['Best combo', `${this.bestCombo}`]];
+  }
+
+  /** A page of story on ruled notebook paper, over the top of the scene. It
+   *  stays until it is tapped (or has had time to be read), then calls `done`.
+   *  `art` is a piece of the level to stick in the top corner; Bill grins from
+   *  the bottom one unless `face` is false. `spoken` starts any voices. */
+  protected storyPage(story: Story, done: () => void, opts: { art?: string; face?: boolean; spoken?: () => void } = {}): void {
+    const W = view.W, d = DEPTH.overlay + 1;
+    const pw = 600, ph = 380, px = W / 2, py = H / 2 + 4;
+    const made: Phaser.GameObjects.GameObject[] = [];
+    const keep = <T extends Phaser.GameObjects.GameObject>(o: T): T => { made.push(o); return o; };
+
+    const veil = keep(this.add.rectangle(W / 2, H / 2, MAX_W * 2, H * 2, 0x14121a, 0.55).setDepth(DEPTH.overlay).setAlpha(0));
+    this.tweens.add({ targets: veil, alpha: 1, duration: 250 });
+    makePaperArt(this, 'story_page', pw, ph, (c) => {
+      c.beginPath();
+      c.rect(0, 0, pw, ph);
+      fillPaper(c, 'white');
+      c.fillStyle = 'rgba(60, 110, 190, 0.32)';
+      for (let y = 74; y < ph - 10; y += 30) c.fillRect(0, y, pw, 1.4);
+      c.fillStyle = 'rgba(200, 50, 50, 0.45)';
+      c.fillRect(64, 0, 1.6, ph);
+      for (const y of [60, ph / 2, ph - 60]) {
+        c.beginPath();
+        c.arc(30, y, 9, 0, Math.PI * 2);
+        c.fillStyle = 'rgba(30, 24, 30, 0.55)';
+        c.fill();
+      }
+    }, { border: 0 });
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.textures.remove('story_page'));
+    const page = keep(img(this, px, py, 'story_page').setDepth(d).setRotation(-0.012));
+    const full = page.scale;
+    page.setScale(full * 0.6).setAlpha(0);
+    this.tweens.add({ targets: page, scale: full, alpha: 1, duration: 240, ease: 'Back.out' });
+
+    const left = px - pw / 2 + 84, wide = pw - 84 - 116;
+    const parts: (Phaser.GameObjects.Text | Phaser.GameObjects.Image)[] = [];
+    let y = py - ph / 2 + 42;
+    parts.push(keep(written(this, left, y, story.title, 22, '#b8372a').setOrigin(0, 0.5)));
+    y += 46;
+    for (const [who, said] of story.lines) {
+      if (who) {
+        parts.push(keep(written(this, left, y, `${who}:`, 15, '#7a6a58').setOrigin(0, 0.5)));
+        y += 12;
+      } else {
+        y -= 10;
+      }
+      const line = keep(written(this, left, y, said, who ? 23 : 20).setOrigin(0, 0).setAlign('left').setWordWrapWidth(wide));
+      parts.push(line);
+      y += line.height + 16;
+    }
+    if (story.caption) parts.push(keep(written(this, left, py + ph / 2 - 62, story.caption, 17, '#7a6a58').setOrigin(0, 0.5)));
+    if (opts.art) parts.push(keep(img(this, px + pw / 2 - 86, py - ph / 2 + 80, opts.art).setRotation(0.16)));
+    if (opts.face !== false) {
+      parts.push(keep(this.add.image(px + pw / 2 - 70, py + ph / 2 - 84, 'bill-grin').setRotation(0.1).setScale(138 / HEAD_SRC_H)));
+    }
+    parts.push(keep(written(this, px, py + ph / 2 - 24, 'tap to continue', 15, '#7a6a58')));
+    parts.forEach((o, i) => {
+      o.setDepth(d + 1).setAlpha(0);
+      this.tweens.add({ targets: o, alpha: 1, duration: 260, delay: 260 + Math.min(i, 6) * 260 });
+    });
+    opts.spoken?.();
+
+    let finished = false;
+    const next = () => {
+      if (finished) return;
+      finished = true;
+      sound.hush();
+      made.forEach((o) => o.destroy());
+      done();
+    };
+    // long enough to read it; a tap moves on sooner
+    this.time.delayedCall(this.auto ? 2600 : 16000, next);
+    this.time.delayedCall(1500, () => {
+      this.input.once('pointerdown', next);
+      this.input.keyboard?.once('keydown-SPACE', next);
+    });
+  }
+
   /** The results page: a sheet of paper held by photo corners. */
   private showResults(won: boolean, stars: number, reason: 'end' | 'bonked'): void {
     const W = view.W;
@@ -413,8 +502,7 @@ export abstract class PlayScene extends Phaser.Scene {
     const pct = Math.round((this.whacked / this.total) * 100);
     const rows: [string, string][] = [
       [this.level.words.counted, `${this.whacked} / ${this.total}  (${pct}%)`],
-      ['Perfect hits', `${this.perfects}`],
-      ['Best combo', `${this.bestCombo}`],
+      ...this.resultRows(),
       ['Cash earned', `$${this.cash}`],
     ];
     rows.forEach(([k, v], i) => {

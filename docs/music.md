@@ -11,10 +11,11 @@ outlasts its track, the track goes round again.
 | Paper Route | `street.mp3` | "Sock Hop" | Relaxed 1950s rock with tremolo guitar and vibraphone |
 | Highway Jam | `highway.mp3` | "Happy Bee - Surf" | Early surf rock, mid-tempo |
 | The SKIPPY Jar | `locker.mp3` | "Sneaky Snitch" | Tiptoeing oboe, snare and plucked strings |
+| The Hot Carl | `sleepover.mp3` | "Marty Gots a Plan" | Plucked strings for sneaking round the house; it drops to a hush whenever the light is off |
 
 ## Credit (required by the licence)
 
-All three tracks are by Kevin MacLeod (incompetech.com), licensed under
+All four tracks are by Kevin MacLeod (incompetech.com), licensed under
 Creative Commons: By Attribution 4.0
 (https://creativecommons.org/licenses/by/4.0/). They are free to use as long
 as that credit appears with the game: it is on the title screen and here.
@@ -22,6 +23,7 @@ as that credit appears with the game: it is on the title screen and here.
 - "Sock Hop" Kevin MacLeod (incompetech.com)
 - "Happy Bee - Surf" Kevin MacLeod (incompetech.com)
 - "Sneaky Snitch" Kevin MacLeod (incompetech.com)
+- "Marty Gots a Plan" Kevin MacLeod (incompetech.com)
 
 ## Changing a track
 
@@ -31,7 +33,7 @@ works too: put an MP3 named after the level's id in `public/music/`.
 
 Other tracks from the same catalogue that would suit, if one of these wears
 thin: "Happy Bee" or "Vivacity" (fifties), "Surf Inspector" (surf, a little
-slower and cooler), "Marty Gots a Plan" or "Sneaky Adventure" (capers).
+slower and cooler), "Sneaky Adventure" or "Hidden Agenda" (capers).
 
 ## Custom music
 

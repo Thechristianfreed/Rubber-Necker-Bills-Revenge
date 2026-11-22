@@ -27,5 +27,6 @@ done <<'TRACKS'
 street|Sock Hop.mp3
 highway|Happy Bee - Surf.mp3
 locker|Sneaky Snitch.mp3
+sleepover|Marty Gots a Plan.mp3
 TRACKS
 rm -rf "$TMP"

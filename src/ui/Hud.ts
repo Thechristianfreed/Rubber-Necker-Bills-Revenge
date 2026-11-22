@@ -31,11 +31,14 @@ export class Hud {
   private jam = { done: 0, missed: 0, total: 1 };
   private rageFrac = 0;
   private meterLabel: string;
+  private buttons: boolean;
 
-  /** `meterLabel` is what this level calls its progress bar. */
-  constructor(scene: Phaser.Scene, meterLabel: string) {
+  /** `meterLabel` is what this level calls its progress bar. A level that is
+   *  all tapping can do without the DUCK and RAGE buttons. */
+  constructor(scene: Phaser.Scene, meterLabel: string, buttons = true) {
     this.scene = scene;
     this.meterLabel = meterLabel;
+    this.buttons = buttons;
     const d = DEPTH.hud;
     for (let i = 0; i < BILL.maxHearts; i++) this.hearts.push(img(scene, 0, 0, 'heart').setDepth(d));
     this.tag = img(scene, 0, 0, 'tag').setDepth(d).setRotation(-0.04);
@@ -58,6 +61,7 @@ export class Hud {
     this.rageRing = scene.add.graphics().setDepth(d);
     this.rageBtn = img(scene, 0, 0, 'btn_rage_off').setDepth(d);
     this.mute = img(scene, 0, 0, 'snd_on').setDepth(d);
+    for (const o of [this.duckBtn, this.rageBtn, this.rageRing]) o.setVisible(buttons);
     this.layout();
   }
 
@@ -112,7 +116,7 @@ export class Hud {
     const { done, missed, total } = this.jam;
     const x = view.W / 2 - BAR_W / 2, y = 46;
     this.green.setPosition(x, y).setVisible(done > 0);
-    this.green.width = Math.max(1, (BAR_W * done) / total) * TEX;
+    this.green.width = Math.max(1, BAR_W * Math.min(1, done / total)) * TEX;
     this.red.setPosition(x + BAR_W, y).setVisible(missed > 0);
     this.red.width = Math.max(1, (BAR_W * missed) / total) * TEX;
   }
@@ -176,11 +180,11 @@ export class Hud {
 
   overDuck(x: number, y: number): boolean {
     // generous: the whole bottom-left corner counts
-    return Math.hypot(x - this.duckPos.x, y - this.duckPos.y) < BTN_R + 26 || (x < 190 && y > H - 190);
+    return this.buttons && (Math.hypot(x - this.duckPos.x, y - this.duckPos.y) < BTN_R + 26 || (x < 190 && y > H - 190));
   }
 
   overRage(x: number, y: number): boolean {
-    return Math.hypot(x - this.ragePos.x, y - this.ragePos.y) < BTN_R + 6;
+    return this.buttons && Math.hypot(x - this.ragePos.x, y - this.ragePos.y) < BTN_R + 6;
   }
 
   overMute(x: number, y: number): boolean {

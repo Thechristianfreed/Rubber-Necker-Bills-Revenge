@@ -4,13 +4,15 @@ A side-scrolling Android game. Bill hangs out of his avocado-green '59 Bug with
 a baseball bat and whacks the rubberneckers who are jamming up the other side of
 the highway. Their necks stretch like rubber and noodle around behind them.
 
-This is an early playable prototype with two levels and a bonus level:
+This is an early playable prototype with two levels and two bonus levels:
 
 1. **Paper Route** (the fifties): Bill the paperboy on a Schwinn Stingray, tossing papers into mailboxes.
 2. **Highway Jam** (the Bug years): the avocado Bug, the baseball bat, and a highway full of rubberneckers.
 3. **The SKIPPY Jar** (bonus, high school): a true story. Seen over Bill's
    shoulder in the school hallway, he returns everything that comes flying out
    of the bully's locker with the bully's own tennis racquet.
+4. **The Hot Carl** (bonus, the sleepover): another true story. Every time the
+   light comes on, tap as fast as you can; when it goes off, freeze.
 
 ## Play it
 
@@ -27,7 +29,7 @@ Open the printed address on a phone held sideways, or on a computer.
 | Duck | hold the DUCK button | Down arrow or S |
 | Road Rage special | RAGE button when the ring is full | R or Enter |
 
-Add `?auto` to the address to watch the game play itself (`?auto=clumsy` plays badly), and `&level=street`, `&level=highway` or `&level=locker` to pick the level.
+Add `?auto` to the address to watch the game play itself (`?auto=clumsy` plays badly), and `&level=street`, `&level=highway`, `&level=locker` or `&level=sleepover` to pick the level.
 
 ## Build
 
@@ -72,7 +74,7 @@ Converts that single file into a page fragment for hosts that add their own page
 - **Scenes:** `src/scenes/PlayScene.ts` holds what every level shares (the
   scoreboard, taps and buttons, speech bubbles, the results page).
   `GameScene.ts` is the side-on levels; `LockerScene.ts` is the hallway, seen
-  over Bill's shoulder.
+  over Bill's shoulder; `SleepoverScene.ts` is the light-switch level.
 - **Ideas backlog:** `docs/level-ideas.md`.
 
 Photo cutouts live in `src/assets/scrap` and are listed in `src/art/photos.ts`,

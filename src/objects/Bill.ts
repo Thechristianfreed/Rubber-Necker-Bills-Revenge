@@ -58,7 +58,10 @@ export interface BillRig {
   dust: XY;
 }
 
-export const RIGS: Record<Theme, BillRig> = {
+/** The levels Bill is in (the sleepover is somebody else's story). */
+export type RigName = Exclude<Theme, 'sleepover'>;
+
+export const RIGS: Record<RigName, BillRig> = {
   // sitting up out of the far window of the Bug, baseball bat in hand
   highway: {
     frames: { rest: 'bill_rest', windup: 'bill_windup', swing: 'bill_swing' },

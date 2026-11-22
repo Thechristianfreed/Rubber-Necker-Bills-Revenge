@@ -59,6 +59,8 @@ class Sound {
   private playing?: { track: string; src: AudioBufferSourceNode; fade: GainNode };
   private files = new Map<string, Promise<ArrayBuffer | null>>();
   private decoded?: { track: string; buffer: Promise<AudioBuffer | null> };
+  /** How far the music is turned down for the scene (1 = as normal). */
+  private musicLevel = 1;
   /** The family's recording, and the library sound effects. */
   private voice: Bank = { url: 'voice/lines.mp3' };
   private effects: Bank = { url: 'sfx/effects.mp3' };
@@ -188,8 +190,8 @@ class Sound {
     src.onended = () => { this.speaking = this.speaking.filter((s) => s !== src); };
     const g = this.music.gain;
     g.cancelScheduledValues(at);
-    g.setTargetAtTime(MUSIC_VOLUME * DUCK, at, 0.04);
-    g.setTargetAtTime(MUSIC_VOLUME, at + length, 0.2);
+    g.setTargetAtTime(MUSIC_VOLUME * this.musicLevel * DUCK, at, 0.04);
+    g.setTargetAtTime(MUSIC_VOLUME * this.musicLevel, at + length, 0.2);
     return length;
   }
 
@@ -199,7 +201,7 @@ class Sound {
     for (const s of this.speaking) s.stop();
     this.speaking = [];
     this.music.gain.cancelScheduledValues(this.ctx.currentTime);
-    this.music.gain.setTargetAtTime(MUSIC_VOLUME, this.ctx.currentTime, 0.2);
+    this.music.gain.setTargetAtTime(MUSIC_VOLUME * this.musicLevel, this.ctx.currentTime, 0.2);
   }
 
   // ---- synthesised sound ----------------------------------------------------------
@@ -353,6 +355,18 @@ class Sound {
     this.noise({ dur: 0.03, vol: 0.2, filter: 'highpass', f0: 2200 });
   }
 
+  /** A light switch: up for on, down for off. */
+  flick(on: boolean): void {
+    this.tone({ type: 'square', f0: on ? 1900 : 1300, f1: on ? 1500 : 900, dur: 0.03, vol: 0.3 });
+    this.noise({ dur: 0.02, vol: 0.3, filter: 'highpass', f0: 3000 });
+  }
+
+  /** Caught: the fun stops dead. */
+  busted(): void {
+    this.noise({ dur: 0.3, vol: 0.4, f0: 3200, f1: 300, q: 1.2 });
+    [330, 247, 196].forEach((f, i) => this.tone({ type: 'sawtooth', f0: f, dur: 0.3, vol: 0.2, at: 0.1 + i * 0.16 }));
+  }
+
   rageReady(): void {
     [330, 415, 494, 659].forEach((f, i) => this.tone({ type: 'sawtooth', f0: f, dur: 0.14, vol: 0.14, at: i * 0.07 }));
   }
@@ -391,6 +405,7 @@ class Sound {
    *  outlasts it, and carries on until stopMusic(). */
   startMusic(track: string): void {
     this.track = track;
+    this.dim(1);
     if (!this.ctx || this.playing?.track === track) return;
     this.halt(0.25);
     this.loadMusic(track);
@@ -414,6 +429,14 @@ class Sound {
       src.start();
       this.playing = { track, src, fade };
     });
+  }
+
+  /** Turn the music down (or back up) for the scene: 1 is normal, 0.3 is hushed. */
+  dim(level: number): void {
+    this.musicLevel = level;
+    if (!this.ctx) return;
+    this.music.gain.cancelScheduledValues(this.ctx.currentTime);
+    this.music.gain.setTargetAtTime(MUSIC_VOLUME * level, this.ctx.currentTime, 0.08);
   }
 
   stopMusic(): void {

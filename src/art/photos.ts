@@ -5,6 +5,7 @@ import { ARM_TINTS, VEHICLES, VehicleSpec, makeNeck, setHeadStyles } from './tex
 import { PAPERS, addPaper } from './paper';
 import { buildPaperUi } from './ui';
 import { HALL, buildHallArt } from './hallway';
+import { buildSleepoverArt } from './sleepover';
 import { buildStreetArt } from './street';
 
 /** Photo cutouts that replace drawn art. Each piece takes over the texture key
@@ -239,6 +240,7 @@ export async function loadPhotoArt(scene: Phaser.Scene): Promise<void> {
   buildPaperUi(scene);
   buildStreetArt(scene, loaded.get('head4.png'), loaded.get('head4-dazed.png'));
   buildHallArt(scene);
+  buildSleepoverArt(scene);
 
   for (const p of PIECES) {
     const im = loaded.get(p.file);

@@ -1,8 +1,7 @@
 import Phaser from 'phaser';
-import { DEPTH, H, HEAD_SRC_H, MAX_W, SCORE, SWING, TEX, view } from '../config';
+import { DEPTH, H, MAX_W, SCORE, SWING, TEX, view } from '../config';
 import { BLEED } from '../art/finish';
 import { HALL } from '../art/hallway';
-import { fillPaper, makePaperArt } from '../art/paper';
 import { ART, img } from '../art/sticker';
 import { sound } from '../audio/sound';
 import { Lob, Spawn } from '../data/levels';
@@ -507,76 +506,13 @@ export class LockerScene extends PlayScene {
       done();
       return;
     }
-    const W = view.W, d = DEPTH.overlay + 1;
-    const pw = 600, ph = 380, px = W / 2, py = H / 2 + 4;
-    const made: Phaser.GameObjects.GameObject[] = [];
-    const keep = <T extends Phaser.GameObjects.GameObject>(o: T): T => { made.push(o); return o; };
-
-    const veil = keep(this.add.rectangle(W / 2, H / 2, MAX_W * 2, H * 2, 0x14121a, 0.55).setDepth(DEPTH.overlay).setAlpha(0));
-    this.tweens.add({ targets: veil, alpha: 1, duration: 250 });
-    // a sheet of ruled notebook paper
-    makePaperArt(this, 'story_page', pw, ph, (c) => {
-      c.beginPath();
-      c.rect(0, 0, pw, ph);
-      fillPaper(c, 'white');
-      c.fillStyle = 'rgba(60, 110, 190, 0.32)';
-      for (let y = 74; y < ph - 10; y += 30) c.fillRect(0, y, pw, 1.4);
-      c.fillStyle = 'rgba(200, 50, 50, 0.45)';
-      c.fillRect(64, 0, 1.6, ph);
-      for (const y of [60, ph / 2, ph - 60]) {
-        c.beginPath();
-        c.arc(30, y, 9, 0, Math.PI * 2);
-        c.fillStyle = 'rgba(30, 24, 30, 0.55)';
-        c.fill();
-      }
-    }, { border: 0 });
-    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.textures.remove('story_page'));
-    const page = keep(img(this, px, py, 'story_page').setDepth(d).setRotation(-0.012));
-    const full = page.scale;
-    page.setScale(full * 0.6).setAlpha(0);
-    this.tweens.add({ targets: page, scale: full, alpha: 1, duration: 240, ease: 'Back.out' });
-
-    const left = px - pw / 2 + 84, wide = pw - 84 - 150;
-    const parts: Phaser.GameObjects.Text[] = [];
-    let y = py - ph / 2 + 42;
-    parts.push(keep(written(this, left, y, story.title, 22, '#b8372a').setOrigin(0, 0.5)));
-    y += 46;
-    for (const [who, said] of story.lines) {
-      parts.push(keep(written(this, left, y, `${who}:`, 15, '#7a6a58').setOrigin(0, 0.5)));
-      y += 12;
-      const line = keep(written(this, left, y, said, 23).setOrigin(0, 0).setAlign('left').setWordWrapWidth(wide + 34));
-      parts.push(line);
-      y += line.height + 16;
-    }
-    if (story.caption) parts.push(keep(written(this, left, py + ph / 2 - 62, story.caption, 17, '#7a6a58').setOrigin(0, 0.5)));
-
-    // the book in question, and Bill
-    const bookIm = keep(img(this, px + pw / 2 - 86, py - ph / 2 + 80, 'book').setRotation(0.16));
-    const face = keep(this.add.image(px + pw / 2 - 70, py + ph / 2 - 84, 'bill-grin').setRotation(0.1).setScale(138 / HEAD_SRC_H));
-    const go = keep(written(this, px, py + ph / 2 - 24, 'tap to continue', 15, '#7a6a58'));
-    const extras = [...parts, bookIm, face, go];
-    extras.forEach((o, i) => {
-      o.setDepth(d + 1).setAlpha(0);
-      this.tweens.add({ targets: o, alpha: 1, duration: 260, delay: 260 + Math.min(i, 6) * 260 });
-    });
-
-    // the teacher, then the bully, read out as their lines appear
-    const asked = sound.say('teacher_book', 0.9);
-    if (asked) sound.say('bully_milkshake', 0.9 + asked + 0.5);
-
-    let finished = false;
-    const next = () => {
-      if (finished) return;
-      finished = true;
-      sound.hush();
-      made.forEach((o) => o.destroy());
-      done();
-    };
-    // long enough to read it; a tap moves on sooner
-    this.time.delayedCall(this.auto ? 2600 : 14000, next);
-    this.time.delayedCall(1500, () => {
-      this.input.once('pointerdown', next);
-      this.input.keyboard?.once('keydown-SPACE', next);
+    this.storyPage(story, done, {
+      art: 'book',
+      // the teacher, then the bully, read out as their lines appear
+      spoken: () => {
+        const asked = sound.say('teacher_book', 0.9);
+        if (asked) sound.say('bully_milkshake', 0.9 + asked + 0.5);
+      },
     });
   }
 }

@@ -33,6 +33,33 @@ Not built yet:
 
 - Slamming the history book shut as a finale.
 
+### The Hot Carl
+A true story from a high school sleepover. DJ fell asleep early (this was a
+mistake). Ol' Poop-Sock-Neil came back from the bathroom with a dangling tube
+sock containing one of his turds, and microwaved it, turning the weapon into
+what he called a "Hot Carl". He tiptoed downstairs with the rest of the boys
+who were still awake, crept up to DJ, and signalled for Christian to flip on
+the light switch; then he blapped and bopped DJ on the head with it. Forrest
+filmed the whole ordeal on his phone. The boys sprinted out of the room the
+moment the light went off.
+
+Built, as the bonus level **The Hot Carl** (`src/scenes/SleepoverScene.ts`):
+
+- A page of notebook paper tells the story so far, then the room is dark.
+- When Christian flips the light on, every tap is another bop on DJ's head.
+  The score is how many you land before the light goes off. Eight spells of
+  light, of different lengths, one of them a flicker.
+- When the light is off, freeze. A swing in the dark hits the lamp and costs
+  one of three hearts (one per spell of darkness at most).
+- After the last light, or the third lamp, Alex's dad comes through the door
+  and it is over: DJ wakes up and the boys run for it.
+
+Not built yet:
+
+- Photos (prompts HC1 to HC6 in `docs/art-prompts.md`); the room and the cast
+  are cut paper for now.
+- Recorded lines: Neil's "HOT CARL!" and whatever Alex's dad really said.
+
 ### The late teacher
 Bill had a teacher who would freak out if anyone was late and lock the door so
 they could not get into class. One day the teacher herself was late. Panicked

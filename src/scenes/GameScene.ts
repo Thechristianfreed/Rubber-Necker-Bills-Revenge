@@ -6,7 +6,7 @@ import { ART, img } from '../art/sticker';
 import { sound } from '../audio/sound';
 import { Move, Spawn } from '../data/levels';
 import { PHRASES, pick } from '../data/phrases';
-import { Bill, RIGS } from '../objects/Bill';
+import { Bill, RIGS, RigName } from '../objects/Bill';
 import { MAILBOX_UP, Motion, NoodleNeck } from '../objects/NoodleNeck';
 import { Vehicle, VehicleKind } from '../objects/Vehicle';
 import { PlayScene, Point, Quality } from './PlayScene';
@@ -93,7 +93,7 @@ export class GameScene extends PlayScene {
     this.papers = [];
     this.thrownId = -1;
     if (this.street) this.buildStreet(); else this.buildWorld();
-    this.bill = new Bill(this, view.W * this.billFrac, RIGS[this.level.theme]);
+    this.bill = new Bill(this, view.W * this.billFrac, RIGS[this.level.theme as RigName]);
     this.zone = img(this, this.bill.sweetX, this.ringY, 'zone').setDepth(DEPTH.median + 1).setAlpha(0.3);
     this.dustFx = this.add.particles(0, 0, 'puff', {
       speedX: { min: -300, max: -200 }, speedY: { min: -36, max: 6 }, lifespan: 420,

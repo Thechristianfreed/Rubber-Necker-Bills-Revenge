@@ -6,7 +6,7 @@ export type SpawnType =
   | 'mailbox' | 'mailbox2' | 'mailman' | 'birdhouse'      // the street
   | 'jar' | 'shake' | 'book';                             // the school hallway
 
-export type Theme = 'street' | 'highway' | 'locker';
+export type Theme = 'street' | 'highway' | 'locker' | 'sleepover';
 
 /** How something comes flying out of the locker: a high lob, a flat fast
  *  drive, or one bounce off the floor on the way. */
@@ -18,6 +18,10 @@ const LOBS: Lob[] = ['lob', 'drive', 'bounce'];
 export type Move = 'still' | 'lean' | 'bob' | 'both';
 
 export interface Spawn { t: number; type: SpawnType; move: Move; lob: Lob }
+
+/** A page of story: a heading, then lines (each with who is speaking, or ''
+ *  for plain telling), and a note at the bottom. */
+export interface Story { title: string; lines: [who: string, said: string][]; caption?: string }
 
 export interface LevelDef {
   id: string;
@@ -41,8 +45,15 @@ export interface LevelDef {
   restlessness: number;
   /** What this level calls things. */
   words: { meter: string; counted: string; cleared: string; lost: string };
-  /** How the story ended, shown on a page of its own after a win: who said what. */
-  epilogue?: { title: string; lines: [who: string, said: string][]; caption?: string };
+  /** How many hits is a full score, for a level with nothing to count up front. */
+  par?: number;
+  /** For a level that runs on a light switch: how long each spell of darkness
+   *  and each spell of light lasts, in seconds, in order. */
+  lights?: [dark: number, light: number][];
+  /** The story so far, shown on a page of its own before the level starts. */
+  prologue?: Story;
+  /** How the story ended, shown on a page of its own after a win. */
+  epilogue?: Story;
   spawns: Spawn[];
 }
 
@@ -177,7 +188,44 @@ export const SKIPPY_JAR: LevelDef = {
   ]),
 };
 
-export const LEVELS: LevelDef[] = [PAPER_ROUTE, HIGHWAY_JAM, SKIPPY_JAR];
+/** Bonus: the Hot Carl. A true story from a high school sleepover. DJ fell
+ *  asleep early; Neil came back from the bathroom with a tube sock that was not
+ *  empty, and microwaved it. Christian worked the light switch and Forrest
+ *  filmed. Every time the light comes on it is open season on DJ's head; when it
+ *  goes off, everybody freezes. It ends when Alex's dad comes downstairs. */
+export const HOT_CARL: LevelDef = {
+  id: 'sleepover',
+  number: 4,
+  bonus: true,
+  name: 'THE HOT CARL',
+  era: 'Bonus: the sleepover',
+  tagline: 'Lights ON: bop like mad.  Lights OFF: freeze!',
+  theme: 'sleepover',
+  attack: 'whack',
+  speed: 0,
+  lean: 0,
+  bob: 0,
+  restlessness: 1,
+  words: { meter: 'BOPS', counted: 'Bops, blaps and smacks', cleared: 'THE BOYS GOT AWAY WITH IT', lost: 'DJ BARELY NOTICED' },
+  par: 80,
+  lights: [
+    [2.4, 2.6], [1.8, 2.2], [2.2, 3.0], [1.4, 1.2],
+    // the sixth is a flicker: on and straight off again
+    [2.0, 2.6], [1.0, 0.35], [1.3, 2.8], [1.8, 2.0],
+  ],
+  prologue: {
+    title: 'THE SLEEPOVER',
+    lines: [
+      ['', 'DJ fell asleep early. This was a mistake.'],
+      ['', "Ol' Poop-Sock-Neil came back from the bathroom with a tube sock. It was not empty."],
+      ['', 'He microwaved it. He called it the HOT CARL.'],
+    ],
+    caption: 'Christian is on the light switch. Forrest is filming.',
+  },
+  spawns: [],
+};
+
+export const LEVELS: LevelDef[] = [PAPER_ROUTE, HIGHWAY_JAM, SKIPPY_JAR, HOT_CARL];
 
 export function levelById(id: string | null | undefined): LevelDef {
   return LEVELS.find((l) => l.id === id) ?? HIGHWAY_JAM;
@@ -186,7 +234,7 @@ export function levelById(id: string | null | undefined): LevelDef {
 /** The scene that plays a level: the hallway is seen over Bill's shoulder, so
  *  it has one of its own. */
 export function sceneFor(level: LevelDef): string {
-  return level.theme === 'locker' ? 'locker' : 'game';
+  return level.theme === 'locker' ? 'locker' : level.theme === 'sleepover' ? 'sleepover' : 'game';
 }
 
 /** How many things there are to whack in a level. */

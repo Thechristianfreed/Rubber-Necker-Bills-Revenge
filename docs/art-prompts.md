@@ -66,6 +66,84 @@ the bully's tennis racquet. Every image for this level is in the game:
 Their prompts are in the git history of this file. The cut-paper versions in
 `src/art/hallway.ts` are only used if a photo fails to load.
 
+## Bonus level, The Hot Carl
+
+A basement family room at night: DJ asleep on the couch, Neil with the sock,
+Forrest filming, Christian at the light switch, and Alex's dad at the door.
+The level is playable with cut-paper stand-ins (`src/art/sleepover.ts`). These
+photos replace them. Every person's head gets replaced, with a photo of the
+real person or a stand-in face, so the faces in these do not matter.
+
+### HC1. The room (two images, made as a chain)
+
+HC1a, the door shut:
+
+```text
+A photograph of an empty suburban basement family room at night, around 2010, with the ceiling light on, looking straight at one wall. The wall is wood panelling across the whole width of the picture, seen exactly face-on with no perspective slant, and beige carpet fills the bottom quarter of the picture. A three-seat fabric couch stands against the wall a little left of the middle, seen exactly from the front. A floor lamp stands at the far left. At the far right is a closed interior door, with a plain white light switch on the wall just to the left of it at shoulder height. A small window high on the wall shows that it is dark outside. No people. Even, slightly warm indoor light. No text, no borders. Very wide 21:9 image.
+```
+
+HC1b, the door open (send as an edit of HC1a):
+
+```text
+Edit this image. Keep the room, the furniture, the framing and the lighting exactly the same. Change only the door at the far right: it is now wide open, with bright light from a hallway behind it.
+```
+
+### HC2. Neil and the sock (two images, made as a chain)
+
+HC2a, sock up:
+
+```text
+A photograph of a teenage boy about sixteen in a T-shirt and pyjama bottoms, barefoot, standing and seen from the front, his whole body in frame with empty margin on every side. His right arm is raised high, and from his right fist dangles a white tube sock with two red rings round the cuff, held by the cuff, hanging straight down with a heavy round lump in its toe and a brown stain on the toe, a little steam rising from it. His left arm hangs at his side. Soft even indoor light. Plain flat light-grey background: no floor, no shadow, no text, no border. Tall 9:16 image.
+```
+
+HC2b, sock down (send as an edit of HC2a):
+
+```text
+Edit this image. Keep the boy, his clothes, the sock, the framing, the lighting and the background exactly the same. Change only his right arm: he has brought it down in front of him to chest height, so the sock is hanging lower, as if he has just bopped something with its toe.
+```
+
+### HC3. DJ on the couch (two images, made as a chain)
+
+HC3a, asleep:
+
+```text
+A photograph of a teenage boy about sixteen asleep on his back, zipped into a blue sleeping bag, his head on a white pillow at the left, seen exactly from the side at the height of the couch he would be lying on. Only the boy, the sleeping bag and the pillow: no couch. His mouth is slightly open. The whole of him is in frame with empty margin on every side. Soft even indoor light. Plain flat light-grey background: no shadow, no text, no border. Wide 16:9 image.
+```
+
+HC3b, awake (send as an edit of HC3a):
+
+```text
+Edit this image. Keep the sleeping bag, the pillow, the framing, the lighting and the background exactly the same. The boy has just been woken up: his head is lifted off the pillow, eyes wide open, mouth open, baffled.
+```
+
+### HC4. Forrest filming
+
+```text
+A photograph of a teenage boy about sixteen in a T-shirt and pyjama bottoms, standing and seen from the front, his whole body in frame with empty margin on every side. He holds a smartphone up in both hands, filming something low down to his right (the left of the picture), grinning. Soft even indoor light. Plain flat light-grey background: no floor, no shadow, no text, no border. Tall 9:16 image.
+```
+
+### HC5. Christian at the light switch
+
+```text
+A photograph of a teenage boy about sixteen in a T-shirt and pyjama bottoms, standing and seen from the front, his whole body in frame with empty margin on every side. His left arm (on the right of the picture) is stretched up and out to the side, one finger out, as if flicking a light switch on a wall beside him at head height. He is looking the other way, grinning. Soft even indoor light. Plain flat light-grey background: no wall, no switch, no floor, no shadow, no text, no border. Tall 9:16 image.
+```
+
+### HC6. Alex's dad
+
+```text
+A photograph of a middle-aged father in a blue dressing gown, pyjama bottoms and slippers, standing with his hands on his hips, seen from the front, his whole body in frame with empty margin on every side. He has just come downstairs in the middle of the night and is furious. Soft even indoor light. Plain flat light-grey background: no floor, no shadow, no text, no border. Tall 9:16 image.
+```
+
+### The faces
+
+Best of all is a photo of each of the real people, with their say-so: Neil,
+DJ, Forrest, Christian and Alex's dad. Any photo where the face is clear will
+do; it gets cut out the way Bill's were. Failing that, this makes stand-ins:
+
+```text
+Six head-and-shoulders photographs in a row with clear gaps between them, all on one plain flat light-grey background: five different teenage boys about sixteen and one middle-aged man with a moustache. Each looks straight at the camera. The first boy has a sly grin, the second is fast asleep with his mouth open, the third is laughing, the fourth grins, the fifth is wide-eyed with shock, and the man is furious. Soft even light. No text, no borders. Very wide 21:9 image.
+```
+
 ## Later
 
 - The other weapons (flyswatter, tennis racquet, nail board, kayak oar): each
