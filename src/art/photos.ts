@@ -60,7 +60,7 @@ const HEADS: HeadFit[] = [
 
 /** Bill's body is drawn small under his big photo head (design pixels per image pixel). */
 const BODY_SCALE = 0.58;
-const KID_SCALE = 0.42;
+const KID_SCALE = 0.5;
 
 const WORDS = ['bonk', 'whack', 'thwack', 'pow', 'bop', 'perfect'];
 
@@ -78,10 +78,13 @@ const PIECES: Piece[] = [
   { key: 'bill_rest', file: 'bill-rest.png', scale: BODY_SCALE, anchor: [0.498, 0.218] },
   { key: 'bill_windup', file: 'bill-windup.png', scale: BODY_SCALE, anchor: [0.538, 0.34] },
   { key: 'bill_swing', file: 'bill-swing.png', scale: BODY_SCALE, anchor: [0.27, 0.187] },
-  // Level 1 stand-in: the same three frames, smaller, for Bill as a kid on his bike
-  { key: 'kid_rest', file: 'bill-rest.png', scale: KID_SCALE, anchor: [0.498, 0.218] },
-  { key: 'kid_windup', file: 'bill-windup.png', scale: KID_SCALE, anchor: [0.538, 0.34] },
-  { key: 'kid_swing', file: 'bill-swing.png', scale: KID_SCALE, anchor: [0.27, 0.187] },
+  // Level 1: Bill as a kid on the Stingray. The bike is in the frames, so they
+  // are pinned on the ground under it (anchors from tools/make_cutouts.py).
+  { key: 'kid_rest', file: 'kid-rest.png', scale: KID_SCALE, anchor: [0.499, 0.993] },
+  { key: 'kid_windup', file: 'kid-windup.png', scale: KID_SCALE, anchor: [0.499, 0.994] },
+  { key: 'kid_swing', file: 'kid-swing.png', scale: KID_SCALE, anchor: [0.499, 0.994] },
+  { key: 'kid_duck', file: 'kid-duck.png', scale: KID_SCALE, anchor: [0.499, 0.993] },
+  { key: 'paper_roll', file: 'paper-roll.png', w: 30, border: 1.4 },
 
   // roadside
   { key: 'palm', file: 'palm.png', h: 172, border: 2, anchor: [0.48, 0.97] },

@@ -284,6 +284,45 @@ def bill():
               f" far right edge {x1 - chin[0]:.0f}px right and {chin[1] - ys[xs.argmax()]:.0f}px above the chin")
 
 
+def kid():
+    """Bill as a kid on the Stingray: four stop-motion frames (riding, winding
+    up, throwing, ducking). The bike sits at the same pixels in all four source
+    images, so every frame is pinned at the same point on the ground under it.
+    The boy loses his head, and the game puts Bill's on his neck. Prints each
+    frame's ground anchor (as a fraction of the saved image) and where the
+    chin was, in source pixels from that anchor."""
+    ground = (512, 548)
+    for name, src in (("rest", "T1-kid-rest"), ("windup", "T2-kid-windup"), ("swing", "T3-kid-swing"), ("duck", "T4-kid-duck")):
+        cut = load(f"{src}-cutout.png")
+        m = load(f"{src}-headmask.png")
+        head = ((m[..., 3] if m[..., 3].std() > 0.01 else m[..., :3].mean(axis=2)) > 0.5).astype(np.uint8)
+        grown = cv2.GaussianBlur(cv2.dilate(head, np.ones((9, 9), np.uint8)).astype(np.float32), (0, 0), 1.0)
+        body = cut.copy()
+        body[..., 3] *= 1 - np.clip(grown * 1.5, 0, 1)
+        # drop any specks left where the head was
+        n, lab, st, _ = cv2.connectedComponentsWithStats((body[..., 3] > 0.3).astype(np.uint8), 8)
+        biggest = 1 + int(np.argmax(st[1:, cv2.CC_STAT_AREA]))
+        near = cv2.dilate((lab == biggest).astype(np.uint8), np.ones((5, 5), np.uint8)).astype(bool)
+        body[~near] = 0
+        ys, xs = np.where(body[..., 3] > 0.08)
+        x0, x1, y0, y1 = xs.min() - 2, xs.max() + 3, ys.min() - 2, ys.max() + 3
+        save(f"kid-{name}.png", body[y0:y1, x0:x1])
+        hy, hx = np.where(head > 0)
+        chin = ((hx.min() + hx.max()) / 2, hy.max())
+        print(f"  kid-{name}: anchor ({(ground[0] - x0) / (x1 - x0):.3f}, {(ground[1] - y0) / (y1 - y0):.3f}),"
+              f" chin {chin[0] - ground[0]:+.0f}, {chin[1] - ground[1]:+.0f} px from it")
+
+    # A rolled-up newspaper to throw: the free end of the one in his outstretched
+    # hand, turned level and mirrored to make a whole roll.
+    cut = load("T3-kid-swing-cutout.png")
+    piece = cut[78:140, 596:682]
+    h, w = piece.shape[:2]
+    turn = cv2.getRotationMatrix2D((w / 2, h / 2), -27, 1.0)
+    level = trim(cv2.warpAffine(piece, turn, (w, h), flags=cv2.INTER_LINEAR, borderValue=(0, 0, 0, 0)))
+    half = level[:, level.shape[1] // 2:]
+    save("paper-roll.png", trim(np.concatenate([half[:, ::-1], half], axis=1)))
+
+
 def asphalt():
     """Road surface from a public-domain photo texture (see art-src/library).
     It already tiles; shrink it and cool it down to sit behind the cutouts."""
@@ -426,6 +465,7 @@ if __name__ == "__main__":
     heads()
     more_heads()
     bill()
+    kid()
     guardrail()
     effects()
     phone_arm()

@@ -34,12 +34,12 @@ export const PHRASES = {
   ] as Phrase[],
   comboStreet: [
     { text: 'SPECIAL DELIVERY!' },
-    { text: 'RETURN TO SENDER!' },
-    { text: 'AIR MAIL!' },
+    { text: 'EXTRA! EXTRA!' },
+    { text: 'READ ALL ABOUT IT!' },
   ] as Phrase[],
   rageStreet: [
     { text: 'OH PISS UP A ROPE!', real: true },
-    { text: 'SPECIAL DELIVERY!' },
+    { text: 'READ ALL ABOUT IT!' },
   ] as Phrase[],
 };
 

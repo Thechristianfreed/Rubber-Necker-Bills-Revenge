@@ -7,7 +7,7 @@ import { HIGHWAY_JAM, LevelDef, Move, Spawn, countHeads, levelById } from '../da
 import { saveStars } from '../data/progress';
 import { PHRASES, pick } from '../data/phrases';
 import { Bill, RIGS } from '../objects/Bill';
-import { Motion, NoodleNeck } from '../objects/NoodleNeck';
+import { MAILBOX_UP, Motion, NoodleNeck } from '../objects/NoodleNeck';
 import { Vehicle } from '../objects/Vehicle';
 import { Hud } from '../ui/Hud';
 import { written } from '../ui/text';
@@ -18,10 +18,23 @@ interface Prop { im: Phaser.GameObjects.Image; factor: number; wrap?: number }
 /** Something Bill has to duck: a road sign, a low branch. */
 interface Sign { im: Phaser.GameObjects.Image; x: number; half: number; done: boolean }
 type Quality = 'good' | 'perfect' | 'rage';
+type Point = { x: number; y: number };
+/** A thrown newspaper in mid-air. */
+interface Paper {
+  im: Phaser.GameObjects.Image;
+  from: Point;
+  /** Where it is heading: a moving mailbox, or a spot on the pavement. */
+  to: () => Point;
+  t: number;
+  dur: number;
+  onLand: (im: Phaser.GameObjects.Image) => void;
+}
 
 /** Where the things Bill ducks stand: on the median, or on the far pavement. */
 const HAZARD_BASE_Y = { highway: 398, street: STREET.kerbY + 2 };
+const HAZARD_DEPTH = { highway: DEPTH.median, street: DEPTH.median };
 const HIT_WORDS = ['bonk', 'whack', 'thwack', 'bop', 'pow'];
+const DELIVERY_WORDS = ['delivered', 'nicetoss', 'inthebox'];
 
 export class GameScene extends Phaser.Scene {
   private bill!: Bill;
@@ -35,7 +48,9 @@ export class GameScene extends Phaser.Scene {
   private zone!: Phaser.GameObjects.Image;
   private starFx!: Phaser.GameObjects.Particles.ParticleEmitter;
   private dustFx!: Phaser.GameObjects.Particles.ParticleEmitter;
-  private mailFx?: Phaser.GameObjects.Particles.ParticleEmitter;
+  private papers: Paper[] = [];
+  /** The swing whose paper has already been thrown. */
+  private thrownId = -1;
   private smokeFx?: Phaser.GameObjects.Particles.ParticleEmitter;
   private wreck?: Phaser.GameObjects.Image;
   private bubble?: Phaser.GameObjects.Image;
@@ -79,6 +94,16 @@ export class GameScene extends Phaser.Scene {
     return this.level.theme === 'street';
   }
 
+  /** In this level a tap throws a paper, rather than swinging at what is in the ring. */
+  private get throwing(): boolean {
+    return this.level.attack === 'throw';
+  }
+
+  /** Height of the middle of the strike ring: where the targets are. */
+  private get ringY(): number {
+    return this.street ? STREET.kerbY - MAILBOX_UP : LANE.headY;
+  }
+
   create(): void {
     this.pending = [...this.level.spawns];
     this.vehicles = [];
@@ -107,11 +132,12 @@ export class GameScene extends Phaser.Scene {
 
     this.wreck = undefined;
     this.smokeFx = undefined;
-    this.mailFx = undefined;
+    this.papers = [];
+    this.thrownId = -1;
     this.fitCamera();
     if (this.street) this.buildStreet(); else this.buildWorld();
     this.bill = new Bill(this, view.W * BILL.xFrac, RIGS[this.level.theme]);
-    this.zone = img(this, this.bill.sweetX, LANE.headY, 'zone').setDepth(DEPTH.median + 1).setAlpha(0.3);
+    this.zone = img(this, this.bill.sweetX, this.ringY, 'zone').setDepth(DEPTH.median + 1).setAlpha(0.3);
     this.hud = new Hud(this, this.level.words.meter);
     this.hud.setHearts(this.hearts);
     this.hud.setJam(0, 0, this.total);
@@ -125,14 +151,6 @@ export class GameScene extends Phaser.Scene {
       speedX: { min: -300, max: -200 }, speedY: { min: -36, max: 6 }, lifespan: 420,
       scale: { start: 0.2, end: 0.48 }, alpha: { start: 0.65, end: 0 }, frequency: 85,
     }).setDepth(DEPTH.billBack - 1);
-
-    if (this.textures.exists('envelope')) {
-      // letters knocked out of a mailbox
-      this.mailFx = this.add.particles(0, 0, 'envelope', {
-        speed: { min: 140, max: 380 }, angle: { min: 200, max: 340 }, gravityY: 760, lifespan: 900,
-        rotate: { min: 0, max: 360 }, scale: 0.5, emitting: false,
-      }).setDepth(DEPTH.fx + 3);
-    }
 
     this.setupInput();
     this.scale.on('resize', this.onResize, this);
@@ -232,7 +250,7 @@ export class GameScene extends Phaser.Scene {
     if (this.textures.exists('postcard')) this.strip('postcard', -10, 0.05, DEPTH.sky);
     this.strip('houses', 104, 0.6, DEPTH.far);
     this.strip('lawn', 250, 1, DEPTH.far + 1);
-    this.strip('fence', 262, 1, DEPTH.far + 3);
+    this.strip('fence', 262, 1, DEPTH.far + 4);
     this.strip('sidewalk', 300, 1, DEPTH.road);
     this.strip('kerb', 346, 1, DEPTH.road + 1);
     this.strip('asphalt', 352, 1, DEPTH.road, 200);
@@ -331,7 +349,7 @@ export class GameScene extends Phaser.Scene {
     this.setSlow(0.18);
     sound.rageFire();
     this.say(pick(this.street ? PHRASES.rageStreet : PHRASES.rage).text);
-    const banner = img(this, view.W / 2, 150, 'word_roadrage').setDepth(DEPTH.overlay).setRotation(-0.04);
+    const banner = img(this, view.W / 2, 150, this.street ? 'word_extra' : 'word_roadrage').setDepth(DEPTH.overlay).setRotation(-0.04);
     const full = banner.scale;
     banner.setScale(full * 0.3);
     this.tweens.add({ targets: banner, scale: full * 1.05, duration: 60, ease: 'Back.out' });
@@ -345,24 +363,29 @@ export class GameScene extends Phaser.Scene {
     this.bill.rageCharge = 0;
     this.bill.startSwing();
     this.bill.markConnected();
+    this.thrownId = this.bill.swingId;
     this.cameras.main.zoomTo(view.RES, 160);
     this.cameras.main.shake(380, 0.016);
     this.cameras.main.flash(160, 255, 244, 200);
-    const ring = img(this, this.bill.sweetX, LANE.headY, 'burst').setDepth(DEPTH.fx + 5).setScale(0.4);
+    const ring = img(this, this.bill.sweetX, this.ringY, 'burst').setDepth(DEPTH.fx + 5).setScale(0.4);
     this.tweens.add({ targets: ring, scale: 5, alpha: 0, duration: 420, ease: 'Cubic.out', onComplete: () => ring.destroy() });
 
     const targets: { v: Vehicle; neck: NoodleNeck; d: number }[] = [];
     for (const v of this.vehicles) {
       for (const r of v.riders) {
         const n = r.neck;
-        if (n.innocent || n.whacked || n.passed) continue;
+        if (n.innocent || n.whacked || n.passed || n.claimed) continue;
         if (n.headX > this.bill.x - 240 && n.headX < view.W + 80) targets.push({ v, neck: n, d: Math.abs(n.headX - this.bill.sweetX) });
       }
     }
     targets.sort((a, b) => a.d - b.d);
     targets.forEach((tg, i) => {
+      if (this.throwing) tg.neck.claimed = true;
       this.time.delayedCall(i * 55, () => {
-        if (this.vehicles.includes(tg.v)) this.whack(tg.v, tg.neck, 'rage');
+        if (!this.vehicles.includes(tg.v)) return;
+        // a storm of papers, one for every mailbox in sight; or one almighty swing
+        if (this.throwing) this.flyPaper(this.bill.handAt, () => this.doorOf(tg.neck), 0.26, (im) => { im.destroy(); this.whack(tg.v, tg.neck, 'rage'); });
+        else this.whack(tg.v, tg.neck, 'rage');
       });
     });
     this.time.delayedCall(500, () => { this.bill.invulnerable = false; });
@@ -415,12 +438,13 @@ export class GameScene extends Phaser.Scene {
       }
     }
 
+    const delivery = neck.kind === 'post';
     sound.bonk(perfect);
-    sound.boing(perfect ? 1.3 : 1);
-    this.hitStop = q === 'rage' ? 0.02 : perfect ? 0.085 : 0.05;
-    this.cameras.main.shake(perfect ? 150 : 90, perfect ? 0.009 : 0.005);
+    if (delivery) sound.cash(); else sound.boing(perfect ? 1.3 : 1);
+    this.hitStop = q === 'rage' || delivery ? 0.02 : perfect ? 0.085 : 0.05;
+    this.cameras.main.shake(perfect ? 150 : 90, (perfect ? 0.009 : 0.005) * (delivery ? 0.5 : 1));
     this.burst(hx, hy, perfect);
-    this.popWord(hx + 10, hy - 52, q === 'perfect' ? 'perfect' : pick(HIT_WORDS));
+    this.popWord(hx + 10, hy - 52, q === 'perfect' ? 'perfect' : pick(delivery ? DELIVERY_WORDS : HIT_WORDS));
     this.popTag(hx + 38, hy - 4, `+$${gain}`, '#2f6b2b', 0.12);
     this.bill.setFace('grin', 0.5);
 
@@ -432,7 +456,6 @@ export class GameScene extends Phaser.Scene {
     } else if (q !== 'rage' && this.combo > 0 && this.combo % 8 === 0) {
       this.say(pick(this.street ? PHRASES.comboStreet : PHRASES.combo).text);
     }
-    if (neck.kind === 'post') this.mailFx?.explode(perfect ? 9 : 6, hx, hy);
 
     this.hud.setCash(this.cash);
     this.hud.setCombo(this.combo, this.mult);
@@ -453,7 +476,7 @@ export class GameScene extends Phaser.Scene {
     this.cameras.main.flash(120, 255, 90, 80);
     const top = this.bill.headTop;
     this.burst(top.x, top.y + 20, false);
-    this.popWord(top.x, top.y - 24, 'clang');
+    this.popWord(top.x, top.y - 24, this.street ? 'thwack' : 'clang');
     this.say(pick(PHRASES.hurt).text);
     if (this.hearts <= 0) this.finish('bonked');
   }
@@ -496,6 +519,70 @@ export class GameScene extends Phaser.Scene {
       y: move === 'bob' || move === 'both' ? bob : 0,
       speed: restlessness,
     };
+  }
+
+  /** The open end of a mailbox, where the paper goes in. */
+  private doorOf(neck: NoodleNeck): Point {
+    return { x: neck.headX - 16, y: neck.headY };
+  }
+
+  /** Bill lets go of a paper. Whatever is in the ring gets it: a mailbox, or
+   *  (oops) the mailman. If nothing is there it lands on the pavement. */
+  private throwPaper(): void {
+    const sweet = this.bill.sweetX;
+    let best: { v: Vehicle; n: NoodleNeck; d: number } | undefined;
+    for (const v of this.vehicles) {
+      for (const r of v.riders) {
+        const n = r.neck;
+        if (n.whacked || n.passed || n.claimed) continue;
+        const d = Math.abs(n.headX - sweet);
+        if (d <= SWING.good && (!best || d < best.d)) best = { v, n, d };
+      }
+    }
+    if (best) {
+      const { v, n, d } = best;
+      n.claimed = true;
+      this.bill.markConnected();
+      this.flyPaper(this.bill.handAt, () => this.doorOf(n), 0.24, (im) => {
+        im.destroy();
+        if (this.vehicles.includes(v)) this.whack(v, n, d <= SWING.perfect ? 'perfect' : 'good');
+      });
+    } else {
+      // nobody home: it lands on the pavement and gets left behind
+      const spot = { x: sweet - 40 + Math.random() * 50, y: STREET.kerbY - 8 + Math.random() * 10 };
+      const paper = this.flyPaper(this.bill.handAt, () => spot, 0.3, (im) => {
+        im.setDepth(DEPTH.road + 2).setRotation(Math.random() * 3);
+        this.props.push({ im, factor: 1 });
+      });
+      paper.ground = spot;
+    }
+  }
+
+  private flyPaper(from: Point, to: () => Point, dur: number, onLand: (im: Phaser.GameObjects.Image) => void): Paper & { ground?: Point } {
+    const im = img(this, from.x, from.y, 'paper_roll').setDepth(DEPTH.fx + 1);
+    const paper: Paper & { ground?: Point } = { im, from: { ...from }, to, t: 0, dur, onLand };
+    this.papers.push(paper);
+    return paper;
+  }
+
+  /** Move every paper in the air along its arc, and land the ones that arrive. */
+  private updatePapers(dt: number, scroll: number): void {
+    for (let i = this.papers.length - 1; i >= 0; i--) {
+      const p = this.papers[i] as Paper & { ground?: Point };
+      if (p.ground) p.ground.x -= scroll;      // a spot on the pavement slides by with the street
+      p.t += dt;
+      const k = Math.min(1, p.t / p.dur);
+      const to = p.to();
+      p.im.setPosition(
+        p.from.x + (to.x - p.from.x) * k,
+        p.from.y + (to.y - p.from.y) * k - Math.sin(k * Math.PI) * 46,
+      );
+      p.im.rotation += dt * 14;
+      if (k >= 1) {
+        this.papers.splice(i, 1);
+        p.onLand(p.im);
+      }
+    }
   }
 
   private flingPhone(x: number, y: number): void {
@@ -568,7 +655,7 @@ export class GameScene extends Phaser.Scene {
         if (remaining > (view.W + 110 - this.bill.x) / speed) continue;
         const x = this.bill.x + speed * remaining;
         const key = branch ? 'branch' : `sign${Math.random() < 0.5 ? 0 : 1}`;
-        const im = img(this, x, HAZARD_BASE_Y[this.level.theme], key).setDepth(DEPTH.median);
+        const im = img(this, x, HAZARD_BASE_Y[this.level.theme], key).setDepth(HAZARD_DEPTH[this.level.theme]);
         this.signs.push({ im, x, half: branch ? 46 : 34, done: false });
         this.teach('duck', branch ? 'Low branch - HOLD DUCK!' : 'Sign coming - HOLD DUCK!');
       } else {
@@ -582,10 +669,10 @@ export class GameScene extends Phaser.Scene {
         this.vehicles.push(v);
         if (s.type === 'dog') this.teach('dog', "That's a good dog. DON'T hit it!");
         else if (s.type === 'mailman') this.teach('mailman', "That's the mailman. DON'T hit him!");
+        else if (s.type === 'mailbox2') this.teach('swing', 'TAP to toss a paper when a mailbox reaches the ring!');
         else if (s.type === 'phone') this.teach('phone', 'Phone filmers! Knock some sense into them.');
         else if (s.type === 'bus') this.teach('bus', 'Tour bus! Four heads in a row!');
-        else if (s.type === 'mailbox2') this.teach('double', 'Two at once! One good swing gets both.');
-        else if (s.type === 'mailbox') this.teach('swing', 'TAP to swing when a mailbox reaches the ring!');
+        else if (s.type === 'mailbox') this.teach('swing', 'TAP to toss a paper when a mailbox reaches the ring!');
         else this.teach('swing', 'TAP to swing when a head reaches the ring!');
         if (s.move !== 'still') this.teach('restless', "They're leaning for a better look. Watch the head!");
       }
@@ -666,7 +753,13 @@ export class GameScene extends Phaser.Scene {
       this.combo = 0;
       this.hud.setCombo(0, 1);
     }
-    this.zone.setPosition(this.bill.sweetX, LANE.headY).setRotation(this.levelT * 0.6);
+    this.zone.setPosition(this.bill.sweetX, this.ringY).setRotation(this.levelT * 0.6);
+    // a tap in a throwing level lets one paper go, the moment his arm comes through
+    if (this.throwing && this.bill.swingLive && this.bill.swingId !== this.thrownId && !this.over) {
+      this.thrownId = this.bill.swingId;
+      this.throwPaper();
+    }
+    this.updatePapers(dt, scroll);
     this.dustFx.setPosition(this.bill.dustAt.x, this.bill.dustAt.y);
 
     // vehicles, swings and misses
@@ -676,10 +769,10 @@ export class GameScene extends Phaser.Scene {
       v.update(dt);
       for (const r of v.riders) {
         const n = r.neck;
-        if (n.whacked || n.passed) continue;
+        if (n.whacked || n.passed || n.claimed) continue;
         const dx = n.headX - sweet;
         const inReach = Math.abs(n.headY - LANE.headY) <= SWING.reachY;
-        if (this.bill.swingLive && Math.abs(dx) <= SWING.good && inReach && !this.over) {
+        if (!this.throwing && this.bill.swingLive && Math.abs(dx) <= SWING.good && inReach && !this.over) {
           this.bill.markConnected();
           this.whack(v, n, Math.abs(dx) <= SWING.perfect ? 'perfect' : 'good');
         } else if (dx < -SWING.good - 26) {
@@ -749,12 +842,12 @@ export class GameScene extends Phaser.Scene {
     for (const v of this.vehicles) {
       for (const r of v.riders) {
         const n = r.neck;
-        if (n.whacked || n.passed) continue;
+        if (n.whacked || n.passed || n.claimed) continue;
         if (n.innocent && !clumsy) continue;
         if (clumsy && Math.floor(n.headY * 7) % 3 === 0) continue;
         if (n.headX < view.W) onScreen++;
         const dx = n.headX - this.bill.sweetX;
-        const inReach = clumsy || Math.abs(n.headY - LANE.headY) <= SWING.reachY - 5;
+        const inReach = clumsy || this.throwing || Math.abs(n.headY - LANE.headY) <= SWING.reachY - 5;
         if (dx < lead + (clumsy ? 40 : 8) && dx > -10 && inReach) this.trySwing();
       }
     }

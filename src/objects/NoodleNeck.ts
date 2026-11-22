@@ -23,6 +23,8 @@ const N = 14;            // simulated points along the neck
 const SUB = 4;           // extra smoothing points per segment when drawing
 const STEP = 1 / 120;    // physics step
 const HEAD_R = 21;       // neck base -> centre of head
+/** How far above the kerb a mailbox's box is: its art includes the post. */
+export const MAILBOX_UP = 68;
 
 interface Pt { x: number; y: number; vx: number; vy: number }
 
@@ -35,6 +37,8 @@ export class NoodleNeck {
   whacked = false;
   /** Set once an un-whacked head has gone past Bill. */
   passed = false;
+  /** Something is already on its way to hit this (a thrown paper in mid-air). */
+  claimed = false;
 
   private scene: Phaser.Scene;
   private pts: Pt[] = [];
@@ -70,7 +74,7 @@ export class NoodleNeck {
       gawker: person,
       phone: person,
       dog: ['dog', 'dog_mad', 'neck_dog'],
-      post: [`mailbox${style % 2}`, `mailbox${style % 2}_hit`, 'neck_post'],
+      post: [`mailbox${style % 2}`, `mailbox${style % 2}_hit`, 'neck0'],
       bystander: ['mailman', 'mailman_mad', 'neck0'],
     };
     const [headKey, dazedKey, neckKey] = keys[kind];
@@ -86,8 +90,8 @@ export class NoodleNeck {
     this.rope = scene.add.rope(0, 0, scene.textures.exists(neckKey) ? neckKey : 'neck0', undefined, line());
     this.rope.setScale(1 / TEX).setDepth(DEPTH.necks);
     this.head = img(scene, 0, 0, this.headKey).setDepth(DEPTH.heads);
-    if (kind === 'bystander') {
-      // a whole figure standing on its own feet: there is no neck to draw
+    if (this.upright) {
+      // a whole figure standing on the ground (post and all): there is no neck to draw
       this.rope.setVisible(false);
       this.shadow.setVisible(false);
     }
@@ -117,15 +121,11 @@ export class NoodleNeck {
    *  leaning and bobbing for a better look if this gawker is the restless kind. */
   private pose(ax: number, ay: number): void {
     if (this.upright) {
-      // A mailbox sits with its middle on the strike line, on a straight post;
-      // a bystander just stands where he is.
-      const a = ART[this.headKey];
-      const shake = this.shake > 0 ? Math.sin(this.t * 70) * 4 : 0;
-      const by = this.kind === 'post' ? LANE.headY + (a.ay - a.h / 2) : ay;
+      // a mailbox or a bystander just stands where it is, and rattles when hit
+      const shake = this.shake > 0 ? Math.sin(this.t * 70) * 3 : 0;
       for (let i = 0; i < N; i++) {
-        const t = i / (N - 1);
-        this.pts[i].x = ax + shake * t;
-        this.pts[i].y = ay + (by - ay) * t;
+        this.pts[i].x = ax + shake;
+        this.pts[i].y = ay;
       }
       this.tilt = this.kind === 'bystander' ? Math.sin(this.t * 2 + this.phase) * 0.03 : 0;
       if (this.shake > 0) this.shake -= 1 / 60;
@@ -158,10 +158,10 @@ export class NoodleNeck {
   whack(power: number, carVx: number): void {
     if (this.whacked) return;
     this.whacked = true;
-    if (this.innocent) {
-      // Innocents do not noodle: just one offended pooch, or one furious mailman.
+    if (this.innocent || this.kind === 'post') {
+      // Only rubberneckers noodle. An innocent gets cross; a mailbox gets its paper.
       applyArt(this.head, this.dazedKey);
-      this.shake = 0.5;
+      this.shake = this.kind === 'post' ? 0.22 : 0.5;
       return;
     }
     this.state = 'noodle';
@@ -172,11 +172,6 @@ export class NoodleNeck {
     this.restLen = len;
     // however short the neck was, it stretches to the same impossible length
     this.targetLen = 330 + power * 150 + Math.random() * 110;
-    if (this.kind === 'post') {
-      // a mailbox post goes rubbery too, but stays planted in the ground
-      this.targetLen = 200 + power * 90 + Math.random() * 70;
-      this.floorY = Math.max(this.floorY, this.pts[0].y + 3);
-    }
     const ivx = (560 + Math.random() * 200) * (0.75 + power * 0.3);
     const ivy = -(430 + Math.random() * 180) * (0.75 + power * 0.3);
     for (let i = 0; i < N; i++) {
@@ -191,7 +186,7 @@ export class NoodleNeck {
     this.rope.setDepth(DEPTH.noodle + 0.3);
     this.head.setDepth(DEPTH.noodle + 0.6);
     this.birds = this.scene.textures.exists('bird_up') && Math.random() < 0.4;
-    for (let i = 0; i < (this.kind === 'post' ? 0 : 3); i++) {
+    for (let i = 0; i < 3; i++) {
       const star = img(this.scene, 0, 0, this.birds ? 'bird_up' : 'star').setDepth(DEPTH.noodle + 0.8);
       this.stars.push(this.birds ? star : star.setScale(star.scale * 0.72));
     }
@@ -298,7 +293,7 @@ export class NoodleNeck {
     }
     this.head.setPosition(end.x, end.y).setRotation(rot);
     const a = ART[this.head.texture.key];
-    const up = this.kind === 'gawker' || this.kind === 'phone' ? HEAD_R : a.ay - a.h / 2;
+    const up = this.kind === 'post' ? MAILBOX_UP : this.upright || this.kind === 'dog' ? a.ay - a.h / 2 : HEAD_R;
     this.headX = end.x + Math.sin(rot) * up + (this.kind === 'dog' ? -10 : 0);
     this.headY = end.y - Math.cos(rot) * up;
 

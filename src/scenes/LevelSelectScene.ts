@@ -109,12 +109,9 @@ export class LevelSelectScene extends Phaser.Scene {
         }
         c.beginPath(); c.rect(px, py + 132, pw, 20); fillPaper(c, 'green');
         c.beginPath(); c.rect(px, road, pw, ph); fillPaper(c, 'grey');
-        for (const mx of [px + 62, px + 206]) {
-          c.beginPath(); c.rect(mx - 3, road - 26, 6, 30); fillPaper(c, 'brown');
-        }
-        this.stamp(c, 'mailbox0', px + 62, road - 22, 56);
-        this.stamp(c, 'mailbox1', px + 206, road - 22, 56);
-        this.stamp(c, 'bike', px + 136, py + ph + 2, 128);
+        this.stamp(c, 'mailbox0', px + 52, road - 2, 40);
+        this.stamp(c, 'mailbox1', px + 224, road - 2, 40);
+        this.stamp(c, 'kid_rest', px + 136, py + ph + 2, 150);
       } else {
         if (this.textures.exists('postcard')) {
           const src = this.textures.get('postcard').getSourceImage() as HTMLCanvasElement;

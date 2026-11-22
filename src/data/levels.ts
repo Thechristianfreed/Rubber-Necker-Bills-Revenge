@@ -21,6 +21,8 @@ export interface LevelDef {
   era: string;
   tagline: string;
   theme: Theme;
+  /** What a tap does: swing at whatever is in the ring, or throw something at it. */
+  attack: 'whack' | 'throw';
   /** How fast the world slides past Bill (px/s). */
   speed: number;
   /** How far heads lean (sideways) and bob (up and down), in pixels, and how
@@ -40,34 +42,34 @@ function timeline(parts: [number, SpawnType, Move?][]): Spawn[] {
   return parts.map(([gap, type, move]) => ({ t: (t += gap), type, move: move ?? 'still' }));
 }
 
-/** Level 1: a kid on a Schwinn Stingray with a rolled-up newspaper. */
-export const MAILBOX_BASEBALL: LevelDef = {
+/** Level 1: Bill the paperboy, on a Schwinn Stingray, tossing papers into mailboxes. */
+export const PAPER_ROUTE: LevelDef = {
   id: 'street',
   number: 1,
-  name: 'MAILBOX BASEBALL',
-  era: 'The sixties',
-  tagline: 'Whack every mailbox on the street!',
+  name: 'PAPER ROUTE',
+  era: 'The fifties',
+  tagline: 'Toss a paper into every mailbox!',
   theme: 'street',
+  attack: 'throw',
   speed: 300,
   lean: 0,
   bob: 0,
   restlessness: 1,
-  words: { meter: 'MAILBOXES', counted: 'Mailboxes whacked', cleared: 'SPECIAL DELIVERY!', lost: 'TOO MANY LEFT STANDING' },
+  words: { meter: 'DELIVERED', counted: 'Papers delivered', cleared: 'ROUTE COMPLETE!', lost: 'TOO MANY MISSED' },
   spawns: timeline([
-    // learn to swing
+    // learn to throw
     [4.5, 'mailbox'], [2.4, 'mailbox'], [2.0, 'mailbox'],
     // learn to duck
     [2.4, 'branch'],
     [1.9, 'mailbox'], [1.3, 'mailbox'],
     // learn who NOT to hit
     [2.3, 'mailman'],
-    [1.9, 'mailbox'],
-    // two on one swing
-    [1.5, 'mailbox2'], [1.7, 'mailbox'],
+    [1.9, 'mailbox'], [1.2, 'mailbox'], [1.2, 'mailbox'],
     [1.6, 'branch'], [1.5, 'mailbox'], [1.0, 'mailbox'], [1.0, 'mailbox'],
-    [1.8, 'mailbox2'], [1.5, 'mailbox2'],
-    [2.0, 'mailman'], [1.4, 'mailbox'], [0.9, 'mailbox'], [1.5, 'branch'], [1.4, 'mailbox2'], [1.2, 'mailbox'], [0.9, 'mailbox'],
-    [1.7, 'mailman'], [1.3, 'mailbox'], [0.85, 'mailbox'], [0.85, 'mailbox'], [1.5, 'branch'], [1.3, 'mailbox2'], [1.2, 'mailbox2'],
+    // quick pairs
+    [1.8, 'mailbox'], [0.8, 'mailbox'], [1.5, 'mailbox'], [0.8, 'mailbox'],
+    [2.0, 'mailman'], [1.4, 'mailbox'], [0.9, 'mailbox'], [1.5, 'branch'], [1.4, 'mailbox'], [0.8, 'mailbox'], [1.2, 'mailbox'], [0.9, 'mailbox'],
+    [1.7, 'mailman'], [1.3, 'mailbox'], [0.85, 'mailbox'], [0.85, 'mailbox'], [1.5, 'branch'], [1.3, 'mailbox'], [0.7, 'mailbox'], [1.2, 'mailbox'], [0.7, 'mailbox'],
     // the home stretch
     [1.7, 'mailbox'], [0.8, 'mailbox'], [0.8, 'mailbox'], [0.8, 'mailbox'],
   ]),
@@ -81,6 +83,7 @@ export const HIGHWAY_JAM: LevelDef = {
   era: 'The Bug years',
   tagline: 'Whack the rubberneckers. Clear the jam!',
   theme: 'highway',
+  attack: 'whack',
   speed: 360,
   lean: 26,
   bob: 34,
@@ -109,7 +112,7 @@ export const HIGHWAY_JAM: LevelDef = {
   ]),
 };
 
-export const LEVELS: LevelDef[] = [MAILBOX_BASEBALL, HIGHWAY_JAM];
+export const LEVELS: LevelDef[] = [PAPER_ROUTE, HIGHWAY_JAM];
 
 export function levelById(id: string | null | undefined): LevelDef {
   return LEVELS.find((l) => l.id === id) ?? HIGHWAY_JAM;
