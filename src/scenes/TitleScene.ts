@@ -73,7 +73,7 @@ export class TitleScene extends Phaser.Scene {
     this.tweens.add({ targets: go, scale: 1.08, duration: 460, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
     note(424, 'TAP = swing        HOLD DUCK = dodge signs', 17, 'tape_l', 0.8, -0.01);
     note(462, "Fill the RAGE meter.  Don't hit the dog.", 17, 'tape_l', 0.8, 0.008);
-    written(this, W - 12, H - 14, 'prototype 0.4', 13, '#fbf6ea').setOrigin(1, 0.5).setAlpha(0.8);
+    written(this, W - 12, H - 14, 'prototype 0.5', 13, '#fbf6ea').setOrigin(1, 0.5).setAlpha(0.8);
     written(this, W - 12, H - 32, 'Music: Kevin MacLeod (incompetech.com), CC BY 4.0', 12, '#fbf6ea').setOrigin(1, 0.5).setAlpha(0.8);
 
     const start = () => {

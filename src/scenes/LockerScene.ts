@@ -232,7 +232,7 @@ export class LockerScene extends PlayScene {
     this.popWord(at.x + 14, at.y - 62, q === 'perfect' ? 'ace' : pick(HIT_WORDS));
     this.popTag(at.x + 50, at.y - 8, `+$${gain}`, '#2f6b2b', 0.12);
     if (q !== 'rage' && this.combo > 0 && this.combo % 8 === 0) {
-      this.say(pick(PHRASES.comboLocker).text);
+      this.say(pick(PHRASES.comboLocker));
       this.bill.setFace('grin', 1.2);
     }
 
@@ -372,7 +372,7 @@ export class LockerScene extends PlayScene {
     this.bill.setFace('grin', 1.1);
     this.setSlow(0.18);
     sound.rageFire();
-    this.say(pick(PHRASES.rageLocker).text);
+    this.say(pick(PHRASES.rageLocker), 0);
     const banner = img(this, view.W / 2, 150, 'word_grandslam').setDepth(DEPTH.overlay).setRotation(-0.04);
     const full = banner.scale;
     banner.setScale(full * 0.3);
@@ -560,10 +560,15 @@ export class LockerScene extends PlayScene {
       this.tweens.add({ targets: o, alpha: 1, duration: 260, delay: 260 + Math.min(i, 6) * 260 });
     });
 
+    // the teacher, then the bully, read out as their lines appear
+    const asked = sound.say('teacher_book', 0.9);
+    if (asked) sound.say('bully_milkshake', 0.9 + asked + 0.5);
+
     let finished = false;
     const next = () => {
       if (finished) return;
       finished = true;
+      sound.hush();
       made.forEach((o) => o.destroy());
       done();
     };

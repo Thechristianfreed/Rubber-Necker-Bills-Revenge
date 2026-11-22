@@ -207,7 +207,7 @@ export class GameScene extends PlayScene {
     this.bill.setFace('grin', 2);
     this.setSlow(0.18);
     sound.rageFire();
-    this.say(pick(this.street ? PHRASES.rageStreet : PHRASES.rage).text);
+    this.say(pick(this.street ? PHRASES.rageStreet : PHRASES.rage), 0);
     const banner = img(this, view.W / 2, 150, this.street ? 'word_extra' : 'word_roadrage').setDepth(DEPTH.overlay).setRotation(-0.04);
     const full = banner.scale;
     banner.setScale(full * 0.3);
@@ -262,10 +262,10 @@ export class GameScene extends PlayScene {
       this.hud.setCombo(0, 1);
       this.cash = Math.max(0, this.cash - SCORE.dogFine);
       this.hud.setCash(this.cash);
-      sound.yelp();
+      if (neck.kind === 'dog') sound.yelp(); else sound.ouch();
       this.popWord(hx, hy - 40, 'badbill');
       this.popTag(hx + 6, hy + 6, `-$${SCORE.dogFine}`, '#b8372a', 0.12);
-      this.say(pick(neck.kind === 'dog' ? PHRASES.dog : PHRASES.mailman).text);
+      this.say(pick(neck.kind === 'dog' ? PHRASES.dog : PHRASES.mailman), 0.5);
       this.bill.setFace('glare', 1);
       this.cameras.main.shake(120, 0.005);
       return;
@@ -289,9 +289,9 @@ export class GameScene extends PlayScene {
       const rider = v.riders.find((r) => r.neck === neck);
       const from = rider && v.dropPhone(rider);
       if (from) this.flingPhone(from.x, from.y);
-      this.say(pick(PHRASES.phone).text);
+      this.say(pick(PHRASES.phone));
     } else if (q !== 'rage' && this.combo > 0 && this.combo % 8 === 0) {
-      this.say(pick(this.street ? PHRASES.comboStreet : PHRASES.combo).text);
+      this.say(pick(this.street ? PHRASES.comboStreet : PHRASES.combo));
     }
 
     this.showTally();

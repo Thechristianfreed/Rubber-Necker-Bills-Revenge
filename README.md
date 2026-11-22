@@ -4,7 +4,7 @@ A side-scrolling Android game. Bill hangs out of his avocado-green '59 Bug with
 a baseball bat and whacks the rubberneckers who are jamming up the other side of
 the highway. Their necks stretch like rubber and noodle around behind them.
 
-This is an early playable prototype with placeholder audio, two levels and a bonus level:
+This is an early playable prototype with two levels and a bonus level:
 
 1. **Paper Route** (the fifties): Bill the paperboy on a Schwinn Stingray, tossing papers into mailboxes.
 2. **Highway Jam** (the Bug years): the avocado Bug, the baseball bat, and a highway full of rubberneckers.
@@ -41,7 +41,7 @@ Writes the web build to `dist/` (this is what the Android wrapper will package).
 npm run build:single
 ```
 
-Writes one `dist-single/index.html` that can be shared as a single file. Everything is inside it except the music, which sits beside it in `dist-single/music/`; without that folder the game still plays, silently.
+Writes one `dist-single/index.html` that can be shared as a single file. Everything is inside it except the sound recordings, which sit beside it in `dist-single/music/` and `dist-single/voice/`; without those folders the game still plays, with no music and only synthesised effects.
 
 ```bash
 node tools/make_artifact.mjs
@@ -58,10 +58,11 @@ Converts that single file into a page fragment for hosts that add their own page
   `tools/make_heads.py`. The interface, lettering and road paint are cut paper
   (`src/art/paper.ts`, `src/art/ui.ts`), filled with small photo sheets of real
   paper. The remaining image prompts are in `docs/art-prompts.md`.
-- **Audio:** the sound effects are synthesised placeholders in
-  `src/audio/sound.ts`, to be replaced by family recordings. The music is one
-  recording per level in `public/music/` (see `docs/music.md` for the tracks
-  and their credit).
+- **Audio:** Bill's lines and the mouth sounds (bonk, boing, whoosh...) are a
+  family recording, cut up by `tools/make_voice.py` into `public/voice/` (see
+  `docs/voice.md`). The music is one recording per level in `public/music/`
+  (see `docs/music.md` for the tracks and their credit). The few effects left
+  over are synthesised in `src/audio/sound.ts`.
 - **Tuning:** timing windows and scoring live in `src/config.ts`; the level
   scripts are in `src/data/levels.ts`; Bill's lines are `src/data/phrases.ts`;
   how Bill is assembled in each level (car, bike or on foot) is `RIGS` in

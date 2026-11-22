@@ -3,6 +3,7 @@ import '@fontsource/bangers/latin-400.css';
 import '@fontsource/permanent-marker/latin-400.css';
 import { loadPhotoArt } from '../art/photos';
 import { buildTextures } from '../art/textures';
+import { sound } from '../audio/sound';
 import { levelById, sceneFor } from '../data/levels';
 import back from '../assets/bill/head-back.png';
 import glare from '../assets/bill/head-glare.png';
@@ -40,6 +41,7 @@ export class BootScene extends Phaser.Scene {
   }
 
   create(): void {
+    sound.loadVoice();
     const fonts = (document as Document & { fonts?: FontFaceSet }).fonts;
     const ready = fonts
       ? Promise.all([fonts.load('40px Bangers'), fonts.load('24px "Permanent Marker"')]).catch(() => undefined)

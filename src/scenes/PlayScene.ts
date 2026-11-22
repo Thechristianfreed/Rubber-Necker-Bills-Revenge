@@ -4,7 +4,7 @@ import { ART, img } from '../art/sticker';
 import { sound } from '../audio/sound';
 import { HIGHWAY_JAM, LevelDef, countHeads, levelById } from '../data/levels';
 import { saveStars } from '../data/progress';
-import { PHRASES, pick } from '../data/phrases';
+import { PHRASES, Phrase, pick } from '../data/phrases';
 import { Bill } from '../objects/Bill';
 import { Hud } from '../ui/Hud';
 import { written } from '../ui/text';
@@ -263,7 +263,7 @@ export abstract class PlayScene extends Phaser.Scene {
     const top = this.bill.headTop;
     this.burst(top.x, top.y + 20, false);
     this.popWord(top.x, top.y - 24, word);
-    this.say(pick(PHRASES.hurt).text);
+    this.say(pick(PHRASES.hurt), 0.55);
     if (this.hearts <= 0) this.finish('bonked');
   }
 
@@ -297,8 +297,12 @@ export abstract class PlayScene extends Phaser.Scene {
     this.tweens.add({ targets: im, y: y - 40, alpha: 0, duration: 340, delay: 480, onComplete: () => im.destroy() });
   }
 
-  /** Bill's speech bubble: cut from paper, with a tail toward his head. */
-  protected say(text: string): void {
+  /** Bill says a line: a speech bubble cut from paper, with a tail toward his
+   *  head, and the recording of it if there is one. The voice waits `after`
+   *  seconds, so it does not land on top of the whack that set it off. */
+  protected say(line: Phrase, after = 0.3): void {
+    const text = line.text;
+    sound.say(line.voice, after);
     this.bubble?.destroy();
     const size = 26;
     const w = textWidth(text, size) + 34, h = 42, tail = 22;
