@@ -7,23 +7,49 @@
     <meta name="theme-color" content="#1b1820" />
     <title>Rubber Necker</title>
     <style>
-      html, body { margin: 0; height: 100%; background: #1b1820; overflow: hidden; overscroll-behavior: none; }
-      body { touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
-      #game { position: fixed; inset: 0; }
-      #rotate {
-        position: fixed; inset: 0; display: none; align-items: center; justify-content: center;
-        flex-direction: column; gap: 14px; background: #1b1820; color: #fff6e6; z-index: 10;
-        font: 700 22px/1.3 system-ui, sans-serif; text-align: center; padding: 24px;
+      /* One full-screen stage holding the game canvas; a single dark look by design. */
+      :root {
+        --bg: #1b1820;
+        --paper: #fff6e6;
+        --muted: #a79fb0;
+        --display: Bangers, Impact, "Arial Narrow Bold", sans-serif;
+        --body: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        color-scheme: dark;
       }
-      #rotate span { font-size: 64px; display: block; animation: tip 1.6s ease-in-out infinite; }
+      html, body { margin: 0; height: 100%; overflow: hidden; overscroll-behavior: none; }
+      body {
+        background: var(--bg); color: var(--paper);
+        touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none;
+      }
+      /* Fixed to every edge, so it keeps its own content clear of notches and system bars. */
+      #stage {
+        position: fixed; inset: 0; box-sizing: border-box; background: var(--bg);
+        padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px)
+                 env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+      }
+      #game { width: 100%; height: 100%; }
+      #rotate {
+        position: fixed; inset: 0; z-index: 10; display: none; flex-direction: column;
+        align-items: center; justify-content: center; gap: 12px; box-sizing: border-box;
+        padding: 24px max(16px, env(safe-area-inset-right, 0px)) 24px max(16px, env(safe-area-inset-left, 0px));
+        background: var(--bg); color: var(--paper); text-align: center;
+        font: 400 30px/1.15 var(--display); letter-spacing: 0.03em; border: 0; width: 100%;
+      }
+      #rotate .phone { font-size: 64px; display: block; animation: tip 1.6s ease-in-out infinite; }
+      #rotate small { font: 500 14px/1.4 var(--body); letter-spacing: 0; color: var(--muted); }
+      #rotate:focus-visible { outline: 3px solid var(--paper); outline-offset: -6px; }
       @keyframes tip { 0%, 30% { transform: rotate(0); } 60%, 100% { transform: rotate(-90deg); } }
-      #rotate small { font-weight: 500; font-size: 14px; opacity: 0.6; }
+      @media (prefers-reduced-motion: reduce) { #rotate .phone { animation: none; transform: rotate(-90deg); } }
       @media (orientation: portrait) and (max-width: 700px) { #rotate:not(.dismissed) { display: flex; } }
     </style>
   </head>
   <body>
-    <div id="game"></div>
-    <div id="rotate"><span>📱</span>Turn your phone sideways<br />to play Rubber Necker<small>or tap here to play small</small></div>
+    <div id="stage"><div id="game"></div></div>
+    <button id="rotate" type="button">
+      <span class="phone" aria-hidden="true">📱</span>
+      Turn your phone sideways to play
+      <small>Or tap here to play on a small screen</small>
+    </button>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

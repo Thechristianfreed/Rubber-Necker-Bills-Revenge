@@ -37,6 +37,12 @@ npm run build:single
 
 Writes one self-contained `dist-single/index.html` that can be shared as a single file.
 
+```bash
+node tools/make_artifact.mjs
+```
+
+Converts that single file into a page fragment for hosts that add their own page wrapper.
+
 ## How it is put together
 
 - **Engine:** [Phaser 4](https://phaser.io) with TypeScript and Vite. The Android app will wrap the web build with Capacitor.

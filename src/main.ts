@@ -5,10 +5,13 @@ import { BootScene } from './scenes/BootScene';
 import { GameScene } from './scenes/GameScene';
 import { TitleScene } from './scenes/TitleScene';
 
+const stage = document.getElementById('game') as HTMLElement;
+
 /** The playfield is always 540 design pixels tall; its width follows the
  *  screen's aspect ratio so wide phones see more road instead of black bars. */
 function designWidth(): number {
-  const w = window.innerWidth || 960, h = window.innerHeight || 540;
+  const w = stage.clientWidth || window.innerWidth || 960;
+  const h = stage.clientHeight || window.innerHeight || 540;
   if (h > w) return 960; // portrait: the "turn your phone" overlay is showing
   return Phaser.Math.Clamp(Math.round((H * w) / h), MIN_W, MAX_W);
 }
@@ -37,7 +40,7 @@ const game = new Phaser.Game({
 (window as unknown as { __game: Phaser.Game }).__game = game;
 
 let resizeTimer = 0;
-window.addEventListener('resize', () => {
+const refit = () => {
   window.clearTimeout(resizeTimer);
   resizeTimer = window.setTimeout(() => {
     const w = designWidth();
@@ -45,11 +48,13 @@ window.addEventListener('resize', () => {
     view.W = w;
     game.scale.setGameSize(Math.round(w * view.RES), Math.round(H * view.RES));
   }, 120);
-});
+};
+window.addEventListener('resize', refit);
+if ('ResizeObserver' in window) new ResizeObserver(refit).observe(stage);
 
 // If the phone will not rotate (some in-app browsers), let people play small.
 const rotate = document.getElementById('rotate');
-rotate?.addEventListener('pointerdown', () => rotate.classList.add('dismissed'));
+rotate?.addEventListener('click', () => rotate.classList.add('dismissed'));
 
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) sound.stopMusic();

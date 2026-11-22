@@ -11,27 +11,28 @@ export class BootScene extends Phaser.Scene {
     super('boot');
   }
 
-  preload(): void {
-    this.load.image('bill-sideeye', sideeye);
-    this.load.image('bill-glare', glare);
-    this.load.image('bill-grin', grin);
-  }
-
-  /** Re-bake a photo head so it looks down the road (to the right). The source
-   *  photos face different ways; mirroring once here keeps every use site simple. */
-  private faceRight(key: string, mirror: boolean): void {
-    const src = this.textures.get(key).getSourceImage() as HTMLImageElement;
-    const canvas = document.createElement('canvas');
-    canvas.width = src.width;
-    canvas.height = src.height;
-    const c = canvas.getContext('2d')!;
-    if (mirror) {
-      c.translate(src.width, 0);
-      c.scale(-1, 1);
-    }
-    c.drawImage(src, 0, 0);
-    this.textures.remove(key);
-    this.textures.addCanvas(key, canvas);
+  /** Load a photo head and bake it into a canvas texture that looks down the
+   *  road (to the right); the source photos face different ways. Uses a plain
+   *  <img> rather than Phaser's loader so it also works from an inlined data: URL. */
+  private loadHead(key: string, url: string, mirror: boolean): Promise<void> {
+    return new Promise((resolve) => {
+      const im = new Image();
+      im.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = im.naturalWidth;
+        canvas.height = im.naturalHeight;
+        const c = canvas.getContext('2d')!;
+        if (mirror) {
+          c.translate(canvas.width, 0);
+          c.scale(-1, 1);
+        }
+        c.drawImage(im, 0, 0);
+        this.textures.addCanvas(key, canvas);
+        resolve();
+      };
+      im.onerror = () => resolve();
+      im.src = url;
+    });
   }
 
   create(): void {
@@ -39,10 +40,13 @@ export class BootScene extends Phaser.Scene {
     const ready = fonts ? fonts.load('40px Bangers').catch(() => undefined) : Promise.resolve();
     // never let a slow font block the game
     const timeout = new Promise((res) => setTimeout(res, 2500));
-    void Promise.race([ready, timeout]).then(() => {
-      this.faceRight('bill-sideeye', true);
-      this.faceRight('bill-glare', true);
-      this.faceRight('bill-grin', false);
+    const fontReady = Promise.race([ready, timeout]);
+    const heads = Promise.all([
+      this.loadHead('bill-sideeye', sideeye, true),
+      this.loadHead('bill-glare', glare, true),
+      this.loadHead('bill-grin', grin, false),
+    ]);
+    void Promise.all([fontReady, heads]).then(() => {
       buildTextures(this);
       this.scene.start(new URLSearchParams(location.search).has('auto') ? 'game' : 'title');
     });
