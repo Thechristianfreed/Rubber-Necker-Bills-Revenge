@@ -11,6 +11,9 @@ export const TEX = 2;
 export const INK = '#231d1b';
 export const PAPER = '#fffaf0';
 
+/** Bill's head photos are built so the head itself is this many pixels tall. */
+export const HEAD_SRC_H = 400;
+
 /** Runtime view info, set in main.ts and updated when the window changes. */
 export const view = { W: 960, RES: 1 };
 

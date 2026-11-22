@@ -1,9 +1,9 @@
 import Phaser from 'phaser';
 import { INK, PAPER, TEX } from '../config';
 
-/** Helpers for the "paper cutout" look: every piece of art is drawn with the
- *  Canvas 2D API at TEX x design size, optionally wrapped in a white sticker
- *  border with a dark keyline, and registered as a Phaser texture. */
+/** Helpers for the scrapbook look: every piece of art is drawn with the
+ *  Canvas 2D API at TEX x design size, optionally wrapped in a white cut-paper
+ *  border with a soft drop shadow, and registered as a Phaser texture. */
 
 export type Ctx = CanvasRenderingContext2D;
 
@@ -43,10 +43,13 @@ function silhouette(src: HTMLCanvasElement, color: string): HTMLCanvasElement {
   return c;
 }
 
+/** Every cutout casts a soft shadow, as if it were glued onto the page below. */
+const SHADOW = { dx: 2.2, dy: 3.4, blur: 3.2, alpha: 0.42 };
+
 function stickerize(src: HTMLCanvasElement, border: number, keyline: number): [HTMLCanvasElement, number] {
-  const padDesign = Math.ceil(border + keyline + 1);
+  const padDesign = Math.ceil(border + keyline + 1 + SHADOW.blur + Math.max(SHADOW.dx, SHADOW.dy));
   const pad = padDesign * TEX;
-  const [out, o] = makeCanvas(src.width + pad * 2, src.height + pad * 2);
+  const [flat, o] = makeCanvas(src.width + pad * 2, src.height + pad * 2);
   const ring = (img: HTMLCanvasElement, r: number) => {
     const n = Math.max(16, Math.ceil(r * 2.4));
     for (let i = 0; i < n; i++) {
@@ -59,6 +62,13 @@ function stickerize(src: HTMLCanvasElement, border: number, keyline: number): [H
   ring(white, border * TEX);
   if (border * TEX > 5) ring(white, border * TEX * 0.5);
   o.drawImage(src, pad, pad);
+
+  const [out, x] = makeCanvas(flat.width, flat.height);
+  x.shadowColor = `rgba(24, 16, 10, ${SHADOW.alpha})`;
+  x.shadowBlur = SHADOW.blur * TEX;
+  x.shadowOffsetX = SHADOW.dx * TEX;
+  x.shadowOffsetY = SHADOW.dy * TEX;
+  x.drawImage(flat, 0, 0);
   return [out, padDesign];
 }
 
@@ -75,7 +85,7 @@ export function makeArt(
   let canvas = inner;
   let pad = 0;
   if (opts.border && opts.border > 0) {
-    [canvas, pad] = stickerize(inner, opts.border, opts.keyline ?? 1.2);
+    [canvas, pad] = stickerize(inner, opts.border, opts.keyline ?? 0);
   }
   if (scene.textures.exists(key)) scene.textures.remove(key);
   scene.textures.addCanvas(key, canvas);

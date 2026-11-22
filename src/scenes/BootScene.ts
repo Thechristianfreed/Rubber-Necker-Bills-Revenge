@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import '@fontsource/bangers/latin-400.css';
+import '@fontsource/permanent-marker/latin-400.css';
 import { buildTextures } from '../art/textures';
 import glare from '../assets/bill/head-glare.png';
 import grin from '../assets/bill/head-grin.png';
@@ -37,7 +38,9 @@ export class BootScene extends Phaser.Scene {
 
   create(): void {
     const fonts = (document as Document & { fonts?: FontFaceSet }).fonts;
-    const ready = fonts ? fonts.load('40px Bangers').catch(() => undefined) : Promise.resolve();
+    const ready = fonts
+      ? Promise.all([fonts.load('40px Bangers'), fonts.load('24px "Permanent Marker"')]).catch(() => undefined)
+      : Promise.resolve();
     // never let a slow font block the game
     const timeout = new Promise((res) => setTimeout(res, 2500));
     const fontReady = Promise.race([ready, timeout]);

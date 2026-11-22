@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
-import { H, MAX_W, view } from '../config';
+import { H, HEAD_SRC_H, MAX_W, view } from '../config';
+import { addPrintFinish } from '../art/finish';
 import { img } from '../art/sticker';
 import { sound } from '../audio/sound';
 import { label } from '../ui/text';
@@ -33,7 +34,7 @@ export class TitleScene extends Phaser.Scene {
     const torso = img(this, bx, H - 6, 'bill_torso');
     torso.setScale(torso.scale * 2.5);
     const head = this.add.image(bx - 4, H - 268, 'bill-sideeye').setRotation(-0.06);
-    head.setScale(250 / head.frame.height);
+    head.setScale(230 / HEAD_SRC_H);
     this.tweens.add({ targets: head, y: head.y - 6, rotation: 0.02, duration: 1400, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
     this.tweens.add({ targets: arm, rotation: 0.38, duration: 900, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
 
@@ -48,6 +49,8 @@ export class TitleScene extends Phaser.Scene {
     label(this, tx, 462, 'TAP = swing     HOLD DUCK = dodge signs', 22, '#fffaf0', 5);
     label(this, tx, 492, "Fill the RAGE meter.  Don't hit the dog.", 22, '#fffaf0', 5);
     label(this, W - 10, H - 12, 'prototype 0.1', 15, '#fffaf0', 3).setOrigin(1, 0.5).setAlpha(0.7);
+
+    addPrintFinish(this);
 
     const start = () => {
       sound.unlock();

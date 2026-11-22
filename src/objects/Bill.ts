@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { BILL, DEPTH, LANE, SWING } from '../config';
+import { BILL, DEPTH, HEAD_SRC_H, LANE, SWING } from '../config';
 import { img } from '../art/sticker';
 
 /** Bill: a photo-cutout head on a drawn aloha-shirt body, hanging out of the
@@ -7,7 +7,7 @@ import { img } from '../art/sticker';
 
 export type Face = 'sideeye' | 'grin' | 'glare';
 
-const HEAD_H = 112;
+const HEAD_H = 104;
 
 const REST = 0.16;
 const COCKED = -0.95;
@@ -82,7 +82,7 @@ export class Bill {
     this.face = face;
     this.faceT = seconds;
     this.head.setTexture(`bill-${face}`);
-    this.head.setScale(HEAD_H / this.head.frame.height);
+    this.head.setScale(HEAD_H / HEAD_SRC_H);
   }
 
   hurt(): void {

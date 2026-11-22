@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
-import { BILL, DEPTH, H, INK, LANE, MAX_W, SCORE, SPEED, SWING, TEX, view } from '../config';
+import { BILL, DEPTH, H, HEAD_SRC_H, INK, LANE, MAX_W, SCORE, SPEED, SWING, TEX, view } from '../config';
+import { BLEED, addPrintFinish } from '../art/finish';
 import { ART, img } from '../art/sticker';
 import { sound } from '../audio/sound';
 import { HIGHWAY_JAM, Spawn, countHeads } from '../data/levels';
@@ -8,7 +9,7 @@ import { Bill } from '../objects/Bill';
 import { NoodleNeck } from '../objects/NoodleNeck';
 import { Vehicle } from '../objects/Vehicle';
 import { Hud } from '../ui/Hud';
-import { label } from '../ui/text';
+import { label, marker } from '../ui/text';
 
 interface Strip { ts: Phaser.GameObjects.TileSprite; factor: number }
 interface Prop { im: Phaser.GameObjects.Image; factor: number; wrap?: number }
@@ -16,8 +17,6 @@ interface Sign { im: Phaser.GameObjects.Image; x: number; done: boolean }
 type Quality = 'good' | 'perfect' | 'rage';
 
 const SIGN_BASE_Y = 384;
-/** The world is painted this far past every screen edge so camera shake never shows a gap. */
-const BLEED = 48;
 const HIT_WORDS = ['BONK!', 'WHACK!', 'THWACK!', 'BOP!', 'POW!'];
 
 export class GameScene extends Phaser.Scene {
@@ -109,6 +108,7 @@ export class GameScene extends Phaser.Scene {
       scale: { start: 0.2, end: 0.48 }, alpha: { start: 0.65, end: 0 }, frequency: 85,
     }).setDepth(DEPTH.billBack - 1);
 
+    addPrintFinish(this);
     this.setupInput();
     this.scale.on('resize', this.onResize, this);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.scale.off('resize', this.onResize, this));
@@ -130,39 +130,43 @@ export class GameScene extends Phaser.Scene {
     this.bill.setX(view.W * BILL.xFrac);
   }
 
-  private strip(key: string, y: number, factor: number, depth: number): void {
+  /** A full-width band of a repeating texture that scrolls with the world. */
+  private strip(key: string, y: number, factor: number, depth: number, height?: number): Phaser.GameObjects.TileSprite {
     const a = ART[key];
-    const ts = this.add.tileSprite(-BLEED, y, (MAX_W + BLEED * 2) * TEX, a.h * TEX, key).setOrigin(0, 0).setScale(1 / TEX).setDepth(depth);
+    const ts = this.add.tileSprite(-BLEED, y, (MAX_W + BLEED * 2) * TEX, (height ?? a.h) * TEX, key)
+      .setOrigin(0, 0).setScale(1 / TEX).setDepth(depth);
     this.strips.push({ ts, factor });
+    return ts;
   }
 
   private buildWorld(): void {
+    const x0 = -BLEED, ww = MAX_W + BLEED * 2;
+
+    // sky: a faded blue page with printed dots thickening toward the horizon
     const sky = this.add.graphics().setDepth(DEPTH.sky);
-    sky.fillGradientStyle(0x4fb3ee, 0x4fb3ee, 0xd3f0ff, 0xd3f0ff, 1);
-    sky.fillRect(-BLEED, -BLEED, MAX_W + BLEED * 2, 210 + BLEED);
-    sky.fillStyle(0x231d1b, 1);
-    sky.fillCircle(250, 66, 35);
-    sky.fillStyle(0xfff0a0, 1);
-    sky.fillCircle(250, 66, 32);
+    sky.fillGradientStyle(0x4d9fd6, 0x4d9fd6, 0xa9d8ea, 0xa9d8ea, 1);
+    sky.fillRect(x0, -BLEED, ww, 210 + BLEED);
+    this.strip('skydots', 0, 0, DEPTH.sky);
+    img(this, 250, 66, 'sun').setDepth(DEPTH.sky + 1);
 
     for (let i = 0; i < 5; i++) {
       const im = img(this, (i / 5) * (MAX_W + 200) + Math.random() * 90, 26 + Math.random() * 70, 'cloud')
-        .setDepth(DEPTH.sky + 1).setAlpha(0.95);
+        .setDepth(DEPTH.sky + 2);
       im.setScale(im.scale * (0.6 + Math.random() * 0.5));
       this.props.push({ im, factor: 0.035 + Math.random() * 0.02, wrap: MAX_W + 260 });
     }
     this.strip('hills', 76, 0.1, DEPTH.far);
 
+    // the road: two strips of tarmac paper with painted lines
+    this.strip('edge', 192, 0, DEPTH.far + 2);
+    this.strip('asphalt', 206, 1, DEPTH.road, 184).setTint(0xeeeef6);
+    this.strip('asphalt', 402, 1, DEPTH.road, 128);
     const r = this.add.graphics().setDepth(DEPTH.road);
-    const x0 = -BLEED, ww = MAX_W + BLEED * 2;
-    r.fillStyle(0x5d5b66, 1); r.fillRect(x0, 206, ww, 184);        // jammed side
-    r.fillStyle(0x56545f, 1); r.fillRect(x0, 300, ww, 90);         // closed lane
-    r.fillStyle(0x231d1b, 1); r.fillRect(x0, 203, ww, 3);
+    r.fillStyle(0x1c1820, 0.1); r.fillRect(x0, 300, ww, 90);       // the closed lane sits a shade darker
     r.fillStyle(0x47454f, 1); r.fillRect(x0, 388, ww, 14);         // median
-    r.fillStyle(0xf6c21c, 1); r.fillRect(x0, 391, ww, 3); r.fillRect(x0, 396, ww, 3);
-    r.fillStyle(0x67656f, 1); r.fillRect(x0, 402, ww, 122);        // Bill's side
-    r.fillStyle(0xf4f1ea, 1); r.fillRect(x0, 517, ww, 4);
-    r.fillStyle(0x5c9f5e, 1); r.fillRect(x0, 530, ww, 10 + BLEED); // verge, past the bottom edge
+    r.fillStyle(0xf3c53a, 1); r.fillRect(x0, 391, ww, 3); r.fillRect(x0, 396, ww, 3);
+    r.fillStyle(0xf4efe2, 1); r.fillRect(x0, 517, ww, 4);
+    r.fillStyle(0x6ba56a, 1); r.fillRect(x0, 530, ww, 10 + BLEED); // verge, past the bottom edge
 
     this.strip('rail', 184, 1, DEPTH.road + 1);
     this.strip('dash', 297, 1, DEPTH.road + 1);
@@ -230,7 +234,7 @@ export class GameScene extends Phaser.Scene {
 
   private intro(): void {
     const title = label(this, view.W / 2, 150, this.level.name, 76, '#ffe45c', 12).setDepth(DEPTH.overlay).setScale(0.2).setAlpha(0);
-    const sub = label(this, view.W / 2, 212, this.level.tagline, 30).setDepth(DEPTH.overlay).setAlpha(0);
+    const sub = marker(this, view.W / 2, 214, this.level.tagline, 27).setDepth(DEPTH.overlay).setAlpha(0);
     this.tweens.add({ targets: title, scale: 1, alpha: 1, duration: 320, ease: 'Back.out' });
     this.tweens.add({ targets: sub, alpha: 1, duration: 250, delay: 250 });
     this.tweens.add({
@@ -445,7 +449,7 @@ export class GameScene extends Phaser.Scene {
 
   private hint(text: string): void {
     this.hintText?.destroy();
-    const t = label(this, view.W / 2, 152, text, 34, '#ffffff').setDepth(DEPTH.overlay - 1).setScale(0.4).setAlpha(0);
+    const t = marker(this, view.W / 2, 152, text, 30, '#ffffff').setDepth(DEPTH.overlay - 1).setScale(0.4).setAlpha(0);
     this.hintText = t;
     this.tweens.add({ targets: t, scale: 1, alpha: 1, duration: 180, ease: 'Back.out' });
     this.tweens.add({
@@ -715,7 +719,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     const face = this.add.image(px - pw / 2 + 12, py - ph / 2 + 30, won ? 'bill-grin' : 'bill-glare').setDepth(d + 1).setRotation(-0.22);
-    face.setScale(132 / face.frame.height);
+    face.setScale(121 / HEAD_SRC_H);
 
     const again = label(this, px, py + 158, 'TAP TO PLAY AGAIN', 32, '#ffffff').setDepth(d).setAlpha(0);
     this.time.delayedCall(1100, () => {

@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { BILL, DEPTH, H, SCORE, view } from '../config';
 import { applyArt, img } from '../art/sticker';
-import { label } from './text';
+import { marker, tape } from './text';
 
 const BAR_W = 300;
 const BAR_H = 20;
@@ -13,7 +13,7 @@ export class Hud {
   private scene: Phaser.Scene;
   private hearts: Phaser.GameObjects.Image[] = [];
   private cash: Phaser.GameObjects.Text;
-  private jamLabel: Phaser.GameObjects.Text;
+  private jamLabel: Phaser.GameObjects.Container;
   private jamCount: Phaser.GameObjects.Text;
   private bar: Phaser.GameObjects.Graphics;
   private combo: Phaser.GameObjects.Text;
@@ -29,11 +29,11 @@ export class Hud {
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
     for (let i = 0; i < BILL.maxHearts; i++) this.hearts.push(img(scene, 0, 0, 'heart').setDepth(DEPTH.hud));
-    this.cash = label(scene, 0, 0, '$0', 26, '#b8f28a').setOrigin(0, 0.5).setDepth(DEPTH.hud);
-    this.jamLabel = label(scene, 0, 0, 'JAM CLEARED', 19).setDepth(DEPTH.hud);
-    this.jamCount = label(scene, 0, 0, '0/0', 19, '#ffe45c').setOrigin(1, 0.5).setDepth(DEPTH.hud);
+    this.cash = marker(scene, 0, 0, '$0', 25, '#c9f29b').setOrigin(0, 0.5).setDepth(DEPTH.hud);
+    this.jamLabel = tape(scene, 0, 0, 'Jam cleared').setDepth(DEPTH.hud);
+    this.jamCount = marker(scene, 0, 0, '0/0', 19, '#ffe45c').setOrigin(1, 0.5).setDepth(DEPTH.hud);
     this.bar = scene.add.graphics().setDepth(DEPTH.hud);
-    this.combo = label(scene, 0, 0, '', 34, '#ffe45c').setDepth(DEPTH.hud).setVisible(false);
+    this.combo = marker(scene, 0, 0, '', 32, '#ffe45c').setDepth(DEPTH.hud).setVisible(false);
     this.duckBtn = img(scene, 0, 0, 'btn_duck').setDepth(DEPTH.hud).setAlpha(0.9);
     this.rageRing = scene.add.graphics().setDepth(DEPTH.hud);
     this.rageBtn = img(scene, 0, 0, 'btn_rage_off').setDepth(DEPTH.hud).setAlpha(0.9);
@@ -52,8 +52,8 @@ export class Hud {
   layout(): void {
     const W = view.W;
     this.hearts.forEach((h, i) => h.setPosition(30 + i * 34, 28));
-    this.cash.setPosition(16, 62);
-    this.jamLabel.setPosition(W / 2 - 60, 20);
+    this.cash.setPosition(14, 64);
+    this.jamLabel.setPosition(W / 2 - 78, 19);
     this.jamCount.setPosition(W / 2 + BAR_W / 2, 20);
     this.combo.setPosition(W / 2, 92);
     this.duckBtn.setPosition(this.duckPos.x, this.duckPos.y);

@@ -531,10 +531,154 @@ function drawCone(c: Ctx): void {
 
 function drawCloud(c: Ctx): void {
   const blobs: [number, number, number][] = [[32, 40, 22], [62, 28, 26], [96, 34, 24], [122, 44, 16], [76, 46, 20]];
-  for (const [x, y, r] of blobs) { circle(c, x, y, r + 2.4); c.fillStyle = INK; c.fill(); }
-  for (const [x, y, r] of blobs) { circle(c, x, y, r); c.fillStyle = '#ffffff'; c.fill(); }
-  c.fillStyle = INK; c.fillRect(14, 58, 120, 2.4);
-  c.fillStyle = '#ffffff'; c.fillRect(16, 44, 116, 14);
+  c.fillStyle = '#fffdf7';
+  for (const [x, y, r] of blobs) { circle(c, x, y, r); c.fill(); }
+  c.fillRect(16, 44, 116, 16);
+}
+
+/** Tile-safe random scatter: calls `fn` at every wrapped copy of a point. */
+function wrapped(size: number, x: number, y: number, r: number, fn: (x: number, y: number) => void): void {
+  for (const ox of [-size, 0, size]) {
+    for (const oy of [-size, 0, size]) {
+      if (x + ox + r < 0 || x + ox - r > size || y + oy + r < 0 || y + oy - r > size) continue;
+      fn(x + ox, y + oy);
+    }
+  }
+}
+
+/** Per-pixel grain, applied to the whole canvas the context belongs to. */
+function grain(c: Ctx, amount: number): void {
+  const { width, height } = c.canvas;
+  const im = c.getImageData(0, 0, width, height);
+  const d = im.data;
+  for (let i = 0; i < d.length; i += 4) {
+    const n = (Math.random() - 0.5) * amount;
+    d[i] += n; d[i + 1] += n; d[i + 2] += n;
+  }
+  c.putImageData(im, 0, 0);
+}
+
+/** The printed-page finish as ONE see-through sheet laid over the screen: a
+ *  cream wash that fades the blacks, paper blotches and fibres, fine grain,
+ *  and a screen of print dots. One layer keeps it cheap on phones. */
+function drawPaper(c: Ctx): void {
+  const S = 256;
+  c.fillStyle = 'rgba(232,206,158,0.085)';
+  c.fillRect(0, 0, S, S);
+  for (let i = 0; i < 30; i++) {
+    const x = Math.random() * S, y = Math.random() * S, r = 18 + Math.random() * 52;
+    const dark = Math.random() < 0.55;
+    const col = dark ? '120,84,40' : '255,246,222';
+    const a = dark ? 0.07 : 0.045;
+    wrapped(S, x, y, r, (px, py) => {
+      const g = c.createRadialGradient(px, py, 0, px, py, r);
+      g.addColorStop(0, `rgba(${col},${a})`);
+      g.addColorStop(1, `rgba(${col},0)`);
+      c.fillStyle = g;
+      c.fillRect(px - r, py - r, r * 2, r * 2);
+    });
+  }
+  c.lineWidth = 0.5;
+  for (let i = 0; i < 170; i++) {
+    const x = Math.random() * S, y = Math.random() * S, a = Math.random() * Math.PI, l = 5 + Math.random() * 13;
+    c.strokeStyle = Math.random() < 0.6 ? 'rgba(96,70,40,0.2)' : 'rgba(255,252,240,0.26)';
+    wrapped(S, x, y, l, (px, py) => {
+      c.beginPath();
+      c.moveTo(px, py);
+      c.quadraticCurveTo(px + Math.cos(a) * l * 0.5 + 2, py + Math.sin(a) * l * 0.5 - 2, px + Math.cos(a) * l, py + Math.sin(a) * l);
+      c.stroke();
+    });
+  }
+  // print dots, 8px pitch so they tile exactly
+  c.fillStyle = 'rgba(58,40,28,0.15)';
+  for (let y = 0; y < S; y += 8) {
+    for (let x = 0; x < S; x += 8) {
+      circle(c, x + 2, y + 2, 1.05); c.fill();
+      circle(c, x + 6, y + 6, 1.05); c.fill();
+    }
+  }
+  // grain: nudge colour and coverage together so it reads on light and dark alike
+  const im = c.getImageData(0, 0, c.canvas.width, c.canvas.height);
+  const d = im.data;
+  for (let i = 0; i < d.length; i += 4) {
+    const n = Math.random() - 0.5;
+    d[i] += n * 90; d[i + 1] += n * 90; d[i + 2] += n * 90;
+    d[i + 3] += Math.abs(n) * 16;
+  }
+  c.putImageData(im, 0, 0);
+}
+
+/** Road surface: speckled tarmac with a few cracks and patches. Scrolls with the world. */
+function drawAsphalt(c: Ctx): void {
+  const S = 256;
+  c.fillStyle = '#63616b';
+  c.fillRect(0, 0, S, S);
+  for (let i = 0; i < 16; i++) {
+    const x = Math.random() * S, y = Math.random() * S, r = 20 + Math.random() * 46;
+    const col = Math.random() < 0.5 ? '40,38,46' : '150,146,160';
+    wrapped(S, x, y, r, (px, py) => {
+      const g = c.createRadialGradient(px, py, 0, px, py, r);
+      g.addColorStop(0, `rgba(${col},0.16)`);
+      g.addColorStop(1, `rgba(${col},0)`);
+      c.fillStyle = g;
+      c.fillRect(px - r, py - r, r * 2, r * 2);
+    });
+  }
+  for (let i = 0; i < 520; i++) {
+    const x = Math.random() * S, y = Math.random() * S, r = 0.4 + Math.random() * 1.1;
+    c.fillStyle = Math.random() < 0.5 ? 'rgba(30,28,34,0.5)' : 'rgba(196,192,204,0.42)';
+    wrapped(S, x, y, r, (px, py) => { circle(c, px, py, r); c.fill(); });
+  }
+  c.strokeStyle = 'rgba(34,30,38,0.5)';
+  c.lineWidth = 1;
+  for (let i = 0; i < 5; i++) {
+    let x = 30 + Math.random() * 190, y = 30 + Math.random() * 190;
+    c.beginPath();
+    c.moveTo(x, y);
+    for (let k = 0; k < 5; k++) {
+      x += 6 + Math.random() * 12;
+      y += (Math.random() - 0.5) * 12;
+      c.lineTo(x, y);
+    }
+    c.stroke();
+  }
+  grain(c, 22);
+}
+
+/** Two layers of cut green paper for the far hills, each with a pale cut edge. */
+function drawHills(c: Ctx): void {
+  const ridge = (base: number, a1: number, a2: number, ph: number, col: string) => {
+    const path = () => {
+      c.beginPath();
+      c.moveTo(-4, 134);
+      for (let x = -4; x <= 516; x += 4) {
+        const t = (x / 512) * Math.PI * 2;
+        c.lineTo(x, base + a1 * Math.sin(t + ph) + a2 * Math.sin(t * 3 + ph * 2));
+      }
+      c.lineTo(516, 134);
+      c.closePath();
+    };
+    c.save();
+    c.shadowColor = 'rgba(24,16,10,0.4)';
+    c.shadowBlur = 9;
+    c.shadowOffsetY = -1;
+    path();
+    c.fillStyle = col;
+    c.fill();
+    c.restore();
+    path();
+    c.strokeStyle = '#fbf6ea';
+    c.lineWidth = 2.6;
+    c.stroke();
+    c.save();
+    path();
+    c.clip();
+    c.fillStyle = 'rgba(255,255,255,0.07)';
+    for (let i = 0; i < 46; i++) c.fillRect(Math.random() * 512, base - 30 + Math.random() * 90, 14 + Math.random() * 30, 1.2);
+    c.restore();
+  };
+  ridge(52, 22, 9, 0.4, '#a7cf9d');
+  ridge(84, 16, 7, 2.2, '#73ae77');
 }
 
 function drawPalm(c: Ctx): void {
@@ -687,10 +831,12 @@ export function buildTextures(scene: Phaser.Scene): void {
     makeArt(scene, `head${s}_dazed`, 56, 58, (c) => drawHead(c, skin, s, true), { border: 2.5, ax: 28, ay: 48 });
   }
   SKIN.forEach((skin, i) => {
+    // every neck is the same pink rubber, whoever it belongs to
     tile(scene, `neck${i}`, 16, 15, (c) => {
-      c.fillStyle = INK; c.fillRect(0, 0, 16, 15);
-      c.fillStyle = skin; c.fillRect(0, 2.2, 16, 10.6);
-      c.fillStyle = shade(skin, -0.14); c.fillRect(0, 9.4, 16, 3.4);
+      c.fillStyle = '#b9566a'; c.fillRect(0, 0, 16, 15);
+      c.fillStyle = '#ee9aa6'; c.fillRect(0, 1.8, 16, 11.4);
+      c.fillStyle = '#f8c3c9'; c.fillRect(0, 3.2, 16, 2.6);
+      c.fillStyle = '#d97a89'; c.fillRect(0, 9.8, 16, 3.4);
     });
     makeArt(scene, `armphone${i}`, 66, 30, (c) => {
       rr(c, 2, 10, 46, 10, 5); ink(c, skin, 2.2);
@@ -717,7 +863,11 @@ export function buildTextures(scene: Phaser.Scene): void {
   makeArt(scene, 'cone', 22, 29, drawCone, { border: 1.5, ax: 11, ay: 28 });
   makeArt(scene, 'wreck', 380, 152, drawWreck, { border: 2.5, ax: 190, ay: 150 });
 
-  makeArt(scene, 'cloud', 150, 64, drawCloud);
+  makeArt(scene, 'cloud', 150, 64, drawCloud, { border: 0.6 });
+  makeArt(scene, 'sun', 66, 66, (c) => {
+    circle(c, 33, 33, 32); c.fillStyle = '#ffd24a'; c.fill();
+    circle(c, 33, 33, 24); c.fillStyle = '#ffe07a'; c.fill();
+  }, { border: 3 });
   makeArt(scene, 'palm', 100, 152, drawPalm, { border: 2, ax: 40, ay: 150 });
   makeArt(scene, 'billboard0', 170, 126, (c) => drawBillboard(c, 'EYES ON', 'THE ROAD!', '#fffaf0'), { border: 2, ax: 85, ay: 124 });
   makeArt(scene, 'billboard1', 170, 126, (c) => drawBillboard(c, 'KEEP IT', 'MOVING!', '#ffe45c'), { border: 2, ax: 85, ay: 124 });
@@ -761,24 +911,24 @@ export function buildTextures(scene: Phaser.Scene): void {
     c.fillStyle = '#cfd4da'; c.fillRect(0, 4, 72, 8);
     c.fillStyle = '#eef1f4'; c.fillRect(0, 5, 72, 2.4);
   });
-  tile(scene, 'hills', 512, 130, (c) => {
-    const ridge = (base: number, a1: number, a2: number, ph: number, col: string) => {
-      c.beginPath();
-      c.moveTo(0, 130);
-      for (let x = 0; x <= 512; x += 4) {
-        const t = (x / 512) * Math.PI * 2;
-        c.lineTo(x, base + a1 * Math.sin(t + ph) + a2 * Math.sin(t * 3 + ph * 2));
-      }
-      c.lineTo(512, 130);
-      c.closePath();
-      c.fillStyle = col;
-      c.fill();
-      c.strokeStyle = INK;
-      c.lineWidth = 2.4;
-      c.stroke();
-    };
-    ridge(52, 22, 9, 0.4, '#8fc6a0');
-    ridge(84, 16, 7, 2.2, '#63a66f');
+  tile(scene, 'hills', 512, 130, drawHills);
+  tile(scene, 'paper', 256, 256, drawPaper);
+  tile(scene, 'asphalt', 256, 256, drawAsphalt);
+  // white dots that swell toward the horizon: a printed sky gradient
+  tile(scene, 'skydots', 14, 210, (c) => {
+    c.fillStyle = 'rgba(255,255,255,0.5)';
+    for (let i = 0; i * 7 < 214; i++) {
+      const y = i * 7, r = 0.2 + 3.1 * Math.pow(y / 210, 1.6);
+      for (const x of [i % 2 === 0 ? 3.5 : 10.5, i % 2 === 0 ? 17.5 : -3.5]) { circle(c, x, y, r); c.fill(); }
+    }
+  });
+  // soft shadow where one sheet of paper sits on another
+  tile(scene, 'edge', 8, 14, (c) => {
+    const g = c.createLinearGradient(0, 0, 0, 14);
+    g.addColorStop(0, 'rgba(24,16,10,0)');
+    g.addColorStop(1, 'rgba(24,16,10,0.34)');
+    c.fillStyle = g;
+    c.fillRect(0, 0, 8, 14);
   });
   tile(scene, 'grass', 64, 18, (c) => {
     c.fillStyle = '#5c9f5e'; c.fillRect(0, 4, 64, 14);
