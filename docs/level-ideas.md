@@ -5,10 +5,22 @@ A running list of ideas from the family that are not built yet.
 ## Bonus levels
 
 ### The locker
-SKIPPY peanut butter jars and chocolate milkshakes get lobbed out of a school
-locker and Bill returns them with the tennis racquet.
+The true story: in high school, Bill and his friends were at a friend's house
+talking about a guy who bullied them. One friend left the room, came back, and
+tossed a SKIPPY peanut butter jar at them. The jar turned out to be filled with
+a turd. They went to the school and broke into the bully's locker. He played
+tennis, so they took his racquet; one of them lobbed the turd out of the jar
+and another smacked it with the racquet, launching bits through the strings.
+They also closed some of it inside his history book. The next day a teacher
+angrily asked why he did not have his book, and he replied: "Someone broke into
+my locker and smushed chocolate milkshake in my book."
 
-- Still needed: the story behind it (whose locker, why peanut butter and milkshakes).
+- Shape of the level: SKIPPY jars and "chocolate milkshakes" get lobbed out of
+  a school locker and Bill returns them with the tennis racquet, with splats
+  spraying through the strings.
+- Finale: slam the history book shut, then the teacher scene and the
+  "chocolate milkshake" line as the punchline.
+- The tennis racquet's special (a served ball that ricochets) can be introduced here.
 
 ### The late teacher
 Bill had a teacher who would freak out if anyone was late and lock the door so
