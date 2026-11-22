@@ -40,6 +40,7 @@ const game = new Phaser.Game({
 });
 
 (window as unknown as { __game: Phaser.Game }).__game = game;
+(window as unknown as { __sound: typeof sound }).__sound = sound;
 
 let resizeTimer = 0;
 const refit = () => {
@@ -59,6 +60,5 @@ const rotate = document.getElementById('rotate');
 rotate?.addEventListener('click', () => rotate.classList.add('dismissed'));
 
 document.addEventListener('visibilitychange', () => {
-  if (document.hidden) sound.stopMusic();
-  else if (game.scene.isActive('game')) sound.startMusic();
+  sound.sleep(document.hidden);
 });

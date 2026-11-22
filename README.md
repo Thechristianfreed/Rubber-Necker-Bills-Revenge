@@ -41,7 +41,7 @@ Writes the web build to `dist/` (this is what the Android wrapper will package).
 npm run build:single
 ```
 
-Writes one self-contained `dist-single/index.html` that can be shared as a single file.
+Writes one `dist-single/index.html` that can be shared as a single file. Everything is inside it except the music, which sits beside it in `dist-single/music/`; without that folder the game still plays, silently.
 
 ```bash
 node tools/make_artifact.mjs
@@ -58,8 +58,10 @@ Converts that single file into a page fragment for hosts that add their own page
   `tools/make_heads.py`. The interface, lettering and road paint are cut paper
   (`src/art/paper.ts`, `src/art/ui.ts`), filled with small photo sheets of real
   paper. The remaining image prompts are in `docs/art-prompts.md`.
-- **Audio:** synthesised placeholders in `src/audio/sound.ts`, to be replaced by
-  family recordings.
+- **Audio:** the sound effects are synthesised placeholders in
+  `src/audio/sound.ts`, to be replaced by family recordings. The music is one
+  recording per level in `public/music/` (see `docs/music.md` for the tracks
+  and their credit).
 - **Tuning:** timing windows and scoring live in `src/config.ts`; the level
   scripts are in `src/data/levels.ts`; Bill's lines are `src/data/phrases.ts`;
   how Bill is assembled in each level (car, bike or on foot) is `RIGS` in

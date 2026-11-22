@@ -49,6 +49,8 @@ export class LevelSelectScene extends Phaser.Scene {
     }, { border: 3 });
     img(this, W / 2, 50, 'levels_header').setRotation(-0.02);
 
+    // have every level's music on its way before one is picked
+    LEVELS.forEach((level) => sound.loadMusic(level.id));
     const best = loadStars();
     const gap = Math.min(350, (W - 40) / LEVELS.length);
     // on a narrow screen the snapshots shrink to fit side by side

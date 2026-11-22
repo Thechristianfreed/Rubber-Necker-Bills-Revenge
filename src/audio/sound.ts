@@ -1,6 +1,11 @@
-/** Placeholder audio, synthesised in code with the Web Audio API so the
- *  prototype needs no sound files. Every method here is a slot that a real
- *  recording (family mouth sounds, Bill impressions) can replace later. */
+/** The game's sound. The effects are placeholders synthesised in code with
+ *  the Web Audio API: every one is a slot that a real recording (family mouth
+ *  sounds, Bill impressions) can replace later. The music is recordings, one
+ *  per level, kept beside the page in `music/` (see tools/make_music.sh). */
+
+/** Where the music is, relative to the page, and how loud it plays under the effects. */
+const MUSIC_DIR = 'music/';
+const MUSIC_VOLUME = 0.55;
 
 type Wave = OscillatorType;
 
@@ -33,9 +38,11 @@ class Sound {
   private sfx!: GainNode;
   private music!: GainNode;
   private noiseBuf!: AudioBuffer;
-  private timer?: number;
-  private step = 0;
-  private nextTime = 0;
+  /** The track that should be playing ('' for none), and the one that is. */
+  private track = '';
+  private playing?: { track: string; src: AudioBufferSourceNode; fade: GainNode };
+  private files = new Map<string, Promise<ArrayBuffer | null>>();
+  private decoded?: { track: string; buffer: Promise<AudioBuffer | null> };
   muted = false;
 
   /** Must be called from a tap/click before anything can play. */
@@ -51,7 +58,7 @@ class Sound {
       this.sfx.gain.value = 0.9;
       this.sfx.connect(this.master);
       this.music = this.ctx.createGain();
-      this.music.gain.value = 0.34;
+      this.music.gain.value = MUSIC_VOLUME;
       this.music.connect(this.master);
       const len = this.ctx.sampleRate;
       this.noiseBuf = this.ctx.createBuffer(1, len, this.ctx.sampleRate);
@@ -200,55 +207,73 @@ class Sound {
     this.tone({ type: 'square', f0: 880, dur: 0.05, vol: 0.1 });
   }
 
-  // ---- music: a looping surf-rock sketch (60s era placeholder) -----------------
+  // ---- music: one recording per level --------------------------------------
 
-  startMusic(): void {
-    if (!this.ctx || this.timer !== undefined) return;
-    this.step = 0;
-    this.nextTime = this.ctx.currentTime + 0.1;
-    this.timer = window.setInterval(() => this.schedule(), 40);
+  /** Start fetching a level's music, so it is ready by the time it is wanted. */
+  loadMusic(track: string): void {
+    if (this.files.has(track)) return;
+    this.files.set(track, fetch(new URL(`${MUSIC_DIR}${track}.mp3`, document.baseURI))
+      .then((r) => (r.ok ? r.arrayBuffer() : null))
+      .catch(() => null));
+  }
+
+  /** Play a level's music from the top. It goes round again if the level
+   *  outlasts it, and carries on until stopMusic(). */
+  startMusic(track: string): void {
+    this.track = track;
+    if (!this.ctx || this.playing?.track === track) return;
+    this.halt(0.25);
+    this.loadMusic(track);
+    void this.files.get(track)!.then(async (bytes) => {
+      const ctx = this.ctx;
+      if (!bytes || !ctx) return;
+      // one decoded track at a time: a minute and a half of sound is a lot of memory on a phone
+      if (this.decoded?.track !== track) {
+        this.decoded = { track, buffer: ctx.decodeAudioData(bytes.slice(0)).catch(() => null) };
+      }
+      const buffer = await this.decoded.buffer;
+      // only if this is still the music that is wanted, and nothing has started since
+      if (!buffer || this.track !== track || this.playing) return;
+      const src = ctx.createBufferSource();
+      src.buffer = buffer;
+      src.loop = true;
+      const fade = ctx.createGain();
+      fade.gain.setValueAtTime(0.0001, ctx.currentTime);
+      fade.gain.exponentialRampToValueAtTime(1, ctx.currentTime + 0.5);
+      src.connect(fade).connect(this.music);
+      src.start();
+      this.playing = { track, src, fade };
+    });
   }
 
   stopMusic(): void {
-    if (this.timer !== undefined) window.clearInterval(this.timer);
-    this.timer = undefined;
+    this.track = '';
+    this.halt(0.7);
   }
 
-  private schedule(): void {
-    const ctx = this.ctx;
-    if (!ctx) return;
-    const sixteenth = 60 / 164 / 4;
-    while (this.nextTime < ctx.currentTime + 0.15) {
-      this.playStep(this.step, this.nextTime - ctx.currentTime, sixteenth);
-      this.step = (this.step + 1) % 128;
-      this.nextTime += sixteenth;
-    }
+  /** Fade out whatever is playing and let it go. */
+  private halt(seconds: number): void {
+    const p = this.playing;
+    if (!p || !this.ctx) return;
+    this.playing = undefined;
+    const t = this.ctx.currentTime;
+    p.fade.gain.cancelScheduledValues(t);
+    p.fade.gain.setValueAtTime(Math.max(0.0001, p.fade.gain.value), t);
+    p.fade.gain.exponentialRampToValueAtTime(0.0001, t + seconds);
+    p.src.stop(t + seconds + 0.05);
   }
 
-  private playStep(step: number, at: number, len: number): void {
-    const bar = Math.floor(step / 16);
-    const s = step % 16;
-    // E minor surf cadence: Em Em Am Em | Em D C B
-    const roots = [82.4, 82.4, 110, 82.4, 82.4, 73.4, 65.4, 61.7];
-    const root = roots[bar];
-    const out = this.music;
-    if (s % 4 === 0) this.tone({ f0: 150, f1: 45, dur: 0.12, vol: 0.9, at, out });
-    if (s % 4 === 2) {
-      this.noise({ dur: 0.1, vol: 0.5, f0: 1900, q: 0.7, at, out });
-      this.tone({ type: 'triangle', f0: 190, f1: 140, dur: 0.07, vol: 0.3, at, out });
-    }
-    if (s % 2 === 0) this.noise({ dur: 0.03, vol: 0.16, filter: 'highpass', f0: 7000, at, out });
-    if (s % 2 === 0) {
-      const walk = [1, 1, 1.5, 1.5, 1.335, 1.335, 1.5, 1.189][s / 2];
-      this.tone({ type: 'triangle', f0: root * walk, dur: len * 1.8, vol: 0.5, at, out });
-    }
-    // tremolo-picked lead, two notes per beat
-    const scale = [1, 1.189, 1.335, 1.5, 1.587, 1.782, 2];
-    const riff = [0, 0, 2, 3, 4, 4, 3, 2, 0, 0, 2, 3, 6, 5, 4, 3];
-    const riffB = [4, 4, 3, 2, 3, 3, 2, 0, 2, 2, 3, 4, 3, 2, 0, 0];
-    const line = bar % 4 === 3 ? riffB : riff;
-    const f = root * 4 * scale[line[s]];
-    this.tone({ type: 'sawtooth', f0: f, dur: len * 0.9, vol: 0.085, attack: 0.003, at, out });
+  /** Go quiet while the game is in the background, and pick up where it left
+   *  off when it comes back. */
+  sleep(asleep: boolean): void {
+    if (!this.ctx) return;
+    if (asleep) void this.ctx.suspend();
+    else void this.ctx.resume();
+  }
+
+  /** What the music is doing, for the self-play tests. */
+  get musicState(): { wanted: string; playing: string; seconds: number } {
+    return { wanted: this.track, playing: this.playing?.track ?? '', seconds: this.playing?.src.buffer?.duration ?? 0 };
   }
 }
 

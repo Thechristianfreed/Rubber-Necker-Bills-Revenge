@@ -80,6 +80,7 @@ export abstract class PlayScene extends Phaser.Scene {
     this.auto = auto === null ? '' : auto === 'clumsy' ? 'clumsy' : 'good';
     this.tweens.timeScale = 1;
     this.fitCamera();
+    sound.loadMusic(this.level.id);
   }
 
   /** Put the scoreboard on top and start the level. Call last in create(),
@@ -100,7 +101,7 @@ export abstract class PlayScene extends Phaser.Scene {
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.scale.off('resize', this.onResize, this));
 
     this.intro();
-    sound.startMusic();
+    sound.startMusic(this.level.id);
     (window as unknown as { __rn: unknown }).__rn = this;
   }
 
