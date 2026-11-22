@@ -554,6 +554,127 @@ def props():
         save(f"{name}.png", piece)
 
 
+def string_face(rgba, extra=None):
+    """The strung face of the racquet in a pose photo, as an ellipse:
+    ((cx, cy), (width, height), angle), the way OpenCV fits them."""
+    h8 = cv2.cvtColor((rgba[..., :3] * 255).astype(np.uint8), cv2.COLOR_RGB2HSV)
+    face = (h8[..., 1] < 45) & (h8[..., 2] > 150) & (rgba[..., 3] > 0.9)
+    face[:, :600] = False
+    if extra is not None:
+        face |= extra
+    face = cv2.morphologyEx(face.astype(np.uint8), cv2.MORPH_OPEN, np.ones((5, 5), np.uint8))
+    contours, _ = cv2.findContours(face, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    return cv2.fitEllipse(max(contours, key=cv2.contourArea))
+
+
+def no_ball(rgba, clean):
+    """The hitting frame came with a tennis ball on the strings. Lay the clean
+    strings from the ready frame (`clean`, the same racquet) over the face:
+    turned, squeezed and moved to fit this frame's hoop."""
+    h, w = rgba.shape[:2]
+    yy, xx = np.mgrid[0:h, 0:w]
+    ball = (((xx - 681) / 28.0) ** 2 + ((yy - 97) / 23.0) ** 2) <= 1
+    (cx, cy), (dw, dh), ang = string_face(rgba, ball)
+    (sx, sy), (sw, sh), sang = string_face(clean)
+
+    def frame(c, size, angle):
+        """Ellipse to unit circle: a 3x3 matrix taking a point on the photo to
+        coordinates in which the ellipse is the circle of radius 1."""
+        t = np.deg2rad(angle)
+        rot = np.array([[np.cos(t), np.sin(t), 0], [-np.sin(t), np.cos(t), 0], [0, 0, 1]])
+        move = np.array([[1, 0, -c[0]], [0, 1, -c[1]], [0, 0, 1]], np.float64)
+        return np.diag([2 / size[0], 2 / size[1], 1]) @ rot @ move
+
+    # ready-frame pixel -> unit circle -> hitting-frame pixel
+    m = np.linalg.inv(frame((cx, cy), (dw, dh), ang)) @ frame((sx, sy), (sw, sh), sang)
+    laid = cv2.warpAffine(clean[..., :3], m[:2].astype(np.float32), (w, h), flags=cv2.INTER_LINEAR)
+    inside = np.zeros((h, w), np.uint8)
+    cv2.ellipse(inside, ((cx, cy), (dw - 5, dh - 5), ang), 1, -1)
+    soft = cv2.GaussianBlur(inside.astype(np.float32), (0, 0), 1.2)[..., None]
+    out = rgba.copy()
+    out[..., :3] = rgba[..., :3] * (1 - soft) + laid * soft
+    print(f"  ball painted out: strings laid over a {dw:.0f} x {dh:.0f} face from the ready frame's {sw:.0f} x {sh:.0f}")
+    return out
+
+
+def teen():
+    """Bill from behind, for the school hallway: three stop-motion frames
+    (ready, winding up, hitting) with the bully's tennis racquet. The three
+    photos are edits of one another, so the body sits at the same pixels in
+    each, and every frame is pinned at the same point: the middle of the top
+    of his collar. The boy loses his head and neck; the game puts the back of
+    Bill's head there (and his face, when he turns round). Prints the pin as
+    a fraction of each saved frame, and where the middle of the racquet face
+    is in the hitting frame, in source pixels from the pin."""
+    cols = np.arange(446, 576)
+    pin = None
+    ready = load("SJ2a-teen-ready-cutout.png")
+    for name, src in (("rest", "SJ2a-teen-ready"), ("windup", "SJ2b-teen-windup"), ("swing", "SJ2c-teen-hit")):
+        cut = load(f"{src}-cutout.png")
+        if name == "swing":
+            cut = no_ball(cut, ready)
+        h8 = cv2.cvtColor((cut[..., :3] * 255).astype(np.uint8), cv2.COLOR_RGB2HSV).astype(np.float32)
+        shirt = (h8[..., 0] >= 14.5) & (h8[..., 0] < 30) & (h8[..., 1] > 120) & (h8[..., 2] > 120) & (cut[..., 3] > 0.5)
+        if pin is None:
+            # the collar: in each column under his head, the top of the run of
+            # shirt that reaches up from between his shoulder blades
+            tops = []
+            for x in cols:
+                y = 215
+                while y > 0 and shirt[y - 1, x]:
+                    y -= 1
+                tops.append(y)
+            tops = np.clip(cv2.medianBlur(np.array(tops, np.float32).reshape(1, -1), 5).ravel(), 181, 210)
+            tops = cv2.GaussianBlur(tops.reshape(1, -1), (0, 0), 2.0).ravel()
+            flat = cols[tops <= tops.min() + 4]
+            pin = ((flat.min() + flat.max()) / 2, float(np.median(tops[(cols > flat.min()) & (cols < flat.max())])))
+
+            def shoulder(x):
+                """The top edge of his shoulder in a column clear of his head."""
+                y = 215
+                while y > 0 and cut[y - 1, x, 3] > 0.3:
+                    y -= 1
+                return y
+
+            # the cut: level along the top of the collar, then straight down
+            # each shoulder to where his own outline takes over
+            line = np.interp(cols, [cols[0], flat.min(), flat.max(), cols[-1]],
+                             [shoulder(cols[0]), pin[1], pin[1], shoulder(cols[-1])])
+        keep = np.ones(cut.shape[:2], np.float32)
+        for x, y in zip(cols, line):
+            keep[: int(round(y)), x] = 0
+        keep = cv2.GaussianBlur(keep, (0, 0), 0.8)
+        body = cut.copy()
+        body[..., 3] *= np.clip(keep * 2 - 1, 0, 1)
+        # drop any specks left where the head was
+        n, lab, st, _ = cv2.connectedComponentsWithStats((body[..., 3] > 0.3).astype(np.uint8), 8)
+        biggest = 1 + int(np.argmax(st[1:, cv2.CC_STAT_AREA]))
+        near = cv2.dilate((lab == biggest).astype(np.uint8), np.ones((5, 5), np.uint8)).astype(bool)
+        body[~near] = 0
+        ys, xs = np.where(body[..., 3] > 0.08)
+        # nothing lower than this is ever on screen
+        x0, x1, y0, y1 = xs.min() - 2, xs.max() + 3, ys.min() - 2, min(ys.max() + 3, int(pin[1]) + 270)
+        save(f"teen-{name}.png", body[y0:y1, x0:x1])
+        face = (h8[..., 1] < 45) & (h8[..., 2] > 150) & (body[..., 3] > 0.9)
+        face[:, :600] = False
+        fy, fx = np.where(cv2.erode(face.astype(np.uint8), np.ones((7, 7), np.uint8)) > 0)
+        print(f"  teen-{name}: pin ({(pin[0] - x0) / (x1 - x0):.3f}, {(pin[1] - y0) / (y1 - y0):.3f}),"
+              f" racquet face {fx.mean() - pin[0]:+.0f}, {fy.mean() - pin[1]:+.0f} px from it")
+
+
+def hallway():
+    """The school hallway: the whole backdrop of the bonus level is this one
+    photo, enlarged a little and sharpened so it holds up across the screen."""
+    from PIL import ImageFilter
+    im = Image.open(os.path.join(ROOT, "art-src", "generated", "SJ1-hallway.jpg")).convert("RGB")
+    big = im.resize((round(im.width * 1.6), round(im.height * 1.6)), Image.LANCZOS)
+    big = big.filter(ImageFilter.UnsharpMask(radius=1.6, percent=70, threshold=2))
+    os.makedirs(OUT, exist_ok=True)
+    path = os.path.join(OUT, "hallway.jpg")
+    big.save(path, quality=86)
+    print("hallway.jpg", big.size, os.path.getsize(path), "bytes")
+
+
 def postcard():
     """The far background: the top of the postcard, mirrored so it repeats without a seam."""
     im = Image.open(os.path.join(ROOT, "art-src", "generated", "F-postcard.png")).convert("RGB")
@@ -575,6 +696,8 @@ if __name__ == "__main__":
     more_heads()
     bill()
     kid()
+    teen()
+    hallway()
     mailman()
     mailboxes()
     tree()

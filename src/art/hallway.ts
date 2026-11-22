@@ -8,17 +8,25 @@ import { Paper, cutText, fillPaper, glued, makePaperArt, makeWord, paper, stroke
  *  These are stand-ins: any of them is replaced by a photo cutout registered
  *  under the same key (see photos.ts). */
 
-/** How the hallway is laid out on the page. */
+/** How the hallway is laid out on the page. The numbers are measured off the
+ *  hallway photo (tools/make_cutouts.py), which is drawn 573 tall with its top
+ *  edge at `photoY`; the cut-paper stand-in is drawn to match. */
 export const HALL = {
+  photoY: -20,
+  photoH: 573,
   /** Top of the bank of lockers on the far wall, and the floor line under it. */
   top: 64,
-  floorY: 300,
+  floorY: 387,
   /** Height of the point the floor tiles run back to. */
-  vanishY: 150,
+  vanishY: 215,
   /** How big something looks over at the lockers, next to how big it looks beside Bill. */
-  far: 0.3,
-  /** Width of one locker. */
+  far: 0.35,
+  /** Width of one locker in the stand-in. */
   lockerW: 60,
+  /** The middle of the bully's open locker: how far right of the middle of
+   *  the page, and how high. */
+  mouthDX: 165,
+  mouthY: 208,
 };
 
 type V = [number, number];
@@ -410,7 +418,8 @@ export function buildHallArt(scene: Phaser.Scene): void {
       teen(c, pose);
     }, { border: 2.5, ax: px, ay: py });
   }
-  makePaperArt(scene, 'bill-back', 210, 248, headBack, { border: 3 });
+  // the back of his head, unless the photo of it has loaded already
+  if (!scene.textures.exists('bill-back')) makePaperArt(scene, 'bill-back', 210, 248, headBack, { border: 3 });
 
   makeWord(scene, 'word_splat', 'SPLAT!', 'brown', 'yellow', 112, 30, 21);
   makeWord(scene, 'word_smack', 'SMACK!', 'red', 'yellow', 114, 29, 22);

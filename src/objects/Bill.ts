@@ -90,19 +90,19 @@ export const RIGS: Record<Theme, BillRig> = {
     dust: [-128, STREET.bikeBase - 4],
   },
   // standing in the school hallway with the bully's tennis racquet, seen from
-  // over his shoulder: every frame is pinned where his head meets his neck
+  // over his shoulder: every frame is pinned at the top of his collar
   locker: {
     frames: { rest: 'teen_rest', windup: 'teen_windup', swing: 'teen_swing' },
-    at: [0, 400],
+    at: [0, 404],
     chin: { rest: [0, 0], windup: [0, 0], swing: [0, 0] },
     headH: 124,
     restFace: 'back',
-    lean: 0.5,
+    lean: 0.4,
     duckHeadTilt: 0,
     duckDepth: 170,
-    sweetDX: 290,
-    // the middle of the racquet as it connects
-    hand: [290, -107],
+    sweetDX: 145,
+    // the middle of the racquet as it connects (from make_cutouts.py, at 0.8)
+    hand: [145, -72],
     dust: [-3000, 0],
   },
 };
@@ -194,6 +194,8 @@ export class Bill {
     this.faceT = seconds;
     this.head.setTexture(this.head.scene.textures.exists(`bill-${face}`) ? `bill-${face}` : 'bill-sideeye');
     this.head.setScale(this.rig.headH / HEAD_SRC_H);
+    // from behind, his neck goes down inside his collar; his chin sits over it
+    this.head.setDepth(DEPTH.billBack + (face === 'back' ? -1 : 2));
   }
 
   hurt(): void {

@@ -3,6 +3,7 @@ import { H, HEAD_SRC_H, INK, MAX_W, TEX, view } from '../config';
 import { ART, Ctx, img, star } from '../art/sticker';
 import { cutText, fillPaper, glued, makePaperArt, tapePath, textWidth } from '../art/paper';
 import { sound } from '../audio/sound';
+import { HALL } from '../art/hallway';
 import { LEVELS, LevelDef, Theme, sceneFor } from '../data/levels';
 import { RIGS } from '../objects/Bill';
 import { loadStars } from '../data/progress';
@@ -154,17 +155,26 @@ export class LevelSelectScene extends Phaser.Scene {
       } else if (level.theme === 'locker') {
         // the hallway over his shoulder: lockers, the open one, and what is coming out of it
         c.beginPath(); c.rect(px, py, pw, ph); fillPaper(c, 'cream');
-        const lk = 0.5, top = py + 12, floorY = top + ART.lockers.h * lk;
-        const src = this.textures.get('lockers').getSourceImage() as HTMLCanvasElement;
-        for (let x = px - 8; x < px + pw; x += ART.lockers.w * lk) c.drawImage(src, x, top, ART.lockers.w * lk, ART.lockers.h * lk);
-        const fl = this.textures.get('hall_floor').getSourceImage() as HTMLCanvasElement;
-        c.drawImage(fl, fl.width / 2 - pw / lk, 0, (pw / lk) * 2, ((py + ph - floorY) / lk) * 2, px, floorY, pw, py + ph - floorY);
-        this.place(c, 'locker_open', px + 202, floorY, lk);
-        this.place(c, 'splat0', px + 96, top + 44, 0.26);
-        this.place(c, 'splat1', px + 150, top + 84, 0.2);
-        this.place(c, 'shake', px + 196, top + 34, 0.26);
-        this.place(c, 'jar', px + 168, top + 76, 0.46);
-        this.placeBill(c, 'locker', 'bill-grin', px + 64, py + 142, 0.5);
+        // the part of the hallway around the open locker, at `lk` of its size in the game
+        const lk = 0.6, left = HALL.mouthDX - 300, top = 96;
+        const X = (dx: number) => px + (dx - left) * lk, Y = (y: number) => py + (y - top) * lk;
+        if (this.textures.exists('hallway')) {
+          const src = this.textures.get('hallway').getSourceImage() as HTMLCanvasElement;
+          const d = ART.hallway.tex ?? TEX;
+          c.drawImage(src, (ART.hallway.w / 2 + left) * d, (top - HALL.photoY) * d, (pw / lk) * d, (ph / lk) * d, px, py, pw, ph);
+        } else {
+          const src = this.textures.get('lockers').getSourceImage() as HTMLCanvasElement;
+          for (let x = px - 8; x < px + pw; x += ART.lockers.w * lk) c.drawImage(src, x, Y(HALL.top), ART.lockers.w * lk, ART.lockers.h * lk);
+          const fl = this.textures.get('hall_floor').getSourceImage() as HTMLCanvasElement;
+          const fh = py + ph - Y(HALL.floorY);
+          c.drawImage(fl, fl.width / 2 - pw / lk, 0, (pw / lk) * 2, (fh / lk) * 2, px, Y(HALL.floorY), pw, fh);
+          this.place(c, 'locker_open', X(HALL.mouthDX), Y(HALL.floorY), lk);
+        }
+        this.place(c, 'splat0', X(HALL.mouthDX - 150), Y(160), 0.26);
+        this.place(c, 'splat1', X(HALL.mouthDX - 62), Y(250), 0.2);
+        this.place(c, 'shake', X(HALL.mouthDX - 12), Y(170), 0.24);
+        this.place(c, 'jar', X(HALL.mouthDX - 72), Y(238), 0.42);
+        this.placeBill(c, 'locker', 'bill-grin', px + 64, py + 146, 0.5);
       } else {
         if (this.textures.exists('postcard')) {
           const src = this.textures.get('postcard').getSourceImage() as HTMLCanvasElement;

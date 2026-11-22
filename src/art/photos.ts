@@ -4,7 +4,7 @@ import { Ctx, PhotoOpts, makeArt, makePhotoArt, makePhotoTile, star } from './st
 import { ARM_TINTS, VEHICLES, VehicleSpec, makeNeck, setHeadStyles } from './textures';
 import { PAPERS, addPaper } from './paper';
 import { buildPaperUi } from './ui';
-import { buildHallArt } from './hallway';
+import { HALL, buildHallArt } from './hallway';
 import { buildStreetArt } from './street';
 
 /** Photo cutouts that replace drawn art. Each piece takes over the texture key
@@ -62,6 +62,8 @@ const HEADS: HeadFit[] = [
 /** Bill's body is drawn small under his big photo head (design pixels per image pixel). */
 const BODY_SCALE = 0.58;
 const KID_SCALE = 0.5;
+/** Bill from behind in the hallway is right in front of the camera. */
+const TEEN_SCALE = 0.8;
 /** Puts the middle of a mailbox 68 pixels above the kerb (MAILBOX_UP in NoodleNeck.ts). */
 const MAILBOX_SCALE = 0.352;
 
@@ -92,6 +94,11 @@ const PIECES: Piece[] = [
   { key: 'kid_windup', file: 'kid-windup.png', scale: KID_SCALE, anchor: [0.499, 0.994] },
   { key: 'kid_swing', file: 'kid-swing.png', scale: KID_SCALE, anchor: [0.499, 0.993] },
   { key: 'kid_duck', file: 'kid-duck.png', scale: KID_SCALE, anchor: [0.499, 0.993] },
+  // Bill from behind with the tennis racquet, pinned at the top of his collar
+  // (the pins are printed by make_cutouts.py)
+  { key: 'teen_rest', file: 'teen-rest.png', scale: TEEN_SCALE, anchor: [0.287, 0.291] },
+  { key: 'teen_windup', file: 'teen-windup.png', scale: TEEN_SCALE, anchor: [0.234, 0.007] },
+  { key: 'teen_swing', file: 'teen-swing.png', scale: TEEN_SCALE, anchor: [0.376, 0.369] },
   { key: 'paper_roll', file: 'paper-roll.png', w: 30, border: 1.4 },
   // The front-yard tree with a birdhouse in its fork, pinned where its trunk
   // meets the ground, and the birdhouse again on its own: it is drawn a size
@@ -205,7 +212,7 @@ function loadImage(src: string | undefined): Promise<HTMLImageElement | null> {
 export async function loadPhotoArt(scene: Phaser.Scene): Promise<void> {
   const sheets = PAPERS;
   const names = new Set<string>([
-    ...PIECES.map((p) => p.file), ...PHOTO_VEHICLES.map((v) => v.file), 'postcard.jpg', 'rail.png', 'asphalt.jpg', 'houses.jpg', 'fence.png', 'concrete.jpg',
+    ...PIECES.map((p) => p.file), ...PHOTO_VEHICLES.map((v) => v.file), 'postcard.jpg', 'rail.png', 'asphalt.jpg', 'houses.jpg', 'fence.png', 'concrete.jpg', 'hallway.jpg',
     ...sheets.map((n) => `paper-${n}.png`),
   ]);
   const loaded = new Map<string, HTMLImageElement>();
@@ -276,6 +283,9 @@ export async function loadPhotoArt(scene: Phaser.Scene): Promise<void> {
   if (fence) makePhotoTile(scene, 'fence', fence, 40);
   const concrete = loaded.get('concrete.jpg');
   if (concrete) makePhotoTile(scene, 'sidewalk', concrete, 96);
+  // the school hallway: one photo is the whole backdrop of the bonus level
+  const hallway = loaded.get('hallway.jpg');
+  if (hallway) makePhotoTile(scene, 'hallway', hallway, HALL.photoH, true);
 
   // the wreck everyone is staring at: the van has rear-ended the red sedan
   const front = loaded.get('sedan-red.png'), back = loaded.get('van-blue.png');

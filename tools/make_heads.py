@@ -91,6 +91,52 @@ def build(name, n):
     print(name, out.shape[1], "x", out.shape[0], os.path.getsize(path), "bytes")
 
 
+def build_back():
+    """The back of Bill's head, for when the camera is behind him. It is laid
+    out so the game can swap it with the faces: the point the faces rest their
+    chin on is, here, the top of his collar, a little below his hairline. His
+    neck carries on below that and tucks in behind the shirt."""
+    cut = Image.open(os.path.join(SRC, "SJ3-head-back-cutout.png")).convert("RGBA")
+    rgba = np.asarray(cut, dtype=np.float32) / 255.0
+    alpha = rgba[..., 3]
+    ys, xs = np.where(alpha > 0.05)
+    x0, x1, top = xs.min(), xs.max() + 1, ys.min()
+    # rows where the head is only as wide as his neck: the hairline is where that starts
+    wide = (alpha > 0.5).sum(axis=1)
+    HAIRLINE, COLLAR = 800, 899          # source rows: the bottom of his hair, and where the collar goes
+    scale = 345.0 / (HAIRLINE - top)     # the hair itself comes out 345px tall, about as big as his faces
+    # the faces rest on a point 0.415 of a head below the middle of the image
+    height = 2 * ((COLLAR - top) * scale - 0.415 * HEAD_H)
+    bottom = min(rgba.shape[0], top + int(round(height / scale)))
+    head = rgba[top:bottom, x0:x1]
+    size = (max(1, round(head.shape[1] * scale)), max(1, round(head.shape[0] * scale)))
+    head = cv2.resize(head, size, interpolation=cv2.INTER_AREA)
+    full_h = int(round(height))
+
+    pad = PAD
+    canvas = np.zeros((full_h + pad * 2, size[0] + pad * 2, 4), np.float32)
+    canvas[pad:pad + size[1], pad:pad + size[0]] = head
+    a = canvas[..., 3]
+    kk = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (BORDER * 2 + 1, BORDER * 2 + 1))
+    border = cv2.GaussianBlur(cv2.dilate((a > 0.5).astype(np.float32), kk), (0, 0), 0.9)
+    dx, dy, sigma, opacity = SHADOW
+    shift = np.float32([[1, 0, dx], [0, 1, dy]])
+    shadow = cv2.warpAffine(border, shift, (border.shape[1], border.shape[0]))
+    shadow = cv2.GaussianBlur(shadow, (0, 0), sigma) * opacity
+    white = np.array([1.0, 0.98, 0.94])
+    rgb = white * (1 - a[..., None]) + canvas[..., :3] * a[..., None]
+    out = np.zeros_like(canvas)
+    out[..., :3] = np.array([0.09, 0.06, 0.04]) * (1 - border[..., None]) + rgb * border[..., None]
+    out[..., 3] = border + shadow * (1 - border)
+    # his neck goes behind his shirt, so it has no cut edge or shadow along the bottom
+    out[pad + size[1] - 2:] = 0
+
+    path = os.path.join(OUT, "head-back.png")
+    Image.fromarray((np.clip(out, 0, 1) * 255).astype(np.uint8), "RGBA").save(path, optimize=True)
+    print("back", out.shape[1], "x", out.shape[0], os.path.getsize(path), "bytes;",
+          "neck is", int(wide[min(rgba.shape[0] - 1, COLLAR)] * scale), "px wide at the collar")
+
+
 def solid_guard(solid):
     """Slightly grown hard mask so the soft edge cannot leak far past the selection."""
     k = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (7, 7))
@@ -100,3 +146,4 @@ def solid_guard(solid):
 if __name__ == "__main__":
     for name, n in HEADS.items():
         build(name, n)
+    build_back()

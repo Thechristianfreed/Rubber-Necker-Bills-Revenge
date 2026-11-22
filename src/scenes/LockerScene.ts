@@ -63,14 +63,16 @@ export class LockerScene extends PlayScene {
   private flyers: Flyer[] = [];
   private splats: Image[] = [];
   private zone!: Image;
-  private floor!: Image;
-  private open!: Image;
+  /** The hallway photo; or, without it, the paper floor and open locker. */
+  private photo?: Image;
+  private floor?: Image;
+  private open?: Image;
   private label!: Phaser.GameObjects.Container;
   private blobFx!: Phaser.GameObjects.Particles.ParticleEmitter;
 
   constructor() {
     super('locker');
-    this.billFrac = 0.27;
+    this.billFrac = 0.3;
   }
 
   create(): void {
@@ -94,23 +96,29 @@ export class LockerScene extends PlayScene {
   // ---- the hallway -----------------------------------------------------------------
 
   private buildHall(): void {
-    const x0 = -BLEED, ww = MAX_W + BLEED * 2;
-    const band = (key: string, y: number, depth: number) => this.add
-      .tileSprite(x0, y, ww * TEX, ART[key].h * TEX, key).setOrigin(0, 0).setScale(1 / TEX).setDepth(depth);
-    band('hall_wall', -BLEED, DEPTH.sky);
-    band('lockers', HALL.top, DEPTH.far);
-    this.floor = img(this, 0, HALL.floorY, 'hall_floor').setDepth(DEPTH.road);
-    this.open = img(this, 0, HALL.floorY, 'locker_open').setDepth(DEPTH.far + 1);
+    this.photo = this.floor = this.open = undefined;
+    if (this.textures.exists('hallway')) {
+      // one photo is the whole hallway: lockers, the open one, and the floor
+      this.photo = this.add.image(0, HALL.photoY, 'hallway').setOrigin(0.5, 0)
+        .setScale(1 / (ART.hallway.tex ?? TEX)).setDepth(DEPTH.sky);
+    } else {
+      const x0 = -BLEED, ww = MAX_W + BLEED * 2;
+      const band = (key: string, y: number, depth: number) => this.add
+        .tileSprite(x0, y, ww * TEX, ART[key].h * TEX, key).setOrigin(0, 0).setScale(1 / TEX).setDepth(depth);
+      band('hall_wall', -BLEED, DEPTH.sky);
+      band('lockers', HALL.top, DEPTH.far);
+      this.floor = img(this, 0, HALL.floorY, 'hall_floor').setDepth(DEPTH.road);
+      this.open = img(this, 0, HALL.floorY, 'locker_open').setDepth(DEPTH.far + 1);
+    }
     const t = written(this, 0, 0, "THE BULLY'S LOCKER", 12);
     const tape = img(this, 0, 0, 'tape_s');
     tape.setScale(tape.scale * ((t.width + 10) / ART.tape_s.w), tape.scale * 0.8);
     this.label = this.add.container(0, 0, [tape, t]).setDepth(DEPTH.far + 4).setRotation(-0.04);
   }
 
-  /** The open locker is one of the lockers along the wall, about 70% of the way across. */
+  /** The middle of the bully's open locker, where everything comes out. */
   private get mouth(): Point {
-    const cell = Math.round((view.W * 0.7 - HALL.lockerW / 2 + BLEED) / HALL.lockerW);
-    return { x: cell * HALL.lockerW - BLEED + HALL.lockerW / 2, y: HALL.top + 122 };
+    return { x: view.W / 2 + HALL.mouthDX, y: HALL.mouthY };
   }
 
   /** The middle of the racquet when it connects. */
@@ -125,9 +133,10 @@ export class LockerScene extends PlayScene {
 
   private layout(): void {
     const m = this.mouth;
-    this.floor.setX(view.W / 2);
-    this.open.setX(m.x);
-    this.label.setPosition(m.x + 6, HALL.top + 24);
+    this.photo?.setX(view.W / 2);
+    this.floor?.setX(view.W / 2);
+    this.open?.setX(m.x);
+    this.label.setPosition(m.x + 8, HALL.top + 20);
     this.zone.setPosition(this.strike.x, this.strike.y);
   }
 
@@ -166,7 +175,7 @@ export class LockerScene extends PlayScene {
     this.flyers.push(f);
     this.place(f);
     // the locker door rattles as something comes out
-    this.tweens.add({ targets: this.open, scaleX: this.open.scaleX * 1.06, duration: 60, yoyo: true });
+    if (this.open) this.tweens.add({ targets: this.open, scaleX: this.open.scaleX * 1.06, duration: 60, yoyo: true });
     if (book) this.teach('duck', 'His history book! HOLD DUCK!');
     else if (s.lob === 'bounce') this.teach('bounce', 'Watch the bounce!');
     else this.teach('swing', 'TAP to swing when it reaches the ring!');
@@ -230,10 +239,10 @@ export class LockerScene extends PlayScene {
     // a clean hit goes straight back into the locker; the rest redecorate the wall
     const m = this.mouth;
     const to = perfect
-      ? { x: m.x + (Math.random() - 0.5) * 26, y: m.y + (Math.random() - 0.5) * 110 }
+      ? { x: m.x + (Math.random() - 0.5) * 24, y: m.y - 40 + Math.random() * 150 }
       : {
         x: Phaser.Math.Clamp(m.x - 320 + Math.random() * 500, 40, view.W - 40),
-        y: HALL.top + 30 + Math.random() * (HALL.floorY - HALL.top - 70),
+        y: HALL.top + 34 + Math.random() * (HALL.floorY - HALL.top - 90),
       };
     f.state = 'back';
     f.back = { t: 0, dur: perfect ? 0.3 : 0.36, from: at, to, s0: f.im.scale * TEX, inLocker: perfect };

@@ -4,6 +4,7 @@ import '@fontsource/permanent-marker/latin-400.css';
 import { loadPhotoArt } from '../art/photos';
 import { buildTextures } from '../art/textures';
 import { levelById, sceneFor } from '../data/levels';
+import back from '../assets/bill/head-back.png';
 import glare from '../assets/bill/head-glare.png';
 import grin from '../assets/bill/head-grin.png';
 import sideeye from '../assets/bill/head-sideeye.png';
@@ -50,6 +51,7 @@ export class BootScene extends Phaser.Scene {
       this.loadHead('bill-sideeye', sideeye, true),
       this.loadHead('bill-glare', glare, true),
       this.loadHead('bill-grin', grin, false),
+      this.loadHead('bill-back', back, false),
     ]);
     void Promise.all([fontReady, heads]).then(() => {
       buildTextures(this);
