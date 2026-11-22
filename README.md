@@ -6,7 +6,7 @@ the highway. Their necks stretch like rubber and noodle around behind them.
 
 This is an early playable prototype with placeholder audio and two levels:
 
-1. **Paper Route** (the fifties): Bill the paperboy on a Schwinn Stingray, tossing papers into mailboxes. Its scenery is cut-paper stand-ins for now.
+1. **Paper Route** (the fifties): Bill the paperboy on a Schwinn Stingray, tossing papers into mailboxes.
 2. **Highway Jam** (the Bug years): the avocado Bug, the baseball bat, and a highway full of rubberneckers.
 
 ## Play it

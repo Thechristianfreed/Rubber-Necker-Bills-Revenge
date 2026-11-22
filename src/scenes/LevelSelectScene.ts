@@ -104,10 +104,19 @@ export class LevelSelectScene extends Phaser.Scene {
       const road = py + 150;
       if (level.theme === 'street') {
         if (this.textures.exists('houses')) {
+          // a slice of the street, with the picket fence along the front
           const src = this.textures.get('houses').getSourceImage() as HTMLCanvasElement;
-          c.drawImage(src, px - 14, py + 34, 420, (420 * src.height) / src.width);
+          const photo = ART.houses.h > 200;
+          const sw = photo ? src.width * 0.27 : src.width * 0.66;
+          const sy = photo ? src.height * 0.26 : 0;
+          const dh = (pw * (src.height - sy)) / sw;
+          c.drawImage(src, 0, sy, sw, src.height - sy, px, road - 6 - dh, pw, dh);
         }
-        c.beginPath(); c.rect(px, py + 132, pw, 20); fillPaper(c, 'green');
+        if (this.textures.exists('fence')) {
+          const src = this.textures.get('fence').getSourceImage() as HTMLCanvasElement;
+          const fh = 26, fw = (fh * src.width) / src.height;
+          for (let x = px; x < px + pw; x += fw) c.drawImage(src, x, road - fh, fw, fh);
+        }
         c.beginPath(); c.rect(px, road, pw, ph); fillPaper(c, 'grey');
         this.stamp(c, 'mailbox0', px + 52, road - 2, 40);
         this.stamp(c, 'mailbox1', px + 224, road - 2, 40);

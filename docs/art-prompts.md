@@ -31,16 +31,14 @@ these images. The tarmac is a public-domain photo texture (`art-src/library`).
 ## Level 1, Paper Route
 
 Bill the paperboy rides his Stingray down a 1950s street tossing papers into
-mailboxes. T1 to T4 (the boy on the bike: riding, winding up, throwing,
-ducking) are in the game; the flying newspaper is cut from T3.
+mailboxes. In the game: T1 to T4 (the boy on the bike: riding, winding up,
+throwing, ducking; the flying newspaper is cut from T3), V (the mailman),
+W (the tree), X (the houses) and Y (the picket fence). The pavement is the
+public-domain tarmac photo, bleached to concrete.
 
-Still to come, replacing cut-paper stand-ins:
+Still to come, replacing the last cut-paper stand-ins:
 
-### U. Mailboxes (revised for deliveries)
-
-The first version of this image showed whacked, dented mailboxes with no
-posts. Now that Bill delivers papers, they stand on posts and the second
-state is "paper delivered".
+### U. Mailboxes on posts
 
 ```text
 Four separate photographs in a row with clear gaps between them, on a plain flat light-grey background. Each is a classic American curbside mailbox mounted on a short square wooden post, seen in exact side view with its door end on the left. The whole post is in frame down to its base.
@@ -51,36 +49,7 @@ Four separate photographs in a row with clear gaps between them, on a plain flat
 All four the same size, with identical posts. Soft even daylight, slightly faded 1950s Kodachrome colour. No text or numbers on the mailboxes, no ground, no shadows, no borders. Wide 16:9 image.
 ```
 
-### V. The mailman (the one you must not hit)
-
-```text
-Two full-body photographs of the same 1950s American mailman side by side with a clear gap, on a plain flat light-grey background. He wears a blue-grey postal uniform and cap and carries a leather mail satchel on a shoulder strap. Each shows him from the top of his cap to his shoes, standing, turned toward the left.
-Left: cheerful, holding a letter out in front of him.
-Right: the same man furious, shaking his fist, his cap knocked crooked.
-Same size and framing in both. Soft even daylight, slightly faded 1950s Kodachrome colour. No text, no shadows, no borders. Wide 16:9 image.
-```
-
-### W. The tree (duck under it)
-
-```text
-A photograph of a single leafy street tree, a sycamore or maple, seen straight on and complete from the base of its trunk to the top of its crown. It has a wide, heavy canopy that droops low, with the lowest leaves hanging to about a third of the way up the trunk. Summer foliage. Soft even daylight, slightly faded 1950s Kodachrome colour. Plain flat light-grey background: no ground, no shadow, no text, no border. Square image.
-```
-
-### X. The houses across the street
-
-Bill was born in 1953, so this is a 1950s street.
-
-```text
-A vintage 1950s photograph of a row of modest American suburban houses seen straight on from across the street: small single-storey houses in pastel colours with front lawns, front paths and a few shrubs, under a clear sky. The houses run evenly across the entire width so the left and right edges look alike. No cars, no people, no text, no border. Slightly faded Kodachrome colour. Very wide panoramic image, 21:9.
-```
-
-### Y. Picket fence
-
-```text
-A photograph of a long straight white wooden picket fence seen exactly side-on at fence height, so it is perfectly horizontal and runs off both the left and the right edges of the picture. Evenly spaced pointed pickets, at least twenty of them visible. Slightly weathered paint. Soft even daylight. Plain flat light-grey background: no grass, no ground, no shadows, no text. Very wide panoramic image, 21:9.
-```
-
-### T3b. Throwing, hand empty (optional)
+### T3b. Throwing, hand empty
 
 In the throwing frame Bill is still holding a paper while another one flies.
 Send this as an edit of T3 for a cleaner release.

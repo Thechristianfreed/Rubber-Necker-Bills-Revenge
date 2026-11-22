@@ -85,6 +85,10 @@ const PIECES: Piece[] = [
   { key: 'kid_swing', file: 'kid-swing.png', scale: KID_SCALE, anchor: [0.499, 0.994] },
   { key: 'kid_duck', file: 'kid-duck.png', scale: KID_SCALE, anchor: [0.499, 0.993] },
   { key: 'paper_roll', file: 'paper-roll.png', w: 30, border: 1.4 },
+  // the street: the mailman (standing on the same spot in both photos) and the tree to duck
+  { key: 'mailman', file: 'mailman.png', h: 138, border: 2, anchor: [0.557, 0.985] },
+  { key: 'mailman_mad', file: 'mailman-mad.png', h: 136, border: 2, anchor: [0.49, 0.985] },
+  { key: 'branch', file: 'tree.png', h: 264, border: 2, anchor: [0.497, 0.985] },
 
   // roadside
   { key: 'palm', file: 'palm.png', h: 172, border: 2, anchor: [0.48, 0.97] },
@@ -183,7 +187,7 @@ function loadImage(src: string | undefined): Promise<HTMLImageElement | null> {
 export async function loadPhotoArt(scene: Phaser.Scene): Promise<void> {
   const sheets = PAPERS;
   const names = new Set<string>([
-    ...PIECES.map((p) => p.file), ...PHOTO_VEHICLES.map((v) => v.file), 'postcard.jpg', 'rail.png', 'asphalt.jpg',
+    ...PIECES.map((p) => p.file), ...PHOTO_VEHICLES.map((v) => v.file), 'postcard.jpg', 'rail.png', 'asphalt.jpg', 'houses.jpg', 'fence.png', 'concrete.jpg',
     ...sheets.map((n) => `paper-${n}.png`),
   ]);
   const loaded = new Map<string, HTMLImageElement>();
@@ -246,6 +250,13 @@ export async function loadPhotoArt(scene: Phaser.Scene): Promise<void> {
   if (tarmac) makePhotoTile(scene, 'asphalt', tarmac, 192);
   const rail = loaded.get('rail.png');
   if (rail) makePhotoTile(scene, 'rail', rail, 30);
+  // the street: houses and lawns across the road, the picket fence, the pavement
+  const houses = loaded.get('houses.jpg');
+  if (houses) makePhotoTile(scene, 'houses', houses, 352, true);
+  const fence = loaded.get('fence.png');
+  if (fence) makePhotoTile(scene, 'fence', fence, 40);
+  const concrete = loaded.get('concrete.jpg');
+  if (concrete) makePhotoTile(scene, 'sidewalk', concrete, 96);
 
   // the wreck everyone is staring at: the van has rear-ended the red sedan
   const front = loaded.get('sedan-red.png'), back = loaded.get('van-blue.png');

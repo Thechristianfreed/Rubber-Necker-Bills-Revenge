@@ -16,6 +16,8 @@ export interface ArtInfo {
   /** Anchor inside the drawing, in design pixels. */
   ax: number;
   ay: number;
+  /** Texture pixels per design pixel, where that is not TEX (big photo backdrops). */
+  tex?: number;
 }
 
 export const ART: Record<string, ArtInfo> = {};
@@ -131,15 +133,18 @@ export function makePhotoArt(scene: Phaser.Scene, key: string, image: HTMLImageE
 }
 
 /** Register a photo as a plain repeating strip (no border), `h` design pixels tall. */
-export function makePhotoTile(scene: Phaser.Scene, key: string, image: HTMLImageElement, h: number): void {
+export function makePhotoTile(scene: Phaser.Scene, key: string, image: HTMLImageElement, h: number, native = false): void {
   const w = (h * image.naturalWidth) / image.naturalHeight;
-  const [canvas, c] = makeCanvas(Math.round(w * TEX), Math.round(h * TEX));
+  // `native` keeps a big photo at its own resolution instead of enlarging it,
+  // so the texture stays small enough for every phone's graphics chip
+  const d = native ? Math.min(TEX, image.naturalHeight / h) : TEX;
+  const [canvas, c] = makeCanvas(Math.round(w * d), Math.round(h * d));
   c.imageSmoothingEnabled = true;
   c.imageSmoothingQuality = 'high';
   c.drawImage(image, 0, 0, canvas.width, canvas.height);
   if (scene.textures.exists(key)) scene.textures.remove(key);
   scene.textures.addCanvas(key, canvas);
-  ART[key] = { w: canvas.width / TEX, h: canvas.height / TEX, pad: 0, ax: 0, ay: 0 };
+  ART[key] = { w: canvas.width / d, h: canvas.height / d, pad: 0, ax: 0, ay: 0, tex: d };
 }
 
 /** Origin (0..1) that puts a sprite's anchor at its x/y. */

@@ -13,7 +13,7 @@ import { Hud } from '../ui/Hud';
 import { written } from '../ui/text';
 import { DISPLAY, bubblePath, cutText, fillPaper, glued, makePaperArt, tapePath, textWidth } from '../art/paper';
 
-interface Strip { ts: Phaser.GameObjects.TileSprite; factor: number }
+interface Strip { ts: Phaser.GameObjects.TileSprite; factor: number; tex: number }
 interface Prop { im: Phaser.GameObjects.Image; factor: number; wrap?: number }
 /** Something Bill has to duck: a road sign, a low branch. */
 interface Sign { im: Phaser.GameObjects.Image; x: number; half: number; done: boolean }
@@ -176,9 +176,10 @@ export class GameScene extends Phaser.Scene {
   /** A full-width band of a repeating texture that scrolls with the world. */
   private strip(key: string, y: number, factor: number, depth: number, height?: number): Phaser.GameObjects.TileSprite {
     const a = ART[key];
-    const ts = this.add.tileSprite(-BLEED, y, (MAX_W + BLEED * 2) * TEX, (height ?? a.h) * TEX, key)
-      .setOrigin(0, 0).setScale(1 / TEX).setDepth(depth);
-    this.strips.push({ ts, factor });
+    const d = a.tex ?? TEX;
+    const ts = this.add.tileSprite(-BLEED, y, (MAX_W + BLEED * 2) * d, (height ?? a.h) * d, key)
+      .setOrigin(0, 0).setScale(1 / d).setDepth(depth);
+    this.strips.push({ ts, factor, tex: d });
     return ts;
   }
 
@@ -247,11 +248,17 @@ export class GameScene extends Phaser.Scene {
     const sky = this.add.graphics().setDepth(DEPTH.sky);
     sky.fillStyle(0x7fb0d8, 1);
     sky.fillRect(x0, -BLEED, ww, BLEED + 262);
-    if (this.textures.exists('postcard')) this.strip('postcard', -10, 0.05, DEPTH.sky);
-    this.strip('houses', 104, 0.6, DEPTH.far);
-    this.strip('lawn', 250, 1, DEPTH.far + 1);
-    this.strip('fence', 262, 1, DEPTH.far + 4);
-    this.strip('sidewalk', 300, 1, DEPTH.road);
+    if (ART.houses.h > 200) {
+      // the photo of the street carries its own sky and front lawns; it drifts
+      // by slower than the pavement, and the fence hides where the two meet
+      this.strip('houses', 304 - ART.houses.h, 0.6, DEPTH.far);
+    } else {
+      if (this.textures.exists('postcard')) this.strip('postcard', -10, 0.05, DEPTH.sky);
+      this.strip('houses', 104, 0.6, DEPTH.far);
+      this.strip('lawn', 250, 1, DEPTH.far + 1);
+    }
+    this.strip('fence', 304 - ART.fence.h, 1, DEPTH.far + 4);
+    this.strip('sidewalk', 300, 1, DEPTH.road, 50);
     this.strip('kerb', 346, 1, DEPTH.road + 1);
     this.strip('asphalt', 352, 1, DEPTH.road, 200);
     this.strip('line_white', 524, 1, DEPTH.road + 1);
@@ -652,11 +659,12 @@ export class GameScene extends Phaser.Scene {
       if (s.type === 'sign' || s.type === 'branch') {
         // something to duck: it stands still, so it arrives with the scenery
         const branch = s.type === 'branch';
-        if (remaining > (view.W + 110 - this.bill.x) / speed) continue;
+        if (remaining > (view.W + 170 - this.bill.x) / speed) continue;
         const x = this.bill.x + speed * remaining;
         const key = branch ? 'branch' : `sign${Math.random() < 0.5 ? 0 : 1}`;
         const im = img(this, x, HAZARD_BASE_Y[this.level.theme], key).setDepth(HAZARD_DEPTH[this.level.theme]);
-        this.signs.push({ im, x, half: branch ? 46 : 34, done: false });
+        // a tree has to be ducked for as long as he is under its low branches
+        this.signs.push({ im, x, half: branch ? 92 : 34, done: false });
         this.teach('duck', branch ? 'Low branch - HOLD DUCK!' : 'Sign coming - HOLD DUCK!');
       } else {
         const roadside = s.type === 'mailbox' || s.type === 'mailbox2' || s.type === 'mailman';
@@ -682,12 +690,13 @@ export class GameScene extends Phaser.Scene {
   }
 
   private spawnProp(dt: number): void {
+    // the street's backdrop has its own trees; a tree in the open there is one to duck
+    if (this.street) return;
     this.propT -= dt;
     if (this.propT > 0) return;
     this.propT = 1.3 + Math.random() * 2.2;
-    // trees on the lawns of the street; palms and billboards along the highway
-    const key = this.street || Math.random() < 0.72 ? 'palm' : `billboard${Math.random() < 0.5 ? 0 : 1}`;
-    const im = img(this, view.W + 140, this.street ? 262 : 202, key).setDepth(this.street ? DEPTH.far + 2 : DEPTH.far + 1);
+    const key = Math.random() < 0.72 ? 'palm' : `billboard${Math.random() < 0.5 ? 0 : 1}`;
+    const im = img(this, view.W + 140, 202, key).setDepth(DEPTH.far + 1);
     if (key === 'palm') im.setFlipX(Math.random() < 0.5).setScale(im.scale * (0.85 + Math.random() * 0.3));
     this.props.push({ im, factor: 1 });
   }
@@ -728,7 +737,7 @@ export class GameScene extends Phaser.Scene {
     this.spawnProp(dt);
 
     const scroll = this.level.speed * dt;
-    for (const s of this.strips) s.ts.tilePositionX += scroll * s.factor * TEX;
+    for (const s of this.strips) s.ts.tilePositionX += scroll * s.factor * s.tex;
     for (let i = this.props.length - 1; i >= 0; i--) {
       const p = this.props[i];
       p.im.x -= scroll * p.factor;
@@ -820,7 +829,7 @@ export class GameScene extends Phaser.Scene {
           }
         }
       }
-      if (s.x < -120) {
+      if (s.x < -200) {
         s.im.destroy();
         this.signs.splice(i, 1);
       }
@@ -836,7 +845,7 @@ export class GameScene extends Phaser.Scene {
    *  plays badly: never ducks, hits dogs, skips heads). */
   private autoplay(): void {
     const clumsy = this.auto === 'clumsy';
-    this.duckKey = !clumsy && this.signs.some((s) => !s.done && s.x - this.bill.x < 150 && s.x - this.bill.x > -40);
+    this.duckKey = !clumsy && this.signs.some((s) => !s.done && s.x - this.bill.x < s.half + 80 && s.x - this.bill.x > -s.half - 14);
     const lead = (this.level.speed + (this.street ? 0 : SPEED.crawl)) * SWING.windup;
     let onScreen = 0;
     for (const v of this.vehicles) {

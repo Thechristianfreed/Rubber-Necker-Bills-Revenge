@@ -323,6 +323,77 @@ def kid():
     save("paper-roll.png", trim(np.concatenate([half[:, ::-1], half], axis=1)))
 
 
+def mailman():
+    """The mailman, cheerful and furious. Prints where his feet are, so both
+    photos can stand on the same spot."""
+    sheet = sorted(pieces(load("V-mailman-cutout.png"), 5000), key=lambda p: p[0])
+    for name, (_, _, piece) in zip(("mailman", "mailman-mad"), sheet):
+        save(f"{name}.png", piece)
+        feet = np.where(piece[int(piece.shape[0] * 0.93):, :, 3].max(axis=0) > 0.5)[0]
+        print(f"  {name}: feet centre x (fraction) {(feet.min() + feet.max()) / 2 / piece.shape[1]:.3f}")
+
+
+def tree():
+    """The street tree Bill has to duck under. Loose leaves floating clear of
+    the crown are dropped; prints where the trunk meets the ground."""
+    cut = load("W-tree-cutout.png").copy()
+    n, lab, st, _ = cv2.connectedComponentsWithStats((cut[..., 3] > 0.3).astype(np.uint8), 8)
+    biggest = 1 + int(np.argmax(st[1:, cv2.CC_STAT_AREA]))
+    near = cv2.dilate((lab == biggest).astype(np.uint8), np.ones((5, 5), np.uint8)).astype(bool)
+    cut[~near] = 0
+    piece = trim(cut)
+    k = 620 / piece.shape[0]
+    piece = cv2.resize(piece, (round(piece.shape[1] * k), 620), interpolation=cv2.INTER_AREA)
+    save("tree.png", piece)
+    base = np.where(piece[int(piece.shape[0] * 0.97):, :, 3].max(axis=0) > 0.5)[0]
+    print(f"  tree: trunk base x (fraction) {(base.min() + base.max()) / 2 / piece.shape[1]:.3f}")
+
+
+def fence():
+    """Crop the picket fence from the middle of one gap to the middle of
+    another, so it repeats without a seam."""
+    cut = load("Y-fence-cutout.png")
+    ys = np.where(cut[..., 3].max(axis=1) > 0.3)[0]
+    band = cut[ys.min():ys.max() + 1]
+    # between the two rails there is nothing but pickets and the gaps between them
+    gap = (band[int(band.shape[0] * 0.42):int(band.shape[0] * 0.58), :, 3].max(axis=0) < 0.2).astype(np.int8)
+    edges = np.diff(gap)
+    starts, ends = np.where(edges == 1)[0] + 1, np.where(edges == -1)[0] + 1
+    centres = [(a + ends[ends > a][0]) / 2 for a in starts if (ends > a).any()]
+    x0, x1 = int(round(centres[0])), int(round(centres[-1]))
+    print(f"  fence: {len(centres) - 1} pickets, spacing {(x1 - x0) / (len(centres) - 1):.1f}px, crop {x0}..{x1}")
+    save("fence.png", band[:, x0:x1])
+
+
+def houses():
+    """The far side of the street: sky, houses and front lawns from the photo,
+    cut off where its own pavement starts and mirrored so it repeats."""
+    im = Image.open(os.path.join(ROOT, "art-src", "generated", "X-houses.png")).convert("RGB")
+    strip = im.crop((0, 45, im.width, 316))
+    both = Image.new("RGB", (strip.width * 2, strip.height))
+    both.paste(strip, (0, 0))
+    both.paste(strip.transpose(Image.FLIP_LEFT_RIGHT), (strip.width, 0))
+    os.makedirs(OUT, exist_ok=True)
+    path = os.path.join(OUT, "houses.jpg")
+    both.save(path, quality=90)
+    print("houses.jpg", both.size, os.path.getsize(path), "bytes")
+
+
+def concrete():
+    """Pavement: the same public-domain tarmac photo, bleached to pale concrete,
+    with an expansion joint every slab."""
+    im = Image.open(os.path.join(ROOT, "art-src", "library", "asphalt031.png")).convert("RGB").resize((384, 384), Image.LANCZOS)
+    rgb = np.asarray(im, dtype=np.float32)[:192] / 255.0
+    rgb = np.clip(((rgb - rgb.mean()) * 0.6 + 0.83) * np.array([1.0, 0.985, 0.94]), 0, 1)
+    for x in (0, 192):
+        rgb[:, x:x + 2] *= 0.72
+        rgb[:, x + 2:x + 3] *= 1.05
+    os.makedirs(OUT, exist_ok=True)
+    path = os.path.join(OUT, "concrete.jpg")
+    Image.fromarray((np.clip(rgb, 0, 1) * 255).astype(np.uint8), "RGB").save(path, quality=88)
+    print("concrete.jpg", (rgb.shape[1], rgb.shape[0]), os.path.getsize(path), "bytes")
+
+
 def asphalt():
     """Road surface from a public-domain photo texture (see art-src/library).
     It already tiles; shrink it and cool it down to sit behind the cutouts."""
@@ -466,6 +537,11 @@ if __name__ == "__main__":
     more_heads()
     bill()
     kid()
+    mailman()
+    tree()
+    fence()
+    houses()
+    concrete()
     guardrail()
     effects()
     phone_arm()
