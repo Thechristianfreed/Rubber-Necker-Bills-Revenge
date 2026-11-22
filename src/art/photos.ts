@@ -2,8 +2,9 @@ import Phaser from 'phaser';
 import { INK } from '../config';
 import { Ctx, PhotoOpts, makeArt, makePhotoArt, makePhotoTile, star } from './sticker';
 import { ARM_TINTS, VEHICLES, VehicleSpec, makeNeck, setHeadStyles } from './textures';
-import { Paper, addPaper } from './paper';
+import { PAPERS, addPaper } from './paper';
 import { buildPaperUi } from './ui';
+import { buildStreetArt } from './street';
 
 /** Photo cutouts that replace drawn art. Each piece takes over the texture key
  *  of the drawing it replaces, so nothing else in the game has to change.
@@ -59,6 +60,7 @@ const HEADS: HeadFit[] = [
 
 /** Bill's body is drawn small under his big photo head (design pixels per image pixel). */
 const BODY_SCALE = 0.58;
+const KID_SCALE = 0.42;
 
 const WORDS = ['bonk', 'whack', 'thwack', 'pow', 'bop', 'perfect'];
 
@@ -76,6 +78,10 @@ const PIECES: Piece[] = [
   { key: 'bill_rest', file: 'bill-rest.png', scale: BODY_SCALE, anchor: [0.498, 0.218] },
   { key: 'bill_windup', file: 'bill-windup.png', scale: BODY_SCALE, anchor: [0.538, 0.34] },
   { key: 'bill_swing', file: 'bill-swing.png', scale: BODY_SCALE, anchor: [0.27, 0.187] },
+  // Level 1 stand-in: the same three frames, smaller, for Bill as a kid on his bike
+  { key: 'kid_rest', file: 'bill-rest.png', scale: KID_SCALE, anchor: [0.498, 0.218] },
+  { key: 'kid_windup', file: 'bill-windup.png', scale: KID_SCALE, anchor: [0.538, 0.34] },
+  { key: 'kid_swing', file: 'bill-swing.png', scale: KID_SCALE, anchor: [0.27, 0.187] },
 
   // roadside
   { key: 'palm', file: 'palm.png', h: 172, border: 2, anchor: [0.48, 0.97] },
@@ -172,7 +178,7 @@ function loadImage(src: string | undefined): Promise<HTMLImageElement | null> {
 
 /** Load every photo cutout and swap it in over its drawn stand-in. */
 export async function loadPhotoArt(scene: Phaser.Scene): Promise<void> {
-  const sheets: Paper[] = ['cream', 'white', 'manila', 'yellow', 'red', 'blue', 'green', 'grey', 'black'];
+  const sheets = PAPERS;
   const names = new Set<string>([
     ...PIECES.map((p) => p.file), ...PHOTO_VEHICLES.map((v) => v.file), 'postcard.jpg', 'rail.png', 'asphalt.jpg',
     ...sheets.map((n) => `paper-${n}.png`),
@@ -189,6 +195,7 @@ export async function loadPhotoArt(scene: Phaser.Scene): Promise<void> {
     if (im) addPaper(n, im);
   }
   buildPaperUi(scene);
+  buildStreetArt(scene, loaded.get('head4.png'), loaded.get('head4-dazed.png'));
 
   for (const p of PIECES) {
     const im = loaded.get(p.file);

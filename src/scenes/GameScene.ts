@@ -1,11 +1,12 @@
 import Phaser from 'phaser';
-import { BILL, DEPTH, H, HEAD_SRC_H, INK, LANE, MAX_W, SCORE, SPEED, SWING, TEX, view } from '../config';
+import { BILL, DEPTH, H, HEAD_SRC_H, INK, LANE, MAX_W, SCORE, SPEED, STREET, SWING, TEX, view } from '../config';
 import { BLEED } from '../art/finish';
 import { ART, img } from '../art/sticker';
 import { sound } from '../audio/sound';
-import { HIGHWAY_JAM, Move, Spawn, countHeads } from '../data/levels';
+import { HIGHWAY_JAM, LevelDef, Move, Spawn, countHeads, levelById } from '../data/levels';
+import { saveStars } from '../data/progress';
 import { PHRASES, pick } from '../data/phrases';
-import { Bill } from '../objects/Bill';
+import { Bill, RIGS } from '../objects/Bill';
 import { Motion, NoodleNeck } from '../objects/NoodleNeck';
 import { Vehicle } from '../objects/Vehicle';
 import { Hud } from '../ui/Hud';
@@ -14,17 +15,18 @@ import { DISPLAY, bubblePath, cutText, fillPaper, glued, makePaperArt, tapePath,
 
 interface Strip { ts: Phaser.GameObjects.TileSprite; factor: number }
 interface Prop { im: Phaser.GameObjects.Image; factor: number; wrap?: number }
-interface Sign { im: Phaser.GameObjects.Image; x: number; done: boolean }
+/** Something Bill has to duck: a road sign, a low branch. */
+interface Sign { im: Phaser.GameObjects.Image; x: number; half: number; done: boolean }
 type Quality = 'good' | 'perfect' | 'rage';
 
-/** Signs stand on the median, between the jam and Bill. */
-const SIGN_BASE_Y = 398;
+/** Where the things Bill ducks stand: on the median, or on the far pavement. */
+const HAZARD_BASE_Y = { highway: 398, street: STREET.kerbY + 2 };
 const HIT_WORDS = ['bonk', 'whack', 'thwack', 'bop', 'pow'];
 
 export class GameScene extends Phaser.Scene {
   private bill!: Bill;
   private hud!: Hud;
-  private level = HIGHWAY_JAM;
+  private level: LevelDef = HIGHWAY_JAM;
   private pending: Spawn[] = [];
   private vehicles: Vehicle[] = [];
   private signs: Sign[] = [];
@@ -33,6 +35,7 @@ export class GameScene extends Phaser.Scene {
   private zone!: Phaser.GameObjects.Image;
   private starFx!: Phaser.GameObjects.Particles.ParticleEmitter;
   private dustFx!: Phaser.GameObjects.Particles.ParticleEmitter;
+  private mailFx?: Phaser.GameObjects.Particles.ParticleEmitter;
   private smokeFx?: Phaser.GameObjects.Particles.ParticleEmitter;
   private wreck?: Phaser.GameObjects.Image;
   private bubble?: Phaser.GameObjects.Image;
@@ -67,6 +70,15 @@ export class GameScene extends Phaser.Scene {
     super('game');
   }
 
+  /** Which level to play: passed in by the level select, or `?level=` in the address. */
+  init(data: { level?: string }): void {
+    this.level = levelById(data?.level ?? new URLSearchParams(location.search).get('level'));
+  }
+
+  private get street(): boolean {
+    return this.level.theme === 'street';
+  }
+
   create(): void {
     this.pending = [...this.level.spawns];
     this.vehicles = [];
@@ -93,11 +105,14 @@ export class GameScene extends Phaser.Scene {
     this.auto = auto === null ? '' : auto === 'clumsy' ? 'clumsy' : 'good';
     this.tweens.timeScale = 1;
 
+    this.wreck = undefined;
+    this.smokeFx = undefined;
+    this.mailFx = undefined;
     this.fitCamera();
-    this.buildWorld();
-    this.bill = new Bill(this, view.W * BILL.xFrac);
+    if (this.street) this.buildStreet(); else this.buildWorld();
+    this.bill = new Bill(this, view.W * BILL.xFrac, RIGS[this.level.theme]);
     this.zone = img(this, this.bill.sweetX, LANE.headY, 'zone').setDepth(DEPTH.median + 1).setAlpha(0.3);
-    this.hud = new Hud(this);
+    this.hud = new Hud(this, this.level.words.meter);
     this.hud.setHearts(this.hearts);
     this.hud.setJam(0, 0, this.total);
     this.hud.setMuted(sound.muted);
@@ -110,6 +125,14 @@ export class GameScene extends Phaser.Scene {
       speedX: { min: -300, max: -200 }, speedY: { min: -36, max: 6 }, lifespan: 420,
       scale: { start: 0.2, end: 0.48 }, alpha: { start: 0.65, end: 0 }, frequency: 85,
     }).setDepth(DEPTH.billBack - 1);
+
+    if (this.textures.exists('envelope')) {
+      // letters knocked out of a mailbox
+      this.mailFx = this.add.particles(0, 0, 'envelope', {
+        speed: { min: 140, max: 380 }, angle: { min: 200, max: 340 }, gravityY: 760, lifespan: 900,
+        rotate: { min: 0, max: 360 }, scale: 0.5, emitting: false,
+      }).setDepth(DEPTH.fx + 3);
+    }
 
     this.setupInput();
     this.scale.on('resize', this.onResize, this);
@@ -200,12 +223,33 @@ export class GameScene extends Phaser.Scene {
     }).setDepth(DEPTH.farCars - 1);
   }
 
+  /** Level 1: houses, lawns and a picket fence across the street, mailboxes at the kerb. */
+  private buildStreet(): void {
+    const x0 = -BLEED, ww = MAX_W + BLEED * 2;
+    const sky = this.add.graphics().setDepth(DEPTH.sky);
+    sky.fillStyle(0x7fb0d8, 1);
+    sky.fillRect(x0, -BLEED, ww, BLEED + 262);
+    if (this.textures.exists('postcard')) this.strip('postcard', -10, 0.05, DEPTH.sky);
+    this.strip('houses', 104, 0.6, DEPTH.far);
+    this.strip('lawn', 250, 1, DEPTH.far + 1);
+    this.strip('fence', 262, 1, DEPTH.far + 3);
+    this.strip('sidewalk', 300, 1, DEPTH.road);
+    this.strip('kerb', 346, 1, DEPTH.road + 1);
+    this.strip('asphalt', 352, 1, DEPTH.road, 200);
+    this.strip('line_white', 524, 1, DEPTH.road + 1);
+    this.strip('grass', 528, 1, DEPTH.fore);
+  }
+
   private setupInput(): void {
     this.input.on('pointerdown', (p: Phaser.Input.Pointer) => {
       sound.unlock();
       const w = this.cameras.main.getWorldPoint(p.x, p.y);
       if (this.over) {
-        if (this.canRestart) this.scene.restart();
+        // the results page: "play again" on the left, "levels" on the right
+        if (this.canRestart) {
+          if (w.x > view.W / 2) this.scene.start('levels');
+          else this.scene.restart({ level: this.level.id });
+        }
         return;
       }
       if (this.hud.overMute(w.x, w.y)) {
@@ -236,7 +280,7 @@ export class GameScene extends Phaser.Scene {
       };
       this.keys.space.on('down', () => {
         sound.unlock();
-        if (this.over) { if (this.canRestart) this.scene.restart(); } else this.trySwing();
+        if (this.over) { if (this.canRestart) this.scene.restart({ level: this.level.id }); } else this.trySwing();
       });
       this.keys.r.on('down', () => this.tryRage());
       this.keys.enter.on('down', () => this.tryRage());
@@ -286,7 +330,7 @@ export class GameScene extends Phaser.Scene {
     this.bill.setFace('grin', 2);
     this.setSlow(0.18);
     sound.rageFire();
-    this.say(pick(PHRASES.rage).text);
+    this.say(pick(this.street ? PHRASES.rageStreet : PHRASES.rage).text);
     const banner = img(this, view.W / 2, 150, 'word_roadrage').setDepth(DEPTH.overlay).setRotation(-0.04);
     const full = banner.scale;
     banner.setScale(full * 0.3);
@@ -311,7 +355,7 @@ export class GameScene extends Phaser.Scene {
     for (const v of this.vehicles) {
       for (const r of v.riders) {
         const n = r.neck;
-        if (n.kind === 'dog' || n.whacked || n.passed) continue;
+        if (n.innocent || n.whacked || n.passed) continue;
         if (n.headX > this.bill.x - 240 && n.headX < view.W + 80) targets.push({ v, neck: n, d: Math.abs(n.headX - this.bill.sweetX) });
       }
     }
@@ -339,7 +383,7 @@ export class GameScene extends Phaser.Scene {
     if (neck.whacked) return;
     const hx = neck.headX, hy = neck.headY;
 
-    if (neck.kind === 'dog') {
+    if (neck.innocent) {
       neck.whack(1, v.vx);
       this.combo = 0;
       this.hud.setCombo(0, 1);
@@ -348,7 +392,7 @@ export class GameScene extends Phaser.Scene {
       sound.yelp();
       this.popWord(hx, hy - 40, 'badbill');
       this.popTag(hx + 6, hy + 6, `-$${SCORE.dogFine}`, '#b8372a', 0.12);
-      this.say(pick(PHRASES.dog).text);
+      this.say(pick(neck.kind === 'dog' ? PHRASES.dog : PHRASES.mailman).text);
       this.bill.setFace('glare', 1);
       this.cameras.main.shake(120, 0.005);
       return;
@@ -386,8 +430,9 @@ export class GameScene extends Phaser.Scene {
       if (from) this.flingPhone(from.x, from.y);
       this.say(pick(PHRASES.phone).text);
     } else if (q !== 'rage' && this.combo > 0 && this.combo % 8 === 0) {
-      this.say(pick(PHRASES.combo).text);
+      this.say(pick(this.street ? PHRASES.comboStreet : PHRASES.combo).text);
     }
+    if (neck.kind === 'post') this.mailFx?.explode(perfect ? 9 : 6, hx, hy);
 
     this.hud.setCash(this.cash);
     this.hud.setCombo(this.combo, this.mult);
@@ -513,26 +558,34 @@ export class GameScene extends Phaser.Scene {
   // ---- spawning --------------------------------------------------------------------
 
   private spawnDue(): void {
-    const carSpeed = SPEED.world + SPEED.crawl;
+    const speed = this.level.speed;
     for (let i = 0; i < this.pending.length; i++) {
       const s = this.pending[i];
       const remaining = s.t - this.levelT;
-      if (s.type === 'sign') {
-        if (remaining > (view.W + 70 - this.bill.x) / SPEED.world) continue;
-        const x = this.bill.x + SPEED.world * remaining;
-        const im = img(this, x, SIGN_BASE_Y, `sign${Math.random() < 0.5 ? 0 : 1}`).setDepth(DEPTH.median);
-        this.signs.push({ im, x, done: false });
-        this.teach('duck', 'Sign coming - HOLD DUCK!');
+      if (s.type === 'sign' || s.type === 'branch') {
+        // something to duck: it stands still, so it arrives with the scenery
+        const branch = s.type === 'branch';
+        if (remaining > (view.W + 110 - this.bill.x) / speed) continue;
+        const x = this.bill.x + speed * remaining;
+        const key = branch ? 'branch' : `sign${Math.random() < 0.5 ? 0 : 1}`;
+        const im = img(this, x, HAZARD_BASE_Y[this.level.theme], key).setDepth(DEPTH.median);
+        this.signs.push({ im, x, half: branch ? 46 : 34, done: false });
+        this.teach('duck', branch ? 'Low branch - HOLD DUCK!' : 'Sign coming - HOLD DUCK!');
       } else {
-        if (remaining > (view.W + 330 - this.bill.sweetX) / carSpeed) continue;
-        const v = new Vehicle(this, s.type, view.W + 600, this.motionFor(s.move));
-        const lead = v.riders[0].slot.x - 16;
-        v.x = this.bill.sweetX + carSpeed * remaining - lead;
+        const roadside = s.type === 'mailbox' || s.type === 'mailbox2' || s.type === 'mailman';
+        const closing = roadside ? speed : speed + SPEED.crawl;
+        if (remaining > (view.W + 330 - this.bill.sweetX) / closing) continue;
+        const v = new Vehicle(this, s.type, view.W + 600, speed, this.motionFor(s.move));
+        const lead = roadside ? 0 : v.riders[0].slot.x - 16;
+        v.x = this.bill.sweetX + closing * remaining - lead;
         v.update(0);
         this.vehicles.push(v);
         if (s.type === 'dog') this.teach('dog', "That's a good dog. DON'T hit it!");
+        else if (s.type === 'mailman') this.teach('mailman', "That's the mailman. DON'T hit him!");
         else if (s.type === 'phone') this.teach('phone', 'Phone filmers! Knock some sense into them.');
         else if (s.type === 'bus') this.teach('bus', 'Tour bus! Four heads in a row!');
+        else if (s.type === 'mailbox2') this.teach('double', 'Two at once! One good swing gets both.');
+        else if (s.type === 'mailbox') this.teach('swing', 'TAP to swing when a mailbox reaches the ring!');
         else this.teach('swing', 'TAP to swing when a head reaches the ring!');
         if (s.move !== 'still') this.teach('restless', "They're leaning for a better look. Watch the head!");
       }
@@ -545,8 +598,9 @@ export class GameScene extends Phaser.Scene {
     this.propT -= dt;
     if (this.propT > 0) return;
     this.propT = 1.3 + Math.random() * 2.2;
-    const key = Math.random() < 0.72 ? 'palm' : `billboard${Math.random() < 0.5 ? 0 : 1}`;
-    const im = img(this, view.W + 140, 202, key).setDepth(DEPTH.far + 1);
+    // trees on the lawns of the street; palms and billboards along the highway
+    const key = this.street || Math.random() < 0.72 ? 'palm' : `billboard${Math.random() < 0.5 ? 0 : 1}`;
+    const im = img(this, view.W + 140, this.street ? 262 : 202, key).setDepth(this.street ? DEPTH.far + 2 : DEPTH.far + 1);
     if (key === 'palm') im.setFlipX(Math.random() < 0.5).setScale(im.scale * (0.85 + Math.random() * 0.3));
     this.props.push({ im, factor: 1 });
   }
@@ -586,7 +640,7 @@ export class GameScene extends Phaser.Scene {
     }
     this.spawnProp(dt);
 
-    const scroll = SPEED.world * dt;
+    const scroll = this.level.speed * dt;
     for (const s of this.strips) s.ts.tilePositionX += scroll * s.factor * TEX;
     for (let i = this.props.length - 1; i >= 0; i--) {
       const p = this.props[i];
@@ -613,7 +667,7 @@ export class GameScene extends Phaser.Scene {
       this.hud.setCombo(0, 1);
     }
     this.zone.setPosition(this.bill.sweetX, LANE.headY).setRotation(this.levelT * 0.6);
-    this.dustFx.setPosition(this.bill.x - 112, LANE.billBase - 6);
+    this.dustFx.setPosition(this.bill.dustAt.x, this.bill.dustAt.y);
 
     // vehicles, swings and misses
     const sweet = this.bill.sweetX;
@@ -631,10 +685,10 @@ export class GameScene extends Phaser.Scene {
         } else if (dx < -SWING.good - 26) {
           n.passed = true;
           if (this.over) continue;
-          if (n.kind === 'dog') {
+          if (n.innocent) {
             this.cash += SCORE.dodge;
             this.hud.setCash(this.cash);
-            this.popWord(n.headX, n.headY - 46, 'goodboy');
+            this.popWord(n.headX, n.headY - 46, n.kind === 'dog' ? 'goodboy' : 'nicekid');
           } else {
             this.missed++;
             this.combo = 0;
@@ -657,11 +711,13 @@ export class GameScene extends Phaser.Scene {
       s.im.x = s.x;
       if (!s.done && !this.over) {
         const dx = s.x - this.bill.x;
-        if (dx < 34 && dx > -34 && this.bill.exposed) {
+        if (dx < s.half && dx > -s.half && this.bill.exposed) {
           s.done = true;
-          this.tweens.add({ targets: s.im, rotation: 0.5, duration: 160, ease: 'Back.out' });
+          // a sign gets knocked askew; a tree only shudders
+          const sign = s.im.texture.key.startsWith('sign');
+          this.tweens.add({ targets: s.im, rotation: sign ? 0.5 : 0.06, duration: 160, ease: 'Back.out', yoyo: !sign });
           this.hurtBill();
-        } else if (dx <= -34) {
+        } else if (dx <= -s.half) {
           s.done = true;
           if (!this.bill.invulnerable) {
             this.cash += SCORE.dodge;
@@ -671,7 +727,7 @@ export class GameScene extends Phaser.Scene {
           }
         }
       }
-      if (s.x < -80) {
+      if (s.x < -120) {
         s.im.destroy();
         this.signs.splice(i, 1);
       }
@@ -688,13 +744,13 @@ export class GameScene extends Phaser.Scene {
   private autoplay(): void {
     const clumsy = this.auto === 'clumsy';
     this.duckKey = !clumsy && this.signs.some((s) => !s.done && s.x - this.bill.x < 150 && s.x - this.bill.x > -40);
-    const lead = (SPEED.world + SPEED.crawl) * SWING.windup;
+    const lead = (this.level.speed + (this.street ? 0 : SPEED.crawl)) * SWING.windup;
     let onScreen = 0;
     for (const v of this.vehicles) {
       for (const r of v.riders) {
         const n = r.neck;
         if (n.whacked || n.passed) continue;
-        if (n.kind === 'dog' && !clumsy) continue;
+        if (n.innocent && !clumsy) continue;
         if (clumsy && Math.floor(n.headY * 7) % 3 === 0) continue;
         if (n.headX < view.W) onScreen++;
         const dx = n.headX - this.bill.sweetX;
@@ -715,6 +771,7 @@ export class GameScene extends Phaser.Scene {
     const frac = this.whacked / this.total;
     const stars = reason === 'bonked' ? 0 : SCORE.passStars.filter((s) => frac >= s).length;
     const won = stars > 0;
+    if (!this.auto) saveStars(this.level.id, stars);
     sound.stopMusic();
     this.time.delayedCall(won ? 500 : 700, () => this.showResults(won, stars, reason));
   }
@@ -727,7 +784,7 @@ export class GameScene extends Phaser.Scene {
     this.tweens.add({ targets: veil, alpha: 1, duration: 250 });
 
     const pw = 560, ph = 396, px = W / 2, py = H / 2 + 6;
-    const title = won ? 'JAM CLEARED!' : reason === 'bonked' ? "BILL'S HAD ENOUGH" : 'THE JAM WINS';
+    const title = won ? this.level.words.cleared : reason === 'bonked' ? "BILL'S HAD ENOUGH" : this.level.words.lost;
     makePaperArt(this, 'results_page', pw, ph, (c) => {
       c.beginPath();
       c.rect(0, 0, pw, ph);
@@ -740,7 +797,7 @@ export class GameScene extends Phaser.Scene {
           fillPaper(c, 'black');
         }
       });
-      cutText(c, title, pw / 2, 52, title.length > 13 ? 50 : 60, won ? 'red' : 'blue');
+      cutText(c, title, pw / 2, 52, title.length > 18 ? 40 : title.length > 13 ? 50 : 60, won ? 'red' : 'blue');
     }, { border: 0 });
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.textures.remove('results_page'));
     const d = DEPTH.overlay + 2;
@@ -761,7 +818,7 @@ export class GameScene extends Phaser.Scene {
 
     const pct = Math.round((this.whacked / this.total) * 100);
     const rows: [string, string][] = [
-      ['Rubberneckers whacked', `${this.whacked} / ${this.total}  (${pct}%)`],
+      [this.level.words.counted, `${this.whacked} / ${this.total}  (${pct}%)`],
       ['Perfect hits', `${this.perfects}`],
       ['Best combo', `${this.bestCombo}`],
       ['Cash earned', `$${this.cash}`],
@@ -772,20 +829,24 @@ export class GameScene extends Phaser.Scene {
       written(this, px + 222, y, v, 21, '#b8372a').setOrigin(1, 0.5).setDepth(d);
     });
     if (!won && reason === 'end') {
-      written(this, px, py - 24, `Need ${Math.round(SCORE.passStars[0] * 100)}% to clear the jam`, 16, '#7a6a58').setDepth(d);
+      written(this, px, py - 24, `Need ${Math.round(SCORE.passStars[0] * 100)}% to pass`, 16, '#7a6a58').setDepth(d);
     }
 
     const face = this.add.image(px - pw / 2 + 12, py - ph / 2 + 30, won ? 'bill-grin' : 'bill-glare').setDepth(d + 1).setRotation(-0.22);
     face.setScale(121 / HEAD_SRC_H);
 
-    const tape = img(this, px, py + 158, 'tape_m').setDepth(d).setAlpha(0);
-    tape.setScale(tape.scale * 1.5, tape.scale * 1.15);
-    const again = written(this, px, py + 158, 'TAP TO PLAY AGAIN', 22).setDepth(d + 1).setAlpha(0);
+    // two notes on tape: play it again (left), or back to the levels (right)
+    const note = (x: number, text: string) => {
+      const t = written(this, 0, 0, text, 20);
+      const tape = img(this, 0, 0, 'tape_m');
+      tape.setScale(tape.scale * 1.05, tape.scale * 1.1);
+      return this.add.container(x, py + 158, [tape, t]).setDepth(d + 1).setAlpha(0).setRotation(x < px ? -0.02 : 0.02);
+    };
+    const notes = [note(px - 118, 'PLAY AGAIN'), note(px + 118, 'LEVELS')];
     this.time.delayedCall(1100, () => {
       this.canRestart = true;
-      tape.setAlpha(1);
-      again.setAlpha(1);
-      this.tweens.add({ targets: [tape, again], y: '-=5', duration: 420, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
+      notes.forEach((n) => n.setAlpha(1));
+      this.tweens.add({ targets: notes, y: '-=5', duration: 420, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
     });
   }
 }

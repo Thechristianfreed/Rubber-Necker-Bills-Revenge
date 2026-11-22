@@ -9,12 +9,14 @@ import { ArtOpts, Ctx, makeArt, star } from './sticker';
  *  sheets and given the usual white cut edge and drop shadow, so it sits in
  *  the scrapbook the same way the photo cutouts do. */
 
-export type Paper = 'cream' | 'white' | 'manila' | 'yellow' | 'red' | 'blue' | 'green' | 'grey' | 'black';
+export type Paper = 'cream' | 'white' | 'manila' | 'yellow' | 'red' | 'blue' | 'green' | 'grey' | 'black' | 'brown' | 'sky';
+
+export const PAPERS: Paper[] = ['cream', 'white', 'manila', 'yellow', 'red', 'blue', 'green', 'grey', 'black', 'brown', 'sky'];
 
 /** Flat stand-ins, used only if a sheet fails to load. */
 const FLAT: Record<Paper, string> = {
   cream: '#f9f4e4', white: '#fbfaf4', manila: '#e6c78c', yellow: '#f6c430', red: '#cc302a',
-  blue: '#2b5cad', green: '#549e4d', grey: '#6b666e', black: '#242022',
+  blue: '#2b5cad', green: '#549e4d', grey: '#6b666e', black: '#242022', brown: '#805733', sky: '#9ecae6',
 };
 
 export const INK_MARKER = '#2a2320';
@@ -144,3 +146,15 @@ export function makeWord(
 }
 
 export { star };
+
+/** Stroke a line of paper: a strip rather than a filled shape. */
+export function strokePaper(c: Ctx, pts: number[], sheet: Paper, width: number): void {
+  c.beginPath();
+  c.moveTo(pts[0], pts[1]);
+  for (let i = 2; i < pts.length; i += 2) c.lineTo(pts[i], pts[i + 1]);
+  c.strokeStyle = paper(c, sheet);
+  c.lineWidth = width;
+  c.lineCap = 'round';
+  c.lineJoin = 'round';
+  c.stroke();
+}

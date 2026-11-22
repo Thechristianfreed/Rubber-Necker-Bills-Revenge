@@ -9,7 +9,10 @@ import { ART, applyArt, img } from '../art/sticker';
  *  balloons out, so the head rockets away and the neck noodles around behind
  *  the car. The contrast between the two is the joke. */
 
-export type NeckKind = 'gawker' | 'phone' | 'dog';
+/** gawker / phone: a rubbernecker's head on a neck out of a car window.
+ *  dog: a good dog (do not hit). post: a mailbox on its post.
+ *  bystander: someone standing at the kerb (do not hit). */
+export type NeckKind = 'gawker' | 'phone' | 'dog' | 'post' | 'bystander';
 
 /** How a gawker moves their head around trying to get a better look.
  *  Amplitudes are in pixels; bigger and faster makes them harder to hit. */
@@ -53,25 +56,46 @@ export class NoodleNeck {
   private shake = 0;
   private motion: Motion;
   private tilt = 0;
+  /** Stands on the ground (a post, a person) rather than hanging out of a window. */
+  private upright: boolean;
 
   constructor(scene: Phaser.Scene, kind: NeckKind, style: number, motion: Motion = STILL) {
     this.scene = scene;
     this.kind = kind;
-    this.motion = kind === 'dog' ? STILL : motion;
     const dog = kind === 'dog';
-    this.headKey = dog ? 'dog' : `head${style}`;
-    this.dazedKey = dog ? 'dog_mad' : `head${style}_dazed`;
-    this.lean = dog ? 4 : -8 - Math.random() * 8;
+    this.upright = kind === 'post' || kind === 'bystander';
+    this.motion = dog || this.upright ? STILL : motion;
+    const person: [string, string, string] = [`head${style}`, `head${style}_dazed`, `neck${style}`];
+    const keys: Record<NeckKind, [string, string, string]> = {
+      gawker: person,
+      phone: person,
+      dog: ['dog', 'dog_mad', 'neck_dog'],
+      post: [`mailbox${style % 2}`, `mailbox${style % 2}_hit`, 'neck_post'],
+      bystander: ['mailman', 'mailman_mad', 'neck0'],
+    };
+    const [headKey, dazedKey, neckKey] = keys[kind];
+    this.headKey = headKey;
+    this.dazedKey = dazedKey;
+    this.lean = dog ? 4 : this.upright ? 0 : -8 - Math.random() * 8;
     for (let i = 0; i < N; i++) this.pts.push({ x: 0, y: 0, vx: 0, vy: 0 });
     const count = (N - 1) * SUB + 1;
     const line = () => Array.from({ length: count }, (_, i) => new Phaser.Math.Vector2(i * 4, 0));
     // the neck is a strip of paper, so like every cutout it casts a shadow on the page
     this.shadow = scene.add.rope(2.4, 3.6, 'neck_shadow', undefined, line());
     this.shadow.setScale(1 / TEX).setDepth(DEPTH.necks - 1);
-    const neckKey = dog ? 'neck_dog' : `neck${style}`;
     this.rope = scene.add.rope(0, 0, scene.textures.exists(neckKey) ? neckKey : 'neck0', undefined, line());
     this.rope.setScale(1 / TEX).setDepth(DEPTH.necks);
     this.head = img(scene, 0, 0, this.headKey).setDepth(DEPTH.heads);
+    if (kind === 'bystander') {
+      // a whole figure standing on its own feet: there is no neck to draw
+      this.rope.setVisible(false);
+      this.shadow.setVisible(false);
+    }
+  }
+
+  /** Must not be hit: hitting one costs Bill instead. */
+  get innocent(): boolean {
+    return this.kind === 'dog' || this.kind === 'bystander';
   }
 
   /** Follow the car window at (ax, ay); `carVx` is the car's screen velocity. */
@@ -92,6 +116,21 @@ export class NoodleNeck {
   /** The gawking pose: head poking out of the window on a short, ordinary neck,
    *  leaning and bobbing for a better look if this gawker is the restless kind. */
   private pose(ax: number, ay: number): void {
+    if (this.upright) {
+      // A mailbox sits with its middle on the strike line, on a straight post;
+      // a bystander just stands where he is.
+      const a = ART[this.headKey];
+      const shake = this.shake > 0 ? Math.sin(this.t * 70) * 4 : 0;
+      const by = this.kind === 'post' ? LANE.headY + (a.ay - a.h / 2) : ay;
+      for (let i = 0; i < N; i++) {
+        const t = i / (N - 1);
+        this.pts[i].x = ax + shake * t;
+        this.pts[i].y = ay + (by - ay) * t;
+      }
+      this.tilt = this.kind === 'bystander' ? Math.sin(this.t * 2 + this.phase) * 0.03 : 0;
+      if (this.shake > 0) this.shake -= 1 / 60;
+      return;
+    }
     const m = this.motion;
     const w = this.t * m.speed;
     const leanX = Math.sin(w * 5.2 + this.phase) * m.x;
@@ -119,8 +158,8 @@ export class NoodleNeck {
   whack(power: number, carVx: number): void {
     if (this.whacked) return;
     this.whacked = true;
-    if (this.kind === 'dog') {
-      // Dogs are innocent: no noodle, just one offended pooch.
+    if (this.innocent) {
+      // Innocents do not noodle: just one offended pooch, or one furious mailman.
       applyArt(this.head, this.dazedKey);
       this.shake = 0.5;
       return;
@@ -133,6 +172,11 @@ export class NoodleNeck {
     this.restLen = len;
     // however short the neck was, it stretches to the same impossible length
     this.targetLen = 330 + power * 150 + Math.random() * 110;
+    if (this.kind === 'post') {
+      // a mailbox post goes rubbery too, but stays planted in the ground
+      this.targetLen = 200 + power * 90 + Math.random() * 70;
+      this.floorY = Math.max(this.floorY, this.pts[0].y + 3);
+    }
     const ivx = (560 + Math.random() * 200) * (0.75 + power * 0.3);
     const ivy = -(430 + Math.random() * 180) * (0.75 + power * 0.3);
     for (let i = 0; i < N; i++) {
@@ -141,12 +185,14 @@ export class NoodleNeck {
       this.pts[i].vy = ivy * k;
     }
     applyArt(this.head, this.dazedKey);
-    this.head.setDepth(DEPTH.fx + 2);
-    this.rope.setDepth(DEPTH.fx + 1);
-    this.shadow.setDepth(DEPTH.fx);
+    // a noodling neck and its head lie over the traffic and the median, but
+    // always underneath Bill and whatever he is riding
+    this.shadow.setDepth(DEPTH.noodle);
+    this.rope.setDepth(DEPTH.noodle + 0.3);
+    this.head.setDepth(DEPTH.noodle + 0.6);
     this.birds = this.scene.textures.exists('bird_up') && Math.random() < 0.4;
-    for (let i = 0; i < 3; i++) {
-      const star = img(this.scene, 0, 0, this.birds ? 'bird_up' : 'star').setDepth(DEPTH.fx + 3);
+    for (let i = 0; i < (this.kind === 'post' ? 0 : 3); i++) {
+      const star = img(this.scene, 0, 0, this.birds ? 'bird_up' : 'star').setDepth(DEPTH.noodle + 0.8);
       this.stars.push(this.birds ? star : star.setScale(star.scale * 0.72));
     }
   }
@@ -252,7 +298,7 @@ export class NoodleNeck {
     }
     this.head.setPosition(end.x, end.y).setRotation(rot);
     const a = ART[this.head.texture.key];
-    const up = this.kind === 'dog' ? a.ay - a.h / 2 : HEAD_R;
+    const up = this.kind === 'gawker' || this.kind === 'phone' ? HEAD_R : a.ay - a.h / 2;
     this.headX = end.x + Math.sin(rot) * up + (this.kind === 'dog' ? -10 : 0);
     this.headY = end.y - Math.cos(rot) * up;
 

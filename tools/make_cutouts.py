@@ -372,6 +372,8 @@ def papers():
         "blue": ((0.17, 0.36, 0.68), rough, 1.5),
         "green": ((0.33, 0.62, 0.30), rough, 1.5),
         "grey": ((0.42, 0.40, 0.43), rough, 1.5),
+        "brown": ((0.50, 0.34, 0.20), rough, 1.6),
+        "sky": ((0.62, 0.79, 0.90), smooth, 1.4),
         "black": ((0.14, 0.12, 0.13), rough, 2.2),
     }
     os.makedirs(OUT, exist_ok=True)

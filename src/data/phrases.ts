@@ -28,6 +28,19 @@ export const PHRASES = {
   dog: [
     { text: 'Sorry, pooch!' },
   ] as Phrase[],
+  /** Level 1, the street. */
+  mailman: [
+    { text: 'Sorry, mister!' },
+  ] as Phrase[],
+  comboStreet: [
+    { text: 'SPECIAL DELIVERY!' },
+    { text: 'RETURN TO SENDER!' },
+    { text: 'AIR MAIL!' },
+  ] as Phrase[],
+  rageStreet: [
+    { text: 'OH PISS UP A ROPE!', real: true },
+    { text: 'SPECIAL DELIVERY!' },
+  ] as Phrase[],
 };
 
 export function pick<T>(list: T[]): T {

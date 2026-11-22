@@ -4,7 +4,10 @@ A side-scrolling Android game. Bill hangs out of his avocado-green '59 Bug with
 a baseball bat and whacks the rubberneckers who are jamming up the other side of
 the highway. Their necks stretch like rubber and noodle around behind them.
 
-This is an early playable prototype: one level, placeholder audio.
+This is an early playable prototype with placeholder audio and two levels:
+
+1. **Mailbox Baseball** (the sixties): Bill as a kid on a Schwinn Stingray, whacking mailboxes with a rolled-up newspaper. Its art is cut-paper stand-ins for now.
+2. **Highway Jam** (the Bug years): the avocado Bug, the baseball bat, and a highway full of rubberneckers.
 
 ## Play it
 
@@ -21,7 +24,7 @@ Open the printed address on a phone held sideways, or on a computer.
 | Duck | hold the DUCK button | Down arrow or S |
 | Road Rage special | RAGE button when the ring is full | R or Enter |
 
-Add `?auto` to the address to watch the game play itself (`?auto=clumsy` plays badly).
+Add `?auto` to the address to watch the game play itself (`?auto=clumsy` plays badly), and `&level=street` or `&level=highway` to pick the level.
 
 ## Build
 
@@ -54,8 +57,10 @@ Converts that single file into a page fragment for hosts that add their own page
   paper. The remaining image prompts are in `docs/art-prompts.md`.
 - **Audio:** synthesised placeholders in `src/audio/sound.ts`, to be replaced by
   family recordings.
-- **Tuning:** speeds, timing windows and scoring live in `src/config.ts`; the
-  level script is `src/data/levels.ts`; Bill's lines are `src/data/phrases.ts`.
+- **Tuning:** timing windows and scoring live in `src/config.ts`; the level
+  scripts are in `src/data/levels.ts`; Bill's lines are `src/data/phrases.ts`;
+  how Bill is assembled in each level (car or bike) is `RIGS` in
+  `src/objects/Bill.ts`.
 - **Ideas backlog:** `docs/level-ideas.md`.
 
 Photo cutouts live in `src/assets/scrap` and are listed in `src/art/photos.ts`,

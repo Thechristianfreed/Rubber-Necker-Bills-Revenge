@@ -28,23 +28,21 @@ export const LANE = {
 };
 
 export const SPEED = {
-  /** How fast the world slides past Bill (px/s). */
-  world: 360,
   /** Extra closing speed from the rubberneckers crawling the other way. */
   crawl: 46,
+};
+
+/** Level 1, the street. */
+export const STREET = {
+  /** Where mailboxes and people stand, at the edge of the far pavement. */
+  kerbY: 340,
+  /** Wheel line of Bill's bike. */
+  bikeBase: 486,
 };
 
 export const BILL = {
   /** Bill's car sits this fraction of the way across the screen. */
   xFrac: 0.29,
-  /** Sweet spot of the swing, relative to Bill's x: where the bat's barrel ends up. */
-  sweetDX: 96,
-  /** Height of Bill's chin when he is sitting up out of the window. */
-  chinY: 308,
-  /** How far he drops when he ducks back into the car. */
-  duckDepth: 165,
-  /** Nothing of his body is drawn below this height: it is behind the car door. */
-  hideY: 478,
   maxHearts: 3,
 };
 
@@ -74,6 +72,6 @@ export const SCORE = {
 };
 
 export const DEPTH = {
-  sky: 0, far: 5, road: 10, farCars: 20, necks: 30, heads: 32, median: 36,
+  sky: 0, far: 5, road: 10, farCars: 20, necks: 30, heads: 32, median: 36, noodle: 37.6,
   billBack: 40, billCar: 44, fx: 60, fore: 70, hud: 100, overlay: 200,
 };

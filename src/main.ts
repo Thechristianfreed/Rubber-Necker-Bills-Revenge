@@ -3,6 +3,7 @@ import { H, MAX_W, MIN_W, view } from './config';
 import { sound } from './audio/sound';
 import { BootScene } from './scenes/BootScene';
 import { GameScene } from './scenes/GameScene';
+import { LevelSelectScene } from './scenes/LevelSelectScene';
 import { TitleScene } from './scenes/TitleScene';
 
 const stage = document.getElementById('game') as HTMLElement;
@@ -34,7 +35,7 @@ const game = new Phaser.Game({
   // with an exact float compare, which leaves holes in rotated sprites on some
   // GPUs. The game draws few enough sprites that the extra draw calls are free.
   render: { antialias: true, maxTextures: 1 },
-  scene: [BootScene, TitleScene, GameScene],
+  scene: [BootScene, TitleScene, LevelSelectScene, GameScene],
 });
 
 (window as unknown as { __game: Phaser.Game }).__game = game;

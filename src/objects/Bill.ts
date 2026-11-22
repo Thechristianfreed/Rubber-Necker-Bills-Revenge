@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
-import { BILL, DEPTH, HEAD_SRC_H, LANE, SWING, TEX } from '../config';
+import { DEPTH, HEAD_SRC_H, LANE, STREET, SWING, TEX } from '../config';
 import { ART, applyArt, img } from '../art/sticker';
+import type { Theme } from '../data/levels';
 
 /** Bill: his photo head on a photographed body, sitting up out of the far
  *  window of his avocado Bug with a baseball bat.
@@ -25,6 +26,52 @@ const POSES: Record<Pose, { dx: number; dy: number; tilt: number; headTilt: numb
   swing: { dx: 3, dy: 1, tilt: 0.05, headTilt: 0.06 },
 };
 
+/** How Bill is put together in a level: which body frames he uses, what he
+ *  rides, and where everything sits. */
+export interface BillRig {
+  /** Texture keys of the three body frames. */
+  frames: Record<Pose, string>;
+  /** Where the frames hang from (his chin): offset from Bill's x, and height. */
+  chinDX: number;
+  chinY: number;
+  /** What he rides, where its wheels touch the road, and whether it is drawn
+   *  in front of him (a car he leans out of) or behind (a bike he sits on). */
+  ride: { key: string; baseY: number; inFront: boolean };
+  /** How far he drops when he ducks. */
+  duckDepth: number;
+  /** Nothing of his body is drawn below this height. */
+  hideY: number;
+  /** Where the swing lands, relative to Bill's x. */
+  sweetDX: number;
+  /** Where the dust kicks up, relative to Bill's x, and its height. */
+  dust: [number, number];
+}
+
+export const RIGS: Record<Theme, BillRig> = {
+  // sitting up out of the far window of the Bug, baseball bat in hand
+  highway: {
+    frames: { rest: 'bill_rest', windup: 'bill_windup', swing: 'bill_swing' },
+    chinDX: -6,
+    chinY: 308,
+    ride: { key: 'bug', baseY: LANE.billBase, inFront: true },
+    duckDepth: 165,
+    hideY: 478,
+    sweetDX: 96,
+    dust: [-112, LANE.billBase - 6],
+  },
+  // on the Stingray (stand-in: the same body, smaller, on a paper bike)
+  street: {
+    frames: { rest: 'kid_rest', windup: 'kid_windup', swing: 'kid_swing' },
+    chinDX: -14,
+    chinY: 297,
+    ride: { key: 'bike', baseY: STREET.bikeBase, inFront: false },
+    duckDepth: 70,
+    hideY: 403,
+    sweetDX: 60,
+    dust: [-92, STREET.bikeBase - 4],
+  },
+};
+
 export class Bill {
   x: number;
   /** 0 = sitting up out of the window, 1 = fully ducked into the car. */
@@ -35,6 +82,7 @@ export class Bill {
   rageCharge = 0;
   invulnerable = false;
 
+  private rig: BillRig;
   private car: Phaser.GameObjects.Image;
   private body?: Phaser.GameObjects.Image;
   private head: Phaser.GameObjects.Image;
@@ -49,11 +97,12 @@ export class Bill {
   private snap = 0;
   private stars: Phaser.GameObjects.Image[] = [];
 
-  constructor(scene: Phaser.Scene, x: number) {
+  constructor(scene: Phaser.Scene, x: number, rig: BillRig) {
     this.x = x;
-    if (scene.textures.exists('bill_rest')) this.body = img(scene, x, 0, 'bill_rest').setDepth(DEPTH.billBack);
+    this.rig = rig;
+    if (scene.textures.exists(rig.frames.rest)) this.body = img(scene, x, 0, rig.frames.rest).setDepth(DEPTH.billBack);
     this.head = scene.add.image(x, 0, 'bill-sideeye').setDepth(DEPTH.billBack + 2);
-    this.car = img(scene, x, LANE.billBase, 'bug').setDepth(DEPTH.billCar);
+    this.car = img(scene, x, rig.ride.baseY, rig.ride.key).setDepth(rig.ride.inFront ? DEPTH.billCar : DEPTH.billBack - 0.6);
     for (let i = 0; i < 3; i++) {
       this.stars.push(img(scene, 0, 0, 'star').setDepth(DEPTH.billCar + 1).setScale(0.36).setVisible(false));
     }
@@ -62,7 +111,7 @@ export class Bill {
   }
 
   get sweetX(): number {
-    return this.x + BILL.sweetDX;
+    return this.x + this.rig.sweetDX;
   }
 
   /** Can a sign smack him right now? */
@@ -134,7 +183,7 @@ export class Bill {
     if (pose !== this.pose) {
       this.pose = pose;
       this.snap = 0.07;
-      if (this.body) applyArt(this.body, `bill_${pose}`);
+      if (this.body) applyArt(this.body, this.rig.frames[pose]);
     }
     if (this.snap > 0) this.snap -= dt;
 
@@ -142,18 +191,19 @@ export class Bill {
     const bounce = Math.sin(this.t * 21) * 0.9;
     const shake = this.stun > 0 ? Math.sin(this.t * 55) * 4 : this.rageCharge > 0 ? Math.sin(this.t * 60) * 2 : 0;
     // ducking drops him down behind the car, as if he pulled himself back inside
-    const chinX = this.x - 6 + shake;
-    const chinY = BILL.chinY + bounce + this.duck * BILL.duckDepth;
+    const rig = this.rig;
+    const chinX = this.x + rig.chinDX + shake;
+    const chinY = rig.chinY + bounce + this.duck * rig.duckDepth;
     const tilt = p.tilt - (this.rageCharge > 0 ? 0.1 * this.rageCharge : 0);
     const pop = this.snap > 0 ? 1 + (this.snap / 0.07) * 0.05 : 1;
 
-    this.car.setPosition(this.x, LANE.billBase + bounce);
+    this.car.setPosition(this.x, rig.ride.baseY + bounce);
     if (this.body) {
       this.body.setPosition(chinX, chinY).setRotation(tilt);
       this.body.setScale(Math.abs(this.body.scaleX), Math.abs(this.body.scaleX) * pop);
-      // the car hides him from the door down, however far he has ducked
-      const a = ART[`bill_${pose}`];
-      this.body.setCrop(0, 0, this.body.frame.width, Math.max(0, (a.pad + a.ay + BILL.hideY - chinY) * TEX));
+      // his ride hides him from the door (or the saddle) down, however far he has ducked
+      const a = ART[rig.frames[pose]];
+      this.body.setCrop(0, 0, this.body.frame.width, Math.max(0, (a.pad + a.ay + rig.hideY - chinY) * TEX));
     }
     this.head
       .setPosition(chinX + p.dx, chinY + p.dy - HEAD_H / 2 + NECK_OVERLAP + Math.sin(this.t * 7) * 1.1)
@@ -169,6 +219,11 @@ export class Bill {
 
   get headTop(): { x: number; y: number } {
     return { x: this.head.x, y: this.head.y - HEAD_H / 2 };
+  }
+
+  /** Where the dust kicks up behind his wheels. */
+  get dustAt(): { x: number; y: number } {
+    return { x: this.x + this.rig.dust[0], y: this.rig.dust[1] };
   }
 
   setX(x: number): void {

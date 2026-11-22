@@ -85,7 +85,7 @@ export class TitleScene extends Phaser.Scene {
           void o?.lock?.('landscape')?.catch(() => undefined);
         } catch { /* not allowed here (e.g. inside an embedded frame): play windowed */ }
       }
-      this.scene.start('game');
+      this.scene.start('levels');
     };
     this.input.once('pointerdown', start);
     this.input.keyboard?.once('keydown-SPACE', start);

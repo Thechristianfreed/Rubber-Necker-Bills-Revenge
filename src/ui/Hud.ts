@@ -30,16 +30,19 @@ export class Hud {
   private ragePulse?: Phaser.Tweens.Tween;
   private jam = { done: 0, missed: 0, total: 1 };
   private rageFrac = 0;
+  private meterLabel: string;
 
-  constructor(scene: Phaser.Scene) {
+  /** `meterLabel` is what this level calls its progress bar. */
+  constructor(scene: Phaser.Scene, meterLabel: string) {
     this.scene = scene;
+    this.meterLabel = meterLabel;
     const d = DEPTH.hud;
     for (let i = 0; i < BILL.maxHearts; i++) this.hearts.push(img(scene, 0, 0, 'heart').setDepth(d));
     this.tag = img(scene, 0, 0, 'tag').setDepth(d).setRotation(-0.04);
     this.cash = written(scene, 0, 0, '$0', 21, '#2f6b2b').setOrigin(0, 0.5).setDepth(d + 1).setRotation(-0.04);
 
     this.jamTape = img(scene, 0, 0, 'tape_m').setDepth(d).setRotation(-0.025);
-    this.jamLabel = written(scene, 0, 0, 'JAM CLEARED  0/0', 15).setDepth(d + 1).setRotation(-0.025);
+    this.jamLabel = written(scene, 0, 0, `${meterLabel}  0/0`, 15).setDepth(d + 1).setRotation(-0.025);
     this.meter = img(scene, 0, 0, 'meter').setDepth(d);
     const strip = (key: string) => scene.add.tileSprite(0, 0, 4, ART[key].h * TEX, key).setOrigin(0, 0.5).setScale(1 / TEX).setDepth(d + 1);
     this.green = strip('meter_green');
@@ -100,7 +103,7 @@ export class Hud {
 
   setJam(done: number, missed: number, total: number): void {
     this.jam = { done, missed, total };
-    this.jamLabel.setText(`JAM CLEARED  ${done}/${total}`);
+    this.jamLabel.setText(`${this.meterLabel}  ${done}/${total}`);
     this.drawBar();
   }
 
