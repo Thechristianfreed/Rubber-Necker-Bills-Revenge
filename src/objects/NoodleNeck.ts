@@ -30,7 +30,9 @@ export class NoodleNeck {
   private scene: Phaser.Scene;
   private pts: Pt[] = [];
   private rope: Phaser.GameObjects.Rope;
+  private shadow: Phaser.GameObjects.Rope;
   private head: Phaser.GameObjects.Image;
+  private lump?: Phaser.GameObjects.Image;
   private headKey: string;
   private dazedKey: string;
   private phase = Math.random() * Math.PI * 2;
@@ -51,9 +53,13 @@ export class NoodleNeck {
     this.dazedKey = dog ? 'dog_mad' : `head${style}_dazed`;
     this.lean = dog ? 6 : -12 - Math.random() * 10;
     for (let i = 0; i < N; i++) this.pts.push({ x: 0, y: 0, vx: 0, vy: 0 });
-    const ropePts: Phaser.Math.Vector2[] = [];
-    for (let i = 0; i < (N - 1) * SUB + 1; i++) ropePts.push(new Phaser.Math.Vector2(i * 4, 0));
-    this.rope = scene.add.rope(0, 0, dog ? 'neck_dog' : `neck${style % 5}`, undefined, ropePts);
+    const count = (N - 1) * SUB + 1;
+    const line = () => Array.from({ length: count }, (_, i) => new Phaser.Math.Vector2(i * 4, 0));
+    // the neck is a strip of paper, so like every cutout it casts a shadow on the page
+    this.shadow = scene.add.rope(2.4, 3.6, 'neck_shadow', undefined, line());
+    this.shadow.setScale(1 / TEX).setDepth(DEPTH.necks - 1);
+    const neckKey = dog ? 'neck_dog' : `neck${style}`;
+    this.rope = scene.add.rope(0, 0, scene.textures.exists(neckKey) ? neckKey : 'neck0', undefined, line());
     this.rope.setScale(1 / TEX).setDepth(DEPTH.necks);
     this.head = img(scene, 0, 0, this.headKey).setDepth(DEPTH.heads);
   }
@@ -107,7 +113,7 @@ export class NoodleNeck {
     let len = 0;
     for (let i = 1; i < N; i++) len += Math.hypot(this.pts[i].x - this.pts[i - 1].x, this.pts[i].y - this.pts[i - 1].y);
     this.restLen = len;
-    this.targetLen = len * (4.2 + power * 1.8 + Math.random() * 1.2);
+    this.targetLen = len * (3.7 + power * 1.6 + Math.random() * 1.1);
     const ivx = (560 + Math.random() * 200) * (0.75 + power * 0.3);
     const ivy = -(430 + Math.random() * 180) * (0.75 + power * 0.3);
     for (let i = 0; i < N; i++) {
@@ -118,6 +124,8 @@ export class NoodleNeck {
     applyArt(this.head, this.dazedKey);
     this.head.setDepth(DEPTH.fx + 2);
     this.rope.setDepth(DEPTH.fx + 1);
+    this.shadow.setDepth(DEPTH.fx);
+    this.lump = img(this.scene, 0, 0, 'lump').setDepth(DEPTH.fx + 3).setScale(0);
     for (let i = 0; i < 3; i++) {
       this.stars.push(img(this.scene, 0, 0, 'star').setDepth(DEPTH.fx + 3).setScale(0.36));
     }
@@ -196,6 +204,7 @@ export class NoodleNeck {
   private draw(): void {
     const p = this.pts;
     const rp = this.rope.points as Phaser.Math.Vector2[];
+    const sp = this.shadow.points as Phaser.Math.Vector2[];
     let k = 0;
     for (let i = 0; i < N - 1; i++) {
       const p0 = p[Math.max(0, i - 1)], p1 = p[i], p2 = p[i + 1], p3 = p[Math.min(N - 1, i + 2)];
@@ -203,12 +212,15 @@ export class NoodleNeck {
         const t = j / SUB, t2 = t * t, t3 = t2 * t;
         const x = 0.5 * (2 * p1.x + (-p0.x + p2.x) * t + (2 * p0.x - 5 * p1.x + 4 * p2.x - p3.x) * t2 + (-p0.x + 3 * p1.x - 3 * p2.x + p3.x) * t3);
         const y = 0.5 * (2 * p1.y + (-p0.y + p2.y) * t + (2 * p0.y - 5 * p1.y + 4 * p2.y - p3.y) * t2 + (-p0.y + 3 * p1.y - 3 * p2.y + p3.y) * t3);
+        sp[k].set(x * TEX, y * TEX);
         rp[k++].set(x * TEX, y * TEX);
       }
     }
     const end = p[N - 1], prev = p[N - 3];
+    sp[k].set(end.x * TEX, end.y * TEX);
     rp[k].set(end.x * TEX, end.y * TEX);
     this.rope.setDirty();
+    this.shadow.setDirty();
 
     let rot: number;
     if (this.kind === 'dog') {
@@ -222,6 +234,18 @@ export class NoodleNeck {
     const up = this.kind === 'dog' ? a.ay - a.h / 2 : HEAD_R;
     this.headX = end.x + Math.sin(rot) * up + (this.kind === 'dog' ? -10 : 0);
     this.headY = end.y - Math.cos(rot) * up;
+
+    if (this.lump) {
+      // the lump swells out of the top of the head with a springy overshoot, then throbs
+      const top = a.ay - a.h * 0.07;
+      const k = Math.min(1, this.t / 0.32) - 1;
+      const grow = 1 + 2.6 * k * k * k + 1.6 * k * k;
+      const size = (a.h * 0.5) / ART.lump.w;
+      this.lump
+        .setPosition(end.x + Math.sin(rot) * top, end.y - Math.cos(rot) * top)
+        .setRotation(rot)
+        .setScale((size * grow * (1 + Math.sin(this.t * 13) * 0.05)) / TEX);
+    }
 
     if (this.stars.length) {
       const life = 1.9;
@@ -245,7 +269,9 @@ export class NoodleNeck {
 
   destroy(): void {
     this.rope.destroy();
+    this.shadow.destroy();
     this.head.destroy();
+    this.lump?.destroy();
     this.stars.forEach((s) => s.destroy());
   }
 }

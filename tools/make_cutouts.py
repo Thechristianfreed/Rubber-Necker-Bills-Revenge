@@ -136,10 +136,14 @@ def dark_glass(rgba):
 
 
 def repaint(rgba, hue, sat_mul, val_mul=1.0):
-    """Respray a vehicle: move its paint to a new hue. Tyres, chrome and glass
-    (dark or near-neutral pixels) are left alone."""
+    """Respray a vehicle: move its body colour to a new hue. Only pixels close
+    to the dominant paint hue change, so tyres, chrome, glass, lamps and wood
+    trim are left alone."""
     h = hsv(rgba)
-    paint = (h[..., 1] > 0.08) & (h[..., 2] > 0.3)
+    paint = (h[..., 1] > 0.08) & (h[..., 2] > 0.3) & (rgba[..., 3] > 0.5)
+    body = np.median(h[..., 0][paint])
+    away = np.abs(((h[..., 0] - body + 180) % 360) - 180)
+    paint &= away < 30
     h[..., 0] = np.where(paint, hue, h[..., 0])
     h[..., 1] = np.where(paint, np.clip(h[..., 1] * sat_mul, 0, 1), h[..., 1])
     h[..., 2] = np.where(paint, np.clip(h[..., 2] * val_mul, 0, 1), h[..., 2])
@@ -162,10 +166,23 @@ def vehicles():
     van, windows = dark_glass(sheet[1][2])
     fractions("van", van, windows)
     save("van-blue.png", richer(van, 1.5))
-    save("van-red.png", repaint(van, 4, 3.4, 0.9))
-    save("van-mustard.png", repaint(van, 43, 3.6, 0.98))
     save("van-green.png", repaint(van, 128, 2.2, 0.86))
-    save("van-teal.png", repaint(van, 172, 2.6, 0.92))
+
+
+def cars():
+    sheet = sorted(pieces(load("B-cars-cutout.png")), key=lambda p: p[1])
+    sedan, windows = dark_glass(sheet[0][2])
+    fractions("sedan", sedan, windows)
+    save("sedan-red.png", sedan)
+    save("sedan-blue.png", repaint(sedan, 214, 0.78, 0.86))
+    save("sedan-green.png", repaint(sedan, 150, 0.62, 0.74))
+    wagon, windows = dark_glass(sheet[1][2])
+    fractions("wagon", wagon, windows)
+    save("wagon.png", wagon)
+    pickup, windows = dark_glass(sheet[2][2])
+    fractions("pickup", pickup, windows)
+    save("pickup-mustard.png", pickup)
+    save("pickup-blue.png", repaint(pickup, 200, 0.62, 0.9))
 
 
 def heads():
@@ -219,6 +236,7 @@ def postcard():
 if __name__ == "__main__":
     bug()
     vehicles()
+    cars()
     heads()
     dogs()
     props()

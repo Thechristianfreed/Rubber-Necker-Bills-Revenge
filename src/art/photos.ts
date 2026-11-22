@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { INK } from '../config';
 import { Ctx, PhotoOpts, makeArt, makePhotoArt, makePhotoTile, star } from './sticker';
-import { ARM_TONES, VEHICLES, VehicleSpec, setHeadStyles } from './textures';
+import { ARM_TONES, VEHICLES, VehicleSpec, makeNeck, setHeadStyles } from './textures';
 
 /** Photo cutouts that replace drawn art. Each piece takes over the texture key
  *  of the drawing it replaces, so nothing else in the game has to change.
@@ -76,15 +76,39 @@ interface PhotoVehicle {
 }
 
 const VAN_WINDOW: [number, number][] = [[0.361, 0.3]];
+const SEDAN_WINDOW: [number, number][] = [[0.455, 0.285]];
+const PICKUP_WINDOW: [number, number][] = [[0.426, 0.262]];
 const PHOTO_VEHICLES: PhotoVehicle[] = [
+  { pool: 'sedan', key: 'sedan_red', file: 'sedan-red.png', w: 236, windows: SEDAN_WINDOW },
+  { pool: 'sedan', key: 'sedan_blue', file: 'sedan-blue.png', w: 236, windows: SEDAN_WINDOW },
+  { pool: 'sedan', key: 'sedan_green', file: 'sedan-green.png', w: 236, windows: SEDAN_WINDOW },
+  { pool: 'pickup', key: 'pickup_mustard', file: 'pickup-mustard.png', w: 232, windows: PICKUP_WINDOW },
+  { pool: 'pickup', key: 'pickup_blue', file: 'pickup-blue.png', w: 232, windows: PICKUP_WINDOW },
   { pool: 'van', key: 'van_blue', file: 'van-blue.png', w: 218, windows: VAN_WINDOW },
-  { pool: 'van', key: 'van_red', file: 'van-red.png', w: 218, windows: VAN_WINDOW },
-  { pool: 'van', key: 'van_mustard', file: 'van-mustard.png', w: 218, windows: VAN_WINDOW },
   { pool: 'van', key: 'van_green', file: 'van-green.png', w: 218, windows: VAN_WINDOW },
-  // the dog's ride, until the station wagon arrives
-  { pool: 'wagon', key: 'van_teal', file: 'van-teal.png', w: 218, windows: VAN_WINDOW },
+  // the dog rides in the back of the wagon
+  { pool: 'wagon', key: 'wagon_photo', file: 'wagon.png', w: 240, windows: [[0.755, 0.3]] },
   { pool: 'bus', key: 'bus_photo', file: 'bus.png', w: 404, windows: [[0.287, 0.38], [0.46, 0.38], [0.63, 0.38], [0.75, 0.38]] },
 ];
+
+/** Average colour of the middle of a cutout: the skin (or fur) its neck should match. */
+function tone(image: HTMLImageElement, x0: number, y0: number, x1: number, y1: number): string {
+  const size = 48;
+  const canvas = document.createElement('canvas');
+  canvas.width = canvas.height = size;
+  const c = canvas.getContext('2d', { willReadFrequently: true })!;
+  c.drawImage(image, 0, 0, size, size);
+  const d = c.getImageData(Math.round(x0 * size), Math.round(y0 * size), Math.round((x1 - x0) * size), Math.round((y1 - y0) * size)).data;
+  let r = 0, g = 0, b = 0, n = 0;
+  for (let i = 0; i < d.length; i += 4) {
+    if (d[i + 3] < 250) continue;
+    r += d[i]; g += d[i + 1]; b += d[i + 2]; n++;
+  }
+  if (!n) return '#e0b08c';
+  // lift it a little: the average of a face is darker than the skin reads
+  const hex = (v: number) => Math.round(v / n + (255 - v / n) * 0.12).toString(16).padStart(2, '0');
+  return `#${hex(r)}${hex(g)}${hex(b)}`;
+}
 
 function loadImage(src: string | undefined): Promise<HTMLImageElement | null> {
   return new Promise((resolve) => {
@@ -110,14 +134,20 @@ export async function loadPhotoArt(scene: Phaser.Scene): Promise<void> {
     if (im) makePhotoArt(scene, p.key, im, p);
   }
 
-  // photo heads: every style present replaces a drawn one, and only those are used
+  // photo heads: every style present replaces a drawn one, and only those are used.
+  // Each gets a neck cut from paper the colour of its own skin.
   let heads = 0;
   while (loaded.has(`head${heads}.png`) && loaded.has(`head${heads}-dazed.png`)) heads++;
   if (heads > 0) {
     setHeadStyles(heads);
     ARM_TONES.length = 0;
-    for (let i = 0; i < heads; i++) ARM_TONES.push(0);
+    for (let i = 0; i < heads; i++) {
+      ARM_TONES.push(0);
+      makeNeck(scene, `neck${i}`, tone(loaded.get(`head${i}.png`)!, 0.36, 0.5, 0.64, 0.8));
+    }
   }
+  const dog = loaded.get('dog.png');
+  if (dog) makeNeck(scene, 'neck_dog', tone(dog, 0.45, 0.45, 0.75, 0.8));
 
   // photo vehicles take over whole pools, so drawn and photo cars never mix
   const pools = new Map<keyof typeof VEHICLES, VehicleSpec[]>();
@@ -133,31 +163,28 @@ export async function loadPhotoArt(scene: Phaser.Scene): Promise<void> {
     pools.set(v.pool, [...(pools.get(v.pool) ?? []), spec]);
   }
   for (const [pool, specs] of pools) VEHICLES[pool] = specs;
-  if (pools.has('van')) {
-    VEHICLES.sedan = [];
-    VEHICLES.pickup = [];
-  }
 
   const postcard = loaded.get('postcard.jpg');
   if (postcard) makePhotoTile(scene, 'postcard', postcard, 216);
 
-  // the wreck, staged from two of the photo vans
-  const a = loaded.get('van-red.png'), b = loaded.get('van-blue.png');
-  if (a && b) {
-    const vw = 218, vh = (vw * a.naturalHeight) / a.naturalWidth;
-    makeArt(scene, 'wreck', 400, 170, (c) => {
+  // the wreck everyone is staring at: the van has rear-ended the red sedan
+  const front = loaded.get('sedan-red.png'), back = loaded.get('van-blue.png');
+  if (front && back) {
+    const fw = 236, fh = (fw * front.naturalHeight) / front.naturalWidth;
+    const bw = 218, bh = (bw * back.naturalHeight) / back.naturalWidth;
+    makeArt(scene, 'wreck', 420, 176, (c) => {
       c.save();
-      c.translate(176, 34);
-      c.rotate(-0.17);
-      c.drawImage(b, 0, 0, vw, vh);
+      c.translate(196, 26);
+      c.rotate(-0.15);
+      c.drawImage(back, 0, 0, bw, bh);
       c.restore();
-      c.drawImage(a, 6, 170 - vh - 2, vw, vh);
-      star(c, 214, 110, 20, 9, 8);
+      c.drawImage(front, 6, 176 - fh - 2, fw, fh);
+      star(c, 232, 118, 20, 9, 8);
       c.fillStyle = '#ffd94a';
       c.fill();
       c.lineWidth = 2;
       c.strokeStyle = INK;
       c.stroke();
-    }, { border: 2.5, ax: 200, ay: 168 });
+    }, { border: 2.5, ax: 210, ay: 174 });
   }
 }

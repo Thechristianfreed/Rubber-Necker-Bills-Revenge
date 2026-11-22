@@ -1,9 +1,9 @@
 # Image prompts for the scrapbook look
 
 The game is styled as Bill's scrapbook: every piece is a photo cut out with a
-white paper border and stuck on the page. The game adds the white border, the
-drop shadow, the paper grain and the print dots itself, so generated images
-should be **clean photos on a plain background with none of those baked in**.
+white paper border and a drop shadow. The game adds the border and shadow
+itself, so generated images should be **clean photos on a plain background
+with none of that baked in**.
 
 How to use these (Nano Banana in the Gemini app):
 
@@ -11,69 +11,75 @@ How to use these (Nano Banana in the Gemini app):
 - If a result is off, reply to it with the fix, e.g. "make it an exact side
   view" or "remove the necks and shoulders".
 - Download the full-size image (not a screenshot) and do not crop or edit it.
-- Send them back labelled A to G, or in that order.
+- Send them back labelled with their letter.
 
-Images A, B, D and F are enough to test the look. C, E and G replace the
-remaining drawn pieces.
+## Already in the game
 
-## A. Bill's Bug
+A (Bill's Bug), B (sedan, wagon, pickup), C (tour bus, van), D (first four
+rubberneckers), E (stand-in dog, until Lady's photo), F (landscape postcard),
+G (palm, billboard, road sign, cone). Their prompts are in the git history of
+this file.
 
-```text
-A photograph of a 1959 Volkswagen Beetle in avocado green, seen in exact side profile facing right, like a side-view photo in a vintage car brochure. The camera is level with the middle of the car and far away, so there is no perspective at all: both wheels sit on the same straight baseline and only the side of the car is visible. The whole car is in frame with a little empty margin on every side. Chrome bumpers and hubcaps, whitewall tires, windows closed, nobody inside. Soft even daylight. Slightly faded 1960s Kodachrome colour. Plain flat light-grey background: no ground, no shadow under the car, no text, no border. Wide 16:9 image.
-```
+## Still to make
 
-## B. Three rubbernecker cars
+### H. More rubberneckers (sheet 2)
 
-```text
-Three separate photographs of 1960s American vehicles in one image, stacked one above the other with clear empty space between them. Each is seen in exact side profile facing LEFT (front of the vehicle on the left), like side-view photos in a vintage car brochure: camera level with the middle of the vehicle and far away, no perspective, both wheels on a straight baseline, whole vehicle in frame.
-Top: a red four-door sedan.
-Middle: a turquoise station wagon with wood-panel sides.
-Bottom: a mustard-yellow pickup truck with an empty bed.
-On every vehicle the driver's window is rolled all the way down and the interior is dark and empty: no driver, no passengers. On the station wagon the rear side window is rolled down too. No brand badges, no licence plate text. Soft even daylight, slightly faded 1960s Kodachrome colour. Plain flat light-grey background: no ground, no shadows, no text, no borders. Square image.
-```
-
-## C. Tour bus and van
+The game now adds its own big lump to every whacked head, so the faces should
+NOT have a bump drawn on them.
 
 ```text
-Two separate photographs of 1960s vehicles in one image, stacked one above the other with clear empty space between them. Each is seen in exact side profile facing LEFT (front of the vehicle on the left), like side-view photos in a vintage brochure: camera level and far away, no perspective, wheels on a straight baseline, whole vehicle in frame.
-Top: a 1960s sightseeing tour bus, cream with a red stripe along the side. It has a row of four large passenger windows, all slid fully open, dark and empty inside.
-Bottom: a pale-blue 1960s delivery van with the driver's window rolled all the way down, dark and empty inside.
-No people anywhere. No brand badges, no lettering, no licence plate text. Soft even daylight, slightly faded 1960s Kodachrome colour. Plain flat light-grey background: no ground, no shadows, no text, no borders. Wide 16:9 image.
-```
-
-## D. Rubbernecker heads
-
-```text
-A grid of eight photographic head cutouts on a plain flat light-grey background: four columns and two rows, evenly spaced with clear gaps between them. Each column is one fictional person, and the four people look clearly different from each other, styled like ordinary people in the late 1960s: a balding middle-aged man with horn-rimmed glasses, a woman with a big bouffant hairdo, a teenage boy with a shaggy haircut, and an older lady with a silver perm and cat-eye glasses.
+A grid of eight photographic head cutouts on a plain flat light-grey background: four columns and two rows, evenly spaced with clear gaps between them. Each column is one fictional person, and the four people look clearly different from each other, styled like ordinary people in the late 1960s: a heavyset man with a crew cut and a thick moustache, a young woman with long straight blonde hair and a headband, a bald older man with bushy white eyebrows, and a woman with red hair in rollers under a headscarf.
 Top row: each person rubbernecking at a car crash. Craning forward, eyes bulging wide, eyebrows raised, mouth hanging open in a nosy "ooooh". Faces turned three-quarters toward the left, looking down and to the left.
-Bottom row: the same four people in the same order, a moment after being bonked on the head in a slapstick cartoon. Dazed and goofy: eyes crossed, tongue hanging out, hair mussed, a small pink bump on top of the head. Comedic and harmless, no blood, no injuries.
+Bottom row: the same four people in the same order, a moment after being bonked on the head in a slapstick cartoon. Dazed and goofy: eyes crossed, tongue hanging out, hair mussed. Comedic and harmless, no blood, no injuries, no bumps or lumps on the head.
 Every cutout is the HEAD ONLY, cut off cleanly just under the chin: no neck, no shoulders, no clothing. All heads the same size. They should look like real faces cut out of old family snapshots: natural daylight, slightly faded 1960s Kodachrome colour. No text, no borders, no drop shadows. Wide 16:9 image.
 ```
 
-## E. The dog
+### I. More rubberneckers (sheet 3)
 
 ```text
-Two photographic head cutouts of the same golden retriever, side by side with a clear gap, on a plain flat light-grey background.
-Left: pure joy with its head out of a car window. Eyes half closed, tongue flapping, ears blown back by the wind, facing left.
-Right: the same dog looking deeply offended. Ears flat, brow furrowed, giving the camera a dirty look.
-Head and furry neck only, no body, no collar tag text. Real photograph look, natural daylight, slightly faded 1960s Kodachrome colour. No text, no borders, no drop shadows. Wide 16:9 image.
+A grid of eight photographic head cutouts on a plain flat light-grey background: four columns and two rows, evenly spaced with clear gaps between them. Each column is one fictional person, and the four people look clearly different from each other, styled like ordinary people in the late 1960s: a man with slicked-back dark hair and long sideburns, a teenage girl with pigtails and braces, a man with a big curly afro and a goatee, and a stern older woman with her grey hair in a tight bun and a pearl necklace of which only the top edge shows.
+Top row: each person rubbernecking at a car crash. Craning forward, eyes bulging wide, eyebrows raised, mouth hanging open in a nosy "ooooh". Faces turned three-quarters toward the left, looking down and to the left.
+Bottom row: the same four people in the same order, a moment after being bonked on the head in a slapstick cartoon. Dazed and goofy: eyes crossed, tongue hanging out, hair mussed. Comedic and harmless, no blood, no injuries, no bumps or lumps on the head.
+Every cutout is the HEAD ONLY, cut off cleanly just under the chin: no neck, no shoulders, no clothing. All heads the same size. They should look like real faces cut out of old family snapshots: natural daylight, slightly faded 1960s Kodachrome colour. No text, no borders, no drop shadows. Wide 16:9 image.
 ```
 
-## F. Landscape postcard (far background)
-
-Swap "sunny coastal landscape" for wherever Bill actually grew up.
+### J. Bill's body
 
 ```text
-A vintage 1960s picture-postcard photograph of a sunny coastal landscape as seen from a highway: rolling green hills with scattered trees under a big blue sky with a few puffy white clouds. The hills fill the lower half of the picture and run evenly across the entire width, so the left and right edges look alike. No road, no cars, no people, no buildings, no text, no border. Slightly faded Kodachrome colour. Very wide panoramic image, 21:9.
+A product photograph of a men's short-sleeved Hawaiian aloha shirt in coral red with a darker red Polynesian tapa-pattern print, shown from the front as if worn by an invisible man (a "ghost mannequin" photo): the shirt is filled out by a slightly stocky body, with an open collar and the top button undone. There is no head, no neck, no arms and no hands: just the shirt with its two short sleeves empty. The shirt is cut off straight across at the waist. Soft even daylight. Plain flat light-grey background: no shadows, no text, no hanger, no border. Square image.
 ```
 
-## G. Roadside props
+### K. Bill's arm and the bat
 
 ```text
-Four separate photographic cutouts in a row with clear gaps between them, on a plain flat light-grey background. Each is complete from top to bottom and seen straight on:
-1. a tall palm tree with its whole trunk;
-2. a 1960s roadside billboard on wooden posts, its face completely blank and cream-coloured;
-3. a yellow diamond-shaped road warning sign on a metal post, its face completely blank;
-4. an orange traffic cone with a white stripe.
-Real photograph look, soft even daylight, slightly faded 1960s Kodachrome colour. No text or lettering anywhere, no ground, no shadows, no borders. Wide 16:9 image.
+A photograph of a tanned older man's right arm raised straight up, his fist gripping the handle of a wooden baseball bat that points straight up. The picture is tall and narrow and shows only this, from bottom to top: the end of a short coral-red Hawaiian shirt sleeve, his bare forearm, his hand gripping the bat handle, and the whole bat above it standing perfectly vertical. No body, no shoulder, no head, no second hand. Seen from the side. Natural daylight. Plain flat light-grey background: no shadows, no text, no border. Tall 9:16 image.
+```
+
+### L. Guardrail
+
+```text
+A photograph of a long straight section of galvanized steel highway guardrail, the corrugated W-beam kind, mounted on evenly spaced steel posts. It is seen exactly side-on at the height of the rail, so the rail is perfectly horizontal and runs off both the left and the right edges of the picture. At least six evenly spaced posts are visible. Slightly weathered metal. Soft even daylight. Plain flat light-grey background: no road, no grass, no ground, no shadows, no text. Very wide panoramic image, 21:9.
+```
+
+### M. Hit effects
+
+```text
+Four separate photographic cutouts in a row with clear gaps between them, on a plain flat light-grey background, each seen straight on:
+1. a shiny gold foil star sticker, the kind a teacher sticks on good homework;
+2. a fluffy white cotton ball;
+3. a jagged comic-style starburst shape cut out of bright yellow construction paper, completely blank;
+4. half of a glossy pink-red rubber ball sitting flat side down, like a smooth round bump.
+Real photograph look, soft even daylight. No text or lettering anywhere, no shadows, no borders. Wide 16:9 image.
+```
+
+### N. Hit words
+
+```text
+Six comic sound-effect words in one image, arranged in three columns and two rows with clear gaps between them, on a plain flat light-grey background. Each word is bold hand-cut lettering glued onto its own jagged burst of coloured paper, like pieces cut out for a scrapbook: flat matte paper in reds, yellows, oranges and blues, with crisp scissor-cut edges. The six words are exactly: BONK! WHACK! THWACK! POW! BOP! PERFECT! Each is spelled exactly as written, with one exclamation mark. No other text. No halftone dots, no shadows, no borders. Wide 16:9 image.
+```
+
+### O. Phone-filming arm
+
+```text
+A photograph of a bare arm reaching out from the right side of the picture toward the left, holding a black smartphone upright in its hand as if filming something, seen from the side. Only the forearm, the hand and the phone are visible: no body, no shoulder, no face. The arm is horizontal. Natural daylight. Plain flat light-grey background: no shadows, no text, no border. Wide 16:9 image.
 ```

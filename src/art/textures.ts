@@ -564,54 +564,32 @@ function grain(c: Ctx, amount: number): void {
   c.putImageData(im, 0, 0);
 }
 
-/** The printed-page finish as ONE see-through sheet laid over the screen: a
- *  cream wash that fades the blacks, paper blotches and fibres, fine grain,
- *  and a screen of print dots. One layer keeps it cheap on phones. */
-function drawPaper(c: Ctx): void {
-  const S = 256;
-  c.fillStyle = 'rgba(232,206,158,0.085)';
-  c.fillRect(0, 0, S, S);
-  for (let i = 0; i < 30; i++) {
-    const x = Math.random() * S, y = Math.random() * S, r = 18 + Math.random() * 52;
-    const dark = Math.random() < 0.55;
-    const col = dark ? '120,84,40' : '255,246,222';
-    const a = dark ? 0.07 : 0.045;
-    wrapped(S, x, y, r, (px, py) => {
-      const g = c.createRadialGradient(px, py, 0, px, py, r);
-      g.addColorStop(0, `rgba(${col},${a})`);
-      g.addColorStop(1, `rgba(${col},0)`);
-      c.fillStyle = g;
-      c.fillRect(px - r, py - r, r * 2, r * 2);
-    });
-  }
-  c.lineWidth = 0.5;
-  for (let i = 0; i < 170; i++) {
-    const x = Math.random() * S, y = Math.random() * S, a = Math.random() * Math.PI, l = 5 + Math.random() * 13;
-    c.strokeStyle = Math.random() < 0.6 ? 'rgba(96,70,40,0.2)' : 'rgba(255,252,240,0.26)';
-    wrapped(S, x, y, l, (px, py) => {
-      c.beginPath();
-      c.moveTo(px, py);
-      c.quadraticCurveTo(px + Math.cos(a) * l * 0.5 + 2, py + Math.sin(a) * l * 0.5 - 2, px + Math.cos(a) * l, py + Math.sin(a) * l);
-      c.stroke();
-    });
-  }
-  // print dots, 8px pitch so they tile exactly
-  c.fillStyle = 'rgba(58,40,28,0.15)';
-  for (let y = 0; y < S; y += 8) {
-    for (let x = 0; x < S; x += 8) {
-      circle(c, x + 2, y + 2, 1.05); c.fill();
-      circle(c, x + 6, y + 6, 1.05); c.fill();
-    }
-  }
-  // grain: nudge colour and coverage together so it reads on light and dark alike
-  const im = c.getImageData(0, 0, c.canvas.width, c.canvas.height);
-  const d = im.data;
-  for (let i = 0; i < d.length; i += 4) {
-    const n = Math.random() - 0.5;
-    d[i] += n * 90; d[i + 1] += n * 90; d[i + 2] += n * 90;
-    d[i + 3] += Math.abs(n) * 16;
-  }
-  c.putImageData(im, 0, 0);
+/** A neck: a flat strip of coloured paper with a white cut edge, like every
+ *  other cutout. Deliberately matte and unshaded so it reads as paper craft. */
+export function makeNeck(scene: Phaser.Scene, key: string, color: string): void {
+  tile(scene, key, 16, 14, (c) => {
+    c.fillStyle = PAPER; c.fillRect(0, 0, 16, 14);
+    c.fillStyle = shade(color, -0.16); c.fillRect(0, 1.9, 16, 10.2);
+    c.fillStyle = color; c.fillRect(0, 2.5, 16, 9);
+  });
+}
+
+/** The classic cartoon lump that swells up on a whacked head. */
+function drawLump(c: Ctx): void {
+  const g = c.createRadialGradient(13, 9, 1, 15, 15, 17);
+  g.addColorStop(0, '#ffd9d2');
+  g.addColorStop(0.35, '#f58f86');
+  g.addColorStop(1, '#c2473f');
+  c.beginPath();
+  c.moveTo(1, 26);
+  c.bezierCurveTo(1, 8, 8, 1, 15, 1);
+  c.bezierCurveTo(22, 1, 29, 8, 29, 26);
+  c.closePath();
+  c.fillStyle = g;
+  c.fill();
+  ellipse(c, 10.5, 8.5, 3.6, 2.2, -0.6);
+  c.fillStyle = 'rgba(255,255,255,0.7)';
+  c.fill();
 }
 
 /** Road surface: speckled tarmac with a few cracks and patches. Scrolls with the world. */
@@ -837,13 +815,7 @@ export function buildTextures(scene: Phaser.Scene): void {
     makeArt(scene, `head${s}_dazed`, 56, 58, (c) => drawHead(c, skin, s, true), { border: 2.5, ax: 28, ay: 48 });
   }
   SKIN.forEach((skin, i) => {
-    // every neck is the same pink rubber, whoever it belongs to
-    tile(scene, `neck${i}`, 16, 15, (c) => {
-      c.fillStyle = '#b9566a'; c.fillRect(0, 0, 16, 15);
-      c.fillStyle = '#ee9aa6'; c.fillRect(0, 1.8, 16, 11.4);
-      c.fillStyle = '#f8c3c9'; c.fillRect(0, 3.2, 16, 2.6);
-      c.fillStyle = '#d97a89'; c.fillRect(0, 9.8, 16, 3.4);
-    });
+    makeNeck(scene, `neck${i}`, skin);
     makeArt(scene, `armphone${i}`, 66, 30, (c) => {
       rr(c, 2, 10, 46, 10, 5); ink(c, skin, 2.2);
       rr(c, 44, 2, 13, 25, 3); ink(c, '#2b2a2e', 2);
@@ -852,11 +824,18 @@ export function buildTextures(scene: Phaser.Scene): void {
       circle(c, 46, 16, 6.5); ink(c, skin, 2.2);
     }, { border: 2, ax: 5, ay: 15 });
   });
-  tile(scene, 'neck_dog', 16, 15, (c) => {
-    c.fillStyle = INK; c.fillRect(0, 0, 16, 15);
-    c.fillStyle = '#e0a94e'; c.fillRect(0, 2.2, 16, 10.6);
-    c.fillStyle = '#c98f3c'; c.fillRect(0, 9.5, 16, 3.3);
+  makeNeck(scene, 'neck_dog', '#d9a352');
+  // the soft shadow a neck strip casts on the page
+  tile(scene, 'neck_shadow', 16, 16, (c) => {
+    const g = c.createLinearGradient(0, 0, 0, 16);
+    g.addColorStop(0, 'rgba(24,16,10,0)');
+    g.addColorStop(0.3, 'rgba(24,16,10,0.34)');
+    g.addColorStop(0.7, 'rgba(24,16,10,0.34)');
+    g.addColorStop(1, 'rgba(24,16,10,0)');
+    c.fillStyle = g;
+    c.fillRect(0, 0, 16, 16);
   });
+  makeArt(scene, 'lump', 30, 26, drawLump, { border: 1.6, ax: 15, ay: 25 });
   makeArt(scene, 'dog', 66, 56, (c) => drawDog(c, false), { border: 2.5, ax: 42, ay: 46 });
   makeArt(scene, 'dog_mad', 66, 56, (c) => drawDog(c, true), { border: 2.5, ax: 42, ay: 46 });
   makeArt(scene, 'phone', 14, 26, (c) => {
@@ -918,7 +897,6 @@ export function buildTextures(scene: Phaser.Scene): void {
     c.fillStyle = '#eef1f4'; c.fillRect(0, 5, 72, 2.4);
   });
   tile(scene, 'hills', 512, 130, drawHills);
-  tile(scene, 'paper', 256, 256, drawPaper);
   tile(scene, 'asphalt', 256, 256, drawAsphalt);
   // white dots that swell toward the horizon: a printed sky gradient
   tile(scene, 'skydots', 14, 210, (c) => {

@@ -46,13 +46,12 @@ Converts that single file into a page fragment for hosts that add their own page
 ## How it is put together
 
 - **Engine:** [Phaser 4](https://phaser.io) with TypeScript and Vite. The Android app will wrap the web build with Capacitor.
-- **Art style:** Bill's scrapbook. Every piece is a cutout with a white paper
-  border and a drop shadow, under a printed-page finish (paper grain and print
-  dots, `src/art/finish.ts`). Bill's head comes from real photos
+- **Art style:** Bill's scrapbook. Every piece is a photo cutout with a white
+  paper border and a drop shadow. Bill's head comes from real photos
   (`art-src/photos`), cut out with Adobe (`art-src/adobe`) and built by
-  `tools/make_heads.py`. The rest is still drawn in code in
-  `src/art/textures.ts` and is being replaced by photo cutouts; the image
-  prompts for those are in `docs/art-prompts.md`.
+  `tools/make_heads.py`. Pieces still drawn in code (`src/art/textures.ts`) are
+  being replaced by photo cutouts; the remaining image prompts are in
+  `docs/art-prompts.md`.
 - **Audio:** synthesised placeholders in `src/audio/sound.ts`, to be replaced by
   family recordings.
 - **Tuning:** speeds, timing windows and scoring live in `src/config.ts`; the

@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { BILL, DEPTH, H, HEAD_SRC_H, INK, LANE, MAX_W, SCORE, SPEED, SWING, TEX, view } from '../config';
-import { BLEED, addPrintFinish } from '../art/finish';
+import { BLEED } from '../art/finish';
 import { ART, img } from '../art/sticker';
 import { sound } from '../audio/sound';
 import { HIGHWAY_JAM, Spawn, countHeads } from '../data/levels';
@@ -108,7 +108,6 @@ export class GameScene extends Phaser.Scene {
       scale: { start: 0.2, end: 0.48 }, alpha: { start: 0.65, end: 0 }, frequency: 85,
     }).setDepth(DEPTH.billBack - 1);
 
-    addPrintFinish(this);
     this.setupInput();
     this.scale.on('resize', this.onResize, this);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.scale.off('resize', this.onResize, this));
