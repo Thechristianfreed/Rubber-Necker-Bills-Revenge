@@ -1,8 +1,8 @@
 import Phaser from 'phaser';
 import { DEPTH, LANE, SPEED } from '../config';
 import { img } from '../art/sticker';
-import { ARM_TONES, HEAD_STYLES, VEHICLES, VehicleSpec } from '../art/textures';
-import { NeckKind, NoodleNeck } from './NoodleNeck';
+import { ARM_TINTS, HEAD_STYLES, VEHICLES, VehicleSpec } from '../art/textures';
+import { Motion, NeckKind, NoodleNeck, STILL } from './NoodleNeck';
 
 export type VehicleKind = 'car' | 'phone' | 'bus' | 'dog';
 
@@ -26,7 +26,7 @@ export class Vehicle {
   private scene: Phaser.Scene;
   private t = Math.random() * 10;
 
-  constructor(scene: Phaser.Scene, kind: VehicleKind, x: number) {
+  constructor(scene: Phaser.Scene, kind: VehicleKind, x: number, motion: Motion = STILL) {
     this.scene = scene;
     this.kind = kind;
     this.x = x;
@@ -39,9 +39,10 @@ export class Vehicle {
     for (const slot of this.spec.slots) {
       const neckKind: NeckKind = kind === 'dog' ? 'dog' : kind === 'phone' ? 'phone' : 'gawker';
       const style = nextStyle++ % HEAD_STYLES;
-      const rider: Rider = { neck: new NoodleNeck(scene, neckKind, style), slot };
-      if (kind === 'phone') {
-        rider.arm = img(scene, 0, 0, `armphone${ARM_TONES[style] ?? 0}`).setDepth(DEPTH.necks + 1).setRotation(2.3);
+      const rider: Rider = { neck: new NoodleNeck(scene, neckKind, style, motion), slot };
+      if (kind === 'phone' && scene.textures.exists('armphone')) {
+        // an arm out of the window, phone held up toward the wreck
+        rider.arm = img(scene, 0, 0, 'armphone').setDepth(DEPTH.heads + 1).setTint(ARM_TINTS[style] ?? 0xffffff);
       }
       this.riders.push(rider);
     }
@@ -60,14 +61,14 @@ export class Vehicle {
     for (const r of this.riders) {
       const ax = this.x + r.slot.x, ay = y + r.slot.y;
       r.neck.update(dt, ax, ay, this.vx);
-      if (r.arm) r.arm.setPosition(ax - 4, ay + 2).setRotation(2.3 + Math.sin(this.t * 4) * 0.06);
+      if (r.arm) r.arm.setPosition(ax + 16, ay + 20).setRotation(-0.2 + Math.sin(this.t * 4) * 0.05);
     }
   }
 
   /** Knock the phone out of a filmer's hand (returns where it was). */
   dropPhone(rider: Rider): { x: number; y: number } | null {
     if (!rider.arm) return null;
-    const pos = { x: rider.arm.x - 30, y: rider.arm.y + 34 };
+    const pos = { x: rider.arm.x - 74, y: rider.arm.y - 2 };
     rider.arm.destroy();
     rider.arm = undefined;
     return pos;

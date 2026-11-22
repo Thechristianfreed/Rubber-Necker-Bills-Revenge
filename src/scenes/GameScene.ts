@@ -3,10 +3,10 @@ import { BILL, DEPTH, H, HEAD_SRC_H, INK, LANE, MAX_W, SCORE, SPEED, SWING, TEX,
 import { BLEED } from '../art/finish';
 import { ART, img } from '../art/sticker';
 import { sound } from '../audio/sound';
-import { HIGHWAY_JAM, Spawn, countHeads } from '../data/levels';
+import { HIGHWAY_JAM, Move, Spawn, countHeads } from '../data/levels';
 import { PHRASES, pick } from '../data/phrases';
 import { Bill } from '../objects/Bill';
-import { NoodleNeck } from '../objects/NoodleNeck';
+import { Motion, NoodleNeck } from '../objects/NoodleNeck';
 import { Vehicle } from '../objects/Vehicle';
 import { Hud } from '../ui/Hud';
 import { label, marker } from '../ui/text';
@@ -16,8 +16,9 @@ interface Prop { im: Phaser.GameObjects.Image; factor: number; wrap?: number }
 interface Sign { im: Phaser.GameObjects.Image; x: number; done: boolean }
 type Quality = 'good' | 'perfect' | 'rage';
 
-const SIGN_BASE_Y = 384;
-const HIT_WORDS = ['BONK!', 'WHACK!', 'THWACK!', 'BOP!', 'POW!'];
+/** Signs stand on the median, between the jam and Bill. */
+const SIGN_BASE_Y = 398;
+const HIT_WORDS = ['bonk', 'whack', 'thwack', 'bop', 'pow'];
 
 export class GameScene extends Phaser.Scene {
   private bill!: Bill;
@@ -170,13 +171,13 @@ export class GameScene extends Phaser.Scene {
     this.strip('asphalt', 402, 1, DEPTH.road, 128);
     const r = this.add.graphics().setDepth(DEPTH.road);
     r.fillStyle(0xfbf6ea, 1); r.fillRect(x0, 203, ww, 3.5);        // the postcard's white bottom edge
-    r.fillStyle(0x1c1820, 0.1); r.fillRect(x0, 300, ww, 90);       // the closed lane sits a shade darker
+    r.fillStyle(0x1c1820, 0.1); r.fillRect(x0, 206, ww, 92);       // the closed far lane sits a shade darker
     r.fillStyle(0x47454f, 1); r.fillRect(x0, 388, ww, 14);         // median
     r.fillStyle(0xf3c53a, 1); r.fillRect(x0, 391, ww, 3); r.fillRect(x0, 396, ww, 3);
     r.fillStyle(0xf4efe2, 1); r.fillRect(x0, 517, ww, 4);
     r.fillStyle(0x6ba56a, 1); r.fillRect(x0, 530, ww, 10 + BLEED); // verge, past the bottom edge
 
-    this.strip('rail', 184, 1, DEPTH.road + 1);
+    this.strip('rail', 207 - ART.rail.h, 1, DEPTH.road + 1);                // posts stand on the road's far edge
     this.strip('dash', 297, 1, DEPTH.road + 1);
     this.strip('dash', 452, 1, DEPTH.road + 1);
     this.strip('grass', 522, 1, DEPTH.fore);
@@ -185,16 +186,16 @@ export class GameScene extends Phaser.Scene {
     const spacing = 190;
     const count = Math.ceil((MAX_W + 200) / spacing);
     for (let i = 0; i < count; i++) {
-      const im = img(this, i * spacing + 60, 304, 'cone').setDepth(DEPTH.farCars + 1);
+      const im = img(this, i * spacing + 60, 300, 'cone').setDepth(DEPTH.farCars - 2);
       this.props.push({ im, factor: 1, wrap: count * spacing });
     }
 
     // the wreck everyone is staring at, already behind Bill as the level starts
-    this.wreck = img(this, view.W * 0.6, 380, 'wreck').setDepth(DEPTH.median);
+    this.wreck = img(this, view.W * 0.62, 292, 'wreck').setDepth(DEPTH.farCars - 1);
     this.smokeFx = this.add.particles(0, 0, 'puff', {
       speedY: { min: -120, max: -70 }, speedX: { min: -30, max: 30 }, lifespan: 1300,
       scale: { start: 0.3, end: 0.9 }, alpha: { start: 0.8, end: 0 }, frequency: 110, tint: 0xc9c5cf,
-    }).setDepth(DEPTH.median + 1);
+    }).setDepth(DEPTH.farCars - 1);
   }
 
   private setupInput(): void {
@@ -360,7 +361,7 @@ export class GameScene extends Phaser.Scene {
     this.hitStop = q === 'rage' ? 0.02 : perfect ? 0.085 : 0.05;
     this.cameras.main.shake(perfect ? 150 : 90, perfect ? 0.009 : 0.005);
     this.burst(hx, hy, perfect);
-    this.pop(hx + 10, hy - 44, q === 'perfect' ? 'PERFECT!' : pick(HIT_WORDS), q === 'perfect' ? '#ffe45c' : '#ffffff', q === 'perfect' ? 40 : 32);
+    this.popWord(hx + 10, hy - 52, q === 'perfect' ? 'perfect' : pick(HIT_WORDS));
     this.pop(hx + 34, hy - 6, `+$${gain}`, '#b8f28a', 22, 0.12);
     this.bill.setFace('grin', 0.5);
 
@@ -412,6 +413,30 @@ export class GameScene extends Phaser.Scene {
     const t = label(this, x, y, text, size, color).setDepth(DEPTH.fx + 8).setRotation((Math.random() - 0.5) * 0.3).setScale(0.3).setAlpha(0);
     this.tweens.add({ targets: t, scale: 1, alpha: 1, duration: 110, delay, ease: 'Back.out' });
     this.tweens.add({ targets: t, y: y - 46, alpha: 0, duration: 380, delay: delay + 430, onComplete: () => t.destroy() });
+  }
+
+  /** A hit word: a paper cutout slapped onto the page, falling back to lettering. */
+  private popWord(x: number, y: number, word: string): void {
+    const key = `word_${word}`;
+    if (!this.textures.exists(key)) {
+      this.pop(x, y, `${word.toUpperCase()}!`, word === 'perfect' ? '#ffe45c' : '#ffffff', word === 'perfect' ? 40 : 32);
+      return;
+    }
+    const im = img(this, x, y, key).setDepth(DEPTH.fx + 8).setRotation((Math.random() - 0.5) * 0.36);
+    const full = im.scale;
+    im.setScale(full * 0.3).setAlpha(0);
+    this.tweens.add({ targets: im, scale: full, alpha: 1, duration: 110, ease: 'Back.out' });
+    this.tweens.add({ targets: im, y: y - 40, alpha: 0, duration: 340, delay: 480, onComplete: () => im.destroy() });
+  }
+
+  /** Turn a level's movement label into how far and how fast a head moves. */
+  private motionFor(move: Move): Motion {
+    const { lean, bob, restlessness } = this.level;
+    return {
+      x: move === 'lean' || move === 'both' ? lean : 0,
+      y: move === 'bob' || move === 'both' ? bob : 0,
+      speed: restlessness,
+    };
   }
 
   private flingPhone(x: number, y: number): void {
@@ -487,7 +512,7 @@ export class GameScene extends Phaser.Scene {
         this.teach('duck', 'Sign coming - HOLD DUCK!');
       } else {
         if (remaining > (view.W + 330 - this.bill.sweetX) / carSpeed) continue;
-        const v = new Vehicle(this, s.type, view.W + 600);
+        const v = new Vehicle(this, s.type, view.W + 600, this.motionFor(s.move));
         const lead = v.riders[0].slot.x - 16;
         v.x = this.bill.sweetX + carSpeed * remaining - lead;
         v.update(0);
@@ -496,6 +521,7 @@ export class GameScene extends Phaser.Scene {
         else if (s.type === 'phone') this.teach('phone', 'Phone filmers! Knock some sense into them.');
         else if (s.type === 'bus') this.teach('bus', 'Tour bus! Four heads in a row!');
         else this.teach('swing', 'TAP to swing when a head reaches the ring!');
+        if (s.move !== 'still') this.teach('restless', "They're leaning for a better look. Watch the head!");
       }
       this.pending.splice(i, 1);
       i--;
@@ -585,7 +611,8 @@ export class GameScene extends Phaser.Scene {
         const n = r.neck;
         if (n.whacked || n.passed) continue;
         const dx = n.headX - sweet;
-        if (this.bill.swingLive && Math.abs(dx) <= SWING.good && !this.over) {
+        const inReach = Math.abs(n.headY - LANE.headY) <= SWING.reachY;
+        if (this.bill.swingLive && Math.abs(dx) <= SWING.good && inReach && !this.over) {
           this.bill.markConnected();
           this.whack(v, n, Math.abs(dx) <= SWING.perfect ? 'perfect' : 'good');
         } else if (dx < -SWING.good - 26) {
@@ -658,7 +685,8 @@ export class GameScene extends Phaser.Scene {
         if (clumsy && Math.floor(n.headY * 7) % 3 === 0) continue;
         if (n.headX < view.W) onScreen++;
         const dx = n.headX - this.bill.sweetX;
-        if (dx < lead + (clumsy ? 40 : 8) && dx > -10) this.trySwing();
+        const inReach = clumsy || Math.abs(n.headY - LANE.headY) <= SWING.reachY - 5;
+        if (dx < lead + (clumsy ? 40 : 8) && dx > -10 && inReach) this.trySwing();
       }
     }
     if (this.rage >= 100 && onScreen >= 3) this.tryRage();

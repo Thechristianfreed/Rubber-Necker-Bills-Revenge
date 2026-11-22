@@ -195,6 +195,107 @@ def heads():
         save(f"head{i}-dazed.png", d[2])
 
 
+def clear_haze(rgba, from_row):
+    """Background removal can leave a pale haze of backdrop along the bottom of
+    a sheet. Drop near-white, colourless pixels below `from_row`."""
+    h = hsv(rgba)
+    rows = np.arange(rgba.shape[0])[:, None]
+    haze = (h[..., 1] < 0.11) & (h[..., 2] > 0.78) & (rows >= from_row)
+    out = rgba.copy()
+    out[..., 3] = np.where(haze, 0.0, out[..., 3])
+    return out
+
+
+def grid_cells(rgba, cols, rows, min_area=2500):
+    """One cutout per grid cell: the largest piece whose centre falls in the cell.
+    Returns the pieces row by row."""
+    n, lab, stats, cent = cv2.connectedComponentsWithStats((rgba[..., 3] > 0.3).astype(np.uint8), 8)
+    H, W = rgba.shape[:2]
+    best = {}
+    for i in range(1, n):
+        area = stats[i][4]
+        if area < min_area:
+            continue
+        cell = (min(rows - 1, int(cent[i][1] * rows / H)), min(cols - 1, int(cent[i][0] * cols / W)))
+        if cell not in best or area > stats[best[cell]][4]:
+            best[cell] = i
+    out = []
+    for r in range(rows):
+        for c in range(cols):
+            i = best[(r, c)]
+            near = cv2.dilate((lab == i).astype(np.uint8), np.ones((5, 5), np.uint8)).astype(bool)
+            piece = rgba.copy()
+            piece[~near] = 0
+            out.append(trim(piece))
+    return out
+
+
+def head_only(rgba, mask_name):
+    """Keep just hair, face and ears, using Adobe's body-part selection, with
+    the holes it leaves at eyes and foreheads filled back in."""
+    m = np.asarray(Image.open(os.path.join(SRC, mask_name)).convert("RGBA"), dtype=np.float32) / 255.0
+    sel = m[..., 3] if m[..., 3].std() > 0.01 else m[..., :3].mean(axis=2)
+    solid = (sel > 0.5).astype(np.uint8)
+    contours, _ = cv2.findContours(solid, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    filled = np.zeros(solid.shape, np.uint8)
+    cv2.drawContours(filled, contours, -1, 1, thickness=cv2.FILLED)
+    filled = cv2.GaussianBlur(filled.astype(np.float32), (0, 0), 1.2)
+    out = rgba.copy()
+    out[..., 3] = np.minimum(out[..., 3], np.clip(filled * 1.6, 0, 1))
+    return out
+
+
+def more_heads():
+    """Sheets two and three of rubberneckers: heads 4 to 11."""
+    sheet2 = grid_cells(clear_haze(load("H-heads2-cutout.png"), 470), 4, 2)
+    sheet3 = grid_cells(head_only(load("I-heads3-cutout.png"), "I-heads3-headmask.png"), 4, 2)
+    for base, sheet in ((4, sheet2), (8, sheet3)):
+        for i in range(4):
+            save(f"head{base + i}.png", sheet[i])
+            save(f"head{base + i}-dazed.png", sheet[4 + i])
+
+
+def bill():
+    save("shirt.png", trim(load("J-shirt-cutout.png")))
+    arm = trim(load("K-arm-bat-cutout.png"))
+    save("arm-bat.png", arm)
+    cols = np.where(arm[-12:, :, 3].max(axis=0) > 0.5)[0]
+    print("  arm-bat shoulder centre x (fraction):", round((cols.min() + cols.max()) / 2 / arm.shape[1], 3))
+
+
+def guardrail():
+    """Crop the rail to a whole number of post spacings so it repeats cleanly."""
+    rail = load("L-guardrail-cutout.png")
+    ys = np.where(rail[..., 3].max(axis=1) > 0.3)[0]
+    band = rail[ys.min():ys.max() + 1]
+    posts = band[int(band.shape[0] * 0.75):, :, 3].max(axis=0) > 0.5
+    n, lab, stats, cent = cv2.connectedComponentsWithStats(posts[None, :].astype(np.uint8), 8)
+    xs = sorted(cent[i][0] for i in range(1, n) if stats[i][4] >= 4)
+    period = (xs[-1] - xs[0]) / (len(xs) - 1)
+    x0 = max(0, int(round(xs[0] - period / 2)))
+    x1 = min(band.shape[1], int(round(xs[0] - period / 2 + period * len(xs))))
+    print(f"  guardrail: {len(xs)} posts, spacing {period:.1f}px, crop {x0}..{x1}")
+    save("rail.png", band[:, x0:x1])
+
+
+def effects():
+    sheet = sorted(pieces(load("M-effects-cutout.png")), key=lambda p: p[0])
+    for name, (_, _, piece) in zip(("star", "puff", "burst"), sheet):
+        save(f"{name}.png", piece)
+    words = sorted(pieces(load("N-words-cutout.png"), 3000), key=lambda p: (p[1] > 200, p[0]))
+    for name, (_, _, piece) in zip(("bonk", "whack", "thwack", "pow", "bop", "perfect"), words):
+        save(f"word-{name}.png", piece)
+
+
+def phone_arm():
+    sheet = load("O-phone-arm-cutout.png")
+    save("arm-phone.png", trim(sheet))
+    # the phone on its own, for when it gets knocked flying: the half above the
+    # fingers, mirrored to make a whole phone
+    top = sheet[112:230, 236:300]
+    save("phone.png", trim(np.concatenate([top, top[::-1]], axis=0)))
+
+
 def ellipse_crop(rgba, cx, cy, rx, ry, feather=3.0):
     yy, xx = np.mgrid[0:rgba.shape[0], 0:rgba.shape[1]].astype(np.float32)
     d = np.sqrt(((xx - cx) / rx) ** 2 + ((yy - cy) / ry) ** 2)
@@ -238,6 +339,11 @@ if __name__ == "__main__":
     vehicles()
     cars()
     heads()
+    more_heads()
+    bill()
+    guardrail()
+    effects()
+    phone_arm()
     dogs()
     props()
     postcard()

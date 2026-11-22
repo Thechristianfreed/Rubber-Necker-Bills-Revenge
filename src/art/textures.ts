@@ -26,8 +26,8 @@ export let HEAD_STYLES = 8;
 export function setHeadStyles(n: number): void {
   HEAD_STYLES = n;
 }
-/** Skin tone (index into SKIN) of the phone-holding arm for each head style. */
-export const ARM_TONES: number[] = [0, 1, 2, 3, 4, 0, 1, 2];
+/** Tint that makes the phone-holding arm match each head's skin tone. */
+export const ARM_TINTS: number[] = [];
 
 function wheel(c: Ctx, x: number, y: number, r: number, whitewall = false): void {
   circle(c, x, y, r);
@@ -574,24 +574,6 @@ export function makeNeck(scene: Phaser.Scene, key: string, color: string): void 
   });
 }
 
-/** The classic cartoon lump that swells up on a whacked head. */
-function drawLump(c: Ctx): void {
-  const g = c.createRadialGradient(13, 9, 1, 15, 15, 17);
-  g.addColorStop(0, '#ffd9d2');
-  g.addColorStop(0.35, '#f58f86');
-  g.addColorStop(1, '#c2473f');
-  c.beginPath();
-  c.moveTo(1, 26);
-  c.bezierCurveTo(1, 8, 8, 1, 15, 1);
-  c.bezierCurveTo(22, 1, 29, 8, 29, 26);
-  c.closePath();
-  c.fillStyle = g;
-  c.fill();
-  ellipse(c, 10.5, 8.5, 3.6, 2.2, -0.6);
-  c.fillStyle = 'rgba(255,255,255,0.7)';
-  c.fill();
-}
-
 /** Road surface: speckled tarmac with a few cracks and patches. Scrolls with the world. */
 function drawAsphalt(c: Ctx): void {
   const S = 256;
@@ -816,13 +798,6 @@ export function buildTextures(scene: Phaser.Scene): void {
   }
   SKIN.forEach((skin, i) => {
     makeNeck(scene, `neck${i}`, skin);
-    makeArt(scene, `armphone${i}`, 66, 30, (c) => {
-      rr(c, 2, 10, 46, 10, 5); ink(c, skin, 2.2);
-      rr(c, 44, 2, 13, 25, 3); ink(c, '#2b2a2e', 2);
-      rr(c, 46.5, 5, 8, 15, 1.5); c.fillStyle = '#7fd4ff'; c.fill();
-      circle(c, 50.5, 23.5, 1.6); c.fillStyle = '#ff4d4d'; c.fill();
-      circle(c, 46, 16, 6.5); ink(c, skin, 2.2);
-    }, { border: 2, ax: 5, ay: 15 });
   });
   makeNeck(scene, 'neck_dog', '#d9a352');
   // the soft shadow a neck strip casts on the page
@@ -835,7 +810,6 @@ export function buildTextures(scene: Phaser.Scene): void {
     c.fillStyle = g;
     c.fillRect(0, 0, 16, 16);
   });
-  makeArt(scene, 'lump', 30, 26, drawLump, { border: 1.6, ax: 15, ay: 25 });
   makeArt(scene, 'dog', 66, 56, (c) => drawDog(c, false), { border: 2.5, ax: 42, ay: 46 });
   makeArt(scene, 'dog_mad', 66, 56, (c) => drawDog(c, true), { border: 2.5, ax: 42, ay: 46 });
   makeArt(scene, 'phone', 14, 26, (c) => {

@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
-import { H, HEAD_SRC_H, MAX_W, view } from '../config';
-import { img } from '../art/sticker';
+import { H, HEAD_SRC_H, MAX_W, TEX, view } from '../config';
+import { ART, img } from '../art/sticker';
 import { sound } from '../audio/sound';
 import { label } from '../ui/text';
 
@@ -16,26 +16,32 @@ export class TitleScene extends Phaser.Scene {
     this.scale.on('resize', onResize);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.scale.off('resize', onResize));
 
+    // the postcard fills the page, with a strip of road along the bottom
     const g = this.add.graphics();
-    g.fillGradientStyle(0x4fb3ee, 0x4fb3ee, 0xffe9a8, 0xffe9a8, 1);
+    g.fillStyle(0x7fb0d8, 1);
     g.fillRect(0, 0, MAX_W, H);
-    const rays = img(this, W * 0.3, H * 0.52, 'burst').setAlpha(0.35);
-    rays.setScale(rays.scale * 9);
-    this.tweens.add({ targets: rays, rotation: Math.PI * 2, duration: 40000, repeat: -1 });
-    g.fillStyle(0x231d1b, 1); g.fillRect(0, H - 96, MAX_W, 4);
-    g.fillStyle(0x5d5b66, 1); g.fillRect(0, H - 92, MAX_W, 92);
-    g.fillStyle(0xf6c21c, 1); g.fillRect(0, H - 50, MAX_W, 5);
+    if (this.textures.exists('postcard')) {
+      const k = (H - 70) / ART.postcard.h;
+      this.add.tileSprite(0, 0, (MAX_W / k) * TEX, ART.postcard.h * TEX, 'postcard').setOrigin(0, 0).setScale(k / TEX);
+    }
+    const road = this.add.graphics();
+    road.fillStyle(0xfbf6ea, 1); road.fillRect(0, H - 96, MAX_W, 4);
+    road.fillStyle(0x5d5b66, 1); road.fillRect(0, H - 92, MAX_W, 92);
+    road.fillStyle(0xf3c53a, 1); road.fillRect(0, H - 50, MAX_W, 5);
 
-    // Bill, large, giving the side-eye
+    // Bill, large, giving the side-eye, in front of a paper burst
     const bx = W * 0.25;
-    const arm = img(this, bx + 86, H - 150, 'bill_arm').setRotation(0.5);
-    arm.setScale(arm.scale * 2.3);
+    const rays = img(this, bx, H - 250, 'burst');
+    rays.setScale(rays.scale * 3.4);
+    this.tweens.add({ targets: rays, rotation: Math.PI * 2, duration: 60000, repeat: -1 });
+    const arm = img(this, bx + 82, H - 112, 'bill_arm').setRotation(0.34);
+    arm.setScale(arm.scale * 2.2);
     const torso = img(this, bx, H - 6, 'bill_torso');
     torso.setScale(torso.scale * 2.5);
     const head = this.add.image(bx - 4, H - 268, 'bill-sideeye').setRotation(-0.06);
     head.setScale(230 / HEAD_SRC_H);
     this.tweens.add({ targets: head, y: head.y - 6, rotation: 0.02, duration: 1400, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
-    this.tweens.add({ targets: arm, rotation: 0.38, duration: 900, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
+    this.tweens.add({ targets: arm, rotation: 0.24, duration: 900, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
 
     const tx = W * 0.66;
     const l1 = label(this, tx, 118, 'RUBBER', 132, '#ffd23f', 18).setRotation(-0.05);

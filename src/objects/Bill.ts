@@ -132,7 +132,7 @@ export class Bill {
     const stunShake = this.stun > 0 ? Math.sin(this.t * 55) * 4 : 0;
     const lean = this.swingT >= 0 ? Math.sin(Math.min(1, this.swingT / 0.2) * Math.PI) * 7 : 0;
     const bx = this.x - 6 + stunShake;
-    const by = carY - 76;
+    const by = carY - 84;
     // ducking squashes him down behind the roof, bat pulled in flat
     const drop = this.duck * BILL.duckDepth;
     if (this.duck > 0) angle = Phaser.Math.Linear(angle, 1.72, this.duck);

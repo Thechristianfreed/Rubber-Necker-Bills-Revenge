@@ -19,9 +19,9 @@ export const view = { W: 960, RES: 1 };
 
 export const LANE = {
   /** Wheel line of the jammed (rubbernecker) lane. */
-  farBase: 258,
-  /** Height where gawking heads dangle - the strike zone. */
-  headY: 276,
+  farBase: 326,
+  /** Height of a gawker's head at rest: the centre of the strike zone. */
+  headY: 284,
   medianY: 312,
   /** Wheel line of Bill's lane. */
   billBase: 506,
@@ -38,7 +38,7 @@ export const BILL = {
   /** Bill's car sits this fraction of the way across the screen. */
   xFrac: 0.29,
   /** Sweet spot of the swing, relative to Bill's x. */
-  sweetDX: 70,
+  sweetDX: 98,
   duckDepth: 58,
   maxHearts: 3,
 };
@@ -54,6 +54,8 @@ export const SWING = {
   /** Half-widths of the timing windows, in px from the sweet spot. */
   good: 56,
   perfect: 18,
+  /** How far above or below the strike zone a head can be and still get hit. */
+  reachY: 30,
 };
 
 export const SCORE = {

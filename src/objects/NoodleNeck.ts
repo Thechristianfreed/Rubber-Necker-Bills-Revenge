@@ -4,11 +4,17 @@ import { ART, applyArt, img } from '../art/sticker';
 
 /** A rubbernecker's neck and head.
  *
- *  While gawking it is a posed goose-neck curve hanging out of a car window.
- *  Once whacked it becomes a rope simulation whose length balloons out, so the
- *  head rockets away and the neck noodles around behind the car. */
+ *  While gawking, the head just pokes out of the car window on an ordinary
+ *  short neck. Once whacked the neck becomes a rope simulation whose length
+ *  balloons out, so the head rockets away and the neck noodles around behind
+ *  the car. The contrast between the two is the joke. */
 
 export type NeckKind = 'gawker' | 'phone' | 'dog';
+
+/** How a gawker moves their head around trying to get a better look.
+ *  Amplitudes are in pixels; bigger and faster makes them harder to hit. */
+export interface Motion { x: number; y: number; speed: number }
+export const STILL: Motion = { x: 0, y: 0, speed: 1 };
 
 const N = 14;            // simulated points along the neck
 const SUB = 4;           // extra smoothing points per segment when drawing
@@ -32,7 +38,6 @@ export class NoodleNeck {
   private rope: Phaser.GameObjects.Rope;
   private shadow: Phaser.GameObjects.Rope;
   private head: Phaser.GameObjects.Image;
-  private lump?: Phaser.GameObjects.Image;
   private headKey: string;
   private dazedKey: string;
   private phase = Math.random() * Math.PI * 2;
@@ -44,14 +49,17 @@ export class NoodleNeck {
   private floorY = LANE.headY + 34 + Math.random() * 16;
   private stars: Phaser.GameObjects.Image[] = [];
   private shake = 0;
+  private motion: Motion;
+  private tilt = 0;
 
-  constructor(scene: Phaser.Scene, kind: NeckKind, style: number) {
+  constructor(scene: Phaser.Scene, kind: NeckKind, style: number, motion: Motion = STILL) {
     this.scene = scene;
     this.kind = kind;
+    this.motion = kind === 'dog' ? STILL : motion;
     const dog = kind === 'dog';
     this.headKey = dog ? 'dog' : `head${style}`;
     this.dazedKey = dog ? 'dog_mad' : `head${style}_dazed`;
-    this.lean = dog ? 6 : -12 - Math.random() * 10;
+    this.lean = dog ? 4 : -8 - Math.random() * 8;
     for (let i = 0; i < N; i++) this.pts.push({ x: 0, y: 0, vx: 0, vy: 0 });
     const count = (N - 1) * SUB + 1;
     const line = () => Array.from({ length: count }, (_, i) => new Phaser.Math.Vector2(i * 4, 0));
@@ -79,21 +87,29 @@ export class NoodleNeck {
     this.draw();
   }
 
-  /** The goose-neck gawking pose: out of the window, down, and up into the head. */
+  /** The gawking pose: head poking out of the window on a short, ordinary neck,
+   *  leaning and bobbing for a better look if this gawker is the restless kind. */
   private pose(ax: number, ay: number): void {
-    const sway = Math.sin(this.t * 2.1 + this.phase) * 5;
-    const bob = Math.sin(this.t * 3.3 + this.phase * 1.7) * 3;
+    const m = this.motion;
+    const w = this.t * m.speed;
+    const leanX = Math.sin(w * 5.2 + this.phase) * m.x;
+    const leanY = Math.sin(w * 6.9 + this.phase * 1.7) * m.y;
+    const idleX = Math.sin(this.t * 2.1 + this.phase) * 2.5;
+    const idleY = Math.sin(this.t * 3.3 + this.phase * 1.7) * 1.8;
     const dog = this.kind === 'dog';
-    const bx = ax + this.lean + sway + (this.shake > 0 ? Math.sin(this.t * 70) * 5 : 0);
-    const by = LANE.headY + (dog ? 14 : HEAD_R) + bob;
-    const c1x = ax + 8, c1y = ay + (by - ay) * 0.75;
-    const c2x = bx + (dog ? 2 : 13), c2y = by + (dog ? 8 : 26);
+    const bx = ax + this.lean + leanX + idleX + (this.shake > 0 ? Math.sin(this.t * 70) * 5 : 0);
+    const by = LANE.headY + (dog ? 16 : HEAD_R) + leanY + idleY;
+    // a gentle curve from the window sill to the base of the head
+    const c1x = ax - 3, c1y = ay + (by - ay) * 0.45;
+    const c2x = bx + 5, c2y = by - Math.max(8, (by - ay) * 0.35);
     for (let i = 0; i < N; i++) {
       const t = i / (N - 1), u = 1 - t;
       const p = this.pts[i];
       p.x = u * u * u * ax + 3 * u * u * t * c1x + 3 * u * t * t * c2x + t * t * t * bx;
       p.y = u * u * u * ay + 3 * u * u * t * c1y + 3 * u * t * t * c2y + t * t * t * by;
     }
+    // heads tip the way they lean
+    this.tilt = -0.1 + leanX * 0.006 + Math.sin(this.t * 1.7 + this.phase) * 0.04;
     if (this.shake > 0) this.shake -= 1 / 60;
   }
 
@@ -113,7 +129,8 @@ export class NoodleNeck {
     let len = 0;
     for (let i = 1; i < N; i++) len += Math.hypot(this.pts[i].x - this.pts[i - 1].x, this.pts[i].y - this.pts[i - 1].y);
     this.restLen = len;
-    this.targetLen = len * (3.7 + power * 1.6 + Math.random() * 1.1);
+    // however short the neck was, it stretches to the same impossible length
+    this.targetLen = 330 + power * 150 + Math.random() * 110;
     const ivx = (560 + Math.random() * 200) * (0.75 + power * 0.3);
     const ivy = -(430 + Math.random() * 180) * (0.75 + power * 0.3);
     for (let i = 0; i < N; i++) {
@@ -125,9 +142,9 @@ export class NoodleNeck {
     this.head.setDepth(DEPTH.fx + 2);
     this.rope.setDepth(DEPTH.fx + 1);
     this.shadow.setDepth(DEPTH.fx);
-    this.lump = img(this.scene, 0, 0, 'lump').setDepth(DEPTH.fx + 3).setScale(0);
     for (let i = 0; i < 3; i++) {
-      this.stars.push(img(this.scene, 0, 0, 'star').setDepth(DEPTH.fx + 3).setScale(0.36));
+      const star = img(this.scene, 0, 0, 'star').setDepth(DEPTH.fx + 3);
+      this.stars.push(star.setScale(star.scale * 0.72));
     }
   }
 
@@ -225,9 +242,10 @@ export class NoodleNeck {
     let rot: number;
     if (this.kind === 'dog') {
       rot = Math.sin(this.t * 9 + this.phase) * 0.08;
+    } else if (this.state === 'gawk') {
+      rot = this.tilt;
     } else {
       rot = Math.atan2(end.y - prev.y, end.x - prev.x) + Math.PI / 2;
-      if (this.state === 'gawk') rot = Phaser.Math.Clamp(rot, -0.5, 0.5);
     }
     this.head.setPosition(end.x, end.y).setRotation(rot);
     const a = ART[this.head.texture.key];
@@ -235,24 +253,12 @@ export class NoodleNeck {
     this.headX = end.x + Math.sin(rot) * up + (this.kind === 'dog' ? -10 : 0);
     this.headY = end.y - Math.cos(rot) * up;
 
-    if (this.lump) {
-      // the lump swells out of the top of the head with a springy overshoot, then throbs
-      const top = a.ay - a.h * 0.07;
-      const k = Math.min(1, this.t / 0.32) - 1;
-      const grow = 1 + 2.6 * k * k * k + 1.6 * k * k;
-      const size = (a.h * 0.5) / ART.lump.w;
-      this.lump
-        .setPosition(end.x + Math.sin(rot) * top, end.y - Math.cos(rot) * top)
-        .setRotation(rot)
-        .setScale((size * grow * (1 + Math.sin(this.t * 13) * 0.05)) / TEX);
-    }
-
     if (this.stars.length) {
-      const life = 1.9;
+      const life = 2.6;
       for (let i = 0; i < this.stars.length; i++) {
         const ang = this.t * 9 + (i * Math.PI * 2) / 3;
         this.stars[i]
-          .setPosition(this.headX + Math.cos(ang) * 24, this.headY - 26 + Math.sin(ang) * 7)
+          .setPosition(this.headX + Math.cos(ang) * 30, this.headY - 30 + Math.sin(ang) * 8)
           .setAlpha(Phaser.Math.Clamp((life - this.t) * 2, 0, 1));
       }
       if (this.t > life) {
@@ -271,7 +277,6 @@ export class NoodleNeck {
     this.rope.destroy();
     this.shadow.destroy();
     this.head.destroy();
-    this.lump?.destroy();
     this.stars.forEach((s) => s.destroy());
   }
 }
