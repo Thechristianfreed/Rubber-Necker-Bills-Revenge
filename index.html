@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="theme-color" content="#1b1820" />
+    <title>Rubber Necker</title>
+    <style>
+      html, body { margin: 0; height: 100%; background: #1b1820; overflow: hidden; overscroll-behavior: none; }
+      body { touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+      #game { position: fixed; inset: 0; }
+      #rotate {
+        position: fixed; inset: 0; display: none; align-items: center; justify-content: center;
+        flex-direction: column; gap: 14px; background: #1b1820; color: #fff6e6; z-index: 10;
+        font: 700 22px/1.3 system-ui, sans-serif; text-align: center; padding: 24px;
+      }
+      #rotate span { font-size: 64px; display: block; animation: tip 1.6s ease-in-out infinite; }
+      @keyframes tip { 0%, 30% { transform: rotate(0); } 60%, 100% { transform: rotate(-90deg); } }
+      #rotate small { font-weight: 500; font-size: 14px; opacity: 0.6; }
+      @media (orientation: portrait) and (max-width: 700px) { #rotate:not(.dismissed) { display: flex; } }
+    </style>
+  </head>
+  <body>
+    <div id="game"></div>
+    <div id="rotate"><span>📱</span>Turn your phone sideways<br />to play Rubber Necker<small>or tap here to play small</small></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
