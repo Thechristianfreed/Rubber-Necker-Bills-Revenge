@@ -37,9 +37,14 @@ export const SPEED = {
 export const BILL = {
   /** Bill's car sits this fraction of the way across the screen. */
   xFrac: 0.29,
-  /** Sweet spot of the swing, relative to Bill's x. */
-  sweetDX: 98,
-  duckDepth: 58,
+  /** Sweet spot of the swing, relative to Bill's x: where the bat's barrel ends up. */
+  sweetDX: 96,
+  /** Height of Bill's chin when he is sitting up out of the window. */
+  chinY: 308,
+  /** How far he drops when he ducks back into the car. */
+  duckDepth: 165,
+  /** Nothing of his body is drawn below this height: it is behind the car door. */
+  hideY: 478,
   maxHearts: 3,
 };
 

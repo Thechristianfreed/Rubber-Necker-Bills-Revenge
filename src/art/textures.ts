@@ -316,81 +316,6 @@ function drawBug(c: Ctx): void {
   wheel(c, 196, 80, 19, true);
 }
 
-function drawTorso(c: Ctx): void {
-  const shirt = '#f0624d';
-  // neck
-  rr(c, 27, 0, 18, 18, 6); ink(c, SKIN[1], 2);
-  const path = () => {
-    c.beginPath();
-    c.moveTo(5, 72);
-    c.lineTo(7, 32);
-    c.quadraticCurveTo(9, 14, 28, 10);
-    c.lineTo(44, 10);
-    c.quadraticCurveTo(63, 14, 65, 32);
-    c.lineTo(67, 72);
-    c.closePath();
-  };
-  path();
-  c.fillStyle = shirt;
-  c.fill();
-  // aloha print
-  c.save();
-  path();
-  c.clip();
-  const flowers: [number, number][] = [[18, 30], [50, 26], [34, 48], [12, 58], [56, 56], [36, 22]];
-  for (const [fx, fy] of flowers) {
-    for (let p = 0; p < 5; p++) {
-      const a = (p / 5) * Math.PI * 2;
-      ellipse(c, fx + Math.cos(a) * 5, fy + Math.sin(a) * 5, 4.2, 3, a);
-      c.fillStyle = '#ffb199';
-      c.fill();
-    }
-    circle(c, fx, fy, 2); c.fillStyle = '#ffe45c'; c.fill();
-  }
-  c.strokeStyle = '#c2402f';
-  c.lineWidth = 2;
-  for (const [lx, ly] of [[26, 40], [46, 40], [22, 66], [48, 68]]) {
-    c.beginPath();
-    c.ellipse(lx, ly, 6, 2.4, 0.6, 0, Math.PI * 2);
-    c.stroke();
-  }
-  c.restore();
-  path();
-  c.lineWidth = 2.6;
-  c.strokeStyle = INK;
-  c.stroke();
-  // open collar
-  poly(c, [28, 10, 36, 26, 44, 10]);
-  ink(c, SKIN[1], 2);
-  line(c, [28, 10, 22, 22, 36, 26], INK, 2);
-  line(c, [44, 10, 50, 22, 36, 26], INK, 2);
-}
-
-/** Arm and bat as one piece pointing straight up; rotates about the shoulder. */
-function drawArmBat(c: Ctx): void {
-  // sleeve + forearm
-  rr(c, 13, 118, 20, 26, 8); ink(c, '#f0624d', 2.4);
-  rr(c, 16, 100, 13, 26, 6); ink(c, SKIN[1], 2.2);
-  // bat
-  c.beginPath();
-  c.moveTo(19, 104);
-  c.lineTo(18, 60);
-  c.quadraticCurveTo(13, 30, 14, 14);
-  c.quadraticCurveTo(22, 2, 30, 14);
-  c.quadraticCurveTo(31, 30, 26, 60);
-  c.lineTo(25, 104);
-  c.closePath();
-  ink(c, '#dba45c', 2.4);
-  line(c, [22, 16, 22, 52], '#f0c88a', 2.2);
-  line(c, [17, 66, 27, 66], '#8a5a2e', 2);
-  rr(c, 16, 103, 12, 6, 3); ink(c, '#b97f3c', 2);
-  // fists
-  circle(c, 22, 88, 7.5); ink(c, SKIN[1], 2.2);
-  circle(c, 22, 98, 7.5); ink(c, SKIN[1], 2.2);
-  line(c, [17, 86, 27, 86], INK, 1.2);
-  line(c, [17, 96, 27, 96], INK, 1.2);
-}
-
 function drawHair(c: Ctx, style: number, behind: boolean): void {
   const cx = 28, cy = 27;
   switch (style) {
@@ -788,8 +713,6 @@ export function buildTextures(scene: Phaser.Scene): void {
   });
 
   makeArt(scene, 'bug', 252, 102, drawBug, { border: 2.5, ax: 126, ay: 99 });
-  makeArt(scene, 'bill_torso', 72, 74, drawTorso, { border: 2.5, ax: 36, ay: 74 });
-  makeArt(scene, 'bill_arm', 44, 150, drawArmBat, { border: 2.5, ax: 23, ay: 134 });
 
   for (let s = 0; s < HEAD_STYLES; s++) {
     const skin = SKIN[s % SKIN.length];

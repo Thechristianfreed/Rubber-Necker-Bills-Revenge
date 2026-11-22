@@ -256,16 +256,32 @@ def more_heads():
 
 
 def bill():
-    save("shirt.png", trim(load("J-shirt-cutout.png")))
-    full = trim(load("K-arm-bat-cutout.png"))
-    # the bat on its own (everything above the fist), and a patch of skin for Bill's neck
-    save("bat.png", trim(full[: int(full.shape[0] * 0.455)]))
-    save("skin.png", full[int(full.shape[0] * 0.66): int(full.shape[0] * 0.84), int(full.shape[1] * 0.3): int(full.shape[1] * 0.62)])
-    # the arm, without the scrap of sleeve at its elbow end: that end tucks behind the shirt
-    arm = trim(full[: int(full.shape[0] * 0.895)])
-    save("arm-bat.png", arm)
-    cols = np.where(arm[-12:, :, 3].max(axis=0) > 0.5)[0]
-    print("  arm-bat pivot centre x (fraction):", round((cols.min() + cols.max()) / 2 / arm.shape[1], 3))
+    """Bill's body in three stop-motion poses (rest, wind-up, swing). The man in
+    the source photo loses his head, and the game puts Bill's photo head on the
+    neck. Prints, for each pose, where the chin was (as a fraction of the saved
+    image): that is the point the game hangs the pose and the head from."""
+    cut = load("S-bill-poses-cutout.png")
+    m = load("S-bill-poses-headmask.png")
+    head = ((m[..., 3] if m[..., 3].std() > 0.01 else m[..., :3].mean(axis=2)) > 0.5).astype(np.uint8)
+    grown = cv2.GaussianBlur(cv2.dilate(head, np.ones((11, 11), np.uint8)).astype(np.float32), (0, 0), 1.0)
+    body = cut.copy()
+    body[..., 3] *= 1 - np.clip(grown * 1.5, 0, 1)
+
+    n, _, hs, _ = cv2.connectedComponentsWithStats(head, 8)
+    heads = sorted((tuple(int(v) for v in hs[i][:4]) for i in range(1, n) if hs[i][4] > 1500), key=lambda b: b[0])
+    n, lab, bs, _ = cv2.connectedComponentsWithStats((body[..., 3] > 0.3).astype(np.uint8), 8)
+    for name, (hx, hy, hw, hh) in zip(("rest", "windup", "swing"), heads):
+        chin = (hx + hw / 2, hy + hh)
+        # the body under this head: the biggest piece that spans the chin's column
+        best = max((i for i in range(1, n) if bs[i][0] <= chin[0] <= bs[i][0] + bs[i][2]), key=lambda i: bs[i][4])
+        near = cv2.dilate((lab == best).astype(np.uint8), np.ones((5, 5), np.uint8)).astype(bool)
+        piece = body.copy()
+        piece[~near] = 0
+        ys, xs = np.where(piece[..., 3] > 0.08)
+        x0, x1, y0, y1 = xs.min() - 2, xs.max() + 3, ys.min() - 2, ys.max() + 3
+        save(f"bill-{name}.png", piece[y0:y1, x0:x1])
+        print(f"  bill-{name}: chin at ({(chin[0] - x0) / (x1 - x0):.3f}, {(chin[1] - y0) / (y1 - y0):.3f}),"
+              f" far right edge {x1 - chin[0]:.0f}px right and {chin[1] - ys[xs.argmax()]:.0f}px above the chin")
 
 
 def asphalt():
@@ -365,9 +381,6 @@ def dogs():
 def props():
     sheet = sorted(pieces(load("G-props-cutout.png")), key=lambda p: p[0])
     for name, (_, _, piece) in zip(("palm", "billboard", "sign", "cone"), sheet):
-        if name == "sign":
-            # shorten the post so the sign face sits at the height of Bill's head
-            piece = piece[: int(piece.shape[0] * 0.72)]
         save(f"{name}.png", piece)
 
 

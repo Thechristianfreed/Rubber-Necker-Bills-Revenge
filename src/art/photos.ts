@@ -57,6 +57,9 @@ const HEADS: HeadFit[] = [
   { h: 64 },                                                    // grey bun
 ];
 
+/** Bill's body is drawn small under his big photo head (design pixels per image pixel). */
+const BODY_SCALE = 0.58;
+
 const WORDS = ['bonk', 'whack', 'thwack', 'pow', 'bop', 'perfect'];
 
 const PIECES: Piece[] = [
@@ -68,11 +71,11 @@ const PIECES: Piece[] = [
   { key: 'dog', file: 'dog.png', w: 84, anchor: [0.66, 0.9] },
   { key: 'dog_mad', file: 'dog-mad.png', w: 67, anchor: [0.55, 0.92] },
 
-  // Bill: aloha shirt, and his arm holding the bat (it pivots at the sleeve)
-  { key: 'bill_torso', file: 'shirt.png', w: 90, anchor: [0.5, 0.6] },
-  // the elbow end of the arm tucks behind the shirt's shoulder, which is where it pivots
-  { key: 'bill_arm', file: 'arm-bat.png', h: 124, border: 2, anchor: [0.316, 0.95] },
-  { key: 'bat', file: 'bat.png', h: 84, border: 2, anchor: [0.5, 0.96] },
+  // Bill's body: three stop-motion frames, each anchored at the chin of the man
+  // in the source photo (tools/make_cutouts.py prints these anchors)
+  { key: 'bill_rest', file: 'bill-rest.png', scale: BODY_SCALE, anchor: [0.498, 0.218] },
+  { key: 'bill_windup', file: 'bill-windup.png', scale: BODY_SCALE, anchor: [0.538, 0.34] },
+  { key: 'bill_swing', file: 'bill-swing.png', scale: BODY_SCALE, anchor: [0.27, 0.187] },
 
   // roadside
   { key: 'palm', file: 'palm.png', h: 172, border: 2, anchor: [0.48, 0.97] },
@@ -86,12 +89,12 @@ const PIECES: Piece[] = [
     decorate: lettering([['KEEP IT', 22], ['MOVING!', 22]], 0.48, 0.185, 21, '#1f4f8a'),
   },
   {
-    key: 'sign0', file: 'sign.png', h: 120, anchor: [0.5, 0.995],
-    decorate: lettering([['NO', 21], ['GAWKING', 16]], 0.5, 0.345, 18, INK),
+    key: 'sign0', file: 'sign.png', h: 167, anchor: [0.5, 0.995],
+    decorate: lettering([['NO', 21], ['GAWKING', 16]], 0.5, 0.248, 18, INK),
   },
   {
-    key: 'sign1', file: 'sign.png', h: 120, anchor: [0.5, 0.995],
-    decorate: lettering([['ROAD', 21], ['WORK', 21]], 0.5, 0.345, 20, INK),
+    key: 'sign1', file: 'sign.png', h: 167, anchor: [0.5, 0.995],
+    decorate: lettering([['ROAD', 21], ['WORK', 21]], 0.5, 0.248, 20, INK),
   },
 
   // effects
@@ -167,7 +170,7 @@ function loadImage(src: string | undefined): Promise<HTMLImageElement | null> {
 export async function loadPhotoArt(scene: Phaser.Scene): Promise<void> {
   const sheets: Paper[] = ['cream', 'white', 'manila', 'yellow', 'red', 'blue', 'green', 'grey', 'black'];
   const names = new Set<string>([
-    ...PIECES.map((p) => p.file), ...PHOTO_VEHICLES.map((v) => v.file), 'postcard.jpg', 'rail.png', 'skin.png', 'asphalt.jpg',
+    ...PIECES.map((p) => p.file), ...PHOTO_VEHICLES.map((v) => v.file), 'postcard.jpg', 'rail.png', 'asphalt.jpg',
     ...sheets.map((n) => `paper-${n}.png`),
   ]);
   const loaded = new Map<string, HTMLImageElement>();
@@ -222,24 +225,6 @@ export async function loadPhotoArt(scene: Phaser.Scene): Promise<void> {
     pools.set(v.pool, [...(pools.get(v.pool) ?? []), spec]);
   }
   for (const [pool, specs] of pools) VEHICLES[pool] = specs;
-
-  // Bill's neck: real skin, cut to sit in the open collar under his chin
-  const skin = loaded.get('skin.png');
-  if (skin) {
-    makeArt(scene, 'bill_neck', 30, 44, (c) => {
-      c.beginPath();
-      c.moveTo(3, 0); c.lineTo(27, 0); c.lineTo(30, 18); c.lineTo(15, 44); c.lineTo(0, 18);
-      c.closePath();
-      c.clip();
-      c.drawImage(skin, 0, 0, 30, 44);
-      // the shade under his chin
-      const g = c.createLinearGradient(0, 0, 0, 30);
-      g.addColorStop(0, 'rgba(60,30,20,0.42)');
-      g.addColorStop(1, 'rgba(60,30,20,0)');
-      c.fillStyle = g;
-      c.fillRect(0, 0, 30, 44);
-    }, { ax: 15, ay: 0 });
-  }
 
   const postcard = loaded.get('postcard.jpg');
   if (postcard) makePhotoTile(scene, 'postcard', postcard, 216);

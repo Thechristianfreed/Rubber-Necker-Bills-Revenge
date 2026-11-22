@@ -93,9 +93,11 @@ export function makeArt(
 }
 
 export interface PhotoOpts {
-  /** Size on screen in design pixels: give a width or a height, the other follows the image. */
+  /** Size on screen in design pixels: give a width or a height (the other
+   *  follows the image), or a scale in design pixels per image pixel. */
   w?: number;
   h?: number;
+  scale?: number;
   border?: number;
   /** Anchor as fractions of the piece (0.5, 1 = bottom centre). */
   anchor?: [number, number];
@@ -109,8 +111,8 @@ export interface PhotoOpts {
  *  giving it the same white paper border and shadow as everything else. */
 export function makePhotoArt(scene: Phaser.Scene, key: string, image: HTMLImageElement, opts: PhotoOpts): void {
   const aspect = image.naturalWidth / image.naturalHeight;
-  const w = opts.w ?? (opts.h ?? 100) * aspect;
-  const h = opts.h ?? w / aspect;
+  const w = opts.scale ? image.naturalWidth * opts.scale : opts.w ?? (opts.h ?? 100) * aspect;
+  const h = opts.scale ? image.naturalHeight * opts.scale : opts.h ?? w / aspect;
   const [inner, c] = makeCanvas(w * TEX, h * TEX);
   c.imageSmoothingEnabled = true;
   c.imageSmoothingQuality = 'high';

@@ -1,21 +1,33 @@
 import Phaser from 'phaser';
-import { BILL, DEPTH, HEAD_SRC_H, LANE, SWING } from '../config';
-import { img } from '../art/sticker';
+import { BILL, DEPTH, HEAD_SRC_H, LANE, SWING, TEX } from '../config';
+import { ART, applyArt, img } from '../art/sticker';
 
-/** Bill: a photo-cutout head on a drawn aloha-shirt body, hanging out of the
- *  far side of his avocado Bug with a baseball bat. */
+/** Bill: his photo head on a photographed body, sitting up out of the far
+ *  window of his avocado Bug with a baseball bat.
+ *
+ *  The body is three stop-motion frames (rest, wind-up, swing) rather than a
+ *  jointed puppet, so his arm and grip are always a real photograph. Every
+ *  frame hangs from the same point, the chin, and so does his head. */
 
 export type Face = 'sideeye' | 'grin' | 'glare';
+type Pose = 'rest' | 'windup' | 'swing';
 
 const HEAD_H = 104;
+/** How much of Bill's head overlaps the neck of the body underneath. */
+const NECK_OVERLAP = 9;
+/** How long the swing frame is held after the bat has gone through. */
+const HOLD = 0.1;
 
-const REST = 0.16;
-const COCKED = -0.95;
-const THROUGH = 1.6;
+/** Fine placement of the head on each frame's neck, and how each frame leans. */
+const POSES: Record<Pose, { dx: number; dy: number; tilt: number; headTilt: number }> = {
+  rest: { dx: 1, dy: 0, tilt: 0, headTilt: 0 },
+  windup: { dx: -1, dy: 0, tilt: -0.05, headTilt: -0.05 },
+  swing: { dx: 3, dy: 1, tilt: 0.05, headTilt: 0.06 },
+};
 
 export class Bill {
   x: number;
-  /** 0 = leaning out, 1 = fully ducked into the car. */
+  /** 0 = sitting up out of the window, 1 = fully ducked into the car. */
   duck = 0;
   wantDuck = false;
   stun = 0;
@@ -24,25 +36,22 @@ export class Bill {
   invulnerable = false;
 
   private car: Phaser.GameObjects.Image;
-  private torso: Phaser.GameObjects.Image;
-  private neck?: Phaser.GameObjects.Image;
+  private body?: Phaser.GameObjects.Image;
   private head: Phaser.GameObjects.Image;
-  private arm: Phaser.GameObjects.Image;
+  private pose: Pose = 'rest';
   private face: Face = 'sideeye';
   private faceT = 0;
   private swingT = -1;
   private lock = 0;
   private connected = false;
   private t = 0;
+  /** Counts down after a frame change, for a small pop. */
+  private snap = 0;
   private stars: Phaser.GameObjects.Image[] = [];
 
   constructor(scene: Phaser.Scene, x: number) {
     this.x = x;
-    this.torso = img(scene, x, 0, 'bill_torso').setDepth(DEPTH.billBack);
-    if (scene.textures.exists('bill_neck')) this.neck = img(scene, x, 0, 'bill_neck').setDepth(DEPTH.billBack + 1.5);
-    // paper-doll style: the arm is behind the shirt, so it comes out of the
-    // shoulder, and behind the head, so the bat never covers Bill's face
-    this.arm = img(scene, x, 0, 'bill_arm').setDepth(DEPTH.billBack - 0.5);
+    if (scene.textures.exists('bill_rest')) this.body = img(scene, x, 0, 'bill_rest').setDepth(DEPTH.billBack);
     this.head = scene.add.image(x, 0, 'bill-sideeye').setDepth(DEPTH.billBack + 2);
     this.car = img(scene, x, LANE.billBase, 'bug').setDepth(DEPTH.billCar);
     for (let i = 0; i < 3; i++) {
@@ -108,45 +117,47 @@ export class Bill {
     }
     if (this.wantDuck && this.face !== 'glare') this.setFace('glare', 0.2);
 
-    let angle = REST + Math.sin(this.t * 5) * 0.04;
-    if (this.swingT >= 0) {
+    // which frame of the swing are we on?
+    let pose: Pose = 'rest';
+    if (this.rageCharge > 0) {
+      pose = 'windup';
+    } else if (this.swingT >= 0) {
       this.swingT += dt;
       const s = this.swingT;
       const end = SWING.windup + SWING.active;
-      if (s < SWING.windup) {
-        angle = Phaser.Math.Linear(REST, COCKED, s / SWING.windup);
-      } else if (s < end) {
-        const k = (s - SWING.windup) / SWING.active;
-        angle = Phaser.Math.Linear(COCKED, THROUGH, 1 - (1 - k) * (1 - k));
-      } else {
-        const recover = this.connected ? SWING.recoverHit : SWING.recoverMiss;
-        const k = Math.min(1, (s - end) / recover);
-        angle = Phaser.Math.Linear(THROUGH, REST, k * k * (3 - 2 * k));
-        if (k >= 1) {
-          this.swingT = -1;
-          if (!this.connected) result = 'whiff';
-        }
+      pose = s < SWING.windup ? 'windup' : s < end + HOLD ? 'swing' : 'rest';
+      if (s >= end + (this.connected ? SWING.recoverHit : SWING.recoverMiss)) {
+        this.swingT = -1;
+        if (!this.connected) result = 'whiff';
       }
     }
-    if (this.rageCharge > 0) angle = COCKED - 0.75 * this.rageCharge + Math.sin(this.t * 60) * 0.05;
+    if (pose !== this.pose) {
+      this.pose = pose;
+      this.snap = 0.07;
+      if (this.body) applyArt(this.body, `bill_${pose}`);
+    }
+    if (this.snap > 0) this.snap -= dt;
 
+    const p = POSES[pose];
     const bounce = Math.sin(this.t * 21) * 0.9;
-    const carY = LANE.billBase + bounce;
-    const stunShake = this.stun > 0 ? Math.sin(this.t * 55) * 4 : 0;
-    const lean = this.swingT >= 0 ? Math.sin(Math.min(1, this.swingT / 0.2) * Math.PI) * 7 : 0;
-    const bx = this.x - 6 + stunShake;
-    const by = carY - 84;
-    // ducking squashes him down behind the roof, bat pulled in flat
-    const drop = this.duck * BILL.duckDepth;
-    if (this.duck > 0) angle = Phaser.Math.Linear(angle, 1.72, this.duck);
+    const shake = this.stun > 0 ? Math.sin(this.t * 55) * 4 : this.rageCharge > 0 ? Math.sin(this.t * 60) * 2 : 0;
+    // ducking drops him down behind the car, as if he pulled himself back inside
+    const chinX = this.x - 6 + shake;
+    const chinY = BILL.chinY + bounce + this.duck * BILL.duckDepth;
+    const tilt = p.tilt - (this.rageCharge > 0 ? 0.1 * this.rageCharge : 0);
+    const pop = this.snap > 0 ? 1 + (this.snap / 0.07) * 0.05 : 1;
 
-    this.car.setPosition(this.x, carY);
-    this.torso.setPosition(bx + lean * 0.4, by).setRotation(lean * 0.012);
-    this.torso.scaleY = this.torso.scaleX * (1 - this.duck * 0.8);
-    // the neck runs from under his chin down into the open collar
-    this.neck?.setPosition(bx - 1 + lean * 0.7, by - 74 + drop).setVisible(this.duck < 0.6);
-    this.head.setPosition(bx - 4 + lean, by - 102 + drop + Math.sin(this.t * 7) * 1.2).setRotation(lean * 0.02 + (this.stun > 0 ? Math.sin(this.t * 40) * 0.12 : 0));
-    this.arm.setPosition(bx + 27 + lean * 0.5, by - 47 + drop * 0.85).setRotation(angle);
+    this.car.setPosition(this.x, LANE.billBase + bounce);
+    if (this.body) {
+      this.body.setPosition(chinX, chinY).setRotation(tilt);
+      this.body.setScale(Math.abs(this.body.scaleX), Math.abs(this.body.scaleX) * pop);
+      // the car hides him from the door down, however far he has ducked
+      const a = ART[`bill_${pose}`];
+      this.body.setCrop(0, 0, this.body.frame.width, Math.max(0, (a.pad + a.ay + BILL.hideY - chinY) * TEX));
+    }
+    this.head
+      .setPosition(chinX + p.dx, chinY + p.dy - HEAD_H / 2 + NECK_OVERLAP + Math.sin(this.t * 7) * 1.1)
+      .setRotation(p.headTilt + (this.stun > 0 ? Math.sin(this.t * 40) * 0.12 : 0));
 
     const showStars = this.stun > 0;
     for (let i = 0; i < this.stars.length; i++) {

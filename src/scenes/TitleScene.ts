@@ -31,25 +31,20 @@ export class TitleScene extends Phaser.Scene {
     band('line_white', H - 96, ART.line_white.h);
     band('line_yellow', H - 50, ART.line_yellow.h);
 
-    // Bill as a bust portrait in front of a paper burst, bat over his shoulder.
-    // He is framed from the shoulders up so the shirt's sleeves run off the page.
+    // Bill in front of a paper burst, bat on his shoulder: the same body frame
+    // the game uses at rest, blown up, with his waist running off the page
     const bx = W * 0.25;
-    const rays = img(this, bx, H - 232, 'burst');
-    rays.setScale(rays.scale * 3.4);
+    const chinY = H - 184;
+    const rays = img(this, bx, H - 262, 'burst');
+    rays.setScale(rays.scale * 3.6);
     this.tweens.add({ targets: rays, rotation: Math.PI * 2, duration: 60000, repeat: -1 });
-    if (this.textures.exists('bat')) {
-      const bat = img(this, bx + 70, H - 84, 'bat').setRotation(0.5);
-      bat.setScale(bat.scale * 2.7);
+    if (this.textures.exists('bill_rest')) {
+      const body = img(this, bx, chinY, 'bill_rest');
+      body.setScale(body.scale * 2.2);
     }
-    const torso = img(this, bx, H + 40, 'bill_torso');
-    torso.setScale(torso.scale * 2.5);
-    if (this.textures.exists('bill_neck')) {
-      const neck = img(this, bx - 2, H - 150, 'bill_neck');
-      neck.setScale(neck.scale * 2.5);
-    }
-    const head = this.add.image(bx - 4, H - 236, 'bill-sideeye').setRotation(-0.06);
+    const head = this.add.image(bx + 2, chinY - 95, 'bill-sideeye').setRotation(-0.04);
     head.setScale(230 / HEAD_SRC_H);
-    this.tweens.add({ targets: head, y: head.y - 4, rotation: 0.0, duration: 1600, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
+    this.tweens.add({ targets: head, y: head.y - 4, rotation: 0.01, duration: 1600, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
 
     // the title: yellow letters glued on a red paper banner
     const tx = W * 0.66;
