@@ -52,7 +52,7 @@ random and never the same one twice running:
 
 | Group | What is in it | Where the game uses it |
 | --- | --- | --- |
-| `hit` | 11 sounds: punches, a wooden gavel knock, a shovel clang, a slap | something landing on a head, or the racquet connecting |
+| `hit` | 9 sounds: punches, a wooden gavel knock, a shovel clang, a slap | something landing on a head, or the racquet connecting |
 | `clunk` | 3 sounds of post going into a metal mailbox | a newspaper landing in a mailbox |
 | `stretch` | 9 creaks of rope being pulled tight | a neck stretching, a bit over half the time |
 | `spring` | 9 sounds: cartoon twangs, a large spring, a door spring | a neck stretching, about a third of the time |
@@ -65,6 +65,11 @@ parts listed in its `CLIPS`, and builds `public/sfx/effects.mp3` and
 sound's number on the site, and the start and end of the part to use) and run
 it again. How often the mouth sounds turn up instead is set in `bonk()` and
 `boing()` in `src/audio/sound.ts`.
+
+Punches, knocks and creaks are nearly all spike and no body, so the tool
+levels every clip by its loudest moment (to match the family's mouth sounds)
+rather than by its peak, and rounds the spikes off. Set by their peaks, they
+were too quiet to hear under the music.
 
 ## Changing or adding a line
 

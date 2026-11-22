@@ -296,7 +296,7 @@ class Sound {
     if (!this.ctx || !this.due('boing', 0.3)) return;
     const rate = (0.92 + Math.random() * 0.2) * (power > 1.1 ? 1.06 : 1);
     if (this.voice.sound && this.nowAndThen('boing', 8) && this.mouth('fx_boing', rate, 0.75)) return;
-    if (Math.random() < 0.35 ? this.effect('spring', rate, 0.7) : this.effect('stretch', rate, 0.9)) return;
+    if (Math.random() < 0.35 ? this.effect('spring', rate, 0.9) : this.effect('stretch', rate, 0.9)) return;
     if (this.mouth('fx_boing', rate, 0.75)) return;
     const f = 150 + Math.random() * 60;
     this.tone({

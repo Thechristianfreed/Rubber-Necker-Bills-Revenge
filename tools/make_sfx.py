@@ -31,12 +31,10 @@ CLIPS = [
     ("hit", "2461", 0.02, 0.50, "punch"),
     ("hit", "2463", 0.01, 0.55, "punch, meatier"),
     ("hit", "2468", 0.05, 0.45, "punch, dull"),
-    ("hit", "2459", 0.06, 0.45, "punch, sharp"),
     ("hit", "0444", 1.10, 1.50, "punch"),
     ("hit", "0444", 3.18, 3.62, "punch"),
     ("hit", "1588", 0.00, None, "a gavel: one wooden knock"),
     ("hit", "1084", 17.15, 17.95, "a shovel on something hard"),
-    ("hit", "1084", 0.13, 0.85, "a shovel on something hard"),
     ("hit", "0597", 0.25, 0.65, "a slap"),
     # clunks: a newspaper landing in a metal mailbox
     ("clunk", "1527", 0.36, 0.95, "metal mailbox"),
@@ -65,9 +63,23 @@ CLIPS = [
 ]
 
 GAP = 0.25
-CEILING = 0.89
-# short knocks are made as loud as they can go; long sounds are levelled by their average
-LEVEL = {"hit": None, "clunk": None, "stretch": 0.12, "spring": 0.11}
+# How loud each group is made, measured at its loudest moment (the level of the
+# loudest 40ms), which is what the ear goes by. The family's mouth sounds come
+# out at about 0.24 on the same measure. Punches, knocks and creaks are nearly
+# all spike and no body: set by their peaks they are far too quiet to hear
+# under the music, so they are pushed up to this level and the spikes are
+# rounded off instead.
+LOUD = {"hit": 0.28, "clunk": 0.26, "stretch": 0.24, "spring": 0.23}
+KNOCKS = ("hit", "clunk")
+
+
+def loudest(clip, ms=40):
+    """The level (RMS) of the loudest `ms` milliseconds of a clip."""
+    n = int(SR * ms / 1000)
+    if len(clip) <= n:
+        return float(np.sqrt((clip ** 2).mean()))
+    total = np.cumsum(np.concatenate([[0.0], clip.astype(np.float64) ** 2]))
+    return float(np.sqrt(((total[n:] - total[:-n]) / n).max()))
 
 
 def fetch(sound):
@@ -91,14 +103,18 @@ def main():
     for group, sound, a, b, what in CLIPS:
         audio = fetch(sound)
         clip = audio[int(a * SR): int(b * SR) if b else len(audio)].copy()
-        if LEVEL[group] is None:
+        if group in KNOCKS:
             # a knock has to land the instant it is asked for
             onset = int(np.argmax(np.abs(clip) > np.abs(clip).max() * 0.1))
             clip = clip[max(0, onset - int(0.012 * SR)):]
-        peak = float(np.abs(clip).max())
-        rms = float(np.sqrt((clip ** 2).mean()))
-        gain = CEILING / peak if LEVEL[group] is None else min(LEVEL[group] / max(rms, 1e-5), CEILING / peak)
-        clip *= gain
+        # tanh leaves the body of the sound alone and bends the spikes over below
+        # full scale. Bending them takes a little off the level, so the gain
+        # is nudged up until the result is as loud as it is meant to be.
+        raw, gain = clip, LOUD[group] / max(loudest(clip), 1e-5)
+        for _ in range(8):
+            clip = np.tanh(raw * gain) * 0.85
+            gain = min(gain * LOUD[group] / max(loudest(clip), 1e-5), 20.0)
+        clip = np.tanh(raw * gain) * 0.85
         fi, fo = int(0.003 * SR), int(min(0.12, len(clip) / SR * 0.25) * SR)
         clip[:fi] *= np.linspace(0, 1, fi)
         clip[-fo:] *= np.linspace(1, 0, fo)
