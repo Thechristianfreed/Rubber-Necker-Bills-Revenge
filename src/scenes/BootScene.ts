@@ -5,10 +5,10 @@ import { loadPhotoArt } from '../art/photos';
 import { buildTextures } from '../art/textures';
 import { sound } from '../audio/sound';
 import { levelById, sceneFor } from '../data/levels';
-import back from '../assets/bill/head-back.png';
-import glare from '../assets/bill/head-glare.png';
-import grin from '../assets/bill/head-grin.png';
-import sideeye from '../assets/bill/head-sideeye.png';
+import back from '../assets/bill/head-back.webp';
+import glare from '../assets/bill/head-glare.webp';
+import grin from '../assets/bill/head-grin.webp';
+import sideeye from '../assets/bill/head-sideeye.webp';
 
 /** Loads Bill's photo heads and the comic font, then draws all the art. */
 export class BootScene extends Phaser.Scene {

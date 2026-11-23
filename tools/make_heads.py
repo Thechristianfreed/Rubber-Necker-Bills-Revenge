@@ -2,7 +2,7 @@
 
 Inputs (art-src/adobe): bill-N-cutout.png  (background removed, RGBA)
                         bill-N-headmask.png (hair + face + beard + ears selection)
-Output (src/assets/bill): one "sticker" PNG per expression - the head only,
+Output (src/assets/bill): one "sticker" picture (saved as WebP) per expression - the head only,
 with a white cut-paper border and a soft drop shadow. The head itself is
 always HEAD_H pixels tall, centred in the image.
 
@@ -12,6 +12,7 @@ import os
 import cv2
 import numpy as np
 from PIL import Image
+from shrink_assets import save_webp
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = os.path.join(ROOT, "art-src", "adobe")
@@ -87,8 +88,8 @@ def build(name, n):
 
     os.makedirs(OUT, exist_ok=True)
     path = os.path.join(OUT, f"head-{name}.png")
-    Image.fromarray((np.clip(out, 0, 1) * 255).astype(np.uint8), "RGBA").save(path, optimize=True)
-    print(name, out.shape[1], "x", out.shape[0], os.path.getsize(path), "bytes")
+    size = save_webp(Image.fromarray((np.clip(out, 0, 1) * 255).astype(np.uint8), "RGBA"), path)
+    print(name, out.shape[1], "x", out.shape[0], size, "bytes")
 
 
 def build_back():
@@ -132,8 +133,8 @@ def build_back():
     out[pad + size[1] - 2:] = 0
 
     path = os.path.join(OUT, "head-back.png")
-    Image.fromarray((np.clip(out, 0, 1) * 255).astype(np.uint8), "RGBA").save(path, optimize=True)
-    print("back", out.shape[1], "x", out.shape[0], os.path.getsize(path), "bytes;",
+    size = save_webp(Image.fromarray((np.clip(out, 0, 1) * 255).astype(np.uint8), "RGBA"), path)
+    print("back", out.shape[1], "x", out.shape[0], size, "bytes;",
           "neck is", int(wide[min(rgba.shape[0] - 1, COLLAR)] * scale), "px wide at the collar")
 
 

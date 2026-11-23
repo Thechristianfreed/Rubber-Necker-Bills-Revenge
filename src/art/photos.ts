@@ -13,10 +13,12 @@ import { buildStreetArt } from './street';
  *  of the drawing it replaces, so nothing else in the game has to change.
  *  The files come from tools/make_cutouts.py. */
 
-const FILES = import.meta.glob('../assets/scrap/*.{png,jpg}', { eager: true, query: '?url', import: 'default' }) as Record<string, string>;
+const FILES = import.meta.glob('../assets/scrap/*.{png,jpg,webp}', { eager: true, query: '?url', import: 'default' }) as Record<string, string>;
 
+/** Where a picture is. Cutouts are called "name.png" throughout, but they are
+ *  kept as WebP, which is a fraction of the size (tools/shrink_assets.py). */
 function url(name: string): string | undefined {
-  return FILES[`../assets/scrap/${name}`];
+  return FILES[`../assets/scrap/${name.replace(/\.png$/, '.webp')}`] ?? FILES[`../assets/scrap/${name}`];
 }
 
 const DISPLAY = 'Bangers, Impact, "Arial Narrow Bold", sans-serif';

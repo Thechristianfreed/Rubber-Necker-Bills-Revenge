@@ -1,7 +1,7 @@
 """Turn Adobe background-removed images into game-ready photo cutouts.
 
 Inputs  (art-src/adobe):     <name>-cutout.png   (RGBA, background removed)
-Outputs (src/assets/scrap):  one trimmed PNG per game piece
+Outputs (src/assets/scrap):  one trimmed picture per game piece (saved as WebP)
 
 The game adds the white paper border and drop shadow itself, so these are just
 the clean cutouts, trimmed to their contents.
@@ -12,6 +12,7 @@ import os
 import cv2
 import numpy as np
 from PIL import Image
+from shrink_assets import save_webp
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = os.path.join(ROOT, "art-src", "adobe")
@@ -23,10 +24,17 @@ def load(name):
 
 
 def save(name, rgba):
+    """Save a cutout. It is called "name.png" everywhere, here and in the game,
+    but what is written is a WebP, which is a fraction of the size."""
     os.makedirs(OUT, exist_ok=True)
     path = os.path.join(OUT, name)
-    Image.fromarray((np.clip(rgba, 0, 1) * 255).astype(np.uint8), "RGBA").save(path, optimize=True)
-    print(name, rgba.shape[1], "x", rgba.shape[0], os.path.getsize(path), "bytes")
+    image = Image.fromarray((np.clip(rgba, 0, 1) * 255).astype(np.uint8), "RGBA")
+    if name.endswith(".png"):
+        size = save_webp(image, path)
+    else:
+        image.save(path, optimize=True)
+        size = os.path.getsize(path)
+    print(name, rgba.shape[1], "x", rgba.shape[0], size, "bytes")
 
 
 def trim(rgba, margin=2):
@@ -635,8 +643,8 @@ def papers():
     for name, (colour, grain, strength) in sheets.items():
         rgb = np.clip(np.array(colour)[None, None, :] * (1 + grain[..., None] * strength), 0, 1)
         path = os.path.join(OUT, f"paper-{name}.png")
-        Image.fromarray((rgb * 255).astype(np.uint8), "RGB").save(path, optimize=True)
-        print(f"paper-{name}.png", rgb.shape[1], "x", rgb.shape[0], os.path.getsize(path), "bytes")
+        size = save_webp(Image.fromarray((rgb * 255).astype(np.uint8), "RGB"), path)
+        print(f"paper-{name}.png", rgb.shape[1], "x", rgb.shape[0], size, "bytes")
 
 
 def ellipse_crop(rgba, cx, cy, rx, ry, feather=3.0):
