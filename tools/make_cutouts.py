@@ -323,6 +323,113 @@ def kid():
     save("paper-roll.png", trim(np.concatenate([half[:, ::-1], half], axis=1)))
 
 
+def mom():
+    """Stephanie, the instructor on the workout tape: her head from one photo
+    (mom-1, smiling in the kitchen), and three more faces made from it the way
+    cut-out animation does. For the "PAH" her chin drops open on a hinge like a
+    ventriloquist's dummy; for the breath in her face goes long; for holding it
+    her cheeks puff out and she goes red. Prints, for each face, how tall it
+    is next to the plain one and where the chin is (as a fraction of the
+    image): what src/art/photos.ts needs to keep them all the same size and
+    hung from the same point."""
+    def sel(name):
+        m = load(name)
+        return m[..., 3] if m[..., 3].std() > 0.01 else m[..., :3].mean(axis=2)
+
+    UP = 2                                  # work at twice the photo's size, so the cuts and warps stay crisp
+    OUT_H = 236                             # how tall the plain head is saved
+    DROP = 0.62                             # how far the chin drops, in mouth-widths
+    big = lambda a: cv2.resize(a, None, fx=UP, fy=UP, interpolation=cv2.INTER_CUBIC)
+    head = big(head_only(load("mom-1-cutout.png"), "mom-1-headmask.png"))
+    face = cv2.GaussianBlur(big(sel("mom-1-facemask.png")), (0, 0), 6)
+    mouth = big(sel("mom-1-mouthmask.png")) > 0.5
+    ys, xs = np.where(head[..., 3] > 0.08)
+    x0, x1, y0, y1 = xs.min() - 30, xs.max() + 31, ys.min() - 6, ys.max() + 7
+    my, mx = np.where(mouth)
+    width = mx.max() - mx.min()
+    drop = int(width * DROP)
+    chin = (int((mx.min() + mx.max()) / 2), ys.max())
+    scale = OUT_H / (ys.max() - ys.min())   # the same for every face, however much room each needs
+
+    def finish(name, rgba, x0=x0, y0=y0, x1=x1, y1=y1):
+        piece = np.clip(rgba[y0:y1, x0:x1], 0, 1)
+        ys2, xs2 = np.where(piece[..., 3] > 0.08)
+        a, b, c, d = xs2.min() - 2, xs2.max() + 3, ys2.min() - 2, ys2.max() + 3
+        piece = piece[c:d, a:b]
+        out = cv2.resize(piece, (round(piece.shape[1] * scale), round(piece.shape[0] * scale)), interpolation=cv2.INTER_AREA)
+        save(f"mom-{name}.png", out)
+        print(f"  mom-{name}: {out.shape[0] / OUT_H:.3f} of the plain head's height,"
+              f" chin at ({(chin[0] - x0 - a) / (b - a):.3f}, {(chin[1] - y0 - c) / (d - c):.3f})")
+
+    finish("smile", head)
+
+    # the chin, cut out like a dummy's: from the corners of the mouth straight down, a little narrower as it goes
+    h, w = head.shape[:2]
+    line = np.full(w, float(my.mean()))
+    for x in range(mx.min(), mx.max() + 1):
+        col = np.where(mouth[:, x])[0]
+        if len(col):
+            line[x] = col.mean()
+    line = cv2.GaussianBlur(line.reshape(1, -1).astype(np.float32), (0, 0), 6).ravel()
+    yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
+    below = yy - line[None, :]
+    left, right = mx.min() - 8 + 0.10 * below, mx.max() + 8 - 0.10 * below
+    soft = lambda d: np.clip(d + 0.5, 0, 1)
+    slot = soft(below) * soft(xx - left) * soft(right - xx)
+    jaw = head.copy()
+    jaw[..., 3] *= slot
+    shift = np.float32([[1, 0, 0], [0, 1, drop]])
+    tall = np.zeros((h + drop, w, 4), np.float32)
+    tall[:h] = head
+    # the inside of the mouth shows where the chin was: dark, with a tongue at the bottom of it
+    inside = np.zeros_like(tall)
+    gap = np.zeros((h + drop, w), np.float32)
+    gap[:h] = slot * head[..., 3]
+    gap *= (np.mgrid[0:h + drop, 0:w][0] < line[None, :] + drop + 4)
+    inside[..., :3] = (0.20, 0.03, 0.05)
+    tongue = np.zeros((h + drop, w), np.float32)
+    cv2.ellipse(tongue, (chin[0], int(line[chin[0]] + drop + 6)), (int(width * 0.34), int(drop * 0.42)), 0, 0, 360, 1.0, -1, cv2.LINE_AA)
+    inside[..., :3] = inside[..., :3] * (1 - tongue[..., None]) + np.float32((0.74, 0.30, 0.33)) * tongue[..., None]
+    # darker towards the top, where the light does not reach
+    depth = np.clip((np.mgrid[0:h + drop, 0:w][0] - line[None, :]) / max(drop, 1), 0, 1)
+    inside[..., :3] *= (0.45 + 0.55 * depth)[..., None]
+    inside[..., 3] = gap
+    moved = cv2.warpAffine(np.pad(jaw, ((0, drop), (0, 0), (0, 0))), shift, (w, h + drop), flags=cv2.INTER_LINEAR, borderValue=(0, 0, 0, 0))
+    # a little shadow down each side of the chin, as cut paper has
+    edge = cv2.GaussianBlur(moved[..., 3], (0, 0), 2.2) - moved[..., 3]
+    for layer in (inside, moved):
+        a = layer[..., 3:4]
+        if layer is moved:
+            tall[..., :3] *= 1 - 0.5 * np.clip(edge, 0, 1)[..., None] * (tall[..., 3:4] > 0.5)
+        tall[..., :3] = tall[..., :3] * (1 - a) + layer[..., :3] * a
+        tall[..., 3:4] = np.maximum(tall[..., 3:4], a)
+    finish("pah", tall, y1=y1 + drop)
+
+    # breathing in: a long face, cheeks drawn in
+    cx, cy = (x0 + x1) / 2, float(chin[1])
+    long_face = cv2.warpAffine(head, np.float32([[0.92, 0, cx * 0.08], [0, 1.07, -cy * 0.07]]), (w, h), flags=cv2.INTER_CUBIC, borderValue=(0, 0, 0, 0))
+    finish("in", long_face, y0=y0 - int((chin[1] - y0) * 0.07) - 2)
+
+    # holding it: cheeks blown out, lips pressed together, and going red
+    map_x, map_y = xx.copy(), yy.copy()
+    lips = (float(chin[0]), float(my.mean()))
+    for px, py, radius, power in ((lips[0] - width * 0.80, lips[1] - width * 0.05, width * 1.25, -0.55),
+                                  (lips[0] + width * 0.80, lips[1] - width * 0.05, width * 1.25, -0.55),
+                                  (lips[0], lips[1], width * 0.62, 0.45)):
+        # a negative power blows the picture up around the point; a positive one pinches it in
+        dx, dy = xx - px, yy - py
+        r = np.sqrt(dx * dx + dy * dy)
+        pull = np.where(r < radius, 1 + power * (1 - r / radius) ** 2, 1.0)
+        map_x += dx * (pull - 1)
+        map_y += dy * (pull - 1)
+    puffed = cv2.remap(head, map_x, map_y, cv2.INTER_CUBIC, borderValue=(0, 0, 0, 0))
+    # reddest in the cheeks, fading towards the forehead
+    blush = cv2.remap(face, map_x, map_y, cv2.INTER_LINEAR) * np.clip(0.35 + 0.65 * (yy - y0) / (lips[1] - y0), 0, 1)
+    blush = (blush * 0.62)[..., None]
+    puffed[..., :3] = puffed[..., :3] * (1 - blush) + puffed[..., :3] * np.float32((1.10, 0.52, 0.50)) * blush
+    finish("hold", puffed)
+
+
 def mailman():
     """The mailman, cheerful and furious. Prints where his feet are, so both
     photos can stand on the same spot."""
@@ -755,6 +862,7 @@ if __name__ == "__main__":
     more_heads()
     bill()
     kid()
+    mom()
     teen()
     hallway()
     locker_things()

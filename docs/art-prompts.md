@@ -146,20 +146,28 @@ Six head-and-shoulders photographs in a row with clear gaps between them, all on
 
 ## Home Movies: Mom's workout tape
 
-Everything in this game is a paper stand-in so far. Three things would make
-it real.
+Mom's head is Stephanie's own; the bodies, the room and the television are
+paper stand-ins so far.
 
 ### WT1. Mom's face
 
-A photo of Mom from around the time of the tape, facing the camera, face
-clear, with her say-so. It gets cut out the way Bill's were, and becomes the
-instructor's head. Four expressions are used (smiling, breathing in, the big
-"PAH", and holding it with cheeks puffed); one photo is enough to start, and
-this turns one into the other three:
+Done, from one photo: Stephanie smiling in the kitchen (`art-src/photos/mom-1.jpg`).
+`tools/make_cutouts.py` cuts her head out and makes the other three faces from
+it the way cut-out animation does: her chin drops open on a hinge for the
+"PAH", her face goes long for the breath in, and her cheeks puff out and go
+red for holding it.
+
+Real expressions would be better still, and the lemon drop photo
+(`art-src/photos/mom-2.jpg`) has just the eyes for it. It needs the glass
+taken away and the mouth opened, which is a job for the image generator:
 
 ```text
-[Attach the photo.] Make three more photographs of this same woman, exactly the same face, hair, age and lighting, head and shoulders, facing the camera, in a row with clear gaps between them on one plain flat light-grey background. First: sucking in a huge breath through pursed lips, eyes wide. Second: mouth wide open blasting all the air out, as if shouting "PAH". Third: holding her breath, cheeks puffed out, eyes squeezed shut, straining. No text, no borders. Wide 16:9 image.
+[Attach the lemon drop photo, and the round one of her smiling with her hair down.] Four head-and-shoulders photographs of this same woman in a row with clear gaps between them, all on one plain flat light-grey background. Exactly her face, her age and her blonde hair worn down as in these photos; no glass and no hands in any of them. First: smiling at the camera. Second: sucking in a huge breath through pursed lips, eyes wide. Third: the sideways glare from the lemon drop photo, but with her mouth wide open as if she has just shouted "PAH!". Fourth: holding her breath, cheeks puffed right out, eyes squeezed shut. Soft even light. No text, no borders. Very wide 21:9 image.
 ```
+
+Send the result back and the four heads replace the ones made from the
+kitchen photo (`mom-smile.png`, `mom-in.png`, `mom-pah.png`, `mom-hold.png`
+in `src/assets/scrap`).
 
 ### WT2. The poses
 

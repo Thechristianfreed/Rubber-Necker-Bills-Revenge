@@ -205,7 +205,8 @@ export class WorkoutMini extends Mini {
     // and straight into the pose, holding it in
     this.strike(this.target, this.worn);
     this.caption.setText(POSES[this.target].name);
-    applyArt(this.momHead, 'mom_hold');
+    // Mom lets hers go with ours, then holds it too
+    applyArt(this.momHead, 'mom_pah');
     this.lungs.setVisible(false);
     this.breath.setVisible(false);
   }
@@ -255,7 +256,9 @@ export class WorkoutMini extends Mini {
       } else if (this.left <= 0) {
         this.exhale();
       }
-    } else if (this.phase === 'hold' && this.left <= 0) {
+    } else if (this.phase === 'hold' && this.left > 0) {
+      if (this.left < 0.62 && this.momHead.texture.key !== 'mom_hold') applyArt(this.momHead, 'mom_hold');
+    } else if (this.phase === 'hold') {
       this.rep++;
       if (this.rep >= REPS) {
         this.phase = 'done';

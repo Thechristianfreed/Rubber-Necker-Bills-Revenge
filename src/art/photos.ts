@@ -68,6 +68,8 @@ const KID_SCALE = 0.5;
 const TEEN_SCALE = 0.8;
 /** Puts the middle of a mailbox 68 pixels above the kerb (MAILBOX_UP in NoodleNeck.ts). */
 const MAILBOX_SCALE = 0.352;
+/** How tall the instructor's head is on the workout tape: a size too big for her body, like everybody's. */
+const MOM_HEAD = 100;
 
 /** The tree the birdhouse sits in: how tall it is drawn, and where the
  *  birdhouse is in the photo, measured from the foot of the trunk as fractions
@@ -154,6 +156,12 @@ const PIECES: Piece[] = [
   { key: 'puff', file: 'puff.png', w: 40, border: 0.8 },
   { key: 'burst', file: 'burst.png', w: 130, border: 2.5 },
   ...WORDS.map((w): Piece => ({ key: `word_${w}`, file: `word-${w}.png`, w: w === 'perfect' ? 124 : 106, border: 2.5 })),
+  // Stephanie, the instructor on the workout tape: one photo, and three more faces made from it
+  // (sizes and chins from tools/make_cutouts.py, so that all four are the same size and hang from the same point)
+  { key: 'mom_smile', file: 'mom-smile.png', h: MOM_HEAD * 1.008, border: 2, anchor: [0.431, 0.995] },
+  { key: 'mom_in', file: 'mom-in.png', h: MOM_HEAD * 1.081, border: 2, anchor: [0.425, 0.995] },
+  { key: 'mom_pah', file: 'mom-pah.png', h: MOM_HEAD * 1.157, border: 2, anchor: [0.431, 0.866] },
+  { key: 'mom_hold', file: 'mom-hold.png', h: MOM_HEAD * 1.013, border: 2, anchor: [0.431, 0.993] },
   // a hand holding a phone, pinned at the wrist (which hides behind the gawker's head)
   { key: 'armphone', file: 'hand-phone.png', w: 54, border: 1.6, anchor: [0.97, 0.822] },
   // a bluebird, wings up and wings down, both pinned at the chest so only the wings move
