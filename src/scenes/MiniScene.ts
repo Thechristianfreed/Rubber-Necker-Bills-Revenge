@@ -20,28 +20,26 @@ const ROSTER: { id: string; make: (host: MiniHost) => Mini }[] = [
   { id: 'bop', make: (h) => new BopMini(h) },
 ];
 
-const LIVES = 3;
-/** Each time round the whole list, everything runs this much faster. */
-const FASTER = 0.12;
-const TOP_SPEED = 1.6;
 const BAR_W = 250;
+/** What the best run is saved under. (Not 'minis': that holds scores from when the games went round and round.) */
+const BEST = 'home-movies';
 /** What plays under the games that have no music of their own. */
 const MUSIC = 'minis';
 
 /** Home Movies: quick games, one straight after another, like flicking
  *  through the family's old video tapes. Each one says what to do, runs against
- *  the clock, and is stamped a hit or a miss. Three misses and the tape runs
- *  out; every time round the list, it all gets faster. */
+ *  the clock, and is stamped a hit or a miss. Every game is played once, and
+ *  then the tape ends and says how many were cleared. */
 export class MiniScene extends Phaser.Scene {
   private state: 'snow' | 'card' | 'play' | 'stamp' | 'over' = 'snow';
   /** Seconds left in this state (for 'play', seconds left on the clock). */
   private t = 0;
   private mini?: Mini;
   private miniId = '';
+  /** The games still to come, how many there were to begin with, and how many have been on. */
   private queue: number[] = [];
+  private total = 0;
   private played = 0;
-  private speed = 1;
-  private lives = LIVES;
   private score = 0;
   private auto: '' | 'good' | 'clumsy' = '';
   private only = '';
@@ -50,7 +48,8 @@ export class MiniScene extends Phaser.Scene {
 
   /** Everything the scene itself owns; whatever else is on the page belongs to the game being played. */
   private keep = new Set<Phaser.GameObjects.GameObject>();
-  private hearts: Image[] = [];
+  /** One mark for each game on the tape: still to come, on now, cleared or missed. */
+  private marks: Image[] = [];
   private scoreText!: Phaser.GameObjects.Text;
   private bar!: Phaser.GameObjects.Graphics;
   private mute!: Image;
@@ -66,24 +65,26 @@ export class MiniScene extends Phaser.Scene {
     const auto = q.get('auto');
     this.auto = auto === null ? '' : auto === 'clumsy' ? 'clumsy' : 'good';
     this.only = q.get('mini') ?? '';
-    this.queue = [];
+    // every game once, in order (or just the one asked for)
+    this.queue = ROSTER.map((_, i) => i).filter((i) => !this.only || ROSTER[i].id === this.only);
+    if (this.queue.length === 0) this.queue = ROSTER.map((_, i) => i);
+    this.total = this.queue.length;
     this.played = 0;
-    this.speed = 1;
-    this.lives = LIVES;
     this.score = 0;
     this.mini = undefined;
     this.canRestart = false;
     this.card = [];
-    this.hearts = [];
+    this.marks = [];
     this.tweens.timeScale = 1;
     this.cameras.main.setZoom(view.RES).centerOn(view.W / 2, H / 2);
     const onResize = () => this.cameras.main.setZoom(view.RES).centerOn(view.W / 2, H / 2);
     this.scale.on('resize', onResize);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.scale.off('resize', onResize));
 
-    // the scoreboard: tapes left, games cleared, and the clock
+    // the scoreboard: a mark for each game on the tape, how many are cleared, and the clock
     const d = DEPTH.hud;
-    for (let i = 0; i < LIVES; i++) this.hearts.push(img(this, 30 + i * 34, 28, 'heart').setDepth(d));
+    const step = Math.min(30, (view.W / 2 - 110) / this.total);
+    for (let i = 0; i < this.total; i++) this.marks.push(img(this, 26 + i * step, 26, 'mini_mark').setDepth(d));
     const tape = img(this, view.W / 2, 17, 'tape_m').setDepth(d);
     tape.setScale(tape.scale * 0.9, tape.scale);
     this.scoreText = written(this, view.W / 2, 17, 'CLEARED  0', 15).setDepth(d + 1);
@@ -99,7 +100,6 @@ export class MiniScene extends Phaser.Scene {
       finish: (won) => this.finish(won),
       word: (word, x, y, big) => this.word(word, x, y, big),
     };
-    Object.defineProperty(this.host, 'speed', { get: () => this.speed });
 
     this.input.on('pointerdown', (p: Phaser.Input.Pointer) => {
       sound.unlock();
@@ -149,13 +149,8 @@ export class MiniScene extends Phaser.Scene {
   /** Change the channel: snow, then the next game with its instructions over it. */
   private next(): void {
     this.sweep();
-    if (this.queue.length === 0) {
-      // once round in order, then shuffled, and a bit faster each time
-      const all = ROSTER.map((_, i) => i).filter((i) => !this.only || ROSTER[i].id === this.only);
-      this.queue = this.played === 0 ? all : all.sort(() => Math.random() - 0.5);
-      if (this.played > 0) this.speed = Math.min(TOP_SPEED, this.speed + FASTER);
-    }
     const entry = ROSTER[this.queue.shift()!];
+    applyArt(this.marks[this.played], 'mini_mark_now');
     this.played++;
     this.miniId = entry.id;
     this.mini = entry.make(this.host);
@@ -196,12 +191,11 @@ export class MiniScene extends Phaser.Scene {
       this.score++;
       sound.cash();
     } else {
-      this.lives--;
       sound.clang();
       this.cameras.main.shake(160, 0.006);
     }
     this.scoreText.setText(`CLEARED  ${this.score}`);
-    this.hearts.forEach((h, i) => applyArt(h, i < this.lives ? 'heart' : 'heart_off'));
+    applyArt(this.marks[this.played - 1], won ? 'mini_mark_win' : 'mini_mark_lose');
     const stamp = img(this, view.W / 2, 230, won ? 'stamp_win' : 'stamp_lose').setDepth(DEPTH.overlay + 3).setRotation(-0.08);
     const full = stamp.scale;
     stamp.setScale(full * 1.8).setAlpha(0);
@@ -234,15 +228,21 @@ export class MiniScene extends Phaser.Scene {
 
   // ---- the end ------------------------------------------------------------------------
 
-  private gameOver(): void {
+  /** Every game has been on: the tape ends, and says how it went. */
+  private theEnd(): void {
     this.sweep();
     this.state = 'over';
     this.mini = undefined;
     sound.stopMusic();
-    sound.lose();
+    const all = this.score === this.total;
+    if (all) sound.win();
+    else if (this.score === 0) sound.lose();
+    else sound.cash();
     this.bar.clear();
-    const best = Math.max(this.score, loadBest('minis'));
-    if (!this.auto) saveBest('minis', this.score);
+    // the best is only kept for the whole tape, played by a person
+    const whole = this.total === ROSTER.length;
+    const best = whole ? Math.max(this.score, loadBest(BEST)) : this.score;
+    if (!this.auto && whole) saveBest(BEST, this.score);
     const W = view.W, d = DEPTH.overlay + 2, px = W / 2, py = H / 2 + 8, pw = 500, ph = 300;
     const g = this.add.graphics().setDepth(0);
     g.fillStyle(0x1b1820, 1);
@@ -252,13 +252,13 @@ export class MiniScene extends Phaser.Scene {
       c.beginPath();
       c.rect(0, 0, pw, ph);
       fillPaper(c, 'cream');
-      cutText(c, 'THE TAPE RAN OUT', pw / 2, 56, 50, 'red');
+      cutText(c, all ? "THAT'S A WRAP!" : 'END OF TAPE', pw / 2, 56, 50, 'red');
     }, { border: 0 });
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.textures.remove('mini_results'));
     img(this, px, py, 'mini_results').setDepth(d - 1).setRotation(-0.01);
-    const rows: [string, string][] = [['Games cleared', `${this.score}`], ['Best so far', `${best}`], ['Top speed', `x${this.speed.toFixed(2)}`]];
+    const rows: [string, string][] = [['Games cleared', `${this.score} of ${this.total}`], ['Best so far', `${best} of ${this.total}`]];
     rows.forEach(([k, v], i) => {
-      const y = py - 32 + i * 36;
+      const y = py - 18 + i * 40;
       written(this, px - 190, y, k, 22).setOrigin(0, 0.5).setDepth(d);
       written(this, px + 190, y, v, 22, '#b8372a').setOrigin(1, 0.5).setDepth(d);
     });
@@ -284,7 +284,7 @@ export class MiniScene extends Phaser.Scene {
     if (this.state === 'over') return;
 
     if (this.state === 'play') {
-      const g = dt * this.speed;
+      const g = dt * this.host.speed;
       this.mini!.update(g);
       if (this.auto && this.state === 'play') this.mini!.bot(g);
       if (this.state !== 'play') return;
@@ -300,12 +300,12 @@ export class MiniScene extends Phaser.Scene {
       if (this.t <= 0) {
         this.snow.setAlpha(0);
         this.state = 'card';
-        this.t = this.auto ? 0.5 : 1.9 / Math.sqrt(this.speed);
+        this.t = this.auto ? 0.5 : 1.9;
       }
     } else if (this.state === 'card' && this.t <= 0) {
       this.startPlay();
     } else if (this.state === 'stamp' && this.t <= 0) {
-      if (this.lives <= 0) this.gameOver();
+      if (this.queue.length === 0) this.theEnd();
       else this.next();
     }
   }

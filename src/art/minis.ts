@@ -302,6 +302,21 @@ export function buildMiniArt(scene: Phaser.Scene): void {
   makeWord(scene, 'stamp_win', 'NAILED IT!', 'green', 'white', 360, 70, 47);
   makeWord(scene, 'stamp_lose', 'OOF!', 'grey', 'yellow', 300, 92, 48);
 
+  // one mark for each game on the tape: still to come, on now, cleared, missed
+  const mark = (key: string, sheet: Paper, sign?: 'tick' | 'cross') => makePaperArt(scene, key, 26, 26, (c) => {
+    circle(c, 13, 13, 11);
+    fillPaper(c, sheet);
+    if (sign === 'tick') strokePaper(c, [7, 13.5, 11.5, 18, 19, 8.5], 'white', 3.2);
+    if (sign === 'cross') {
+      strokePaper(c, [8.5, 8.5, 17.5, 17.5], 'white', 3);
+      strokePaper(c, [17.5, 8.5, 8.5, 17.5], 'white', 3);
+    }
+  }, { border: 2 });
+  mark('mini_mark', 'cream');
+  mark('mini_mark_now', 'yellow');
+  mark('mini_mark_win', 'green', 'tick');
+  mark('mini_mark_lose', 'grey', 'cross');
+
   // a video cassette: the way in from the list of levels
   makePaperArt(scene, 'cassette', 200, 70, (c) => {
     rr(c, 0, 0, 200, 70, 6);

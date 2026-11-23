@@ -5,7 +5,9 @@ export type Point = { x: number; y: number };
 /** What a quick game can ask of the scene that is running it. */
 export interface MiniHost {
   readonly scene: Phaser.Scene;
-  /** How much faster than normal things are running: 1 the first time round. */
+  /** How much faster than normal things are running. Always 1 as it stands
+   *  (every game is played once); a game that keeps time by it carries on
+   *  working if that changes. */
   readonly speed: number;
   /** Who is playing: a person, or one of the self-play bots. */
   readonly auto: '' | 'good' | 'clumsy';

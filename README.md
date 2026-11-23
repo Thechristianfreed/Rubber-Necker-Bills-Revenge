@@ -15,8 +15,8 @@ This is an early playable prototype with two levels and two bonus levels:
    light comes on, tap as fast as you can; when it goes off, freeze.
 
 And **Home Movies** (the video cassette on the level select): quick games a
-few seconds long, one straight after another, a little faster every time
-round. Three misses and the tape runs out. There are three so far: Mom's
+few seconds long, one straight after another. Each is played once, and then
+the tape ends and says how many were cleared. There are three so far: Mom's
 workout tape (copy her pose, then hold to breathe in and let go at the top
 for the PAH), the tour bus (tap whoever is on the phone) and the sleepover
 (bop DJ exactly as many times as asked). See `docs/minigames.md`.

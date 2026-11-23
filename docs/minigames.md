@@ -2,10 +2,9 @@
 
 The video cassette on the level select starts a run of quick games, one
 straight after another. Each says what to do in a few words, runs against the
-clock, and is stamped a hit or a miss. Three misses and the tape runs out.
-The first time round they come in order; after that they are shuffled, and
-everything runs a notch faster each time round (1.12 times normal speed, then
-1.24, and so on up to 1.6).
+clock, and is stamped a hit or a miss. Every game is played once, in the
+order they are listed, with a mark at the top left for each: a tick for a hit
+and a cross for a miss. Then the tape ends, and says how many were cleared.
 
 ## The three so far
 
@@ -42,8 +41,8 @@ levels (the bus and the sleepover games do).
 
 ## Tuning
 
-- How many misses, how much faster each round, the top speed: the constants
-  at the top of `src/scenes/MiniScene.ts`.
+- Which games are on the tape, and in what order: `ROSTER` at the top of
+  `src/scenes/MiniScene.ts`.
 - The workout: how many poses and the pass mark (`REPS`, `PASS`), how long a
   breath takes and how big the green zone is (`INHALE`, `ZONE`, `TOO_LONG`),
   at the top of `src/minis/WorkoutMini.ts`. The poses themselves are stick
