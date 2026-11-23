@@ -13,6 +13,7 @@ outlasts its track, the track goes round again.
 | The SKIPPY Jar | `locker.mp3` | "Sneaky Snitch" | Tiptoeing oboe, snare and plucked strings |
 | The Hot Carl | `sleepover.mp3` | "Marty Gots a Plan" | Plucked strings for sneaking round the house; it drops to a hush whenever the light is off |
 | Home Movies (the quick games) | `minis.mp3` | "Newer Wave" | Eighties synth-pop, for a workout tape |
+| Mom's workout tape (one of the quick games) | `workout.mp3` | The tape's own music | See "The workout tape" below; not in the repository |
 
 ## Credit (required by the licence)
 
@@ -26,6 +27,26 @@ as that credit appears with the game: it is on the title screen and here.
 - "Sneaky Snitch" Kevin MacLeod (incompetech.com)
 - "Marty Gots a Plan" Kevin MacLeod (incompetech.com)
 - "Newer Wave" Kevin MacLeod (incompetech.com)
+
+## The workout tape
+
+Mom's workout tape plays the real tape's music, and its breathing is the
+real instructor's: the breath in and the "PAH". All of it comes from one
+twelve-second recording of the tape, cut up by `tools/make_tape.py`:
+
+- `public/music/workout.mp3`: three bars of the music with nobody breathing
+  over them (six seconds), joined end to start and going round six times.
+- `public/sfx/tape.mp3`: the breath in and the "PAH", with the music that was
+  playing under them taken out.
+
+That recording belongs to whoever made the tape, not to us, so neither
+those two files nor the recording (`audio-src/tape/workout.m4a`) are in this
+repository: they are listed in `.gitignore`. The game works without them:
+the quick games' usual music plays under the workout, and the breathing is
+synthesised. To have the real thing in a build, put the recording at
+`audio-src/tape/workout.m4a` and run `python tools/make_tape.py` (it needs
+numpy and ffmpeg) before building. Fine for a present for the family; think
+again before putting it in an app store.
 
 ## Changing a track
 

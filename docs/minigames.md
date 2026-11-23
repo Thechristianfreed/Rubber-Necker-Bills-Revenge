@@ -11,12 +11,18 @@ everything runs a notch faster each time round (1.12 times normal speed, then
 
 | Game | What to do | Wins when |
 | --- | --- | --- |
-| Mom's workout tape (`workout`) | Mom is on the television and strikes a pose: tap the snapshot of the same pose and Bill does it. Then the breathing: hold anywhere to breathe in, and let go in the green at the top of the meter for a "PAH". Then hold it. Three poses. | 4 points out of 6 (one for each right pose, one for each proper breath) |
+| Mom's workout tape (`workout`) | Mom is on the television and strikes a pose: tap the snapshot of the same pose. Then the breathing, done as on the tape, bent over with a hand on each knee: hold anywhere to breathe in, and let go in the green at the top of the meter for a "PAH". Then into the pose, and hold it. Three poses. | 4 points out of 6 (one for each right pose, one for each proper breath) |
 | The tour bus (`phone`) | Heads bob up at the windows. Tap the ones holding up a phone, and nobody else. | 3 filmers caught before 2 innocent gawkers are |
 | The sleepover (`bop`) | Bop DJ exactly the number of times asked, then stop. | The count is exact when the clock runs out, or has been for a moment |
 
 Letting go of the breath too early is a "pfff"; holding on half a second
 past full is a coughing fit. Neither scores.
+
+The workout has the tape's own music, breath in and "PAH" when those files
+are there (they are not in the repository: see "The workout tape" in
+`docs/music.md`), and stand-ins when they are not. A game asks for music of
+its own with `readonly music = '<file name in public/music>'`; without it,
+the mode's usual track plays.
 
 ## Adding one
 

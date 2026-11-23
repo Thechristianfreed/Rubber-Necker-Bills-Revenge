@@ -58,7 +58,17 @@ export const POSES: Record<string, Pose> = {
   },
 };
 
-export const POSE_IDS = Object.keys(POSES);
+/** Not one of the poses to pick from: how the breathing is done on the tape,
+ *  bent forward towards the camera with a hand on each knee. */
+export const STANCE = 'ready';
+POSES[STANCE] = {
+  name: 'BREATHE!',
+  hips: [[-16, -112], [16, -112]], knees: [[-34, -60], [34, -60]], feet: [[-42, 0], [42, 0]],
+  shoulders: [[-36, -154], [36, -154]], elbows: [[-50, -110], [50, -110]], hands: [[-37, -72], [37, -72]],
+  head: [0, -178], tilt: 0,
+};
+
+export const POSE_IDS = Object.keys(POSES).filter((id) => id !== STANCE);
 
 /** The canvas every pose is drawn on, and where the floor spot is on it. */
 const POSE_W = 320, POSE_H = 310, POSE_AX = 160, POSE_AY = 300;
@@ -218,7 +228,7 @@ function television(c: Ctx): void {
 
 export function buildMiniArt(scene: Phaser.Scene): void {
   // everyone on the tape, in every pose: Mom in pink, Bill in blue
-  for (const id of POSE_IDS) {
+  for (const id of Object.keys(POSES)) {
     for (const [who, leotard, pale, hairy] of [['mom', 'red', true, false], ['bill', 'blue', false, true]] as const) {
       makePaperArt(scene, `pose_${who}_${id}`, POSE_W, POSE_H, (c) => {
         c.translate(POSE_AX, POSE_AY);

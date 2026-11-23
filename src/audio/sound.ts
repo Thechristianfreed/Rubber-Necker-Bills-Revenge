@@ -1,4 +1,5 @@
 import { SFX, SfxGroup } from '../data/sfx';
+import { TAPE } from '../data/tape';
 import { VOICE, VoiceId } from '../data/voice';
 
 /** The game's sound.
@@ -9,7 +10,9 @@ import { VOICE, VoiceId } from '../data/voice';
  *  library recordings in `sfx/effects.mp3` (tools/make_sfx.py): several of
  *  each, picked at random, so nothing is heard twice running. Until those
  *  files have loaded, and for the effects nobody has recorded, a stand-in
- *  synthesised with the Web Audio API plays instead. The music is recordings
+ *  synthesised with the Web Audio API plays instead. The breathing in the
+ *  workout game is the tape's own, `sfx/tape.mp3` (tools/make_tape.py), which
+ *  is not always there. The music is recordings
  *  too, one per level, in `music/` (tools/make_music.sh). All of it sits
  *  beside the page rather than inside it. */
 
@@ -24,6 +27,8 @@ const BREATH_IN = 0.52;
 /** Where the music is, relative to the page, and how loud it plays under the effects. */
 const MUSIC_DIR = 'music/';
 const MUSIC_VOLUME = 0.55;
+/** How much music is kept ready to play, in seconds (see asSound). */
+const KEEP_SECONDS = 135;
 
 type Wave = OscillatorType;
 
@@ -60,12 +65,15 @@ class Sound {
   private track = '';
   private playing?: { track: string; src: AudioBufferSourceNode; fade: GainNode };
   private files = new Map<string, Promise<ArrayBuffer | null>>();
-  private decoded?: { track: string; buffer: Promise<AudioBuffer | null> };
+  /** Tracks already turned into sound, the latest last. */
+  private decoded: { track: string; seconds: number; buffer: Promise<AudioBuffer | null> }[] = [];
   /** How far the music is turned down for the scene (1 = as normal). */
   private musicLevel = 1;
   /** The family's recording, and the library sound effects. */
   private voice: Bank = { url: 'voice/lines.mp3' };
   private effects: Bank = { url: 'sfx/effects.mp3' };
+  /** The workout tape's own breath in and "PAH" (may be missing: see tools/make_tape.py). */
+  private tape: Bank = { url: 'sfx/tape.mp3' };
   private voiceOut!: GainNode;
   /** Lines being spoken right now. */
   private speaking: AudioBufferSourceNode[] = [];
@@ -113,7 +121,7 @@ class Sound {
   /** Start fetching the recordings; they are turned into sound as soon as
    *  there is something to play them with (after the first tap). */
   loadVoice(): void {
-    for (const bank of [this.voice, this.effects]) {
+    for (const bank of [this.voice, this.effects, this.tape]) {
       if (!bank.file) {
         bank.file = fetch(new URL(bank.url, document.baseURI))
           .then((r) => (r.ok ? r.arrayBuffer() : null))
@@ -359,27 +367,38 @@ class Sound {
     this.noise({ dur: 0.03, vol: 0.2, filter: 'highpass', f0: 2200 });
   }
 
-  /** A long breath in through the nose: it climbs and swells for as long as
-   *  it lasts (`seconds` to full lungs), until something comes out again. */
-  inhale(seconds = 1.25): void {
+  /** A long breath in through the nose, taking `seconds` to fill the lungs,
+   *  until something comes out again. The tape's own, if it is there;
+   *  otherwise hiss that climbs and swells. */
+  inhale(seconds = 1.3): void {
     const ctx = this.ctx;
     if (!ctx) return;
     this.stopBreath();
     const t = ctx.currentTime;
     const src = ctx.createBufferSource();
-    src.buffer = this.noiseBuf;
-    src.loop = true;
-    const f = ctx.createBiquadFilter();
-    f.type = 'bandpass';
-    f.Q.value = 1.1;
-    f.frequency.setValueAtTime(420, t);
-    f.frequency.exponentialRampToValueAtTime(2800, t + seconds);
     const g = ctx.createGain();
-    g.gain.setValueAtTime(BREATH_IN * 0.2, t);
-    g.gain.linearRampToValueAtTime(BREATH_IN, t + seconds);
-    src.connect(f).connect(g).connect(this.sfx);
-    src.start(t, Math.random() * 0.5);
-    src.stop(t + seconds + 1.5);
+    if (this.tape.sound) {
+      const [start, length] = TAPE.inhale;
+      src.buffer = this.tape.sound;
+      // played a touch faster or slower, so that it lasts exactly as long as the breath does
+      src.playbackRate.value = length / seconds;
+      g.gain.value = 0.95;
+      src.connect(g).connect(this.sfx);
+      src.start(t, start, length);
+    } else {
+      src.buffer = this.noiseBuf;
+      src.loop = true;
+      const f = ctx.createBiquadFilter();
+      f.type = 'bandpass';
+      f.Q.value = 1.1;
+      f.frequency.setValueAtTime(420, t);
+      f.frequency.exponentialRampToValueAtTime(2800, t + seconds);
+      g.gain.setValueAtTime(BREATH_IN * 0.2, t);
+      g.gain.linearRampToValueAtTime(BREATH_IN, t + seconds);
+      src.connect(f).connect(g).connect(this.sfx);
+      src.start(t, Math.random() * 0.5);
+      src.stop(t + seconds + 1.5);
+    }
     this.breath = { src, gain: g };
   }
 
@@ -397,6 +416,7 @@ class Sound {
   /** ...and all of it out at once: PAH! */
   pah(): void {
     this.stopBreath();
+    if (this.tape.sound && this.clip(this.tape, TAPE.pah, this.sfx, 1, 1)) return;
     this.noise({ dur: 0.34, vol: 0.9, filter: 'lowpass', f0: 3800, f1: 500 });
     this.tone({ type: 'sawtooth', f0: 230, f1: 90, dur: 0.22, vol: 0.4 });
     this.tone({ type: 'sine', f0: 150, f1: 50, dur: 0.2, vol: 0.6 });
@@ -464,8 +484,9 @@ class Sound {
   }
 
   /** Play a level's music from the top. It goes round again if the level
-   *  outlasts it, and carries on until stopMusic(). */
-  startMusic(track: string): void {
+   *  outlasts it, and carries on until stopMusic(). If the track is not there
+   *  to be had, `instead` plays. */
+  startMusic(track: string, instead?: string): void {
     this.track = track;
     this.dim(1);
     if (!this.ctx || this.playing?.track === track) return;
@@ -473,14 +494,15 @@ class Sound {
     this.loadMusic(track);
     void this.files.get(track)!.then(async (bytes) => {
       const ctx = this.ctx;
-      if (!bytes || !ctx) return;
-      // one decoded track at a time: a minute and a half of sound is a lot of memory on a phone
-      if (this.decoded?.track !== track) {
-        this.decoded = { track, buffer: ctx.decodeAudioData(bytes.slice(0)).catch(() => null) };
+      if (!ctx) return;
+      const buffer = bytes && await this.asSound(track, bytes);
+      if (this.track !== track) return;
+      if (!buffer) {
+        if (instead) this.startMusic(instead);
+        return;
       }
-      const buffer = await this.decoded.buffer;
-      // only if this is still the music that is wanted, and nothing has started since
-      if (!buffer || this.track !== track || this.playing) return;
+      // only if nothing has started since
+      if (this.playing) return;
       const src = ctx.createBufferSource();
       src.buffer = buffer;
       src.loop = true;
@@ -491,6 +513,26 @@ class Sound {
       src.start();
       this.playing = { track, src, fade };
     });
+  }
+
+  /** A track's file turned into sound, once, and kept while there is room. A
+   *  level's minute and a half is a lot of memory on a phone, so only the
+   *  latest track is sure to be kept, and earlier ones only while it all comes
+   *  to about two minutes: enough for the quick games to go back and forth
+   *  between their own music and the workout tape's without a pause. */
+  private asSound(track: string, bytes: ArrayBuffer): Promise<AudioBuffer | null> {
+    let hit = this.decoded.find((d) => d.track === track);
+    if (!hit) {
+      const made = { track, seconds: 0, buffer: this.ctx!.decodeAudioData(bytes.slice(0)).catch(() => null) };
+      void made.buffer.then((sound) => {
+        made.seconds = sound?.duration ?? 0;
+        let total = this.decoded.reduce((sum, d) => sum + d.seconds, 0);
+        while (this.decoded.length > 1 && total > KEEP_SECONDS) total -= this.decoded.shift()!.seconds;
+      });
+      hit = made;
+    }
+    this.decoded = [...this.decoded.filter((d) => d !== hit), hit];
+    return hit.buffer;
   }
 
   /** Turn the music down (or back up) for the scene: 1 is normal, 0.3 is hushed. */

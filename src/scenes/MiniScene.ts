@@ -25,6 +25,8 @@ const LIVES = 3;
 const FASTER = 0.12;
 const TOP_SPEED = 1.6;
 const BAR_W = 250;
+/** What plays under the games that have no music of their own. */
+const MUSIC = 'minis';
 
 /** Home Movies: quick games, one straight after another, like flicking
  *  through the family's old video tapes. Each one says what to do, runs against
@@ -121,8 +123,7 @@ export class MiniScene extends Phaser.Scene {
     space?.on('down', () => { if (this.state === 'play') this.mini?.press({ x: view.W / 2, y: H / 2 }); });
     space?.on('up', () => { if (this.state === 'play') this.mini?.release({ x: view.W / 2, y: H / 2 }); });
 
-    sound.loadMusic('minis');
-    sound.startMusic('minis');
+    sound.loadMusic(MUSIC);
     (window as unknown as { __rn: unknown }).__rn = this;
     this.next();
   }
@@ -159,6 +160,9 @@ export class MiniScene extends Phaser.Scene {
     this.miniId = entry.id;
     this.mini = entry.make(this.host);
     this.mini.build();
+    // its own music if it has some (and the file is there), the usual otherwise
+    if (this.mini.music) sound.startMusic(this.mini.music, MUSIC);
+    else sound.startMusic(MUSIC);
 
     // what it is, on a strip of tape, and what to do, in big letters
     const veil = this.add.rectangle(view.W / 2, H / 2, MAX_W * 2, H * 2, 0x14121a, 0.5).setDepth(DEPTH.overlay);

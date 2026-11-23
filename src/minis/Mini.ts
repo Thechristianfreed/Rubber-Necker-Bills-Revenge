@@ -28,6 +28,8 @@ export abstract class Mini {
   abstract readonly prompt: string;
   /** How long it lasts at normal speed, in seconds. */
   abstract readonly seconds: number;
+  /** Music of its own (a file in public/music), if it has any. */
+  readonly music?: string;
 
   constructor(protected readonly host: MiniHost) {}
 

@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { H, HEAD_SRC_H, MAX_W, TEX, view } from '../config';
 import { BLEED } from '../art/finish';
-import { POSES, POSE_IDS, TV, WORKOUT_HEAD } from '../art/minis';
+import { POSES, POSE_IDS, STANCE, TV, WORKOUT_HEAD } from '../art/minis';
 import { ART, applyArt, img } from '../art/sticker';
 import { sound } from '../audio/sound';
 import { label, written } from '../ui/text';
@@ -20,27 +20,32 @@ const MOM_SIZE = 0.72;
 /** Bill's head is a size too big for his body, as everywhere else. */
 const BILL_HEAD = WORKOUT_HEAD * 1.3;
 const FLOOR_Y = 404;
-/** A full breath in takes this long. Let go in the top part of it (ZONE and
+/** A full breath in takes this long (as long as it does on the tape). Let go in the top part of it (ZONE and
  *  up) for a proper PAH; hold on this long past full and it ends in a cough. */
-const INHALE = 1.25;
+const INHALE = 1.3;
 const ZONE = 0.76;
 const TOO_LONG = 0.5;
 
 /** Mom's workout tape. She is on the television, facing us, and calls a pose:
- *  pick the same one for Bill. Then the famous breathing: hold to breathe in,
- *  let go at the top of the breath for the PAH, and hold it while you turn
- *  purple. Three poses. */
+ *  pick the same one for Bill. Then the famous breathing, done as on the tape,
+ *  bent over with a hand on each knee: hold to breathe in, let go at the top
+ *  of the breath for the PAH, then into the pose and hold it while you turn
+ *  purple. Three poses. The music and the breathing are the tape's own. */
 export class WorkoutMini extends Mini {
   readonly title = "MOM'S WORKOUT TAPE";
   readonly prompt = 'COPY MOM, THEN BREATHE!';
   readonly seconds = 26;
+  readonly music = 'workout';
 
   private phase: 'pose' | 'picked' | 'breathe' | 'hold' | 'done' = 'pose';
   private left = 0;
   private rep = 0;
   private points = 0;
   private target = '';
+  /** The pose picked for Bill this time, and what each of them is doing right now. */
   private worn = '';
+  private momPose = STANCE;
+  private billPose = STANCE;
   /** How full Bill's lungs are (1 is full), and whether a finger is down. */
   private air = 0;
   private holding = false;
@@ -86,9 +91,8 @@ export class WorkoutMini extends Mini {
     }).setDepth(16);
 
     // Bill, on the carpet, in the same get-up
-    this.bill = img(s, this.billX, 452, 'pose_bill_stretch').setDepth(30);
+    this.bill = img(s, this.billX, 452, `pose_bill_${STANCE}`).setDepth(30);
     this.billHead = s.add.image(0, 0, 'bill-sideeye').setDepth(31).setScale(BILL_HEAD / HEAD_SRC_H);
-    this.worn = 'stretch';
 
     // three snapshots under the television to pick from
     for (let i = 0; i < 3; i++) {
@@ -129,7 +133,7 @@ export class WorkoutMini extends Mini {
       c.card.setVisible(true);
       c.thumb.setVisible(true);
     });
-    applyArt(this.mom, `pose_mom_${this.target}`);
+    this.strike(this.target, STANCE);
     applyArt(this.momHead, 'mom_smile');
     this.caption.setText(POSES[this.target].name);
     this.momAir = 0;
@@ -145,7 +149,7 @@ export class WorkoutMini extends Mini {
   private pick(id: string): void {
     const right = id === this.target;
     this.worn = id;
-    applyArt(this.bill, `pose_bill_${id}`);
+    this.strike(this.target, id);
     for (const c of this.cards) {
       if (c.id === id) applyArt(c.card, 'pose_card_on');
       else { c.card.setVisible(false); c.thumb.setVisible(false); }
@@ -172,13 +176,16 @@ export class WorkoutMini extends Mini {
     this.holding = false;
     this.lungs.setVisible(true);
     this.breath.setVisible(true);
+    // the breathing is done bent over, a hand on each knee
+    this.strike(STANCE, STANCE);
+    this.caption.setText(POSES[STANCE].name);
     this.say('HOLD to breathe in... LET GO at the top!');
   }
 
   /** Out it comes: a proper PAH if the lungs were full, or something less. */
   private exhale(): void {
     // over his head, not over his face: going purple is the good bit
-    const at = { x: this.billX + POSES[this.worn].head[0] + 50, y: Math.max(92, this.billHead.y - 190) };
+    const at = { x: this.billX + POSES[this.worn].head[0] + 50, y: Math.max(92, this.bill.y + POSES[this.worn].head[1] - 190) };
     this.holding = false;
     if (this.air > 1 + TOO_LONG / INHALE) {
       sound.cough();
@@ -195,9 +202,20 @@ export class WorkoutMini extends Mini {
     this.phase = 'hold';
     this.left = 1.0;
     this.say('...and HOLD IT');
+    // and straight into the pose, holding it in
+    this.strike(this.target, this.worn);
+    this.caption.setText(POSES[this.target].name);
     applyArt(this.momHead, 'mom_hold');
     this.lungs.setVisible(false);
     this.breath.setVisible(false);
+  }
+
+  /** Put the two of them into a pose each. */
+  private strike(mom: string, bill: string): void {
+    this.momPose = mom;
+    this.billPose = bill;
+    applyArt(this.mom, `pose_mom_${mom}`);
+    applyArt(this.bill, `pose_bill_${bill}`);
   }
 
   // ---- taps --------------------------------------------------------------------------
@@ -253,7 +271,7 @@ export class WorkoutMini extends Mini {
   private place(): void {
     const k = 1 / TEX;
     // Mom, on the screen
-    const mp = POSES[this.target], ms = MOM_SIZE;
+    const mp = POSES[this.momPose], ms = MOM_SIZE;
     const momIn = this.phase === 'breathe' ? this.momAir : 0;
     const momHold = this.phase === 'hold' ? 1 : 0;
     this.mom.setScale(k * ms * (1 + 0.07 * momIn - 0.1 * momHold), k * ms);
@@ -264,7 +282,7 @@ export class WorkoutMini extends Mini {
     this.clock.setVisible(Math.floor(this.t * 2) % 2 === 0);
 
     // Bill, on the carpet
-    const bp = POSES[this.worn];
+    const bp = POSES[this.billPose];
     const full = Math.min(this.air, 1.2), held = this.phase === 'hold' ? 1 : 0;
     const strain = held || this.air > 1 ? Math.sin(this.t * 40) * 2.2 : 0;
     this.bill.setScale(k * (1 + 0.13 * full - 0.12 * held), k);

@@ -5,3 +5,9 @@ dist-single/
 .DS_Store
 android/
 ios/
+
+# The workout tape's own music and breathing: somebody else's recording, so
+# not published here (see docs/music.md). The game does without them.
+audio-src/tape/
+public/music/workout.mp3
+public/sfx/tape.mp3
