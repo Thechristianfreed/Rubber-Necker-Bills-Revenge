@@ -144,6 +144,53 @@ do; it gets cut out the way Bill's were. Failing that, this makes stand-ins:
 Six head-and-shoulders photographs in a row with clear gaps between them, all on one plain flat light-grey background: five different teenage boys about sixteen and one middle-aged man with a moustache. Each looks straight at the camera. The first boy has a sly grin, the second is fast asleep with his mouth open, the third is laughing, the fourth grins, the fifth is wide-eyed with shock, and the man is furious. Soft even light. No text, no borders. Very wide 21:9 image.
 ```
 
+## Home Movies: Mom's workout tape
+
+Everything in this game is a paper stand-in so far. Three things would make
+it real.
+
+### WT1. Mom's face
+
+A photo of Mom from around the time of the tape, facing the camera, face
+clear, with her say-so. It gets cut out the way Bill's were, and becomes the
+instructor's head. Four expressions are used (smiling, breathing in, the big
+"PAH", and holding it with cheeks puffed); one photo is enough to start, and
+this turns one into the other three:
+
+```text
+[Attach the photo.] Make three more photographs of this same woman, exactly the same face, hair, age and lighting, head and shoulders, facing the camera, in a row with clear gaps between them on one plain flat light-grey background. First: sucking in a huge breath through pursed lips, eyes wide. Second: mouth wide open blasting all the air out, as if shouting "PAH". Third: holding her breath, cheeks puffed out, eyes squeezed shut, straining. No text, no borders. Wide 16:9 image.
+```
+
+### WT2. The poses
+
+The game has five poses, guessed from the three screenshots: the lunge, the
+pretzel (sitting twist), the frog (squat with knees wide), the donkey kick
+(on all fours, one leg straight back) and the big stretch (standing, both
+arms up). More screenshots mean more, and truer, poses: each one only needs
+to show where the arms and legs go.
+
+For photo bodies in place of the paper dolls, one sheet per person. Mom
+faces the camera, in the leotard from the tape; Bill is seen from the same
+angle in his own. The heads are cut off and replaced, so they do not matter.
+
+```text
+Five full-length photographs of the same woman in a row with clear gaps between them, all on one plain flat light-grey background, from a 1990s home workout video: shiny pink leotard, white leg warmers, white trainers. She faces the camera in each. From left to right: a deep side lunge with one hand on her knee; sitting on the floor in a twist, one leg straight out and the other knee up, pulling the knee across; a deep squat with knees wide and elbows pressing them apart; on hands and knees with one leg kicked straight out behind; standing tall with both arms stretched straight up. Soft even studio light, no shadows on the background, whole body in frame in every one. No text, no borders. Very wide 21:9 image.
+```
+
+```text
+The same five poses in the same order, on the same plain flat light-grey background, but the person is a slim man of about seventy in a royal-blue leotard and white trainers, bare hairy legs, taking it completely seriously. Soft even studio light, whole body in frame in every one. No text, no borders. Very wide 21:9 image.
+```
+
+### WT3. The room
+
+```text
+A 1990s living room photographed straight on from the middle of the floor: wood-panelled wall, beige wall-to-wall carpet filling the bottom third, nothing in the middle of the room. Empty of people. Evening lamp light. No text. Wide 16:9 image.
+```
+
+```text
+A 1990s wood-cabinet television set with a video recorder underneath, photographed straight on against a plain flat light-grey background, screen switched off and plain dark grey. Soft even light, no reflections on the screen. No text, no logos.
+```
+
 ## Later
 
 - The other weapons (flyswatter, tennis racquet, nail board, kayak oar): each

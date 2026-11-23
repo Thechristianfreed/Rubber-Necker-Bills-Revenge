@@ -14,6 +14,13 @@ This is an early playable prototype with two levels and two bonus levels:
 4. **The Hot Carl** (bonus, the sleepover): another true story. Every time the
    light comes on, tap as fast as you can; when it goes off, freeze.
 
+And **Home Movies** (the video cassette on the level select): quick games a
+few seconds long, one straight after another, a little faster every time
+round. Three misses and the tape runs out. There are three so far: Mom's
+workout tape (copy her pose, then hold to breathe in and let go at the top
+for the PAH), the tour bus (tap whoever is on the phone) and the sleepover
+(bop DJ exactly as many times as asked). See `docs/minigames.md`.
+
 ## Play it
 
 ```bash
@@ -29,7 +36,7 @@ Open the printed address on a phone held sideways, or on a computer.
 | Duck | hold the DUCK button | Down arrow or S |
 | Road Rage special | RAGE button when the ring is full | R or Enter |
 
-Add `?auto` to the address to watch the game play itself (`?auto=clumsy` plays badly), and `&level=street`, `&level=highway`, `&level=locker` or `&level=sleepover` to pick the level.
+Add `?auto` to the address to watch the game play itself (`?auto=clumsy` plays badly), and `&level=street`, `&level=highway`, `&level=locker` or `&level=sleepover` to pick the level. `&level=minis` plays the quick games, and `&mini=workout`, `&mini=phone` or `&mini=bop` keeps to one of them.
 
 ## Build
 
@@ -75,6 +82,7 @@ Converts that single file into a page fragment for hosts that add their own page
   scoreboard, taps and buttons, speech bubbles, the results page).
   `GameScene.ts` is the side-on levels; `LockerScene.ts` is the hallway, seen
   over Bill's shoulder; `SleepoverScene.ts` is the light-switch level.
+  `MiniScene.ts` runs the quick games, which are in `src/minis`.
 - **Ideas backlog:** `docs/level-ideas.md`.
 
 Photo cutouts live in `src/assets/scrap` and are listed in `src/art/photos.ts`,

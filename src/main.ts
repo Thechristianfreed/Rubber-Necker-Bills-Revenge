@@ -5,6 +5,7 @@ import { BootScene } from './scenes/BootScene';
 import { GameScene } from './scenes/GameScene';
 import { LevelSelectScene } from './scenes/LevelSelectScene';
 import { LockerScene } from './scenes/LockerScene';
+import { MiniScene } from './scenes/MiniScene';
 import { SleepoverScene } from './scenes/SleepoverScene';
 import { TitleScene } from './scenes/TitleScene';
 
@@ -37,7 +38,7 @@ const game = new Phaser.Game({
   // with an exact float compare, which leaves holes in rotated sprites on some
   // GPUs. The game draws few enough sprites that the extra draw calls are free.
   render: { antialias: true, maxTextures: 1 },
-  scene: [BootScene, TitleScene, LevelSelectScene, GameScene, LockerScene, SleepoverScene],
+  scene: [BootScene, TitleScene, LevelSelectScene, GameScene, LockerScene, SleepoverScene, MiniScene],
 });
 
 (window as unknown as { __game: Phaser.Game }).__game = game;

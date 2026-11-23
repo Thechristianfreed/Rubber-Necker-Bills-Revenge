@@ -18,6 +18,8 @@ interface Bank { url: string; file?: Promise<ArrayBuffer | null>; sound?: AudioB
 type Clip = readonly [start: number, length: number];
 /** How far the music drops while somebody is speaking. */
 const DUCK = 0.4;
+/** How loud a full breath in gets: clearly there, but well under the PAH that follows. */
+const BREATH_IN = 0.52;
 
 /** Where the music is, relative to the page, and how loud it plays under the effects. */
 const MUSIC_DIR = 'music/';
@@ -70,6 +72,8 @@ class Sound {
   /** When each sound was last made, and which of a group was picked last. */
   private last: Record<string, number> = {};
   private picked: Record<string, number> = {};
+  /** The breath being drawn in, if there is one. */
+  private breath?: { src: AudioBufferSourceNode; gain: GainNode };
   muted = false;
 
   /** Must be called from a tap/click before anything can play. */
@@ -353,6 +357,64 @@ class Sound {
   tock(): void {
     this.tone({ type: 'triangle', f0: 520, f1: 260, dur: 0.07, vol: 0.3 });
     this.noise({ dur: 0.03, vol: 0.2, filter: 'highpass', f0: 2200 });
+  }
+
+  /** A long breath in through the nose: it climbs and swells for as long as
+   *  it lasts (`seconds` to full lungs), until something comes out again. */
+  inhale(seconds = 1.25): void {
+    const ctx = this.ctx;
+    if (!ctx) return;
+    this.stopBreath();
+    const t = ctx.currentTime;
+    const src = ctx.createBufferSource();
+    src.buffer = this.noiseBuf;
+    src.loop = true;
+    const f = ctx.createBiquadFilter();
+    f.type = 'bandpass';
+    f.Q.value = 1.1;
+    f.frequency.setValueAtTime(420, t);
+    f.frequency.exponentialRampToValueAtTime(2800, t + seconds);
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(BREATH_IN * 0.2, t);
+    g.gain.linearRampToValueAtTime(BREATH_IN, t + seconds);
+    src.connect(f).connect(g).connect(this.sfx);
+    src.start(t, Math.random() * 0.5);
+    src.stop(t + seconds + 1.5);
+    this.breath = { src, gain: g };
+  }
+
+  /** Cut a breath in short, without a sound. */
+  stopBreath(): void {
+    const b = this.breath;
+    if (!b || !this.ctx) return;
+    const t = this.ctx.currentTime;
+    b.gain.gain.cancelScheduledValues(t);
+    b.gain.gain.setTargetAtTime(0.0001, t, 0.012);
+    b.src.stop(t + 0.12);
+    this.breath = undefined;
+  }
+
+  /** ...and all of it out at once: PAH! */
+  pah(): void {
+    this.stopBreath();
+    this.noise({ dur: 0.34, vol: 0.9, filter: 'lowpass', f0: 3800, f1: 500 });
+    this.tone({ type: 'sawtooth', f0: 230, f1: 90, dur: 0.22, vol: 0.4 });
+    this.tone({ type: 'sine', f0: 150, f1: 50, dur: 0.2, vol: 0.6 });
+  }
+
+  /** A breath let go too soon: it just leaks out. */
+  wheeze(): void {
+    this.stopBreath();
+    this.noise({ dur: 0.55, vol: 1.15, f0: 2400, f1: 500, q: 1.2 });
+  }
+
+  /** A breath held too long: it comes out as a coughing fit. */
+  cough(): void {
+    this.stopBreath();
+    [0, 0.15, 0.27].forEach((at, i) => {
+      this.noise({ dur: 0.1, vol: 2.2 - i * 0.35, filter: 'lowpass', f0: 2600, f1: 500, at });
+      this.tone({ type: 'sawtooth', f0: 190 - i * 20, f1: 110, dur: 0.08, vol: 0.3, at });
+    });
   }
 
   /** A light switch: up for on, down for off. */

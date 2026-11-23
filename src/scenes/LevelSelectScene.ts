@@ -69,9 +69,13 @@ export class LevelSelectScene extends Phaser.Scene {
       this.cards.push({ x, y, k, level });
     });
 
-    const tape = img(this, W / 2, H - 24, 'tape_m');
+    const tape = img(this, W / 2 - 110, H - 24, 'tape_m');
     tape.setScale(tape.scale * 1.3, tape.scale);
-    written(this, W / 2, H - 24, 'Tap a level to play', 18);
+    written(this, W / 2 - 110, H - 24, 'Tap a level to play', 18);
+    // a video cassette at the side: the quick games, one after another
+    const cassette = img(this, W - 124, H - 46, 'cassette').setRotation(-0.04);
+    this.tweens.add({ targets: cassette, scale: cassette.scale * 1.05, duration: 520, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
+    sound.loadMusic('minis');
 
     const start = (level: LevelDef) => {
       sound.unlock();
@@ -81,6 +85,10 @@ export class LevelSelectScene extends Phaser.Scene {
       const w = this.cameras.main.getWorldPoint(p.x, p.y);
       const hit = this.cards.find((c) => Math.abs(w.x - c.x) < (CARD_W * c.k) / 2 && Math.abs(w.y - c.y) < (CARD_H * c.k) / 2);
       if (hit) start(hit.level);
+      else if (Math.abs(w.x - (W - 124)) < 110 && Math.abs(w.y - (H - 46)) < 44) {
+        sound.unlock();
+        this.scene.start('minis');
+      }
     });
     this.input.keyboard?.on('keydown', (e: KeyboardEvent) => {
       const level = LEVELS.find((l) => String(l.number) === e.key);

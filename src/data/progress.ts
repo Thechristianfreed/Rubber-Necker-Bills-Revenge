@@ -23,3 +23,20 @@ export function saveStars(levelId: string, stars: number): void {
     // nowhere to save: carry on
   }
 }
+
+/** Best score at something that is counted rather than starred (the quick games). */
+export function loadBest(what: string): number {
+  try {
+    return Number(localStorage.getItem(`rubber-necker-best-${what}`)) || 0;
+  } catch {
+    return 0;
+  }
+}
+
+export function saveBest(what: string, score: number): void {
+  try {
+    if (score > loadBest(what)) localStorage.setItem(`rubber-necker-best-${what}`, String(score));
+  } catch {
+    // nowhere to save: carry on
+  }
+}

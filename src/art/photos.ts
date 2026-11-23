@@ -5,6 +5,7 @@ import { ARM_TINTS, VEHICLES, VehicleSpec, makeNeck, setHeadStyles } from './tex
 import { PAPERS, addPaper } from './paper';
 import { buildPaperUi } from './ui';
 import { HALL, buildHallArt } from './hallway';
+import { buildMiniArt } from './minis';
 import { buildSleepoverArt } from './sleepover';
 import { buildStreetArt } from './street';
 
@@ -241,6 +242,7 @@ export async function loadPhotoArt(scene: Phaser.Scene): Promise<void> {
   buildStreetArt(scene, loaded.get('head4.png'), loaded.get('head4-dazed.png'));
   buildHallArt(scene);
   buildSleepoverArt(scene);
+  buildMiniArt(scene);
 
   for (const p of PIECES) {
     const im = loaded.get(p.file);

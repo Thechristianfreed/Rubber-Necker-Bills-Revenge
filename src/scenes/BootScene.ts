@@ -60,7 +60,9 @@ export class BootScene extends Phaser.Scene {
       return loadPhotoArt(this);
     }).then(() => {
       const q = new URLSearchParams(location.search);
-      this.scene.start(q.has('auto') ? sceneFor(levelById(q.get('level'))) : 'title');
+      // ?auto goes straight into a level (or, with level=minis, the quick games)
+      const level = q.get('level');
+      this.scene.start(!q.has('auto') ? 'title' : level === 'minis' ? 'minis' : sceneFor(levelById(level)));
     });
   }
 }

@@ -12,10 +12,11 @@ outlasts its track, the track goes round again.
 | Highway Jam | `highway.mp3` | "Happy Bee - Surf" | Early surf rock, mid-tempo |
 | The SKIPPY Jar | `locker.mp3` | "Sneaky Snitch" | Tiptoeing oboe, snare and plucked strings |
 | The Hot Carl | `sleepover.mp3` | "Marty Gots a Plan" | Plucked strings for sneaking round the house; it drops to a hush whenever the light is off |
+| Home Movies (the quick games) | `minis.mp3` | "Newer Wave" | Eighties synth-pop, for a workout tape |
 
 ## Credit (required by the licence)
 
-All four tracks are by Kevin MacLeod (incompetech.com), licensed under
+All five tracks are by Kevin MacLeod (incompetech.com), licensed under
 Creative Commons: By Attribution 4.0
 (https://creativecommons.org/licenses/by/4.0/). They are free to use as long
 as that credit appears with the game: it is on the title screen and here.
@@ -24,6 +25,7 @@ as that credit appears with the game: it is on the title screen and here.
 - "Happy Bee - Surf" Kevin MacLeod (incompetech.com)
 - "Sneaky Snitch" Kevin MacLeod (incompetech.com)
 - "Marty Gots a Plan" Kevin MacLeod (incompetech.com)
+- "Newer Wave" Kevin MacLeod (incompetech.com)
 
 ## Changing a track
 
