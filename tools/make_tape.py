@@ -6,10 +6,9 @@ Output  public/music/workout.mp3     three clean bars of the music, going round 
         public/sfx/tape.mp3          the breath in and the "PAH", with the music under them taken out
         src/data/tape.ts             where each of those two is in that file
 
-The tape is somebody else's recording, so neither the input nor the two sound
-files it makes are in the repository (see .gitignore and docs/music.md). The
-game does without them if they are missing: the quick games' usual music
-plays, and the breathing is synthesised.
+The tape is somebody else's recording (see docs/music.md). The game does
+without the two sound files if they are missing: the quick games' usual
+music plays, and the breathing is synthesised.
 
 How it works. The music is a slow synth pad over a drum pattern two seconds
 long. LOOP is three of those bars with nothing but music in them; they are

@@ -18,11 +18,10 @@ everything runs a notch faster each time round (1.12 times normal speed, then
 Letting go of the breath too early is a "pfff"; holding on half a second
 past full is a coughing fit. Neither scores.
 
-The workout has the tape's own music, breath in and "PAH" when those files
-are there (they are not in the repository: see "The workout tape" in
-`docs/music.md`), and stand-ins when they are not. A game asks for music of
-its own with `readonly music = '<file name in public/music>'`; without it,
-the mode's usual track plays.
+The workout has the tape's own music, breath in and "PAH" (see "The workout
+tape" in `docs/music.md`), and stand-ins if those files are missing. A game
+asks for music of its own with `readonly music = '<file name in
+public/music>'`; without it, the mode's usual track plays.
 
 ## Adding one
 

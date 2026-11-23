@@ -74,10 +74,8 @@ Converts that single file into a page fragment for hosts that add their own page
   (see `docs/voice.md` for both). The music is one recording per level in
   `public/music/` (see `docs/music.md` for the tracks and their credit). The
   workout game uses the real tape's music and breathing, cut out of a
-  recording by `tools/make_tape.py`; those files are somebody else's, so they
-  are kept out of this repository and the game has stand-ins for when they
-  are missing. The few effects left over are synthesised in
-  `src/audio/sound.ts`.
+  recording by `tools/make_tape.py`. The few effects left over are
+  synthesised in `src/audio/sound.ts`.
 - **Tuning:** timing windows and scoring live in `src/config.ts`; the level
   scripts are in `src/data/levels.ts`; Bill's lines are `src/data/phrases.ts`;
   how Bill is assembled in each level (car, bike or on foot) is `RIGS` in

@@ -13,7 +13,7 @@ outlasts its track, the track goes round again.
 | The SKIPPY Jar | `locker.mp3` | "Sneaky Snitch" | Tiptoeing oboe, snare and plucked strings |
 | The Hot Carl | `sleepover.mp3` | "Marty Gots a Plan" | Plucked strings for sneaking round the house; it drops to a hush whenever the light is off |
 | Home Movies (the quick games) | `minis.mp3` | "Newer Wave" | Eighties synth-pop, for a workout tape |
-| Mom's workout tape (one of the quick games) | `workout.mp3` | The tape's own music | See "The workout tape" below; not in the repository |
+| Mom's workout tape (one of the quick games) | `workout.mp3` | The tape's own music | See "The workout tape" below |
 
 ## Credit (required by the licence)
 
@@ -39,14 +39,15 @@ twelve-second recording of the tape, cut up by `tools/make_tape.py`:
 - `public/sfx/tape.mp3`: the breath in and the "PAH", with the music that was
   playing under them taken out.
 
-That recording belongs to whoever made the tape, not to us, so neither
-those two files nor the recording (`audio-src/tape/workout.m4a`) are in this
-repository: they are listed in `.gitignore`. The game works without them:
-the quick games' usual music plays under the workout, and the breathing is
-synthesised. To have the real thing in a build, put the recording at
-`audio-src/tape/workout.m4a` and run `python tools/make_tape.py` (it needs
-numpy and ffmpeg) before building. Fine for a present for the family; think
-again before putting it in an app store.
+The recording itself is `audio-src/tape/workout.m4a`; run
+`python tools/make_tape.py` (it needs numpy and ffmpeg) to make the two files
+again, or point it at a longer recording for a longer loop. If either file is
+missing the game carries on without it: the quick games' usual music plays
+under the workout, and the breathing is synthesised.
+
+That recording belongs to whoever made the tape, not to us. It is here
+because this is a present for the family; think again before putting it in
+an app store.
 
 ## Changing a track
 
