@@ -146,57 +146,92 @@ Six head-and-shoulders photographs in a row with clear gaps between them, all on
 
 ## Home Movies: Mom's workout tape
 
-Mom's head is Stephanie's own; the bodies, the room and the television are
-paper stand-ins so far.
+Mom's head is Stephanie's own, from the kitchen photo
+(`art-src/photos/mom-1.jpg`); her other three faces are made from it by
+`tools/make_cutouts.py` (a hinged chin for the "PAH", a long face for the
+breath in, puffed red cheeks for holding it). The bodies, the room on the
+tape, the television and the den are paper stand-ins. In order of how much
+each would add:
 
-### WT1. Mom's face
+### WT1. Stephanie's faces
 
-Done, from one photo: Stephanie smiling in the kitchen (`art-src/photos/mom-1.jpg`).
-`tools/make_cutouts.py` cuts her head out and makes the other three faces from
-it the way cut-out animation does: her chin drops open on a hinge for the
-"PAH", her face goes long for the breath in, and her cheeks puff out and go
-red for holding it.
+What goes wrong: asked for several new photographs of "this woman", the
+generator invents a new woman. It keeps a likeness when it *edits one photo*
+and changes one thing. So: one face per image, always starting from the
+kitchen photo, in a fresh chat each time, with the biggest copy of the photo
+there is. The tape frame goes in as a second image, for the expression only.
+If it starts copying the tape lady, leave her frame out and let the words do
+it. If the first try is not her, ask again rather than correcting it.
 
-Real expressions would be better still, and the lemon drop photo
-(`art-src/photos/mom-2.jpg`) has just the eyes for it. It needs the glass
-taken away and the mouth opened, which is a job for the image generator:
+The "PAH" (attach the kitchen photo, then the tape frame of the "PAH"):
 
 ```text
-[Attach the lemon drop photo, and the round one of her smiling with her hair down.] Four head-and-shoulders photographs of this same woman in a row with clear gaps between them, all on one plain flat light-grey background. Exactly her face, her age and her blonde hair worn down as in these photos; no glass and no hands in any of them. First: smiling at the camera. Second: sucking in a huge breath through pursed lips, eyes wide. Third: the sideways glare from the lemon drop photo, but with her mouth wide open as if she has just shouted "PAH!". Fourth: holding her breath, cheeks puffed right out, eyes squeezed shut. Soft even light. No text, no borders. Very wide 21:9 image.
+Edit the first image. It is a photo of the woman I want. Keep her exactly as she is: the same face, age, skin, eyes, nose, teeth, hair, necklace and top, the same lighting, the same background and the same framing. Change one thing only, her expression: her mouth is thrown wide open in a big round shout, jaw dropped as far as it will go, top teeth showing, eyes rolled up toward the ceiling, eyebrows raised. The second image shows the expression I mean. Use it for the expression only: do not copy that woman's face, hair, clothes or the look of that picture. Do not make her younger, smoother or prettier. Photorealistic, the same quality as the original photo.
 ```
 
-Send the result back and the four heads replace the ones made from the
-kitchen photo (`mom-smile.png`, `mom-in.png`, `mom-pah.png`, `mom-hold.png`
-in `src/assets/scrap`).
-
-### WT2. The poses
-
-The game has five poses, guessed from the three screenshots: the lunge, the
-pretzel (sitting twist), the frog (squat with knees wide), the donkey kick
-(on all fours, one leg straight back) and the big stretch (standing, both
-arms up). More screenshots mean more, and truer, poses: each one only needs
-to show where the arms and legs go.
-
-For photo bodies in place of the paper dolls, one sheet per person. Mom
-faces the camera, in the leotard from the tape; Bill is seen from the same
-angle in his own. The heads are cut off and replaced, so they do not matter.
+The breath in (attach the kitchen photo, then the tape frame of the breath in):
 
 ```text
-Five full-length photographs of the same woman in a row with clear gaps between them, all on one plain flat light-grey background, from a 1990s home workout video: shiny pink leotard, white leg warmers, white trainers. She faces the camera in each. From left to right: a deep side lunge with one hand on her knee; sitting on the floor in a twist, one leg straight out and the other knee up, pulling the knee across; a deep squat with knees wide and elbows pressing them apart; on hands and knees with one leg kicked straight out behind; standing tall with both arms stretched straight up. Soft even studio light, no shadows on the background, whole body in frame in every one. No text, no borders. Very wide 21:9 image.
+Edit the first image. It is a photo of the woman I want. Keep her exactly as she is: the same face, age, skin, eyes, nose, hair, necklace and top, the same lighting, the same background and the same framing. Change one thing only, her expression: her lips are pushed forward and squeezed into a tight pucker, as if sucking air in through a straw, her cheeks are drawn in, and her eyes are half closed. The second image shows the expression I mean. Use it for the expression only: do not copy that woman's face, hair, clothes or the look of that picture. Do not make her younger, smoother or prettier. Photorealistic, the same quality as the original photo.
 ```
 
+Holding it (attach the kitchen photo only):
+
 ```text
-The same five poses in the same order, on the same plain flat light-grey background, but the person is a slim man of about seventy in a royal-blue leotard and white trainers, bare hairy legs, taking it completely seriously. Soft even studio light, whole body in frame in every one. No text, no borders. Very wide 21:9 image.
+Edit this photo. Keep this woman exactly as she is: the same face, age, skin, eyes, nose, hair, necklace and top, the same lighting, the same background and the same framing. Change one thing only, her expression: she is holding her breath, lips pressed tightly shut, cheeks puffed out as round as they will go, eyes squeezed shut, face flushed red with the strain. Do not make her younger, smoother or prettier. Photorealistic, the same quality as the original photo.
 ```
 
-### WT3. The room
+The head is kept facing the camera on purpose (a head thrown back is where
+the likeness goes first); the game tips it. For the tape's big hair, do that
+first, as one edit of the kitchen photo ("give her big, teased, feathered
+blonde 1990s hair to her shoulders; change nothing about her face"), check it
+is still her, and use the result as the first image for all three faces, so
+the hair matches from one face to the next.
+
+### WT2. The bodies
+
+The heads are cut off and replaced, so the faces do not matter here; what
+matters is a clear neck and shoulders and the whole body in frame. Two sheets
+for Mom, then the same two for Bill.
+
+Mom, standing (attach nothing):
 
 ```text
-A 1990s living room photographed straight on from the middle of the floor: wood-panelled wall, beige wall-to-wall carpet filling the bottom third, nothing in the middle of the room. Empty of people. Evening lamp light. No text. Wide 16:9 image.
+Three full-length photographs of the same woman side by side with wide clear gaps between them, on one plain flat light-grey studio background. She is the instructor in a 1990s home workout video: shiny pink high-cut leotard with white trim, white slouch socks and white trainers, blonde hair tied up in a tight bun so her neck and shoulders are clear. She faces the camera in all three. Left: bent forward at the waist with a hand on each knee, back flat, head up, looking at the camera. Middle: a deep side lunge, one knee bent and the other leg straight out to the side, hands on her hips. Right: standing tall with both arms stretched straight up overhead. Her whole body is in frame from head to feet in every one, her feet on the same floor line. Soft even light, no shadows on the background. No text, no borders. Wide 16:9 image.
 ```
 
+Mom, on the floor (attach the sheet just made):
+
 ```text
-A 1990s wood-cabinet television set with a video recorder underneath, photographed straight on against a plain flat light-grey background, screen switched off and plain dark grey. Soft even light, no reflections on the screen. No text, no logos.
+The same woman in the same leotard, on the same background in the same light: three more full-length photographs side by side with wide clear gaps between them. Left: a deep squat facing the camera, knees pushed wide apart by her elbows, palms pressed together in front of her chest. Middle: sitting on the floor in a twist, one leg stretched straight out, the other knee bent up and crossed over it, pulling that knee across with the opposite arm, shoulders turned, head toward the camera. Right: on her hands and knees seen from the side, one leg kicked straight out behind her, level with her back, head turned to the camera. Her whole body is in frame in every one. No text, no borders. Wide 16:9 image.
+```
+
+Bill, twice (attach one of Mom's sheets each time):
+
+```text
+The same three poses in the same order, with the same framing, background and light, but the person is a slim man of about seventy in a royal-blue high-cut leotard, with bare hairy legs, white slouch socks and white trainers, short grey hair, neck and shoulders clear. He is taking it completely seriously. His whole body is in frame in every one. No text, no borders. Wide 16:9 image.
+```
+
+For a pose straight off the tape, attach the screenshot and ask for one
+figure: "a full-length photograph of the same woman in exactly the pose of
+the attached screenshot", then the same again for Bill.
+
+### WT3. The room on the tape (what the television shows)
+
+```text
+An empty living room from a 1990s home workout video, photographed straight on at standing height: cream walls, a white fireplace mantel with a brass fire screen on the right, a dark framed tapestry on the wall on the left, white curtains at the left edge, a tall vase of dried pampas grass, pale grey carpet filling the bottom third of the picture. Nobody in it, and nothing in the middle of the floor. Flat, slightly washed-out video lighting. No text. 4:3 image.
+```
+
+### WT4. The television
+
+```text
+A 1990s wood-cabinet television set with a video recorder sitting underneath it, photographed exactly straight on, with no angle and no perspective, against a plain flat light-grey background. The whole screen is one flat, even, bright green with no reflections and no glare, as if for a green-screen effect. Knobs and a speaker grille to the right of the screen. Soft even light. No brand names, no text.
+```
+
+### WT5. The den (the room Bill is in)
+
+```text
+An empty 1990s family den photographed straight on at standing height: a wood-panelled wall and wall-to-wall beige shag carpet, the line where the wall meets the carpet exactly three quarters of the way down the picture. Nobody in it and no furniture. Warm evening lamp light. No text. Wide 16:9 image.
 ```
 
 ## Later
