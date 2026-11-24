@@ -19,11 +19,18 @@ const DAMAGE = 0.035;
 /** The fight lasts this long, or this many hits, before the other girl has had enough. */
 const FIGHT_FOR = 6.5;
 const FIGHT_HITS = 8;
-/** Where the other girl's hand is when her arm is out, from the spot she stands on. */
+/** Where the other girl's hand is when her arm is straight out, from the spot she stands on. */
 const HAND = { x: 118, y: 276 };
-/** Stephanie, held by one ankle, hangs this far off straight down (in radians)
- *  when she has just been brought down on the floor, on either side. */
-const SLAM_AT = 0.26;
+/** Her arm, in each photo there is of it held out: the pose, and how far above
+ *  level the arm is in it (in radians; below level is less than nothing). She is
+ *  swung through these in turn, and mirrored for the other side. With only the
+ *  one photo, her arm stays level. */
+const ARMS = [{ pose: 'arm0', up: -0.7 }, { pose: 'arm1', up: 0 }, { pose: 'arm2', up: 0.79 }, { pose: 'arm3', up: Math.PI / 2 }]
+  .filter((a) => FIGHT_BODIES.rival?.[a.pose]?.hand);
+if (!ARMS.length) ARMS.push({ pose: 'flick', up: 0 });
+/** However low the arm goes, Stephanie is never quite laid flat: this is as near to it as she gets (radians off straight down). */
+const FLATTEST = 1.05;
+const STEEPEST = 0.26;
 /** How many times she is brought down, how long each swing over the top takes, and the pause after each. */
 const SLAMS = 7;
 const SWING = 0.24;
@@ -140,9 +147,9 @@ export class FightMini extends Mini {
       stripe.fillRect(-BLEED, FLOOR - 62, MAX_W + BLEED * 2, 10);
     }
     this.banner = img(s, 170, 150, 'gym_banner').setDepth(3).setRotation(-0.03);
-    this.hoop = img(s, W - 120, 124, 'hoop').setDepth(3);
+    this.hoop = img(s, W - 96, FLOOR - 12, 'hoop').setDepth(3);
     this.bleachers = img(s, this.cx, FLOOR - 16, 'bleachers').setDepth(4);
-    this.table = img(s, 96, FLOOR + 30, 'bake_table').setDepth(8);
+    this.table = img(s, 124, FLOOR + 34, 'bake_table').setDepth(8);
 
     this.sx = this.cx - APART;
     this.rx = W + 170;
@@ -244,14 +251,14 @@ export class FightMini extends Mini {
       sound.stomp();
       this.scene.cameras.main.shake(140, 0.009);
       this.rivalPose = 'flick';
-      this.scene.tweens.add({ targets: this, rx: this.sx + HAND.x, duration: 260, ease: 'Quad.out' });
+      this.scene.tweens.add({ targets: this, rx: this.sx - this.hand(ARMS[0].pose).x, duration: 260, ease: 'Quad.out' });
       this.cue(0.3, () => {
         this.pose = 'fly';
         this.swing = 0;
         this.hang = Math.PI / 2;
         applyArt(this.head, 'mom_in');
         sound.whoosh();
-        this.bubble('steph', this.rx - HAND.x - 110, FLOOR - 250, 'wait wait wai', 0.6);
+        this.bubble('steph', this.sx - 110, FLOOR - 250, 'wait wait wai', 0.6);
       });
       this.cue(1.0, () => this.enter('smash'));
     } else if (phase === 'smash') {
@@ -426,7 +433,8 @@ export class FightMini extends Mini {
     // the gym is not built for this
     if (this.slams === 3) {
       sound.clang();
-      s.tweens.add({ targets: this.hoop, y: H + 140, rotation: 1.4, duration: 900, ease: 'Quad.in' });
+      // over it goes, from the foot of its post
+      s.tweens.add({ targets: this.hoop, rotation: 1.5, duration: 800, ease: 'Quad.in' });
     } else if (this.slams === 4) {
       sound.clang();
       this.host.word('crash', this.bleachers.x, FLOOR - 150);
@@ -608,9 +616,16 @@ export class FightMini extends Mini {
    *  is how far through a swing she is, if she is being swung just now. */
   private place(over = this.swing): void {
     const held = this.phase === 'grab' && this.pose === 'fly' || this.phase === 'smash';
-    // the other girl: she turns to whichever side Stephanie is on
-    if (held) this.faceRight = over > 0.5;
-    const rival = `rival_${this.flinch > 0 && this.rivalPose === 'point' ? 'flinch' : this.rivalPose}`;
+    // The other girl. While she has Stephanie she turns to whichever side Stephanie is on, and
+    // her arm is in whichever photo of it is nearest to where the swing has got to: from as
+    // low as it goes on one side, up over her head, and down the other
+    let pose = this.flinch > 0 && this.rivalPose === 'point' ? 'flinch' : this.rivalPose;
+    if (held) {
+      this.faceRight = over > 0.5;
+      const lowest = ARMS[0].up, up = lowest + (Math.PI / 2 - lowest) * (1 - Math.abs(over * 2 - 1));
+      pose = ARMS.reduce((best, a) => (Math.abs(a.up - up) < Math.abs(best.up - up) ? a : best)).pose;
+    }
+    const rival = `rival_${pose}`;
     if (this.rival.texture.key !== rival) applyArt(this.rival, rival);
     const jx = (Math.random() - 0.5) * this.shake, jy = (Math.random() - 0.5) * this.shake;
     const stomp = this.phase === 'callout' ? -Math.abs(Math.sin((this.t * Math.PI) / 0.48)) * 10 : 0;
@@ -620,16 +635,21 @@ export class FightMini extends Mini {
       .setPosition(this.rx + jx, FLOOR + jy + stomp).setScale(big / TEX);
     this.aura.setPosition(this.rx, FLOOR + 14).setScale(((0.8 + Math.sin(this.t * 22) * 0.06) * (big > 1 || this.rivalPose !== 'charge' ? 1.25 : 1)) / TEX);
 
-    // Stephanie: on her feet; or held by the ankle, which goes over the other girl's head from
-    // one hand's reach to the other's while she turns from hanging one side to hanging the other
+    // Stephanie: on her feet; or held by the ankle, in the other girl's hand wherever that is,
+    // turning from lying out on one side, through standing on her head in the air, to lying
+    // out on the other
     const key = `cheer_${this.pose}`;
     if (this.body.texture.key !== key) applyArt(this.body, key);
     const c = cheer(this.pose);
     let x = this.sx + this.lunge, y = FLOOR, turn = 0;
     if (held) {
-      const a = Math.PI * over;
-      this.at = { x: this.rx - HAND.x * Math.cos(a), y: FLOOR - HAND.y - HAND.x * Math.sin(a) };
-      this.hang = Math.PI / 2 + SLAM_AT + (Math.PI * 2 - SLAM_AT * 2) * over;
+      const hand = this.hand(pose);
+      this.at = { x: this.rx + (this.faceRight ? -hand.x : hand.x), y: FLOOR + hand.y };
+      // how far off straight down she lies when she is on the floor: enough to reach it from the
+      // hand that brought her there, within reason
+      const low = this.hand(ARMS[0].pose), long = Math.hypot(c.x, c.y) + 66;
+      const off = Phaser.Math.Clamp(Math.acos(Math.min(1, -low.y / long)), STEEPEST, FLATTEST);
+      this.hang = Math.PI / 2 + off + (Math.PI * 2 - off * 2) * over;
     }
     if (this.pose === 'fly') {
       x = this.at.x;
@@ -641,6 +661,12 @@ export class FightMini extends Mini {
     }
     this.body.setPosition(x, y).setRotation(turn);
     this.head.setPosition(x + c.x * Math.cos(turn) - c.y * Math.sin(turn), y + c.x * Math.sin(turn) + c.y * Math.cos(turn)).setRotation(turn + c.tilt);
+  }
+
+  /** Where the other girl's hand is in a pose with her arm out, from the spot she stands on (as she faces left). */
+  private hand(pose: string): { x: number; y: number } {
+    const at = FIGHT_BODIES.rival?.[pose]?.hand;
+    return at ? { x: at[0], y: at[1] } : { x: -HAND.x, y: -HAND.y };
   }
 
   timeUp(): boolean {

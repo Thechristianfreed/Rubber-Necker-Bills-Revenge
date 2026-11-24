@@ -182,6 +182,10 @@ const PIECES: Piece[] = [
   ...Object.entries(FIGHT_BODIES).flatMap(([who, poses]) => Object.entries(poses).map(([pose, body]): Piece => (
     { key: `${who}_${pose}`, file: body.file, scale: body.scale, border: 2, anchor: body.spot }
   ))),
+  // ...and what gets broken in the gym
+  { key: 'bleachers', file: 'gym-bleachers.png', w: 380, border: 2.2, anchor: [0.5, 0.975] },
+  { key: 'bake_table', file: 'gym-table.png', w: 250, border: 2.2, anchor: [0.5, 0.975] },
+  { key: 'hoop', file: 'gym-hoop.png', h: 340, border: 2, anchor: [0.49, 0.99] },
   // the television and the recorder under it (its screen is cut out afterwards: see punchHole)
   { key: 'tv_set', file: 'tv-set.png', w: TV.w, border: 2.5, anchor: [0, 0] },
   // a hand holding a phone, pinned at the wrist (which hides behind the gawker's head)

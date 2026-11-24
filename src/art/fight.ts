@@ -273,7 +273,9 @@ export function buildFightArt(scene: Phaser.Scene): void {
     }
   }, { border: 2.2, ax: 180, ay: 146 });
   makePaperArt(scene, 'plank', 64, 12, (c) => rect(c, 0, 0, 64, 12, 'brown'), { border: 1.5 });
-  makePaperArt(scene, 'hoop', 110, 120, (c) => {
+  makePaperArt(scene, 'hoop', 110, 340, (c) => {
+    // on a post, standing on the floor
+    glued(c, () => rect(c, 50, 60, 10, 280, 'black'));
     glued(c, () => { rr(c, 6, 4, 98, 66, 5); fillPaper(c, 'white'); });
     c.strokeStyle = paper(c, 'red');
     c.lineWidth = 4;
@@ -282,7 +284,7 @@ export function buildFightArt(scene: Phaser.Scene): void {
     c.strokeStyle = 'rgba(40, 40, 40, 0.5)';
     c.lineWidth = 1.6;
     for (let i = 0; i < 6; i++) { c.beginPath(); c.moveTo(36 + i * 8, 72); c.lineTo(42 + i * 5, 108); c.stroke(); }
-  }, { border: 2, ax: 55, ay: 8 });
+  }, { border: 2, ax: 55, ay: 338 });
   makePaperArt(scene, 'bake_table', 210, 120, (c) => {
     for (const x of [28, 176]) rect(c, x, 60, 8, 58, 'brown');
     glued(c, () => { rr(c, 6, 44, 198, 44, 4); fillPaper(c, 'white'); });

@@ -247,13 +247,13 @@ An empty 1990s family den photographed straight on at standing height: a wood-pa
 
 Made and in the game, cut out by `fight()` in `tools/make_cutouts.py`:
 Stephanie's seven bodies in her cheer outfit (AS1), the other girl before and
-after (AS2) and the gym (AS3, the first prompt). Still paper
-(`src/art/fight.ts`): the bleachers, the bake sale table and the hoop (AS3,
-the second prompt). The first sheet of AS1 arrived at half size (512 pixels
-wide), so those four bodies are a little soft; a full-size copy would fix
-that. Stephanie's head is the four faces made for the workout; the people in
-her pictures lose theirs to it. The other girl is as the family described
-her, and keeps her own head.
+after (AS2), the gym, and the bleachers, bake sale and hoop (AS3). Still to
+make: the other girl's arm at four heights (AS4), so that it follows
+Stephanie round when she is swung. The first sheet of AS1 arrived at half
+size (512 pixels wide), so those four bodies are a little soft; a full-size
+copy would fix that. Stephanie's head is the four faces made for the workout;
+the people in her pictures lose theirs to it. The other girl is as the family
+described her, and keeps her own head.
 
 ### AS1. Stephanie, in her cheer outfit (two sheets)
 
@@ -289,6 +289,22 @@ An empty American high school gymnasium of the late 1970s, photographed straight
 
 ```text
 Three things photographed straight on, side by side with wide clear gaps between them, on one plain flat light-grey background. First: a section of wooden gymnasium bleachers, five rows, pulled out. Second: a folding table with a white paper cloth and a hand-lettered card reading BAKE SALE, covered in cupcakes. Third: a school basketball backboard with its hoop and net. Soft even light, no shadows on the background. Wide 16:9 image.
+```
+
+### AS4. The other girl's arm, for the swing
+
+She swings Stephanie by the ankle from the floor on one side, up over her
+head, and down on the other. There is one photo of her with an arm out
+(level), so for now her arm stays there while Stephanie goes round. With
+these four it follows: the game shows whichever is nearest to where the
+swing has got to, and mirrors them for the other side. Save the cutout as
+`art-src/adobe/AS5-rival-arms-cutout.png` and `fight()` picks it up (the
+poses are `arm0` to `arm3`, low to high).
+
+Attach the sheet of her transformed:
+
+```text
+The same woman exactly: the same face, the same hair tied up on top of her head, the same enormous muscles, black ribbed tank top, black sweatpants, grey trainers and black watch, on the same plain flat light-grey background in the same light. Four full-length photographs of her side by side with wide clear gaps between them. In all four she stands square to the camera with her feet apart, scowling, with the hand on the right-hand side of the picture resting on her hip. Only her other arm moves, and its hand is a tight fist, as if gripping the end of something. First: that arm stretched down and out towards the left of the picture, the fist at about the height of her knee and well out from her body, as if she has just brought something down hard on the floor beside her. Second: stretched straight out towards the left of the picture, level with her shoulder. Third: stretched up and out towards the left, halfway between level and straight up. Fourth: stretched straight up above her head. Her whole body is in frame from head to feet in every one, with clear space above the raised fist. No text, no borders. Wide 16:9 image.
 ```
 
 ## Later

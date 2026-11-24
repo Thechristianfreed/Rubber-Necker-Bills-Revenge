@@ -511,7 +511,12 @@ def workout_set():
 # other girl before and after, the same way.
 FIGHT_CHEER = [("AS1a-cheer-standing", ["ready", "fingers", "kick", "flurry"]), ("AS1b-cheer-losing", ["plead", "fly", "ko"])]
 FIGHT_RIVAL = [("AS2a-rival-before", ["walk", "point", "flinch", "charge"], "point", 286),
-               ("AS2b-rival-after", ["hulk", "flick", "win"], "hulk", 356)]
+               ("AS2b-rival-after", ["hulk", "flick", "win"], "hulk", 356),
+               # her arm at four heights, for swinging Stephanie by: down and out, level, up and out, straight up
+               ("AS5-rival-arms", ["arm0", "arm1", "arm2", "arm3"], "arm1", 356)]
+# Poses in which she has an arm out with something in the hand: the game needs to know
+# where that hand is. It is the leftmost point of her, or for an arm straight up, the topmost.
+FIGHT_HANDS = {"flick": "left", "arm0": "left", "arm1": "left", "arm2": "left", "arm3": "top"}
 
 
 def fight():
@@ -567,6 +572,8 @@ def fight():
 
     rival = {}
     for sheet, poses, measure, tall in FIGHT_RIVAL:
+        if not os.path.exists(os.path.join(SRC, f"{sheet}-cutout.png")):
+            continue                    # not made yet
         cut = load(f"{sheet}-cutout.png")
         found = sorted(pieces(cut, 8000), key=lambda p: p[0])
         assert len(found) == len(poses), f"{sheet}: {len(found)} figures"
@@ -576,7 +583,15 @@ def fight():
             ys, xs = np.where(piece[..., 3] > 0.08)
             # she stands on the middle of her feet: the bottom tenth of her
             feet = xs[ys > ys.max() - piece.shape[0] * 0.1]
-            rival[pose] = dict(scale=scale, at=(float(feet.min() + feet.max()) / 2 / piece.shape[1], float(ys.max()) / piece.shape[0]))
+            spot = (float(feet.min() + feet.max()) / 2, float(ys.max()))
+            rival[pose] = dict(scale=scale, at=(spot[0] / piece.shape[1], spot[1] / piece.shape[0]))
+            if pose in FIGHT_HANDS:
+                # the end of her arm: the last few pixels of her that way, and the middle of those
+                if FIGHT_HANDS[pose] == "left":
+                    end = xs < xs.min() + 8
+                else:
+                    end = ys < ys.min() + 8
+                rival[pose]["hand"] = ((float(xs[end].mean()) - spot[0]) * scale, (float(ys[end].mean()) - spot[1]) * scale)
 
     table = os.path.join(ROOT, "src", "data", "fight.ts")
     with open(table, "w") as f:
@@ -585,8 +600,9 @@ def fight():
                 " *  floor it stands on (as a fraction of the picture). Stephanie's also say where\n"
                 " *  her chin goes from that spot (in game pixels) and how far her head tips; in\n"
                 " *  mid-air she is held by a foot, and `lie` is the direction from it to her chin.\n"
+                " *  Where the other girl has an arm out, `hand` is where that hand is from her spot.\n"
                 " *  Written by tools/make_cutouts.py; do not edit by hand. */\n"
-                "export interface FightBody { file: string; scale: number; spot: [number, number]; chin?: [number, number]; tilt?: number; lie?: number }\n\n"
+                "export interface FightBody { file: string; scale: number; spot: [number, number]; chin?: [number, number]; tilt?: number; lie?: number; hand?: [number, number] }\n\n"
                 "export const FIGHT_BODIES: Record<string, Record<string, FightBody>> = {\n  cheer: {\n")
         for pose, e in cheer.items():
             lie = f", lie: {e['lie']:.3f}" if "lie" in e else ""
@@ -594,9 +610,22 @@ def fight():
                     f" chin: [{e['chin'][0] * e['scale']:.1f}, {e['chin'][1] * e['scale']:.1f}], tilt: {e['tilt']:.2f}{lie} }},\n")
         f.write("  },\n  rival: {\n")
         for pose, e in rival.items():
-            f.write(f"    {pose}: {{ file: 'rival-{pose}.png', scale: {e['scale']:.4f}, spot: [{e['at'][0]:.3f}, {e['at'][1]:.3f}] }},\n")
+            hand = f", hand: [{e['hand'][0]:.1f}, {e['hand'][1]:.1f}]" if "hand" in e else ""
+            f.write(f"    {pose}: {{ file: 'rival-{pose}.png', scale: {e['scale']:.4f}, spot: [{e['at'][0]:.3f}, {e['at'][1]:.3f}]{hand} }},\n")
         f.write("  },\n};\n")
     print("wrote", table)
+
+    # The things that get broken. The table and the hoop come out of one cutout; the bleachers
+    # were not taken for a subject, so they have a selection of their own (less their handrails,
+    # which are too thin to select cleanly: opening the selection takes them off).
+    table, hoop = (p[2] for p in sorted(pieces(load("AS4-gym-things-cutout.png"), 3000), key=lambda p: p[0]))
+    save("gym-table.png", table)
+    save("gym-hoop.png", hoop)
+    block = cv2.morphologyEx((selection("AS4-gym-things-bleachers.png") > 0.5).astype(np.uint8), cv2.MORPH_OPEN, np.ones((9, 9), np.uint8))
+    n, lab, st, _ = cv2.connectedComponentsWithStats(block, 8)
+    block = (lab == 1 + int(np.argmax(st[1:, cv2.CC_STAT_AREA]))).astype(np.float32)
+    bleachers = np.dstack([original("AS4-gym-things.webp"), cv2.GaussianBlur(block, (0, 0), 0.8)])
+    save("gym-bleachers.png", trim(bleachers))
 
     # the gym: beside its own mirror image to be wide enough for any screen, with more floor
     # added at the bottom the same way

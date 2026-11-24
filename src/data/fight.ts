@@ -3,8 +3,9 @@
  *  floor it stands on (as a fraction of the picture). Stephanie's also say where
  *  her chin goes from that spot (in game pixels) and how far her head tips; in
  *  mid-air she is held by a foot, and `lie` is the direction from it to her chin.
+ *  Where the other girl has an arm out, `hand` is where that hand is from her spot.
  *  Written by tools/make_cutouts.py; do not edit by hand. */
-export interface FightBody { file: string; scale: number; spot: [number, number]; chin?: [number, number]; tilt?: number; lie?: number }
+export interface FightBody { file: string; scale: number; spot: [number, number]; chin?: [number, number]; tilt?: number; lie?: number; hand?: [number, number] }
 
 export const FIGHT_BODIES: Record<string, Record<string, FightBody>> = {
   cheer: {
@@ -22,7 +23,7 @@ export const FIGHT_BODIES: Record<string, Record<string, FightBody>> = {
     flinch: { file: 'rival-flinch.png', scale: 0.6098, spot: [0.364, 0.994] },
     charge: { file: 'rival-charge.png', scale: 0.6098, spot: [0.474, 0.994] },
     hulk: { file: 'rival-hulk.png', scale: 0.6807, spot: [0.419, 0.994] },
-    flick: { file: 'rival-flick.png', scale: 0.6807, spot: [0.554, 0.994] },
+    flick: { file: 'rival-flick.png', scale: 0.6807, spot: [0.554, 0.994], hand: [-118.7, -282.2] },
     win: { file: 'rival-win.png', scale: 0.6807, spot: [0.472, 0.994] },
   },
 };
