@@ -7,7 +7,8 @@ import { buildPaperUi } from './ui';
 import { HALL, buildHallArt } from './hallway';
 import { BILL_HEAD, TV, buildMiniArt } from './minis';
 import { buildFightArt } from './fight';
-import { KID_FACE, KID_LOOKS, buildBatArt } from './bat';
+import { KID_CLOSE, KID_CLOSE_UPS, KID_FACE, KID_LOOKS, buildBatArt } from './bat';
+import { buildSandArt } from './sand';
 import { BAT_FACES } from '../data/bat';
 import { BAT_BODIES, BAT_DOOR, BAT_YARD } from '../data/batbodies';
 import { buildSleepoverArt } from './sleepover';
@@ -190,6 +191,13 @@ const PIECES: Piece[] = [
     const face = BAT_FACES[who]?.[photo];
     return face ? [{ key: `${who}head_${look}`, file: face.file, h: KID_FACE * face.tall, border: 2, anchor: face.chin }] : [];
   })),
+  // ...the faces that are seen close up in the sandbox, again and larger; and their mother's
+  ...Object.entries(KID_CLOSE_UPS).flatMap(([who, looks]) => looks.flatMap((look): Piece[] => {
+    const face = BAT_FACES[who]?.[KID_LOOKS[who].looks[look].photo];
+    return face?.big ? [{ key: `${who}bighead_${look}`, file: face.big, h: KID_CLOSE * face.tall, border: 4, anchor: face.chin }] : [];
+  })),
+  { key: 'mom_big_pah', file: 'mom-pah.png', h: MOM_FACE * 1.925 * 2.6, border: 4, anchor: [0.481, 0.635] },
+  { key: 'mom_big_hold', file: 'mom-hold.png', h: MOM_FACE * 1.92 * 2.6, border: 4, anchor: [0.482, 0.636] },
   // ...and the bodies of the five-year-olds they were, one for each pose, standing on their spot on the grass
   ...Object.entries(BAT_BODIES).flatMap(([who, poses]) => Object.entries(poses).map(([pose, body]): Piece => (
     { key: `${who}_${pose}`, file: body.file, scale: body.scale, border: 2, anchor: body.spot }
@@ -316,6 +324,7 @@ export async function loadPhotoArt(scene: Phaser.Scene): Promise<void> {
   buildMiniArt(scene);
   buildFightArt(scene);
   buildBatArt(scene);
+  buildSandArt(scene);
 
   for (const p of PIECES) {
     const im = loaded.get(p.file);

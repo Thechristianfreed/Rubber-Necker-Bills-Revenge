@@ -26,6 +26,9 @@ const DUCK = 0.4;
 const BREATH_IN = 0.52;
 /** How loud the power-up drone is at its height. */
 const POWER_UP = 0.14;
+/** How loud the audience's "Dawww" is, and each note of the trombone that stands for a grown-up talking. */
+const AUDIENCE = 2.1;
+const TROMBONE = 0.38;
 /** How loud the announcer is at the end of the fight (his recording is a loud one). */
 const ANNOUNCER = 0.8;
 
@@ -534,6 +537,92 @@ class Sound {
     m.setTargetAtTime(MUSIC_VOLUME * this.musicLevel * DUCK, at, 0.04);
     m.setTargetAtTime(MUSIC_VOLUME * this.musicLevel, at + clip.duration, 0.2);
     return clip.duration;
+  }
+
+  /** A studio audience, touched: "Dawww". A dozen voices, none quite together,
+   *  each sliding up a little and then a long way down. */
+  aww(): void {
+    const ctx = this.ctx;
+    if (!ctx) return;
+    const t = ctx.currentTime, long = 1.7;
+    const out = ctx.createGain();
+    out.gain.value = AUDIENCE;
+    out.connect(this.sfx);
+    // the shape of the mouth saying "aw": two bumps in what gets through
+    const mouth = ctx.createGain();
+    for (const [f, q, vol] of [[640, 4, 1], [1020, 5, 0.7], [2600, 3, 0.16]]) {
+      const band = ctx.createBiquadFilter(), g = ctx.createGain();
+      band.type = 'bandpass';
+      band.frequency.value = f;
+      band.Q.value = q;
+      g.gain.value = vol;
+      mouth.connect(band).connect(g).connect(out);
+    }
+    for (const pitch of [147, 165, 175, 196, 220, 247, 262, 294, 330, 349, 392, 440]) {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      const late = Math.random() * 0.14, f = pitch * (0.985 + Math.random() * 0.03);
+      o.type = 'sawtooth';
+      o.frequency.setValueAtTime(f * 0.93, t + late);
+      o.frequency.linearRampToValueAtTime(f * 1.05, t + late + 0.3);
+      o.frequency.exponentialRampToValueAtTime(f * 0.8, t + late + long);
+      const wob = ctx.createOscillator(), depth = ctx.createGain();
+      wob.frequency.value = 4.5 + Math.random() * 1.5;
+      depth.gain.value = f * 0.012;
+      wob.connect(depth).connect(o.frequency);
+      g.gain.setValueAtTime(0.0001, t + late);
+      g.gain.linearRampToValueAtTime(0.16, t + late + 0.1);
+      g.gain.setValueAtTime(0.16, t + late + long * 0.5);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + late + long);
+      o.connect(g).connect(mouth);
+      for (const part of [o, wob]) { part.start(t + late); part.stop(t + late + long + 0.05); }
+    }
+  }
+
+  /** A grown-up, talking, as a five-year-old hears it: a trombone with a
+   *  plunger in it, one "wah" for every syllable. Lasts about `seconds`. */
+  wahwah(seconds = 2): void {
+    const ctx = this.ctx;
+    if (!ctx) return;
+    const t = ctx.currentTime;
+    // the tune of a telling-off: up, down, and down further at the end
+    const tune = [233, 262, 247, 196, 220, 262, 233, 175, 196, 220, 165];
+    const each = 0.21, n = Math.max(3, Math.min(tune.length, Math.round(seconds / each)));
+    for (let i = 0; i < n; i++) {
+      const at = t + i * each, f = tune[i], long = i === n - 1 ? 0.42 : i % 3 === 2 ? 0.26 : 0.17;
+      const horn = ctx.createBiquadFilter(), g = ctx.createGain();
+      horn.type = 'lowpass';
+      horn.Q.value = 5;
+      horn.frequency.setValueAtTime(330, at);
+      horn.frequency.linearRampToValueAtTime(1500, at + long * 0.45);
+      horn.frequency.linearRampToValueAtTime(420, at + long);
+      g.gain.setValueAtTime(0.0001, at);
+      g.gain.linearRampToValueAtTime(TROMBONE, at + 0.03);
+      g.gain.setValueAtTime(TROMBONE, at + long * 0.6);
+      g.gain.exponentialRampToValueAtTime(0.0001, at + long);
+      horn.connect(g).connect(this.sfx);
+      for (const [type, mult, vol] of [['sawtooth', 1, 1], ['square', 2, 0.18]] as const) {
+        const o = ctx.createOscillator(), og = ctx.createGain();
+        o.type = type;
+        o.frequency.setValueAtTime(f * mult * 0.93, at);
+        o.frequency.linearRampToValueAtTime(f * mult, at + 0.05);
+        o.frequency.linearRampToValueAtTime(f * mult * (i === n - 1 ? 0.84 : 0.98), at + long);
+        og.gain.value = vol;
+        o.connect(og).connect(horn);
+        o.start(at);
+        o.stop(at + long + 0.03);
+      }
+    }
+  }
+
+  /** Big innocent eyes: a few high bright notes. */
+  twinkle(): void {
+    [1568, 2093, 2637, 3136, 2637, 3520].forEach((f, i) => this.tone({ type: 'sine', f0: f, dur: 0.22, vol: 0.32, at: i * 0.09 }));
+  }
+
+  /** A handful of sand, thrown: a short dry hiss. */
+  sand(): void {
+    this.noise({ dur: 0.22, vol: 0.66, filter: 'highpass', f0: 2600, f1: 5200 });
+    this.noise({ dur: 0.12, vol: 0.4, f0: 1400, f1: 700, q: 0.9, at: 0.04 });
   }
 
   /** One very large thump. */

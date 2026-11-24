@@ -7,10 +7,12 @@ const PAPER = 0xfbf6ea;
 const WRAP = 215;
 
 /** A scrap of paper with something said on it, its middle at (x, y) and its tail
- *  pointing at whoever said it (`from`, which is where their mouth is). It
- *  pops up; whoever asked for it takes it away again. */
+ *  pointing at whoever said it (`from`, which is where their mouth is). With a
+ *  `side`, x is not its middle but its edge on the other side: 'left' puts the
+ *  whole of it to the left of x, however long it is. It pops up; whoever asked
+ *  for it takes it away again. */
 export function bubble(
-  scene: Phaser.Scene, x: number, y: number, text: string, from: { x: number; y: number }, size = 19,
+  scene: Phaser.Scene, x: number, y: number, text: string, from: { x: number; y: number }, size = 19, side?: 'left' | 'right',
 ): Phaser.GameObjects.Container {
   const words = written(scene, 0, 0, text, size);
   if (words.width > WRAP && text.includes(' ')) {
@@ -20,6 +22,7 @@ export function bubble(
     words.setText(`${text.slice(0, cut)}\n${text.slice(cut + 1)}`).setLineSpacing(-4);
   }
   const a = (words.width + 20) / 2, c = (words.height + 6) / 2;
+  if (side) x += side === 'left' ? -a : a;
   const g = scene.add.graphics();
   // The tail leaves by whichever edge the speaker is furthest beyond, and stops short of them.
   const mx = from.x - x, my = from.y - y;

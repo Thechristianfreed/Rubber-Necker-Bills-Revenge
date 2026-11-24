@@ -5,6 +5,7 @@ import { ART, applyArt, img } from '../art/sticker';
 import { sound } from '../audio/sound';
 import { loadBest, saveBest } from '../data/progress';
 import { BatMini } from '../minis/BatMini';
+import { SandMini } from '../minis/SandMini';
 import { BopMini } from '../minis/BopMini';
 import { FightMini } from '../minis/FightMini';
 import { Mini, MiniHost } from '../minis/Mini';
@@ -21,6 +22,7 @@ const ROSTER: { id: string; make: (host: MiniHost) => Mini }[] = [
   { id: 'phone', make: (h) => new PhoneMini(h) },
   { id: 'bop', make: (h) => new BopMini(h) },
   { id: 'bat', make: (h) => new BatMini(h) },
+  { id: 'sand', make: (h) => new SandMini(h) },
   { id: 'fight', make: (h) => new FightMini(h) },
 ];
 
@@ -182,6 +184,7 @@ export class MiniScene extends Phaser.Scene {
     sound.flick(true);
     this.state = 'snow';
     this.t = 0.3;
+    this.bar.setVisible(this.mini.timed);
     this.drawBar(1);
   }
 
@@ -303,7 +306,7 @@ export class MiniScene extends Phaser.Scene {
       const g = dt * this.host.speed;
       this.mini!.update(g);
       if (this.auto && this.state === 'play') this.mini!.bot(g);
-      if (this.state !== 'play') return;
+      if (this.state !== 'play' || !this.mini!.timed) return;
       this.t -= g;
       this.drawBar(this.t / this.mini!.seconds);
       if (this.t <= 0) this.finish(this.mini!.timeUp());

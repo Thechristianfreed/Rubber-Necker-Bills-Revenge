@@ -34,6 +34,9 @@ export abstract class Mini {
   readonly music?: string;
   /** False for a game that cannot be won: it is played, but left out of the score. */
   readonly scored: boolean = true;
+  /** False for a game that waits for the player (a story with choices in it): there is no
+   *  clock, and it goes on until it says it is finished. */
+  readonly timed: boolean = true;
 
   constructor(protected readonly host: MiniHost) {}
 

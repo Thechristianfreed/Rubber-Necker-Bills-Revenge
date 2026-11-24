@@ -424,6 +424,83 @@ being shoved), from the grinning photo:
 Edit this photo. Keep the man, his hair, his stubble, the lighting, the framing and the background exactly the same. Change only his expression: he is hurt and about to cry, bottom lip stuck out, eyebrows up in the middle.
 ```
 
+## Home Movies: Pocket sand
+
+The same yard, house, mother and brothers as Payback, so most of it is
+made already. In the game with stand-ins cut from paper: the sandbox, the
+toy shovel and bucket, the sandcastle, and the two hands in the close-ups.
+Standing in for poses and looks there is no picture of yet: Shane's shove
+(for throwing, hugging and punching), his hands-on-hips (for looking up at
+his mother), his beaming face (for the big innocent eyes), and Chad's
+scowl (for crying).
+
+The same rules as before: every pose faces right, and nothing covers a
+head or neck, since the heads come off.
+
+### SB1. The sandbox and the toys
+
+```text
+Five things photographed on one plain flat light-grey background, with wide clear gaps between them. First, filling the left half of the picture: a child's square wooden sandbox, low sides made of plain planks, full of pale dry sand, seen from the front and a little from above so that the sand inside shows, about 1990. Then, in a row across the right half: a red plastic toy sand shovel; a blue plastic toy bucket with a yellow handle; a small sandcastle made by turning out a bucket of sand, with a little paper flag in the top; and a small loose heap of sand. Soft even light, no shadows on the background. No text. Wide 16:9 image.
+```
+
+### SB2. Shane, in the sandbox (attach one of his sheets)
+
+```text
+The same small boy exactly, in the same red T-shirt, blue jeans and white trainers, in the same light. Four full-length photographs of him side by side with wide clear gaps between them, all on one continuous plain light-grey background with no dividing lines or panels. First: turned towards the right of the picture, one arm flung straight out in front of him at shoulder height with the hand open, as if he has just thrown a handful of something, his other arm back. Second: turned towards the right, leaning forward with both arms curved round in front of him in a big circle, as if hugging somebody who is not there. Third: turned towards the right, one fist punched straight out in front of him at the height of his own head, his other fist back at his hip. Fourth: facing the camera, standing very straight with his feet together and both hands held behind his back, like a child who has done nothing wrong. His whole body is in frame from head to feet in every one, and nothing covers his head or neck. No text, no borders. Wide 16:9 image.
+```
+
+### SB3. Chad, in the sandbox (attach one of his sheets)
+
+```text
+The same small boy exactly, in the same light blue T-shirt, navy shorts, white socks and white trainers, in the same light. Four full-length photographs of him side by side with wide clear gaps between them, all on one continuous plain light-grey background with no dividing lines or panels. First: turned towards the right of the picture, crouching down and digging with a red plastic toy shovel held in both hands. Second: turned towards the right, crouching down and tipping a blue plastic toy bucket upside down with both hands. Third: facing the camera, standing with his arms held a little out from his sides and his palms turned up, shoulders hunched, wailing. Fourth: facing the camera, standing with his feet wide apart, chest out and both fists clenched at his sides, like a very small superhero. His whole body is in frame in every one, with the whole of the shovel and the bucket, and nothing covers his head or neck. No text, no borders. Wide 16:9 image.
+```
+
+### SB4. Their mother's hands
+
+```text
+Three photographs of the same woman's bare right forearm and hand, side by side with wide clear gaps between them, on one plain flat light-grey background. First: the forearm upright, the hand in a loose fist with the first finger pointing straight up, as if wagging a finger at somebody, seen from the front. Second: the arm reaching down from the top of the picture, the hand open with the fingers spread and curled like a claw, about to grab a handful of something. Third: the arm stretched out level towards the left of the picture, the hand flung open with the fingers spread wide, having just thrown something. Each arm ends at the elbow, cut off square. Soft even light, no shadows on the background. No text. Wide 16:9 image.
+```
+
+### SB5 to SB8. The faces (one edit each)
+
+Shane, the big innocent eyes he turns on his mother (attach `shane-1`, the beaming photo):
+
+```text
+Edit this photo. Keep the man, his hair, his beard, the lighting, the framing and the background exactly the same. Change only his expression: huge innocent puppy-dog eyes looking up, eyebrows raised in the middle, mouth closed in a small sweet pout. The face of a child who could not possibly have done anything wrong.
+```
+
+Chad, crying (attach `chad-3`, the grinning photo):
+
+```text
+Edit this photo. Keep the man, his hair, his stubble, the lighting, the framing and the background exactly the same. Change only his expression: he is bawling like a small child, eyes screwed shut, mouth wide open and turned down, tears running down his cheeks.
+```
+
+Chad, determined, for the close-up (attach `chad-3`):
+
+```text
+Edit this photo. Keep the man, his hair, his stubble, the lighting, the framing and the background exactly the same. Change only his expression: deeply, fiercely determined. Jaw set, lips pressed tight together, eyebrows low, eyes narrowed and staring straight into the camera.
+```
+
+Stephanie, telling somebody off (attach the photo of her smiling that her other faces were made from):
+
+```text
+Edit this photo. Keep the woman, her hair, the lighting, the framing and the background exactly the same. Change only her expression: stern and scolding, eyebrows drawn down, mouth open in the middle of a word.
+```
+
+### SB9 and SB10. The two views
+
+Shane's view of his mother, and hers of him. The heads come off both.
+
+```text
+A full-length photograph taken from very low down, at the eye height of a small child, looking steeply up at a mother of about thirty who is standing right over the camera: a yellow short-sleeved blouse and high-waisted blue jeans, about 1990, one hand on her hip and the other arm bent, wagging its first finger down at the camera. Her hair is tied back so her neck is clear. Her whole body is in frame, from her feet at the bottom of the picture to the top of her head, with her raised hand clear of her face. Plain flat light-grey background, soft even light. No text. Tall 9:16 image.
+```
+
+Attach one of Shane's sheets:
+
+```text
+The same small boy exactly, in the same red T-shirt, blue jeans and white trainers. One full-length photograph of him taken from high above, at the eye height of an adult standing right in front of him, looking steeply down: he stands with his feet together and his hands behind his back, his head tipped right back to look straight up into the camera. Seen from up there his head is the biggest thing in the picture and his feet are small and far away. Plain flat light-grey background, soft even light. No text, no borders. Tall 9:16 image.
+```
+
 ## Later
 
 - The other weapons (flyswatter, tennis racquet, nail board, kayak oar): each

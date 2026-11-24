@@ -14,6 +14,7 @@ and a cross for a miss. Then the tape ends, and says how many were cleared.
 | The tour bus (`phone`) | Heads bob up at the windows. Tap the ones holding up a phone, and nobody else. | 3 filmers caught before 2 innocent gawkers are |
 | The sleepover (`bop`) | Bop DJ exactly the number of times asked, then stop. | The count is exact when the clock runs out, or has been for a moment |
 | Payback (`bat`) | All week Shane shoves his brother Chad about (a calendar turns a page for each shove, and a "FED UP" thermometer fills). On Friday Chad finds the baseball bat, and Shane runs for it. Chad gains on him by himself: tap to swing when he is close enough for the bat to reach. Shane's "!" is the moment. Too soon and Chad spins round on the end of the bat; too late and Shane has noticed and is away again. It ends at the back door, with their mother in it. If Chad got him, Shane howls, she asks what he did, and Chad says what he really said that day: "I didn't do nuffing Mom. I didn't do NUFFING! All I did was hit em in the head wiff dis bat. I didn't do NUFFING Mom!" (That is the family's own wording: leave it be.) | 3 bonks on the head before Shane reaches the back door (11 seconds) |
+| Pocket sand (`sand`) | The same back yard, and the sandbox. A story in three choices, with no clock: it waits for the player. As Chad: the shovel or the bucket (Shane shoves him and throws sand either way, and their mother comes out: "Knock it off!"). As Shane: "Hug his brother Chad" (he says "I love you Chad", an audience goes "Dawww", nobody moves, and then he throws sand in Chad's face) or "Establish dominance" (he just throws it). Their mother comes out again, goes in, he does it again, and she comes out for the last time: "How would you like it if someone was bullying you?!" As their mother: "Let Chad handle it" (a close-up of Chad, the screen shaking: "It is Chad's turn to handle it!"; Shane punches him in the head; the choice comes back crossed out) or "Give Shane a mother's love": Shane's view up at her wagging a finger ("blah blah blah", on a trombone), hers down at his big sparkling eyes, her hand taking a handful of sand, and POCKET SAND, in his eyes. | Always, in the end: "YOU DID IT!" |
 | After school (`fight`) | Stephanie is called out, and the other girl starts it: a shove, before anybody has said "fight", that takes a piece off Stephanie's health bar. Stephanie stands her ground. Three buttons: Spirit Fingers, High Kick, Pom-Pom Flurry. For a few seconds her hits land. Then the other girl powers up, at length; the hits stop counting, the buttons turn into "Apologize", "Compliment her jacket" and "Beg for mercy"; Stephanie is picked up by one ankle, the screen stops for the words SUPER MOVE, and she is brought down on the floor, one side and then the other, seven times, before being thrown into the bake sale. An arcade announcer has the last word: "Flawless victory. Fatality." | Never. It cannot be won, and it is left out of the score: its mark on the tape is a star, and the end page says "lost, as always". |
 
 Letting go of the breath too early is a "pfff"; holding on half a second
@@ -31,6 +32,12 @@ what the other one is saying, never the names under the health bars or the
 buttons, and not the banner or the combo count if it can be helped. A line
 too long for one row is split into two of about the same length. Nothing
 that is said carries over from one part of the fight into the next.
+
+A game that is a story, and waits for the player to choose, says so with
+`readonly timed = false`: it has no clock, and goes on until it calls
+`this.host.finish()`. The two set in the brothers' back yard (the bat and
+the sandbox) share the yard, the house, their mother and the boys
+themselves: `src/minis/yard.ts`.
 
 A game that cannot be won says so with `readonly scored = false`: it is
 played like any other, but it is not counted in "games cleared".

@@ -110,6 +110,9 @@ const MOM_LOOK: Look = { skin: 'manila', top: 'yellow', legs: 'blue', arm: 12, l
 export const KID_HEAD = 23;
 /** ...and how tall his photo head is, hair to chin: bigger, since it is the best of him. */
 export const KID_FACE = 62;
+/** ...and how tall the photo of it kept for close-ups is; and whose looks are seen that close (in the sandbox). */
+export const KID_CLOSE = 280;
+export const KID_CLOSE_UPS: Record<string, string[]> = { chad: ['mad', 'yell'], shane: ['doe', 'cry'] };
 
 type Mood = 'sad' | 'mad' | 'yell' | 'angel' | 'grin' | 'scared' | 'ow' | 'cry' | 'tongue';
 
@@ -126,6 +129,8 @@ export const KID_LOOKS: Record<string, { hair: Paper; looks: Record<string, { pa
       glee: { paper: 'grin', photo: 'grin' },
       joy: { paper: 'grin', photo: 'laugh' },
       angel: { paper: 'angel', photo: 'smile' },
+      // (no photo of him crying yet: he scowls through it)
+      cry: { paper: 'cry', photo: 'scowl' },
     },
   },
   shane: {
@@ -136,6 +141,9 @@ export const KID_LOOKS: Record<string, { hair: Paper; looks: Record<string, { pa
       scared: { paper: 'scared', photo: 'scared' },
       ow: { paper: 'ow', photo: 'scared' },
       cry: { paper: 'cry', photo: 'cry' },
+      // butter would not melt; and (no photo of it yet) the big eyes he turns on his mother
+      sweet: { paper: 'angel', photo: 'beam' },
+      doe: { paper: 'angel', photo: 'beam' },
     },
   },
 };

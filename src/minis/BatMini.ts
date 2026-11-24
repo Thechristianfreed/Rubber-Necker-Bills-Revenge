@@ -1,21 +1,16 @@
 import Phaser from 'phaser';
-import { H, MAX_W, TEX, view } from '../config';
-import { CHAD, KID_FACE, KID_HEAD, SHANE } from '../art/bat';
-import { Doll } from '../art/fight';
-import { BLEED } from '../art/finish';
+import { TEX, view } from '../config';
+import { CHAD, SHANE } from '../art/bat';
 import { ART, applyArt, img } from '../art/sticker';
 import { sound } from '../audio/sound';
-import { BAT_FACES } from '../data/bat';
-import { BAT_BODIES, BAT_DOOR, BAT_YARD } from '../data/batbodies';
 import { bubble } from '../ui/bubble';
 import { label, written } from '../ui/text';
 import { Mini, Point } from './Mini';
+import { DOORSTEP, FLOOR, KID_SIZE, Kid, MOM_SIZE, Strip, layYard, momMouth, raiseHouse, standMom } from './yard';
 
 type Image = Phaser.GameObjects.Image;
 type Box = Phaser.GameObjects.Container;
 
-/** Where the grass is underfoot. */
-const FLOOR = 436;
 /** The week it took: one page of the calendar, and one shove, at a time. */
 const DAYS = ['MON', 'TUE', 'WED', 'THU'];
 const DAY = 0.62;
@@ -34,100 +29,10 @@ const NOTICE = 0.6;
 const SCROLL = 340;
 /** How far it is from one end of the yard to where it starts again. */
 const YARD = 1560;
-/** How fast the sky drifts when nobody is running. */
-const DRIFT = 6;
 /** How long each of the two moments of a run is on for, and how far off the ground the one with both feet in the air is. */
 const STRIDE = 0.13;
 const AIRBORNE = 8;
-/** The back doorstep, where their mother stands: how high it is (the photo of the house has a
- *  step up to it, and its ground a little nearer than the boys'), and where her chin is from there. */
-const DOORSTEP = BAT_DOOR ? FLOOR + 30 - BAT_DOOR.house.drop : FLOOR - 4;
-const MOM_SIZE = 1.15;
-const MOM_CHIN = BAT_DOOR ? { x: BAT_DOOR.mom.chin[0], y: BAT_DOOR.mom.chin[1] } : { x: 0, y: -198 };
-
-/** The boys are drawn this much bigger than their pictures, so that they can be seen from the couch. */
-const SIZE = 1.3;
-
 type Phase = 'week' | 'snap' | 'chase' | 'home' | 'done';
-
-/** One of the brothers: a body, and a head hung on it by the chin. Everything
- *  is drawn facing right; `turn(-1)` faces him left. His body is a photo of a
- *  small boy in the pose (and of the bat, if he has it); or, with no photo, a
- *  paper doll, and then Chad's bat is a piece of its own in one hand. */
-class Kid {
-  readonly box: Box;
-  private readonly body: Image;
-  private readonly head: Image;
-  private readonly bat?: Image;
-  /** How tall his head is, hair to chin. */
-  private readonly tall: number;
-  pose = '';
-  look = '';
-
-  constructor(scene: Phaser.Scene, private readonly who: string, private readonly poses: Record<string, Doll>, pose: string, look: string, bat = false) {
-    this.body = img(scene, 0, 0, `${who}_${pose}`);
-    this.head = img(scene, 0, 0, `${who}head_${look}`);
-    this.tall = BAT_FACES[who] ? KID_FACE : KID_HEAD * 2;
-    const parts: Image[] = [this.body, this.head];
-    if (bat && !BAT_BODIES[who]) {
-      this.bat = img(scene, 0, 0, 'bat').setVisible(false);
-      parts.splice(1, 0, this.bat);
-    }
-    this.box = scene.add.container(0, 0, parts).setScale(SIZE);
-    this.set(pose, look);
-  }
-
-  /** Strike a pose (and, if one is given, pull a face). */
-  set(pose: string, look = this.look): void {
-    this.pose = pose;
-    this.look = look;
-    applyArt(this.body, `${this.who}_${pose}`);
-    applyArt(this.head, `${this.who}head_${look}`);
-    const photo = BAT_BODIES[this.who]?.[pose];
-    if (photo) {
-      this.head.setPosition(photo.chin[0], photo.chin[1]).setRotation(photo.tilt);
-      // with the bat up in front of his face, he is laid over his head and not under it
-      this.box.bringToTop(photo.over ? this.body : this.head);
-    } else {
-      const p = this.poses[pose];
-      this.head.setPosition(p.head[0] - Math.sin(p.tilt) * KID_HEAD, p.head[1] + Math.cos(p.tilt) * KID_HEAD).setRotation(p.tilt);
-      this.bat?.setPosition(p.hands[1][0], p.hands[1][1]);
-    }
-  }
-
-  face(look: string): void {
-    if (look !== this.look) this.set(this.pose, look);
-  }
-
-  turn(way: number): void {
-    this.box.setScale(way * SIZE, SIZE);
-  }
-
-  /** The paper bat: he has it from now on; which way it points; and whether it is behind his back. */
-  arm(): void {
-    this.bat?.setVisible(true);
-  }
-
-  swingBat(turn: number): void {
-    this.bat?.setRotation(turn);
-  }
-
-  batBehind(behind: boolean): void {
-    if (!this.bat) return;
-    if (behind) this.box.sendToBack(this.bat);
-    else this.box.moveTo(this.bat, 1);
-  }
-
-  /** Where his mouth is on the page, for anything he says to come from. */
-  get mouth(): Point {
-    return { x: this.box.x + this.head.x * this.box.scaleX, y: this.box.y + (this.head.y - this.tall * 0.27) * SIZE };
-  }
-
-  /** The top of his head. */
-  get top(): Point {
-    return { x: this.box.x + this.head.x * this.box.scaleX, y: this.box.y + (this.head.y - this.tall - 2) * SIZE };
-  }
-}
 
 /** The day Chad had had enough. All week his brother Shane shoves him about;
  *  on Friday Chad finds the baseball bat, and Shane finds out how fast he can
@@ -175,7 +80,7 @@ export class BatMini extends Mini {
 
   // the yard: strips of it that go by (each at its own share of the speed, and the sky drifting
   // whether anybody is running or not), and what there is in it to run past
-  private strips: { ts: Phaser.GameObjects.TileSprite; share: number; drift: number; tex: number }[] = [];
+  private strips: Strip[] = [];
   private props: Image[] = [];
   private clouds: Image[] = [];
   private house!: Image;
@@ -205,22 +110,9 @@ export class BatMini extends Mini {
 
   build(): void {
     const s = this.scene, W = view.W;
-    const strip = (key: string, y: number, tall: number, depth: number, share: number, drift = 0) => {
-      const tex = ART[key].tex ?? TEX;
-      const ts = s.add.tileSprite(-BLEED, y, (MAX_W + BLEED * 2) * tex, tall * tex, key).setOrigin(0, 0).setScale(1 / tex).setDepth(depth);
-      this.strips.push({ ts, share, drift, tex });
-    };
-    if (BAT_YARD && s.textures.exists('yard_ground')) {
-      // the photo of it: the sky, and the fence and the grass going by in front
-      strip('yard_sky_photo', BAT_YARD.skyTop, BAT_YARD.skyTall, 1, 0.03, DRIFT);
-      strip('yard_ground', BAT_YARD.groundTop, BAT_YARD.groundTall, 2, 1);
-    } else {
-      strip('yard_sky', -BLEED, FLOOR + BLEED, 1, 0);
-      img(s, W - 74, 96, 'yard_sun').setDepth(1.5);
-      for (const [x, y] of [[W * 0.3, 112], [W * 0.56, 150]]) this.clouds.push(img(s, x, y, 'yard_cloud').setDepth(1.6));
-      strip('yard_fence', FLOOR - 178, ART.yard_fence.h, 2, 1);
-      strip('yard_grass', FLOOR - 32, H - FLOOR + 32 + BLEED, 3, 1);
-    }
+    const yard = layYard(s);
+    this.strips = yard.strips;
+    this.clouds = yard.clouds;
     const prop = (key: string, x: number, y: number, depth: number) => this.props.push(img(s, x, y, key).setDepth(depth));
     prop('yard_bush', this.cx - 196, FLOOR - 22, 4);
     prop('yard_swing', W - 112, FLOOR - 22, 4);
@@ -231,11 +123,10 @@ export class BatMini extends Mini {
     prop('yard_pool', W + 760, FLOOR + 78, 14);
 
     // the back of the house, a long way off to the right, and their mother in its door
-    this.house = img(s, W + 420, BAT_DOOR ? DOORSTEP : FLOOR + 2, 'yard_house').setDepth(6);
-    if (!BAT_DOOR) this.house.setScale(this.house.scale * 1.14);
-    const momBody = img(s, 0, 0, 'batmom_akimbo');
-    this.momHead = img(s, MOM_CHIN.x, MOM_CHIN.y, 'mom_hold');
-    this.mom = s.add.container(0, DOORSTEP, [momBody, this.momHead]).setDepth(8).setVisible(false);
+    this.house = raiseHouse(s, W + 420);
+    const mom = standMom(s);
+    this.mom = mom.box;
+    this.momHead = mom.head;
 
     this.chadX = this.cx - 76;
     this.gap = 124;
@@ -325,7 +216,7 @@ export class BatMini extends Mini {
       this.alert.setVisible(false);
       const door = W - 152;
       // (what she says comes from her mouth, and goes beside her head: there is no room over it)
-      const mom = { mouth: { x: door + MOM_CHIN.x * MOM_SIZE, y: DOORSTEP + MOM_CHIN.y * MOM_SIZE - 20 } };
+      const mom = { mouth: momMouth(door) };
       tw.add({ targets: this, scroll: 0, duration: 520, ease: 'Quad.out' });
       tw.add({ targets: this.house, x: door, duration: 520, ease: 'Quad.out' });
       tw.add({ targets: this, gap: door - 128 - this.chadX, duration: 600, ease: 'Quad.out' });
@@ -512,7 +403,7 @@ export class BatMini extends Mini {
     this.busy = 0.8;
     this.host.word('whiff', this.chadX + 90, FLOOR - 196);
     sound.dodge();
-    tw.add({ targets: this.chad.box, scaleX: -SIZE, duration: 150, yoyo: true, repeat: 1, onComplete: () => this.chad.turn(1) });
+    tw.add({ targets: this.chad.box, scaleX: -KID_SIZE, duration: 150, yoyo: true, repeat: 1, onComplete: () => this.chad.turn(1) });
     const ahead = Math.min(AHEAD, view.W - 130 - this.chadX);
     tw.add({ targets: this, gap: Math.min(ahead, this.gap + 120), duration: 500, ease: 'Quad.out' });
     this.fleeing = 0.55;

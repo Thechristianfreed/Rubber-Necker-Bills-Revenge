@@ -655,6 +655,8 @@ def fight():
 # head comes out as wide as it does in his other photos, and not squeezed to their height).
 BAT_FACES = [("chad", [("1", "scowl", 0, 0.045, 1), ("2", "smile", 0, 0, 1), ("3", "grin", 0, 0, 1), ("4", "laugh", 0, 0, 1), ("5", "yell", 0, 0, 1.13)]),
              ("shane", [("1", "beam", 0, 0, 1), ("2", "wary", 0, 0, 1), ("3", "smirk", -17, 0, 1), ("4", "scared", -8, 0, 1), ("5", "cry", 0, 0, 1)])]
+# The faces that are also seen close up (in the sandbox), and so are kept at a bigger size as well.
+BAT_CLOSE_UPS = {("chad", "scowl"), ("chad", "yell"), ("shane", "beam"), ("shane", "cry")}
 
 
 def bat_faces():
@@ -663,10 +665,12 @@ def bat_faces():
     Adobe's body-part selection (art-src/adobe/PB-<who>-<number>-headmask.png)
     laid over its cutout of him (...-cutout.png).
     Each is saved with his head HEAD pixels tall from the top of his hair to
-    his chin (more where his mouth is wide open: see BAT_FACES). Writes src/data/bat.ts: for every face its file, how tall its
-    picture is in heads, and where the chin is in it. A photo with no selection
-    yet is left out, and the game keeps its paper face for that look."""
-    HEAD = 230
+    his chin (more where his mouth is wide open: see BAT_FACES), and the ones
+    that are seen close up are saved again at CLOSE_UP pixels, or as near it
+    as the photo allows. Writes src/data/bat.ts: for every face its file, how
+    tall its picture is in heads, and where the chin is in it. A photo with no
+    selection yet is left out, and the game keeps its paper face for that look."""
+    HEAD, CLOSE_UP = 230, 560
     made = {}
     for who, shots in BAT_FACES:
         for number, look, turn, jaw, long in shots:
@@ -724,19 +728,25 @@ def bat_faces():
             interpolation = cv2.INTER_AREA if k < 1 else cv2.INTER_CUBIC
             out = cv2.resize(piece, (round(piece.shape[1] * k), round(piece.shape[0] * k)), interpolation=interpolation)
             save(f"{who}face-{look}.png", out)
-            made.setdefault(who, {})[look] = (out.shape[0] / HEAD, (chin[0] - x0) / (x1 - x0), (chin[1] - y0) / (y1 - y0))
+            big = (who, look) in BAT_CLOSE_UPS
+            if big:
+                kk = min(1.25, k * CLOSE_UP / HEAD)
+                save(f"{who}face-{look}-big.png", cv2.resize(piece, (round(piece.shape[1] * kk), round(piece.shape[0] * kk)), interpolation=cv2.INTER_AREA if kk < 1 else cv2.INTER_CUBIC))
+            made.setdefault(who, {})[look] = (out.shape[0] / HEAD, (chin[0] - x0) / (x1 - x0), (chin[1] - y0) / (y1 - y0), big)
     table = os.path.join(ROOT, "src", "data", "bat.ts")
     with open(table, "w") as f:
         f.write("/** The brothers' photo faces for the day Chad had had enough. For each look: the\n"
                 " *  picture, how tall it is in heads (a head being hair to chin), and where the\n"
                 " *  chin is in it (as a fraction of the picture): each is hung from its chin.\n"
+                " *  `big` is the same picture again, larger, for a face that is seen close up.\n"
                 " *  Written by tools/make_cutouts.py; do not edit by hand. */\n"
-                "export interface BatFace { file: string; tall: number; chin: [number, number] }\n\n"
+                "export interface BatFace { file: string; tall: number; chin: [number, number]; big?: string }\n\n"
                 "export const BAT_FACES: Record<string, Record<string, BatFace>> = {\n")
         for who, looks in made.items():
             f.write(f"  {who}: {{\n")
-            for look, (tall, cx, cy) in looks.items():
-                f.write(f"    {look}: {{ file: '{who}face-{look}.png', tall: {tall:.3f}, chin: [{cx:.3f}, {cy:.3f}] }},\n")
+            for look, (tall, cx, cy, big) in looks.items():
+                more = f", big: '{who}face-{look}-big.png'" if big else ""
+                f.write(f"    {look}: {{ file: '{who}face-{look}.png', tall: {tall:.3f}, chin: [{cx:.3f}, {cy:.3f}]{more} }},\n")
             f.write("  },\n")
         f.write("};\n")
     print("wrote", table)
