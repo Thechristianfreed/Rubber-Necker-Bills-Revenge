@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { H, HEAD_SRC_H, MAX_W, TEX, view } from '../config';
+import { BUILT, H, HEAD_SRC_H, MAX_W, ONLY_MINI, TEX, view } from '../config';
 import { ART, img } from '../art/sticker';
 import { sound } from '../audio/sound';
 import { written } from '../ui/text';
@@ -73,7 +73,10 @@ export class TitleScene extends Phaser.Scene {
     this.tweens.add({ targets: go, scale: 1.08, duration: 460, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
     note(424, 'TAP = swing        HOLD DUCK = dodge signs', 17, 'tape_l', 0.8, -0.01);
     note(462, "Fill the RAGE meter.  Don't hit the dog.", 17, 'tape_l', 0.8, 0.008);
-    written(this, W - 12, H - 14, 'prototype 0.30', 13, '#fbf6ea').setOrigin(1, 0.5).setAlpha(0.8);
+    // (the number is the whole game's, and goes up when the whole game is published; a page that
+    // shows one quick game says which, and when it was built)
+    const one = ONLY_MINI ? `  ·  only "${ONLY_MINI}"${BUILT ? `, built ${BUILT}` : ''}` : '';
+    written(this, W - 12, H - 14, 'prototype 0.30' + one, 13, '#fbf6ea').setOrigin(1, 0.5).setAlpha(0.8);
     written(this, W - 12, H - 32, 'Music: Kevin MacLeod (incompetech.com), CC BY 4.0  ·  Sounds: BigSoundBank.com', 12, '#fbf6ea').setOrigin(1, 0.5).setAlpha(0.8);
 
     const start = () => {
@@ -86,7 +89,8 @@ export class TitleScene extends Phaser.Scene {
           void o?.lock?.('landscape')?.catch(() => undefined);
         } catch { /* not allowed here (e.g. inside an embedded frame): play windowed */ }
       }
-      this.scene.start('levels');
+      // (a page built to show one quick game goes straight to it)
+      this.scene.start(ONLY_MINI ? 'minis' : 'levels');
     };
     this.input.once('pointerdown', start);
     this.input.keyboard?.once('keydown-SPACE', start);

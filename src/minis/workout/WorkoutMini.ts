@@ -1,12 +1,12 @@
 import Phaser from 'phaser';
-import { H, HEAD_SRC_H, MAX_W, TEX, view } from '../config';
-import { BLEED } from '../art/finish';
-import { BILL_HEAD, DEN_FLOOR, POSES, POSE_IDS, STANCE, TV } from '../art/minis';
-import { ART, applyArt, img } from '../art/sticker';
-import { sound } from '../audio/sound';
-import { WORKOUT_BODIES } from '../data/workout';
-import { label, written } from '../ui/text';
-import { Mini, Point } from './Mini';
+import { H, HEAD_SRC_H, MAX_W, TEX, view } from '../../config';
+import { BLEED } from '../../art/finish';
+import { BILL_HEAD, DEN_FLOOR, POSES, POSE_IDS, STANCE, TV } from '../../art/minis';
+import { ART, applyArt, img } from '../../art/sticker';
+import { sound } from '../../audio/sound';
+import { WORKOUT_BODIES } from '../../data/workout';
+import { label, written } from '../../ui/text';
+import { Mini, Point } from '../Mini';
 
 type Image = Phaser.GameObjects.Image;
 

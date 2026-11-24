@@ -18,7 +18,11 @@ from shrink_assets import save_webp
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = os.path.join(ROOT, "art-src", "adobe")
+GEN = os.path.join(ROOT, "art-src", "generated")
 OUT = os.path.join(ROOT, "src", "assets", "scrap")
+# (A quick game with a folder of its own cuts its pictures with a file of its own,
+# src/minis/<id>/cut.py, which borrows what is here and points these three at its own
+# folders: its sources in art-src/games/<id>, its pieces in src/minis/<id>/assets.)
 
 
 def load(name):
@@ -83,7 +87,7 @@ def bug():
 
 
 def original(name):
-    return np.asarray(Image.open(os.path.join(ROOT, "art-src", "generated", name)).convert("RGB"), dtype=np.float32) / 255.0
+    return np.asarray(Image.open(os.path.join(GEN, name)).convert("RGB"), dtype=np.float32) / 255.0
 
 
 def pieces(rgba, min_area=400):

@@ -11,9 +11,20 @@ the owner's picture        art-src/generated/<ID>-<what>.webp   (or art-src/phot
   -> src/art/photos.ts      registered under the same key as the paper stand-in
 ```
 
+That is how it goes for the levels and the first six quick games, whose
+pictures are all in the common folders. A quick game with a folder of its
+own keeps everything of its own instead, and nothing of it is in those:
+
+```text
+the owner's picture         art-src/games/<id>/<ID>-<what>.webp
+  -> Adobe                   art-src/games/<id>/<ID>-<what>-cutout.png, -headmask.png
+  -> src/minis/<id>/cut.py   src/minis/<id>/assets/<piece>.webp
+  -> src/minis/<id>/index.ts registered in its PIECES, under a key that starts "<id>_"
+```
+
 Everything in `art-src` is kept, so any piece can be cut again without going
 back to Adobe. `python tools/make_cutouts.py` with nothing after it re-cuts
-every piece from those files, and should change nothing.
+every common piece from those files, and should change nothing.
 
 ## 1. Keep the picture
 
@@ -86,8 +97,22 @@ as black and white; `selection()` in `make_cutouts.py` reads both.
 
 ## 4. Make the pieces
 
-`tools/make_cutouts.py` is one step for each kind of picture (`STEPS` at the
-bottom lists them). Run one by name:
+**For a game with a folder of its own:** its `cut.py`, which
+`tools/new_mini.mjs` wrote. It borrows every helper in
+`tools/make_cutouts.py` (as `mc.load`, `mc.pieces`, `mc.save`,
+`mc.head_only`, `mc.without_heads`, `mc.chin_of` and the rest), pointed at
+the game's own folders, so it cannot read or write another game's pictures:
+
+```bash
+.venv/bin/python src/minis/<id>/cut.py
+```
+
+A table the game needs (where a chin is, how far a head tips) is written by
+that file into the game's own folder too.
+
+**For the levels and the first six games:** `tools/make_cutouts.py` is one
+step for each kind of picture (`STEPS` at the bottom lists them). Run one by
+name:
 
 ```bash
 .venv/bin/python tools/make_cutouts.py sand
@@ -181,7 +206,7 @@ shows at once in a screenshot and not at all in the numbers.
   `SAND_PAIRS` says how far apart to put their chins.
 - **A generated body's own head is small,** and seen from below it is
   smaller still. The photo head hung on their mother from below is made a
-  little bigger than the one that came off (`HEAD_UP` in `SandMini.ts`); it
+  little bigger than the one that came off (`HEAD_UP` in `src/minis/sand/SandMini.ts`); it
   is a scrapbook, and a big head is right.
 - **A pose that covers the head or neck** cannot have its head changed. The
   prompts ask for poses that do not; a picture that does anyway goes back to

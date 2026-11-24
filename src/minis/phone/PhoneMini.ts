@@ -1,10 +1,10 @@
 import Phaser from 'phaser';
-import { H, MAX_W, TEX, view } from '../config';
-import { BLEED } from '../art/finish';
-import { ART, applyArt, img } from '../art/sticker';
-import { HEAD_STYLES, VEHICLES } from '../art/textures';
-import { sound } from '../audio/sound';
-import { Mini, Point } from './Mini';
+import { H, MAX_W, TEX, view } from '../../config';
+import { BLEED } from '../../art/finish';
+import { ART, applyArt, img } from '../../art/sticker';
+import { HEAD_STYLES, VEHICLES } from '../../art/textures';
+import { sound } from '../../audio/sound';
+import { Mini, Point } from '../Mini';
 
 type Image = Phaser.GameObjects.Image;
 

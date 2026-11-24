@@ -56,10 +56,10 @@ npm run build:single
 Writes one `dist-single/index.html` that can be shared as a single file. Everything is inside it except the sound recordings, which sit beside it in `dist-single/music/`, `dist-single/voice/` and `dist-single/sfx/`; without those folders the game still plays, with no music and only synthesised effects.
 
 ```bash
-node tools/make_artifact.mjs
+node tools/make_preview.mjs <out.html>
 ```
 
-Converts that single file into a page fragment for hosts that add their own page wrapper.
+Does that build and turns it into a page fragment for hosts that add their own page wrapper: this is what is published as the preview. With `--only <game>` after it, the page plays one quick game by itself, which is how a game that is still being made is shown.
 
 ## How it is put together
 
@@ -87,7 +87,9 @@ Converts that single file into a page fragment for hosts that add their own page
   scoreboard, taps and buttons, speech bubbles, the results page).
   `GameScene.ts` is the side-on levels; `LockerScene.ts` is the hallway, seen
   over Bill's shoulder; `SleepoverScene.ts` is the light-switch level.
-  `MiniScene.ts` runs the quick games, which are in `src/minis`.
+  `MiniScene.ts` runs the quick games. Each of those is a folder of its own
+  in `src/minis`, and `src/minis/roster.ts` is the master list that stitches
+  them into one tape (`docs/minigames.md`).
 - **Ideas backlog:** `docs/level-ideas.md`.
 
 Photo cutouts live in `src/assets/scrap` and are listed in `src/art/photos.ts`,

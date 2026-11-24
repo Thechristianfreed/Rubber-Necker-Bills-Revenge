@@ -1,12 +1,12 @@
 import Phaser from 'phaser';
-import { H, MAX_W, TEX, view } from '../config';
-import { KID_FACE, KID_HEAD } from '../art/bat';
-import { Doll } from '../art/fight';
-import { BLEED } from '../art/finish';
-import { ART, applyArt, img } from '../art/sticker';
-import { BAT_FACES } from '../data/bat';
-import { BAT_BODIES, BAT_DOOR, BAT_YARD } from '../data/batbodies';
-import { Point } from './Mini';
+import { H, MAX_W, TEX, view } from '../../config';
+import { KID_FACE, KID_HEAD } from '../../art/bat';
+import { Doll } from '../../art/fight';
+import { BLEED } from '../../art/finish';
+import { ART, applyArt, img } from '../../art/sticker';
+import { BAT_FACES } from '../../data/bat';
+import { BAT_BODIES, BAT_DOOR, BAT_YARD } from '../../data/batbodies';
+import { Point } from '../Mini';
 
 type Image = Phaser.GameObjects.Image;
 type Box = Phaser.GameObjects.Container;

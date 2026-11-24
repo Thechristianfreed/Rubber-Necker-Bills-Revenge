@@ -74,11 +74,36 @@ function stickerize(src: HTMLCanvasElement, border: number, keyline: number): [H
   return [out, padDesign];
 }
 
+/** While a quick game with a folder of its own is drawing its pictures, every picture that
+ *  was there before it is somebody else's, and it may only make ones called by its own
+ *  name (`<id>_...`, or `word_<id>_...`). `fence` sets that up (and takes it down, with
+ *  nothing); `mine` is asked before any picture is made, and says no, loudly, to one
+ *  that would break either rule. The errors are kept for the tests to find. */
+let fenced: { id: string; taken: Set<string> } | null = null;
+export const TRESPASSES: string[] = [];
+
+export function fence(id: string | null, taken?: Iterable<string>): void {
+  fenced = id ? { id, taken: new Set(taken) } : null;
+}
+
+function mine(key: string): boolean {
+  if (!fenced) return true;
+  const own = key.startsWith(`${fenced.id}_`) || key.startsWith(`word_${fenced.id}_`);
+  if (own && !fenced.taken.has(key)) return true;
+  const why = fenced.taken.has(key)
+    ? `the quick game "${fenced.id}" tried to draw over "${key}", which is not its own: left as it was`
+    : `the quick game "${fenced.id}" tried to make a picture called "${key}": its pictures are called "${fenced.id}_..." (not made)`;
+  TRESPASSES.push(why);
+  console.error(why);
+  return false;
+}
+
 /** Draw a piece of art and register it under `key`. */
 export function makeArt(
   scene: Phaser.Scene, key: string, w: number, h: number,
   draw: (c: Ctx) => void, opts: ArtOpts = {},
 ): void {
+  if (!mine(key)) return;
   const [inner, c] = makeCanvas(w * TEX, h * TEX);
   c.scale(TEX, TEX);
   c.lineJoin = 'round';
@@ -112,6 +137,7 @@ export interface PhotoOpts {
 /** Register a photo cutout (an already-trimmed transparent image) as art,
  *  giving it the same white paper border and shadow as everything else. */
 export function makePhotoArt(scene: Phaser.Scene, key: string, image: HTMLImageElement, opts: PhotoOpts): void {
+  if (!mine(key)) return;
   const aspect = image.naturalWidth / image.naturalHeight;
   const w = opts.scale ? image.naturalWidth * opts.scale : opts.w ?? (opts.h ?? 100) * aspect;
   const h = opts.scale ? image.naturalHeight * opts.scale : opts.h ?? w / aspect;
@@ -134,6 +160,7 @@ export function makePhotoArt(scene: Phaser.Scene, key: string, image: HTMLImageE
 
 /** Register a photo as a plain repeating strip (no border), `h` design pixels tall. */
 export function makePhotoTile(scene: Phaser.Scene, key: string, image: HTMLImageElement, h: number, native = false): void {
+  if (!mine(key)) return;
   const w = (h * image.naturalWidth) / image.naturalHeight;
   // `native` keeps a big photo at its own resolution instead of enlarging it,
   // so the texture stays small enough for every phone's graphics chip

@@ -1,13 +1,13 @@
 import Phaser from 'phaser';
-import { H, MAX_W, TEX, view } from '../config';
-import { CHAD, SHANE } from '../art/bat';
-import { ART, applyArt, img } from '../art/sticker';
-import { sound } from '../audio/sound';
-import { SAND } from '../data/sand';
-import { bubble } from '../ui/bubble';
-import { label, written } from '../ui/text';
-import { Mini, Point } from './Mini';
-import { DOORSTEP, FLOOR, KID_SIZE, Kid, MOM_SIZE, headTall, layYard, momMouth, raiseHouse, standMom } from './yard';
+import { H, MAX_W, TEX, view } from '../../config';
+import { CHAD, SHANE } from '../../art/bat';
+import { ART, applyArt, img } from '../../art/sticker';
+import { sound } from '../../audio/sound';
+import { SAND } from '../../data/sand';
+import { bubble } from '../../ui/bubble';
+import { label, written } from '../../ui/text';
+import { Mini, Point } from '../Mini';
+import { DOORSTEP, FLOOR, KID_SIZE, Kid, MOM_SIZE, headTall, layYard, momMouth, raiseHouse, standMom } from '../shared/yard';
 
 type Image = Phaser.GameObjects.Image;
 type Box = Phaser.GameObjects.Container;

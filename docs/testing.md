@@ -16,8 +16,13 @@ Test the built page, which is what gets published and has the recordings
 beside it:
 
 ```bash
-npm run build && npm run build:single
+npm run build:single
 ```
+
+(`tools/make_preview.mjs` does the same and then makes the page to publish.
+With `--only <game>` it builds a page that plays one quick game by itself,
+and `dist-single` is left holding that: on it, `&level=minis` is that one
+game. Build again without `--only` before testing the whole tape.)
 
 ```bash
 cd dist-single && python3 -m http.server 5180
@@ -61,12 +66,13 @@ above; `<outPrefix>` is where the pictures go, and the start of their names.
 
 | | |
 | --- | --- |
-| `mini_show.cjs <base url> <outPrefix> <mini> [bot] [width]` | One quick game, photographed at each of its moments at twice the size, for showing. The moments are listed in `moments.cjs`: a new game gets a list there. |
+| `mini_show.cjs <base url> <outPrefix> <mini> [bot] [width]` | One quick game, photographed at each of its moments at twice the size, for showing. The moments are listed in the game's own folder (`src/minis/<mini>/moments.cjs`). |
 | `mini_strip.cjs <base url> <outDir> <mini> [bot] [width] [step]` | The whole of one quick game, a frame every `step` seconds. For a game with no list yet, and for finding where something goes wrong. |
 | `mini_by_hand.cjs <base url> <outPrefix> <mini> <width> "<condition>"...` | One quick game with nobody at the controls. |
 | `bat_lose.cjs <base url> <out.png>` | Payback's losing ending, which neither bot reaches. |
 | `tape_whole.cjs <base url> <out.png> [bot] [width]` | The whole tape: which games came up, how it ended, and every error and every file that failed to load. Run it before publishing. |
 | `skip_test.cjs <base url> <outPrefix>` | The SKIP tag, by real taps, through to the end of the tape. |
+| `textures.cjs <base url> <out.json>` and `textures.cjs --diff <before> <after>` | A fingerprint of every picture the game has made, to take before a change and again after: proof that no picture that was already there has been touched. |
 
 **The levels**
 
@@ -117,6 +123,19 @@ node tools/test/mini_show.cjs http://localhost:5180/ shots/sand-clumsy sand clum
 ```bash
 .venv/bin/python tools/test/sheet.py shots shots/sheet 3 9 640
 ```
+
+To be sure nothing that was already there has changed, take the fingerprints
+of every picture on the main line's build and on yours, and compare:
+
+```bash
+node tools/test/textures.cjs http://localhost:5180/ shots/after.json
+```
+
+```bash
+node tools/test/textures.cjs --diff shots/before.json shots/after.json
+```
+
+A new game should show its own pictures as "new" and nothing else at all.
 
 Then look at the sheets. A script that says "no errors" has only said that
 nothing threw: a head hung in the wrong place, a word over a face, a hand

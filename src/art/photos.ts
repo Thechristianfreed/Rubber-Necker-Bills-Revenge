@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { INK, TEX } from '../config';
-import { ART, Ctx, PhotoOpts, makeArt, makePhotoArt, makePhotoTile, star } from './sticker';
+import { ART, Ctx, fence, makeArt, makePhotoArt, makePhotoTile, star } from './sticker';
 import { ARM_TINTS, VEHICLES, VehicleSpec, makeNeck, setHeadStyles } from './textures';
 import { PAPERS, addPaper } from './paper';
 import { buildPaperUi } from './ui';
@@ -16,17 +16,27 @@ import { buildSleepoverArt } from './sleepover';
 import { buildStreetArt } from './street';
 import { FIGHT_BODIES } from '../data/fight';
 import { WORKOUT_BODIES } from '../data/workout';
+import { Piece } from '../minis/kit';
+import { ROSTER } from '../minis/roster';
 
 /** Photo cutouts that replace drawn art. Each piece takes over the texture key
  *  of the drawing it replaces, so nothing else in the game has to change.
  *  The files come from tools/make_cutouts.py. */
 
 const FILES = import.meta.glob('../assets/scrap/*.{png,jpg,webp}', { eager: true, query: '?url', import: 'default' }) as Record<string, string>;
+/** ...and the pictures each quick game keeps in its own folder (src/minis/<id>/assets). */
+const OWN = import.meta.glob('../minis/*/assets/*.{png,jpg,webp}', { eager: true, query: '?url', import: 'default' }) as Record<string, string>;
 
 /** Where a picture is. Cutouts are called "name.png" throughout, but they are
  *  kept as WebP, which is a fraction of the size (tools/shrink_assets.py). */
 function url(name: string): string | undefined {
   return FILES[`../assets/scrap/${name.replace(/\.png$/, '.webp')}`] ?? FILES[`../assets/scrap/${name}`];
+}
+
+/** Where a quick game's picture is: in its own folder if it has it there, among the common ones if not. */
+function ownUrl(id: string, name: string): string | undefined {
+  const at = `../minis/${id}/assets/`;
+  return OWN[at + name.replace(/\.png$/, '.webp')] ?? OWN[at + name] ?? url(name);
 }
 
 const DISPLAY = 'Bangers, Impact, "Arial Narrow Bold", sans-serif';
@@ -44,11 +54,6 @@ function lettering(lines: [string, number][], cx: number, cy: number, gap: numbe
       y += gap;
     }
   };
-}
-
-interface Piece extends PhotoOpts {
-  key: string;
-  file: string;
 }
 
 type XY = [number, number];
@@ -324,6 +329,32 @@ function punchHole(scene: Phaser.Scene, key: string, mask: HTMLImageElement): vo
   texture.refresh();
 }
 
+/** The quick games that keep their own pictures (a folder each in src/minis): each draws
+ *  its paper stand-ins, and then its photos take their places. Each is fenced in while it
+ *  does: it can make pictures by its own name, and cannot draw over anybody else's. */
+async function loadGames(scene: Phaser.Scene): Promise<void> {
+  for (const game of ROSTER) {
+    if (!game.art && !game.pieces && !game.files && !game.photos) continue;
+    const names = new Set<string>([...(game.pieces ?? []).map((p) => p.file), ...(game.files ?? [])]);
+    const loaded = new Map<string, HTMLImageElement>();
+    await Promise.all([...names].map(async (n) => {
+      const im = await loadImage(ownUrl(game.id, n));
+      if (im) loaded.set(n, im);
+    }));
+    fence(game.id, scene.textures.getTextureKeys());
+    try {
+      game.art?.(scene);
+      for (const p of game.pieces ?? []) {
+        const im = loaded.get(p.file);
+        if (im) makePhotoArt(scene, p.key, im, p);
+      }
+      game.photos?.(scene, loaded);
+    } finally {
+      fence(null);
+    }
+  }
+}
+
 /** Load every photo cutout and swap it in over its drawn stand-in. */
 export async function loadPhotoArt(scene: Phaser.Scene): Promise<void> {
   const sheets = PAPERS;
@@ -449,4 +480,6 @@ export async function loadPhotoArt(scene: Phaser.Scene): Promise<void> {
       c.stroke();
     }, { border: 2.5, ax: 210, ay: 174 });
   }
+
+  await loadGames(scene);
 }

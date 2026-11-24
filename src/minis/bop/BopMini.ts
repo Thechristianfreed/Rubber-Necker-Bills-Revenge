@@ -1,11 +1,11 @@
 import Phaser from 'phaser';
-import { H, MAX_W, TEX, view } from '../config';
-import { BLEED } from '../art/finish';
-import { DOLL, ROOM } from '../art/sleepover';
-import { ART, img } from '../art/sticker';
-import { sound } from '../audio/sound';
-import { label } from '../ui/text';
-import { Mini } from './Mini';
+import { H, MAX_W, TEX, view } from '../../config';
+import { BLEED } from '../../art/finish';
+import { DOLL, ROOM } from '../../art/sleepover';
+import { ART, img } from '../../art/sticker';
+import { sound } from '../../audio/sound';
+import { label } from '../../ui/text';
+import { Mini } from '../Mini';
 
 type Image = Phaser.GameObjects.Image;
 

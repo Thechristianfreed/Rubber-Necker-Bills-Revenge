@@ -26,7 +26,7 @@ asks for music of its own with `readonly music = '<file name in
 public/music>'`; without it, the mode's usual track plays.
 
 What the two of them say in the fight is on scraps of paper that follow
-their heads (`say()` in `src/minis/FightMini.ts`). Each one is put wherever
+their heads (`say()` in `src/minis/fight/FightMini.ts`). Each one is put wherever
 above or beside the speaker's head covers least: never either face, never
 what the other one is saying, never the names under the health bars or the
 buttons, and not the banner or the combo count if it can be helped. A line
@@ -37,7 +37,7 @@ A game that is a story, and waits for the player to choose, says so with
 `readonly timed = false`: it has no clock, and goes on until it calls
 `this.host.finish()`. The two set in the brothers' back yard (the bat and
 the sandbox) share the yard, the house, their mother and the boys
-themselves: `src/minis/yard.ts`.
+themselves: `src/minis/shared/yard.ts`.
 
 A game that cannot be won says so with `readonly scored = false`: it is
 played like any other, but it is not counted in "games cleared".
@@ -48,30 +48,68 @@ is not counted, and a tape with a skip in it does not set the best.
 
 ## Adding one
 
-1. Copy one of the classes in `src/minis` (the sleepover one is the
-   shortest). A game says its `title`, its `prompt` (a few words, shown
-   large), and how many `seconds` it lasts; `build()` puts things on the
-   page, `press()` and `release()` are the finger going down and up,
-   `update()` runs every frame, and `timeUp()` says whether running out of
-   time counts as a win. Call `this.host.finish(true or false)` to end it
-   early.
-2. Add it to `ROSTER` at the top of `src/scenes/MiniScene.ts`.
-3. Give it a `bot()` so the game can test itself: `?auto&level=minis&mini=<id>`
-   plays it well, `?auto=clumsy` plays it badly.
+Every quick game is a folder of its own in `src/minis`, and the master list
+(`src/minis/roster.ts`) stitches them into the one tape. A new game is made
+in a chat of its own, on a branch of its own, and comes into the master
+game when the owner says so (`CLAUDE.md` has the rules).
+
+```bash
+node tools/new_mini.mjs toaster "THE TOASTER"
+```
+
+That makes `src/minis/toaster/` with a small game in it that already plays
+(tap the star three times), and adds its name to the master list:
+
+| In the folder | |
+| --- | --- |
+| `ToasterMini.ts` | The game. It says its `title`, its `prompt` (a few words, shown large) and how many `seconds` it lasts; `build()` puts things on the page, `press()` and `release()` are the finger going down and up, `update()` runs every frame, and `timeUp()` says whether running out of time counts as a win. `this.host.finish(true or false)` ends it early. `bot()` plays it for the tests. |
+| `art.ts` | Its paper stand-ins: what is on the page until there is a photo. |
+| `index.ts` | What the master list is given: the game, its stand-ins, and its photos (`PIECES`), each of which takes the place of the stand-in with the same key. |
+| `assets/` | Its photos, cut by `cut.py` from what is in `art-src/games/toaster/`. |
+| `moments.cjs` | The moments its test photographs (`testing.md`). |
+| `README.md` | What it is, the story behind it in the owner's words, and its picture prompts. |
+
+To see it by itself, build a page that plays only that game, and publish it
+as an artifact of its own:
+
+```bash
+node tools/make_preview.mjs <somewhere>/toaster.html --only toaster
+```
+
+What keeps one game from spoiling another:
+
+- **Its pictures have its name on them.** Every key is `toaster_something`
+  (a word on a burst: `word_toaster_something`, shown with
+  `this.host.word('toaster_something', x, y)`). A game cannot make a picture
+  by any other name, or draw over one that was there before it: it is
+  refused, and the tests report it.
+- **It may use what is already there** (the paper, the lettering, the
+  effects, the levels' pictures, another game's people) but not change it.
+- **Its sounds are made in its own folder,** out of `sound.tone()` and
+  `sound.noise()`, or are recordings of its own
+  (`public/sfx/toaster-<name>.mp3`, with `sound.loadClip()` and
+  `sound.playClip()`).
+- **Before it goes back:** `node tools/check_branch.mjs` lists everything the
+  branch has changed, and stops on anything that was already there.
 
 A game does not tidy up after itself: the scene clears away everything it
-added. Art goes in `src/art/minis.ts`, or use anything already made for the
-levels (the bus and the sleepover games do).
+added.
+
+The first six games were made before games had folders. Their classes are in
+theirs (`src/minis/sand/SandMini.ts`); their paper art (`src/art`), tables
+(`src/data`) and pictures (`src/assets/scrap`, listed in `src/art/photos.ts`)
+are still in the common places, and several are shared: the brothers, their
+mother and the back yard (`src/minis/shared/yard.ts`) are in two games each.
 
 ## Tuning
 
-- Which games are on the tape, and in what order: `ROSTER` at the top of
-  `src/scenes/MiniScene.ts`.
+- Which games are on the tape, and in what order: `ROSTER` in
+  `src/minis/roster.ts`.
 - The workout: the pass mark and how long each pose is given (`PASS`,
   `SECONDS_EACH`; there are as many rounds as there are poses), how long a
   breath takes and how big the green zone is (`INHALE`, `ZONE`, `TOO_LONG`),
   how long the "PAH" stays on their faces before it is held in (`PAH_LINGERS`),
-  at the top of `src/minis/WorkoutMini.ts`. Each pose is a photo of a body
+  at the top of `src/minis/workout/WorkoutMini.ts`. Each pose is a photo of a body
   with the head taken off (`src/data/workout.ts`, written by
   `tools/make_cutouts.py`, says where each one's chin is); behind them are
   paper dolls described joint by joint in `POSES` in `src/art/minis.ts`,

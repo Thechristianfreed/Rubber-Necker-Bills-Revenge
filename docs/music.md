@@ -61,7 +61,7 @@ ffmpeg -i audio-src/fight/flawless-fatality.mp3 -ac 1 -ar 44100 -af "atrim=0:3.4
 ```
 
 The words FLAWLESS VICTORY and FATALITY go up on the screen in time with it
-(`FATALITY_AT` in `src/minis/FightMini.ts` is how far into the clip the
+(`FATALITY_AT` in `src/minis/fight/FightMini.ts` is how far into the clip the
 second one is said). If the file is missing, the fight ends on the usual
 groan and sad notes, with the same words.
 

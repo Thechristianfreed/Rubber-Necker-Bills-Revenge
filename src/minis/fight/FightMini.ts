@@ -1,12 +1,12 @@
 import Phaser from 'phaser';
-import { H, MAX_W, TEX, view } from '../config';
-import { BLEED } from '../art/finish';
-import { CHEER } from '../art/fight';
-import { ART, applyArt, img, originOf } from '../art/sticker';
-import { sound } from '../audio/sound';
-import { FIGHT_BODIES } from '../data/fight';
-import { label, written } from '../ui/text';
-import { Mini, Point } from './Mini';
+import { H, MAX_W, TEX, view } from '../../config';
+import { BLEED } from '../../art/finish';
+import { CHEER } from '../../art/fight';
+import { ART, applyArt, img, originOf } from '../../art/sticker';
+import { sound } from '../../audio/sound';
+import { FIGHT_BODIES } from '../../data/fight';
+import { label, written } from '../../ui/text';
+import { Mini, Point } from '../Mini';
 
 type Image = Phaser.GameObjects.Image;
 type Text = Phaser.GameObjects.Text;

@@ -4,6 +4,7 @@ import '@fontsource/permanent-marker/latin-400.css';
 import { loadPhotoArt } from '../art/photos';
 import { buildTextures } from '../art/textures';
 import { sound } from '../audio/sound';
+import { ONLY_MINI } from '../config';
 import { levelById, sceneFor } from '../data/levels';
 import back from '../assets/bill/head-back.webp';
 import glare from '../assets/bill/head-glare.webp';
@@ -62,7 +63,7 @@ export class BootScene extends Phaser.Scene {
       const q = new URLSearchParams(location.search);
       // ?auto goes straight into a level (or, with level=minis, the quick games)
       const level = q.get('level');
-      this.scene.start(!q.has('auto') ? 'title' : level === 'minis' ? 'minis' : sceneFor(levelById(level)));
+      this.scene.start(!q.has('auto') ? 'title' : level === 'minis' || (ONLY_MINI && !level) ? 'minis' : sceneFor(levelById(level)));
     });
   }
 }
