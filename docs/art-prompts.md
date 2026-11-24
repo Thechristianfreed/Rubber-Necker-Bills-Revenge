@@ -245,11 +245,15 @@ An empty 1990s family den photographed straight on at standing height: a wood-pa
 
 ## Home Movies: After school (the fight)
 
-Everything in this game is a paper stand-in so far (`src/art/fight.ts`).
-Stephanie's head is already hers, the four faces made for the workout; the
-people in these pictures lose their heads to it, so hers do not matter. The
-other girl is described here as she was, from the two pictures the family
-sent of what she looked like; she keeps her own head.
+Made and in the game, cut out by `fight()` in `tools/make_cutouts.py`:
+Stephanie's seven bodies in her cheer outfit (AS1), the other girl before and
+after (AS2) and the gym (AS3, the first prompt). Still paper
+(`src/art/fight.ts`): the bleachers, the bake sale table and the hoop (AS3,
+the second prompt). The first sheet of AS1 arrived at half size (512 pixels
+wide), so those four bodies are a little soft; a full-size copy would fix
+that. Stephanie's head is the four faces made for the workout; the people in
+her pictures lose theirs to it. The other girl is as the family described
+her, and keeps her own head.
 
 ### AS1. Stephanie, in her cheer outfit (two sheets)
 

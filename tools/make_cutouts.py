@@ -507,6 +507,107 @@ def workout_set():
     backdrop("den.jpg", den, 80)
 
 
+# The fight after school. Stephanie's bodies, by sheet, in the order they stand on it; the
+# other girl before and after, the same way.
+FIGHT_CHEER = [("AS1a-cheer-standing", ["ready", "fingers", "kick", "flurry"]), ("AS1b-cheer-losing", ["plead", "fly", "ko"])]
+FIGHT_RIVAL = [("AS2a-rival-before", ["walk", "point", "flinch", "charge"], "point", 286),
+               ("AS2b-rival-after", ["hulk", "flick", "win"], "hulk", 356)]
+
+
+def fight():
+    """The fight after school. Stephanie's bodies in her cheer outfit lose their
+    heads, as the workout's do, and hers hangs from the chin each leaves; the
+    other girl, before and after, keeps her own. Writes src/data/fight.ts: for
+    every pose its file, its size, the spot on the floor it stands on and, for
+    Stephanie, where her chin goes from there and how far her head is tipped.
+    The pose of her in mid-air is held by a foot instead (the one furthest from
+    her head), since that is what she is swung by: its spot is that foot, and
+    `lie` is the direction from it to her chin. Also the gym itself."""
+    cheer, sizes = {}, {}
+    for sheet, poses in FIGHT_CHEER:
+        cut = load(f"{sheet}-cutout.png")
+        head = (selection(f"{sheet}-headmask.png") > 0.5).astype(np.uint8)
+        grown = cv2.GaussianBlur(cv2.dilate(head, np.ones((5, 5), np.uint8)).astype(np.float32), (0, 0), 0.8)
+        body = cut.copy()
+        body[..., 3] *= 1 - np.clip(grown * 1.5, 0, 1)
+        n, hl, hs, hc = cv2.connectedComponentsWithStats(head, 8)
+        big = max(hs[i][4] for i in range(1, n))
+        heads = sorted((i for i in range(1, n) if hs[i][4] > big * 0.4), key=lambda i: hs[i][0])
+        n, lab, bs, bc = cv2.connectedComponentsWithStats((body[..., 3] > 0.3).astype(np.uint8), 8)
+        big = max(bs[i][4] for i in range(1, n))
+        bodies = sorted((i for i in range(1, n) if bs[i][4] > big * 0.5), key=lambda i: bs[i][0])
+        assert len(heads) == len(bodies) == len(poses), f"{sheet}: {len(heads)} heads, {len(bodies)} bodies"
+        sizes[sheet] = float(np.median([np.sqrt(hs[i][4]) for i in heads]))
+        for pose, h, b in zip(poses, heads, bodies):
+            # her chin: the point of her head nearest the middle of the rest of her
+            hy, hx = np.where(hl == h)
+            mid = bc[b]
+            k = int(np.argmin((hx - mid[0]) ** 2 + (hy - mid[1]) ** 2))
+            chin = (float(hx[k]), float(hy[k]))
+            tip = float(np.arctan2(-(chin[0] - hc[h][0]), chin[1] - hc[h][1]))
+            near = cv2.dilate((lab == b).astype(np.uint8), np.ones((5, 5), np.uint8)).astype(bool)
+            piece = body.copy()
+            piece[~near] = 0
+            ys, xs = np.where(piece[..., 3] > 0.08)
+            x0, x1, y0, y1 = xs.min() - 2, xs.max() + 3, ys.min() - 2, ys.max() + 3
+            save(f"cheer-{pose}.png", piece[y0:y1, x0:x1])
+            spot = ((x0 + x1) / 2, float(ys.max()))
+            entry = dict(sheet=sheet, tilt=tip if abs(tip) > 0.5 else 0.0)
+            if pose == "fly":
+                k = int(np.argmax((xs - chin[0]) ** 2 + (ys - chin[1]) ** 2))
+                spot = (float(xs[k]), float(ys[k]))
+                entry["lie"] = float(np.arctan2(chin[1] - spot[1], chin[0] - spot[0]))
+            entry.update(at=((spot[0] - x0) / (x1 - x0), (spot[1] - y0) / (y1 - y0)), chin=(chin[0] - spot[0], chin[1] - spot[1]))
+            cheer[pose] = entry
+    # she is drawn to the size that puts her chin where the game expects it when she stands up
+    # straight (pleading); the other sheet is matched to that by the size of the heads on it
+    straight = STANDING_CHIN / -cheer["plead"]["chin"][1]
+    for entry in cheer.values():
+        entry["scale"] = straight * sizes[cheer["plead"]["sheet"]] / sizes[entry["sheet"]]
+
+    rival = {}
+    for sheet, poses, measure, tall in FIGHT_RIVAL:
+        cut = load(f"{sheet}-cutout.png")
+        found = sorted(pieces(cut, 8000), key=lambda p: p[0])
+        assert len(found) == len(poses), f"{sheet}: {len(found)} figures"
+        scale = tall / found[poses.index(measure)][2].shape[0]
+        for pose, (_, _, piece) in zip(poses, found):
+            save(f"rival-{pose}.png", piece)
+            ys, xs = np.where(piece[..., 3] > 0.08)
+            # she stands on the middle of her feet: the bottom tenth of her
+            feet = xs[ys > ys.max() - piece.shape[0] * 0.1]
+            rival[pose] = dict(scale=scale, at=(float(feet.min() + feet.max()) / 2 / piece.shape[1], float(ys.max()) / piece.shape[0]))
+
+    table = os.path.join(ROOT, "src", "data", "fight.ts")
+    with open(table, "w") as f:
+        f.write("/** The photo bodies for the fight after school. For each pose: the picture, how\n"
+                " *  big it is drawn (game pixels to one of the picture's) and the spot on the\n"
+                " *  floor it stands on (as a fraction of the picture). Stephanie's also say where\n"
+                " *  her chin goes from that spot (in game pixels) and how far her head tips; in\n"
+                " *  mid-air she is held by a foot, and `lie` is the direction from it to her chin.\n"
+                " *  Written by tools/make_cutouts.py; do not edit by hand. */\n"
+                "export interface FightBody { file: string; scale: number; spot: [number, number]; chin?: [number, number]; tilt?: number; lie?: number }\n\n"
+                "export const FIGHT_BODIES: Record<string, Record<string, FightBody>> = {\n  cheer: {\n")
+        for pose, e in cheer.items():
+            lie = f", lie: {e['lie']:.3f}" if "lie" in e else ""
+            f.write(f"    {pose}: {{ file: 'cheer-{pose}.png', scale: {e['scale']:.4f}, spot: [{e['at'][0]:.3f}, {e['at'][1]:.3f}],"
+                    f" chin: [{e['chin'][0] * e['scale']:.1f}, {e['chin'][1] * e['scale']:.1f}], tilt: {e['tilt']:.2f}{lie} }},\n")
+        f.write("  },\n  rival: {\n")
+        for pose, e in rival.items():
+            f.write(f"    {pose}: {{ file: 'rival-{pose}.png', scale: {e['scale']:.4f}, spot: [{e['at'][0]:.3f}, {e['at'][1]:.3f}] }},\n")
+        f.write("  },\n};\n")
+    print("wrote", table)
+
+    # the gym: beside its own mirror image to be wide enough for any screen, with more floor
+    # added at the bottom the same way
+    gym = original("AS3-gym.webp")
+    gym = np.concatenate([gym, gym[:, ::-1]], axis=1)
+    gym = np.concatenate([gym, gym[:-70:-1]], axis=0)
+    path = os.path.join(OUT, "gym.jpg")
+    Image.fromarray((np.clip(gym, 0, 1) * 255).astype(np.uint8), "RGB").save(path, quality=80)
+    print("gym.jpg", gym.shape[1], "x", gym.shape[0], os.path.getsize(path), "bytes")
+
+
 def mailman():
     """The mailman, cheerful and furious. Prints where his feet are, so both
     photos can stand on the same spot."""
@@ -943,6 +1044,7 @@ if __name__ == "__main__":
     bill_faces()
     workout_bodies()
     workout_set()
+    fight()
     teen()
     hallway()
     locker_things()

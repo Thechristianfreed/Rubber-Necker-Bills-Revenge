@@ -2,8 +2,9 @@ import Phaser from 'phaser';
 import { H, MAX_W, TEX, view } from '../config';
 import { BLEED } from '../art/finish';
 import { CHEER } from '../art/fight';
-import { ART, applyArt, img } from '../art/sticker';
+import { ART, applyArt, img, originOf } from '../art/sticker';
 import { sound } from '../audio/sound';
+import { FIGHT_BODIES } from '../data/fight';
 import { label, written } from '../ui/text';
 import { Mini, Point } from './Mini';
 
@@ -18,19 +19,42 @@ const DAMAGE = 0.035;
 /** The fight lasts this long, or this many hits, before the other girl has had enough. */
 const FIGHT_FOR = 6.5;
 const FIGHT_HITS = 8;
-/** How fast Stephanie crosses the gym once she has been sent on her way. */
-const FLIGHT = 980;
+/** Where the other girl's hand is when her arm is out, from the spot she stands on. */
+const HAND = { x: 118, y: 276 };
+/** Stephanie, held by one ankle, hangs this far off straight down (in radians)
+ *  when she has just been brought down on the floor, on either side. */
+const SLAM_AT = 0.26;
+/** How many times she is brought down, how long each swing over the top takes, and the pause after each. */
+const SLAMS = 7;
+const SWING = 0.24;
+const REST = 0.17;
+/** Where the floor meets the wall in the photo of the gym, and in the game. */
+const GYM_FLOOR = 455;
+const WALL_ENDS = 410;
 
 const MOVES = ['SPIRIT FINGERS', 'HIGH KICK', 'POM-POM FLURRY'];
 const POSES = ['fingers', 'kick', 'flurry'];
 const PLEAS = ['APOLOGIZE', 'COMPLIMENT HER JACKET', 'OFFER HALL PASS'];
 const SAID = ['SORRY!!', 'I LOVE YOUR JACKET!', 'HALL PASS...?'];
 
-type Phase = 'callout' | 'round' | 'fight' | 'power' | 'flick' | 'pinball' | 'ko' | 'done';
+type Phase = 'callout' | 'round' | 'fight' | 'power' | 'grab' | 'smash' | 'toss' | 'ko' | 'done';
+
+/** Where Stephanie's chin is in a pose, from the point she is held by (the spot
+ *  on the floor she stands on, or in mid-air the ankle she is swung by), how far
+ *  her head tips, and which way she lies from that point: from the photo of the
+ *  pose, or from the paper doll if there is none. */
+function cheer(pose: string): { x: number; y: number; tilt: number; lie: number } {
+  const photo = FIGHT_BODIES.cheer?.[pose];
+  if (photo?.chin) return { x: photo.chin[0], y: photo.chin[1], tilt: photo.tilt ?? 0, lie: photo.lie ?? Math.atan2(photo.chin[1], photo.chin[0]) };
+  const doll = CHEER[pose], held = doll.hold ?? [0, 0];
+  const x = doll.head[0] - held[0] - 30 * Math.sin(doll.tilt), y = doll.head[1] - held[1] + 30 * Math.cos(doll.tilt);
+  return { x, y, tilt: doll.tilt, lie: Math.atan2(y, x) };
+}
 
 /** The fight after school. Stephanie, in her cheer outfit, is called out and
  *  stands her ground, and for a few seconds it goes well. Then the other girl
- *  powers up, at length, and Stephanie is batted round the gym like a pinball.
+ *  powers up, at length, picks Stephanie up by one leg and brings her down on
+ *  the gym floor, one side and then the other, the way the Hulk does Loki.
  *  It cannot be won, and is not counted in the score. */
 export class FightMini extends Mini {
   readonly title = 'AFTER SCHOOL';
@@ -55,18 +79,23 @@ export class FightMini extends Mini {
   private cool = 0;
   private hits = 0;
   private said = 0;
-  // ...in flight
+  // ...once she has been picked up: where she is held and which way she hangs,
+  // how far through a swing (0 is down on the left, 1 down on the right), and the slams so far
   private at = { x: 0, y: 0 };
-  private spin = 0;
-  private turn = 9;
-  private stops: { x: number; y: number; hit?: string }[] = [];
-  private bounces = 0;
+  private hang = 0;
+  private swing = 0;
+  private swinging = false;
+  private side = 0;
+  private slams = 0;
+  private rest = 0;
+  private thrown?: { from: { x: number; y: number }; to: { x: number; y: number }; t: number };
   private stars: Image[] = [];
 
   // the other girl
   private rival!: Image;
   private rx = 0;
   private rivalPose = 'walk';
+  private faceRight = false;
   private flinch = 0;
   private aura!: Image;
   private size = 1;
@@ -89,7 +118,7 @@ export class FightMini extends Mini {
   private bleachers!: Image;
   private hoop!: Image;
   private table!: Image;
-  private broken = new Set<string>();
+  private banner!: Image;
   private botIn = 0;
 
   private get cx(): number {
@@ -98,14 +127,19 @@ export class FightMini extends Mini {
 
   build(): void {
     const s = this.scene, W = view.W;
-    const strip = (key: string, y: number, h: number) => s.add.tileSprite(-BLEED, y, (MAX_W + BLEED * 2) * TEX, h * TEX, key)
-      .setOrigin(0, 0).setScale(1 / TEX).setDepth(1);
-    strip('gym_wall', -BLEED, FLOOR - 18 + BLEED);
-    strip('gym_floor', FLOOR - 18, H - FLOOR + 18 + BLEED);
-    const stripe = s.add.graphics().setDepth(2);
-    stripe.fillStyle(0x2a5db0, 1);
-    stripe.fillRect(-BLEED, FLOOR - 62, MAX_W + BLEED * 2, 10);
-    img(s, 170, 150, 'gym_banner').setDepth(3).setRotation(-0.03);
+    // the gym: the photo of it, or a wall of painted blocks and a floor of boards cut from paper
+    if (s.textures.exists('gym')) {
+      s.add.image(-BLEED, WALL_ENDS - GYM_FLOOR, 'gym').setOrigin(0, 0).setScale(1 / (ART.gym.tex ?? TEX)).setDepth(1);
+    } else {
+      const strip = (key: string, y: number, h: number) => s.add.tileSprite(-BLEED, y, (MAX_W + BLEED * 2) * TEX, h * TEX, key)
+        .setOrigin(0, 0).setScale(1 / TEX).setDepth(1);
+      strip('gym_wall', -BLEED, WALL_ENDS + BLEED);
+      strip('gym_floor', WALL_ENDS, H - WALL_ENDS + BLEED);
+      const stripe = s.add.graphics().setDepth(2);
+      stripe.fillStyle(0x2a5db0, 1);
+      stripe.fillRect(-BLEED, FLOOR - 62, MAX_W + BLEED * 2, 10);
+    }
+    this.banner = img(s, 170, 150, 'gym_banner').setDepth(3).setRotation(-0.03);
     this.hoop = img(s, W - 120, 124, 'hoop').setDepth(3);
     this.bleachers = img(s, this.cx, FLOOR - 16, 'bleachers').setDepth(4);
     this.table = img(s, 96, FLOOR + 30, 'bake_table').setDepth(8);
@@ -203,23 +237,47 @@ export class FightMini extends Mini {
         this.pose = 'plead';
         this.bubble('steph', this.sx - 10, FLOOR - 310, 'uh oh.', 0.8);
       });
-      this.cue(9.8, () => this.enter('flick'));
-    } else if (phase === 'flick') {
+      this.cue(9.8, () => this.enter('grab'));
+    } else if (phase === 'grab') {
+      // one step, and she has her by the ankle
+      sound.dim(1);
+      sound.stomp();
+      this.scene.cameras.main.shake(140, 0.009);
       this.rivalPose = 'flick';
-      this.scene.tweens.add({ targets: this, rx: this.rx - 50, duration: 180, yoyo: true, ease: 'Quad.out' });
-      this.cue(0.2, () => this.launch());
+      this.scene.tweens.add({ targets: this, rx: this.sx + HAND.x, duration: 260, ease: 'Quad.out' });
+      this.cue(0.3, () => {
+        this.pose = 'fly';
+        this.swing = 0;
+        this.hang = Math.PI / 2;
+        applyArt(this.head, 'mom_in');
+        sound.whoosh();
+        this.bubble('steph', this.rx - HAND.x - 110, FLOOR - 250, 'wait wait wai', 0.6);
+      });
+      this.cue(1.0, () => this.enter('smash'));
+    } else if (phase === 'smash') {
+      this.swinging = true;
+      this.side = 0;
+      applyArt(this.head, 'mom_pah');
+    } else if (phase === 'toss') {
+      // and away
+      const from = { ...this.at }, to = { x: 150, y: FLOOR - 30 };
+      this.thrown = { from, to, t: 0 };
+      this.rivalPose = 'flick';
+      this.faceRight = false;
+      sound.whoosh();
     } else if (phase === 'ko') {
       this.cue(0.25, () => {
         this.host.word('ko', this.cx, 220, true);
         sound.boom();
         this.scene.cameras.main.shake(260, 0.014);
       });
-      this.cue(1.3, () => {
+      this.cue(1.2, () => {
         this.rivalPose = 'win';
-        this.host.word('flawless', Math.min(this.rx + 210, W - 160), 300, true);
+        this.bubble('rival', this.rx - 20, FLOOR - 420, 'LITTLE MISS PERFECT.', 2.2);
         sound.lose();
       });
-      this.cue(3.3, () => {
+      this.cue(1.9, () => this.host.word('flawless', Math.min(this.rx + 230, W - 160), 300, true));
+      this.cue(3.6, () => {
         this.phase = 'done';
         this.host.finish(false);
       });
@@ -261,9 +319,9 @@ export class FightMini extends Mini {
     const i = which >= 0 ? which : Math.floor(Math.random() * 3);
     if (this.phase === 'fight' || (this.phase === 'power' && !this.pleading)) this.attack(i);
     else if (this.phase === 'power') this.plead(i);
-    else if (this.phase === 'pinball' && this.cool <= 0) {
-      this.cool = 0.4;
-      this.host.word('ow', this.at.x, this.at.y - 70);
+    else if ((this.phase === 'grab' || this.phase === 'smash' || this.phase === 'toss') && this.cool <= 0) {
+      this.cool = 0.45;
+      this.host.word('ow', this.head.x, Math.max(120, this.head.y - 70));
       sound.yelp();
     }
   }
@@ -279,10 +337,10 @@ export class FightMini extends Mini {
     tw.killTweensOf(this);
     this.lunge = 0;
     tw.add({ targets: this, lunge: 62, duration: 80, yoyo: true, hold: 70, ease: 'Quad.out', onComplete: () => { if (this.pose === POSES[i]) this.pose = 'ready'; } });
-    this.scene.time.delayedCall(90, () => this.land());
+    this.scene.time.delayedCall(90, () => this.connect());
   }
 
-  private land(): void {
+  private connect(): void {
     const x = this.rx - 40, y = FLOOR - 170 + (Math.random() - 0.5) * 70;
     if (this.phase === 'fight') {
       this.hits++;
@@ -340,7 +398,7 @@ export class FightMini extends Mini {
     s.tweens.add({ targets: flash, alpha: 0, duration: 420, onComplete: () => flash.destroy() });
     this.rivalPose = 'hulk';
     this.size = 0.7;
-    s.tweens.add({ targets: this, size: 1.1, duration: 320, ease: 'Back.out' });
+    s.tweens.add({ targets: this, size: 1, duration: 320, ease: 'Back.out' });
     this.fling('shred_cloth', this.rx, FLOOR - 190, 14, 520);
     s.cameras.main.shake(380, 0.016);
     sound.boom();
@@ -350,74 +408,59 @@ export class FightMini extends Mini {
     this.pose = 'ready';
   }
 
-  /** One flick, and she is airborne. From here she goes where she is sent. */
-  private launch(): void {
-    const W = view.W;
-    sound.dim(1);
-    sound.boom();
-    this.scene.cameras.main.shake(320, 0.02);
-    this.host.word('pow', this.sx + 40, FLOOR - 180, true);
-    this.phase = 'pinball';
-    this.t = 0;
-    this.pose = 'fly';
-    applyArt(this.head, 'mom_pah');
-    this.at = { x: this.sx, y: FLOOR - 130 };
-    // a tour of the gym, taking in everything breakable
-    this.stops = [
-      { x: (24 + this.cx - 46) / 2, y: 74, hit: 'bar' },
-      { x: W - 46, y: 250 },
-      { x: this.cx, y: FLOOR - 96, hit: 'bleachers' },
-      { x: 150, y: 66 },
-      { x: 110, y: FLOOR - 30, hit: 'table' },
-      { x: W - 120, y: 170, hit: 'hoop' },
-      { x: this.rx - 96, y: FLOOR - 230, hit: 'rival' },
-      { x: 46, y: 250 },
-      { x: W - 230, y: 64 },
-      { x: W - 110, y: FLOOR - 20 },
-      { x: this.rx - 96, y: FLOOR - 230, hit: 'rival' },
-      { x: this.cx - 60, y: 62 },
-      { x: this.cx - 170, y: FLOOR - 20, hit: 'floor' },
-    ];
+  /** She has been brought down on the floor again. */
+  private slam(): void {
+    const s = this.scene, x = this.head.x, y = FLOOR + 6;
+    this.slams++;
+    this.rest = REST;
+    this.swinging = false;
+    applyArt(this.head, 'mom_hold');
+    if (this.slams % 2) sound.boom();
+    sound.bonk(false);
+    s.cameras.main.shake(170, 0.014);
+    this.host.word(['pow', 'whack', 'bop', 'thwack'][this.slams % 4], x, FLOOR - 120);
+    this.fling('star', x, y - 20, 4, 320);
+    this.fling(this.slams % 2 ? 'shred_red' : 'shred_white', x, y - 20, 3, 260);
+    img(s, x, y, 'crack').setDepth(7).setRotation((Math.random() - 0.5) * 0.4);
+    this.pop(this.comboR, `${this.slams} HIT COMBO!`);
+    // the gym is not built for this
+    if (this.slams === 3) {
+      sound.clang();
+      s.tweens.add({ targets: this.hoop, y: H + 140, rotation: 1.4, duration: 900, ease: 'Quad.in' });
+    } else if (this.slams === 4) {
+      sound.clang();
+      this.host.word('crash', this.bleachers.x, FLOOR - 150);
+      this.fling('plank', this.bleachers.x, FLOOR - 80, 14, 520, 20);
+      this.bleachers.setVisible(false);
+    } else if (this.slams === 5) {
+      s.tweens.add({ targets: this.banner, y: H + 100, rotation: -0.9, duration: 1000, ease: 'Quad.in' });
+    }
   }
 
-  /** She has arrived somewhere, hard. */
-  private bounce(hit?: string): void {
-    const s = this.scene, { x, y } = this.at;
-    this.bounces++;
-    this.turn = -this.turn * (0.9 + Math.random() * 0.4);
-    sound.bonk(false);
-    s.cameras.main.shake(120, 0.009);
-    this.fling('star', x, y, 3, 300);
-    this.fling(Math.random() < 0.5 ? 'shred_red' : 'shred_white', x, y, 3, 260);
-    this.pop(this.comboR, `${this.bounces + 1} HIT COMBO!`);
-    if (hit === 'bar' && !this.barBroken) {
-      // through her own health bar
-      this.barBroken = true;
-      sound.clang();
-      this.host.word('crash', x, y + 60);
-      s.tweens.add({ targets: this.barL, y: H + 320, rotation: 0.9, duration: 1100, ease: 'Quad.in', onComplete: () => this.barL.setVisible(false) });
-    } else if (hit === 'bleachers' && !this.broken.has(hit)) {
-      this.broken.add(hit);
-      sound.clang();
-      this.host.word('crash', x, y - 60);
-      this.fling('plank', x, y, 12, 520, 20);
-      this.bleachers.setVisible(false);
-    } else if (hit === 'table' && !this.broken.has(hit)) {
-      this.broken.add(hit);
-      sound.splat();
-      this.host.word('splat', x + 60, y - 70);
-      this.fling('cupcake', x, y - 30, 12, 480);
-      s.tweens.add({ targets: this.table, rotation: -0.5, y: this.table.y + 14, duration: 220 });
-    } else if (hit === 'hoop' && !this.broken.has(hit)) {
-      this.broken.add(hit);
-      sound.clang();
-      s.tweens.add({ targets: this.hoop, y: H + 120, rotation: 1.4, duration: 1000, ease: 'Quad.in' });
-    } else if (hit === 'rival') {
-      // straight back where she came from
-      this.rivalPose = 'flick';
-      this.host.word('bop', x, y - 50);
-      s.time.delayedCall(280, () => { if (this.phase === 'pinball') this.rivalPose = 'hulk'; });
-    }
+  /** Over the top she goes, and on the first trip takes her own health bar with her. */
+  private overhead(): void {
+    if (this.barBroken) return;
+    this.barBroken = true;
+    sound.clang();
+    this.host.word('crash', 24 + (this.cx - 70) / 2, 130);
+    this.scene.tweens.add({ targets: this.barL, y: H + 320, rotation: 0.9, duration: 1100, ease: 'Quad.in', onComplete: () => this.barL.setVisible(false) });
+  }
+
+  /** The end of her flight: the bake sale. */
+  private land(at: { x: number; y: number }): void {
+    const s = this.scene;
+    sound.splat();
+    sound.clang();
+    s.cameras.main.shake(260, 0.016);
+    this.host.word('splat', at.x + 90, FLOOR - 150);
+    this.fling('cupcake', at.x - 40, FLOOR - 40, 14, 520);
+    s.tweens.add({ targets: this.table, rotation: -0.5, y: this.table.y + 14, duration: 220 });
+    this.pose = 'ko';
+    this.at = { x: at.x + 60, y: FLOOR + 12 };
+    applyArt(this.head, 'mom_hold');
+    for (let i = 0; i < 4; i++) this.stars.push(img(s, 0, 0, 'star'));
+    this.plates.forEach((p) => { p.plate.setVisible(false); p.text.setVisible(false); });
+    this.enter('ko');
   }
 
   // ---- every frame ----------------------------------------------------------------------------
@@ -438,12 +481,22 @@ export class FightMini extends Mini {
       if (this.t > FIGHT_FOR || (this.hits >= FIGHT_HITS && this.t > 2.5)) this.enter('power');
     } else if (this.phase === 'power') {
       this.powerUp(dt);
-    } else if (this.phase === 'pinball') {
-      this.fly(dt);
+    } else if (this.phase === 'smash') {
+      this.smash(dt);
+    } else if (this.phase === 'toss' && this.thrown) {
+      // a long way, turning over and over
+      const th = this.thrown;
+      th.t = Math.min(1, th.t + dt / 0.6);
+      this.at = { x: th.from.x + (th.to.x - th.from.x) * th.t, y: th.from.y + (th.to.y - th.from.y) * th.t - Math.sin(th.t * Math.PI) * 90 };
+      this.hang -= 15 * dt;
+      if (th.t >= 1) {
+        this.thrown = undefined;
+        this.land(th.to);
+      }
     } else if (this.phase === 'ko') {
       this.stars.forEach((st, i) => {
         const a = this.t * 4 + (i * Math.PI * 2) / this.stars.length;
-        st.setPosition(this.at.x - 104 + Math.cos(a) * 34, FLOOR - 78 + Math.sin(a) * 9).setDepth(Math.sin(a) > 0 ? 14 : 11);
+        st.setPosition(this.head.x + Math.cos(a) * 34, this.head.y - 46 + Math.sin(a) * 9).setDepth(Math.sin(a) > 0 ? 14 : 11);
       });
     }
 
@@ -501,33 +554,30 @@ export class FightMini extends Mini {
     this.hoop.setRotation((Math.random() - 0.5) * wobble * 0.012);
   }
 
-  /** Across the gym to the next thing in her way. */
-  private fly(dt: number): void {
-    this.spin += this.turn * dt;
-    let left = FLIGHT * dt;
-    while (left > 0 && this.stops.length) {
-      const to = this.stops[0];
-      const dx = to.x - this.at.x, dy = to.y - this.at.y, d = Math.hypot(dx, dy);
-      if (d > left) {
-        this.at.x += (dx / d) * left;
-        this.at.y += (dy / d) * left;
-        left = 0;
-      } else {
-        this.at = { x: to.x, y: to.y };
-        left -= d;
-        this.stops.shift();
-        this.bounce(to.hit);
+  /** Up by the ankle, over the top and down on the other side; and again. */
+  private smash(dt: number): void {
+    if (!this.swinging) {
+      this.rest -= dt;
+      if (this.rest > 0) return;
+      if (this.slams >= SLAMS) {
+        this.enter('toss');
+        return;
       }
+      this.swinging = true;
+      applyArt(this.head, 'mom_pah');
+      sound.whoosh();
     }
-    if (!this.stops.length) {
-      // and down she comes
-      this.pose = 'ko';
-      this.at = { x: this.cx - 150, y: FLOOR + 10 };
-      this.spin = 0;
-      applyArt(this.head, 'mom_hold');
-      for (let i = 0; i < 4; i++) this.stars.push(img(this.scene, 0, 0, 'star'));
-      this.plates.forEach((p) => { p.plate.setVisible(false); p.text.setVisible(false); });
-      this.enter('ko');
+    // slow off the floor and fast into it
+    const before = this.side ? 1 - this.swing : this.swing;
+    const go = Math.min(1, before + dt / SWING);
+    const eased = go * go;
+    if (before < 0.5 && go >= 0.5) this.overhead();
+    this.swing = this.side ? 1 - go : go;
+    this.place(this.side ? 1 - eased : eased);
+    if (go >= 1) {
+      this.side = 1 - this.side;
+      this.swing = this.side;
+      this.slam();
     }
   }
 
@@ -554,29 +604,43 @@ export class FightMini extends Mini {
     this.stack.setText(this.bars > 1 ? `x${this.bars > 8 ? 99 : this.bars}` : '');
   }
 
-  /** Put everybody where they are, and Stephanie's head on Stephanie. */
-  private place(): void {
-    // the other girl
+  /** Put everybody where they are, and Stephanie's head on Stephanie. `over`
+   *  is how far through a swing she is, if she is being swung just now. */
+  private place(over = this.swing): void {
+    const held = this.phase === 'grab' && this.pose === 'fly' || this.phase === 'smash';
+    // the other girl: she turns to whichever side Stephanie is on
+    if (held) this.faceRight = over > 0.5;
     const rival = `rival_${this.flinch > 0 && this.rivalPose === 'point' ? 'flinch' : this.rivalPose}`;
     if (this.rival.texture.key !== rival) applyArt(this.rival, rival);
     const jx = (Math.random() - 0.5) * this.shake, jy = (Math.random() - 0.5) * this.shake;
-    const stomp = this.phase === 'callout' ? -Math.abs(Math.sin(this.t * Math.PI / 0.48)) * 10 : 0;
+    const stomp = this.phase === 'callout' ? -Math.abs(Math.sin((this.t * Math.PI) / 0.48)) * 10 : 0;
     const big = this.rivalPose === 'hulk' || this.rivalPose === 'flick' || this.rivalPose === 'win' ? this.size : 1;
-    this.rival.setPosition(this.rx + jx, FLOOR + jy + stomp).setScale(big / TEX);
-    this.aura.setPosition(this.rx, FLOOR + 14).setScale(((0.8 + Math.sin(this.t * 22) * 0.06) * (big > 1 ? 1.25 : 1)) / TEX);
+    const [ox, oy] = originOf(rival);
+    this.rival.setFlipX(this.faceRight).setOrigin(this.faceRight ? 1 - ox : ox, oy)
+      .setPosition(this.rx + jx, FLOOR + jy + stomp).setScale(big / TEX);
+    this.aura.setPosition(this.rx, FLOOR + 14).setScale(((0.8 + Math.sin(this.t * 22) * 0.06) * (big > 1 || this.rivalPose !== 'charge' ? 1.25 : 1)) / TEX);
 
-    // Stephanie: on her feet, or wherever she has got to
+    // Stephanie: on her feet; or held by the ankle, which goes over the other girl's head from
+    // one hand's reach to the other's while she turns from hanging one side to hanging the other
     const key = `cheer_${this.pose}`;
     if (this.body.texture.key !== key) applyArt(this.body, key);
-    const doll = CHEER[this.pose], held = doll.hold ?? [0, 0];
-    const flying = this.pose === 'fly' || this.pose === 'ko';
-    const x = flying ? this.at.x : this.sx + this.lunge, y = flying ? this.at.y : FLOOR;
-    const turn = this.pose === 'fly' ? this.spin : 0;
+    const c = cheer(this.pose);
+    let x = this.sx + this.lunge, y = FLOOR, turn = 0;
+    if (held) {
+      const a = Math.PI * over;
+      this.at = { x: this.rx - HAND.x * Math.cos(a), y: FLOOR - HAND.y - HAND.x * Math.sin(a) };
+      this.hang = Math.PI / 2 + SLAM_AT + (Math.PI * 2 - SLAM_AT * 2) * over;
+    }
+    if (this.pose === 'fly') {
+      x = this.at.x;
+      y = this.at.y;
+      turn = this.hang - c.lie;
+    } else if (this.pose === 'ko') {
+      x = this.at.x;
+      y = this.at.y;
+    }
     this.body.setPosition(x, y).setRotation(turn);
-    // her chin is a little below the middle of her head, whichever way up that is
-    const tip = doll.tilt, cxh = doll.head[0] - held[0] - 30 * Math.sin(tip), cyh = doll.head[1] - held[1] + 30 * Math.cos(tip);
-    this.head.setPosition(x + cxh * Math.cos(turn) - cyh * Math.sin(turn), y + cxh * Math.sin(turn) + cyh * Math.cos(turn)).setRotation(turn + tip);
-    void ART;
+    this.head.setPosition(x + c.x * Math.cos(turn) - c.y * Math.sin(turn), y + c.x * Math.sin(turn) + c.y * Math.cos(turn)).setRotation(turn + c.tilt);
   }
 
   timeUp(): boolean {
@@ -587,7 +651,7 @@ export class FightMini extends Mini {
     this.botIn -= dt;
     if (this.botIn > 0) return;
     this.botIn = this.host.auto === 'good' ? 0.24 : 0.5;
-    if (this.phase === 'fight' || this.phase === 'power' || this.phase === 'pinball') {
+    if (this.phase === 'fight' || this.phase === 'power' || this.phase === 'grab' || this.phase === 'smash') {
       const p = this.plates[Math.floor(Math.random() * 3)];
       this.press({ x: p.x, y: 502 });
     }

@@ -9,6 +9,7 @@ import { BILL_HEAD, TV, buildMiniArt } from './minis';
 import { buildFightArt } from './fight';
 import { buildSleepoverArt } from './sleepover';
 import { buildStreetArt } from './street';
+import { FIGHT_BODIES } from '../data/fight';
 import { WORKOUT_BODIES } from '../data/workout';
 
 /** Photo cutouts that replace drawn art. Each piece takes over the texture key
@@ -177,6 +178,10 @@ const PIECES: Piece[] = [
   ...Object.entries(WORKOUT_BODIES).flatMap(([who, poses]) => Object.entries(poses).map(([pose, body]): Piece => (
     { key: `pose_${who}_${pose}`, file: body.file, scale: body.scale, border: 2, anchor: body.spot }
   ))),
+  // the fight after school: Stephanie's bodies in her cheer outfit, and the other girl before and after
+  ...Object.entries(FIGHT_BODIES).flatMap(([who, poses]) => Object.entries(poses).map(([pose, body]): Piece => (
+    { key: `${who}_${pose}`, file: body.file, scale: body.scale, border: 2, anchor: body.spot }
+  ))),
   // the television and the recorder under it (its screen is cut out afterwards: see punchHole)
   { key: 'tv_set', file: 'tv-set.png', w: TV.w, border: 2.5, anchor: [0, 0] },
   // a hand holding a phone, pinned at the wrist (which hides behind the gawker's head)
@@ -263,7 +268,7 @@ export async function loadPhotoArt(scene: Phaser.Scene): Promise<void> {
   const sheets = PAPERS;
   const names = new Set<string>([
     ...PIECES.map((p) => p.file), ...PHOTO_VEHICLES.map((v) => v.file), 'postcard.jpg', 'rail.png', 'asphalt.jpg', 'houses.jpg', 'fence.png', 'concrete.jpg', 'hallway.jpg',
-    'tv-glass.png', 'tape-room.jpg', 'den.jpg',
+    'tv-glass.png', 'tape-room.jpg', 'den.jpg', 'gym.jpg',
     ...sheets.map((n) => `paper-${n}.png`),
   ]);
   const loaded = new Map<string, HTMLImageElement>();
@@ -297,6 +302,8 @@ export async function loadPhotoArt(scene: Phaser.Scene): Promise<void> {
   if (room) makePhotoTile(scene, 'tape_room', room, TV.screen.h);
   const den = loaded.get('den.jpg');
   if (den) makePhotoTile(scene, 'den', den, den.naturalHeight, true);
+  const gym = loaded.get('gym.jpg');
+  if (gym) makePhotoTile(scene, 'gym', gym, gym.naturalHeight, true);
 
   // Photo heads: only styles with both photos are used. Each gets a neck cut
   // from paper the colour of its own skin, and a tint so the arm that holds a

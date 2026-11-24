@@ -21,7 +21,7 @@ export interface Doll {
   /** The middle of the head, and how far it tips. */
   head: V;
   tilt: number;
-  /** Where on its picture the doll is held, if not by its spot on the floor (a body in mid-air is held by its middle). */
+  /** Where on its picture the doll is held, if not by its spot on the floor (a body in mid-air is held by one foot). */
   hold?: V;
 }
 
@@ -55,7 +55,7 @@ export const CHEER: Record<string, Doll> = {
   fly: {
     hips: [[-14, -100], [14, -100]], knees: [[-56, -70], [58, -62]], feet: [[-92, -30], [98, -20]],
     shoulders: [[-28, -176], [28, -176]], elbows: [[-70, -200], [72, -196]], hands: [[-104, -232], [110, -224]],
-    head: [0, -218], tilt: 0, hold: [0, -130],
+    head: [0, -218], tilt: 0, hold: [98, -20],
   },
   ko: {
     hips: [[2, -16], [4, -30]], knees: [[52, -36], [50, -14]], feet: [[102, -10], [96, -42]],
@@ -311,6 +311,19 @@ export function buildFightArt(scene: Phaser.Scene): void {
     c.fillStyle = 'rgba(255, 255, 240, 0.5)';
     c.fill();
   }, { border: 0, ax: 150, ay: 372 });
+  // where she lands, the floor remembers
+  makeArt(scene, 'crack', 130, 44, (c) => {
+    c.strokeStyle = 'rgba(40, 26, 14, 0.75)';
+    c.lineCap = 'round';
+    for (const [x, y, w] of [[8, 30, 3], [34, 6, 2.4], [70, 40, 2], [98, 8, 2.6], [124, 28, 3], [52, 42, 2], [18, 10, 2]]) {
+      c.lineWidth = w;
+      c.beginPath();
+      c.moveTo(65, 22);
+      c.lineTo((65 + x) / 2 + 5, (22 + y) / 2 - 4);
+      c.lineTo(x, y);
+      c.stroke();
+    }
+  }, { border: 0, ax: 65, ay: 22 });
   makePaperArt(scene, 'rock', 30, 24, (c) => { poly(c, [3, 16, 9, 3, 21, 1, 28, 11, 22, 22, 8, 23]); fillPaper(c, 'grey'); }, { border: 1.5 });
   makePaperArt(scene, 'shred_cloth', 20, 14, (c) => { poly(c, [0, 3, 12, 0, 20, 8, 9, 14]); fillPaper(c, 'grey'); }, { border: 1.2 });
   makePaperArt(scene, 'shred_red', 18, 6, (c) => rect(c, 0, 0, 18, 6, 'red'), { border: 1 });
