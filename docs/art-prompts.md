@@ -314,16 +314,18 @@ The same woman exactly: the same face, the same hair tied up on top of her head,
 
 ## Home Movies: Payback (Chad and the bat)
 
-In the game with stand-ins cut from paper: the two boys' bodies, Shane's
-head, the back yard and everything in it, the back of the house, their
-mother's body, and the bat. Made: Chad's head, four of them, from the
-family's photos of him as he is now (`art-src/photos/chad-1.jpg` to
-`chad-4.jpg`: scowling, smiling, grinning, laughing), cut out by
-`bat_faces()` in `tools/make_cutouts.py`, which hangs each from its chin.
-Which photo does for which look in the game is the `KID_LOOKS` table in
-`src/art/bat.ts`. Shane's photos go the same way: save them as
-`art-src/photos/shane-1.jpg` and so on, get Adobe's cutout and head
-selection for each, and list them in `BAT_FACES` in the tool.
+In the game with stand-ins cut from paper: the two boys' bodies, the back
+yard and everything in it, the back of the house, their mother's body, and
+the bat. Made: the brothers' heads, from the family's photos of them as
+they are now. Chad has four (`art-src/photos/chad-1.jpg` to `chad-4.jpg`:
+scowling, smiling, grinning, laughing) and Shane three (`shane-1.jpg` to
+`shane-3.jpg`: beaming, wary and looking off to one side, smirking). They
+are cut out by `bat_faces()` in `tools/make_cutouts.py`, which hangs each
+from its chin; a new photo needs Adobe's cutout and head selection, and a
+line in `BAT_FACES` in the tool. Which photo does for which look in the
+game is the `KID_LOOKS` table in `src/art/bat.ts`. Nobody has a photo of
+Shane frightened or crying, so the wary one stands in for both: see "More
+looks for the faces" below.
 
 The bodies are five-year-olds and the heads are grown men: that is the
 joke, as with Bill on his bicycle. The heads come off these pictures.
@@ -338,17 +340,17 @@ Four full-length photographs of the same small boy, about five years old, side b
 ```
 
 ```text
-The same small boy in the same clothes, on the same plain light-grey background in the same light: four more full-length photographs side by side with wide clear gaps between them, his body turned towards the right of the picture. First: running flat out with a wooden baseball bat raised in both hands over his shoulder, left leg forward. Second: the same, right leg forward. Third: at the end of a swing, the bat stretched out in front of him in both hands at waist height, leaning into it. Fourth: standing with the bat hanging down from one hand, its end on the ground. His whole body and the whole bat are in frame in every one. No text, no borders. Wide 16:9 image.
+The same small boy in the same clothes, on the same plain light-grey background in the same light: four more full-length photographs side by side with wide clear gaps between them, his body turned towards the right of the picture. First: running flat out with a wooden baseball bat raised in both hands over his shoulder, left leg forward. Second: the same, right leg forward. Third: at the end of a swing, the bat stretched out in front of him in both hands at the height of his own head, leaning into it. Fourth: standing with the bat hanging down from one hand, its end on the ground. His whole body and the whole bat are in frame in every one. No text, no borders. Wide 16:9 image.
 ```
 
 ### PB2. Shane's body (two sheets)
 
 ```text
-Three full-length photographs of the same small boy, about six years old, side by side with wide clear gaps between them, on one plain flat light-grey studio background. He wears a red T-shirt, blue jeans and white trainers, in the style of about 1990, and has short hair. First: turned towards the left of the picture, leaning forward with both arms stretched straight out in front of him, palms forward, giving somebody a shove. Second: facing the camera with his hands on his hips, chest out, pleased with himself. Third: standing facing the right of the picture, pointing back over his shoulder with one arm towards the left, his other hand rubbing the seat of his jeans. His whole body is in frame from head to feet in every one. Soft even light, no shadows on the background. No text, no borders. Wide 16:9 image.
+Three full-length photographs of the same small boy, about six years old, side by side with wide clear gaps between them, on one plain flat light-grey studio background. He wears a red T-shirt, blue jeans and white trainers, in the style of about 1990, and has short hair. First: turned towards the left of the picture, leaning forward with both arms stretched straight out in front of him, palms forward, giving somebody a shove. Second: facing the camera with his hands on his hips, chest out, pleased with himself. Third: standing facing the camera with both hands clutching the top of his head, elbows out, howling. His whole body is in frame from head to feet in every one. Soft even light, no shadows on the background. No text, no borders. Wide 16:9 image.
 ```
 
 ```text
-The same small boy in the same clothes, on the same plain light-grey background in the same light: three more full-length photographs side by side with wide clear gaps between them, his body turned towards the right of the picture. First: running away flat out, arms pumping, left leg forward, looking back over his shoulder. Second: the same, right leg forward. Third: jumping straight up in the air with both hands clapped to the seat of his jeans, knees tucked, as if he has sat on something hot. His whole body is in frame in every one. No text, no borders. Wide 16:9 image.
+The same small boy in the same clothes, on the same plain light-grey background in the same light: three more full-length photographs side by side with wide clear gaps between them, his body turned towards the right of the picture. First: running away flat out, arms pumping, left leg forward, looking back over his shoulder. Second: the same, right leg forward. Third: jumping straight up in the air with both hands clapped to the top of his head, knees tucked. His whole body is in frame in every one. No text, no borders. Wide 16:9 image.
 ```
 
 ### PB3. The back yard
@@ -386,8 +388,15 @@ Edit this photo. Keep the man, his hair, his stubble, the lighting, the framing 
 Edit this photo. Keep the man, his hair, his stubble, the lighting, the framing and the background exactly the same. Change only his expression: he is hurt and about to cry, bottom lip stuck out, eyebrows up in the middle.
 ```
 
-For Shane, from a front-on photo of him: grinning nastily; wide-eyed with
-fright, mouth a small O; and bawling, eyes screwed shut and mouth wide open.
+For Shane, use the beaming photo (`shane-1`):
+
+```text
+Edit this photo. Keep the man, his hair, his beard, the lighting, the framing and the background exactly the same. Change only his expression: he is terrified, eyes wide open, eyebrows up, mouth a small round O.
+```
+
+```text
+Edit this photo. Keep the man, his hair, his beard, the lighting, the framing and the background exactly the same. Change only his expression: he is bawling like a small child, eyes screwed shut, mouth wide open and turned down, tears running down his cheeks.
+```
 
 ## Later
 

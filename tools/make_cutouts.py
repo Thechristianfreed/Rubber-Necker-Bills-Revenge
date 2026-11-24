@@ -647,9 +647,11 @@ def fight():
 
 
 # The day Chad had had enough. Whose faces there are photos of, and what each photo is
-# of: the photo's number (art-src/photos/<who>-<number>.jpg) and the look on his face.
-BAT_FACES = [("chad", [("1", "scowl"), ("2", "smile"), ("3", "grin"), ("4", "laugh")]),
-             ("shane", [("1", "grin"), ("2", "scared"), ("3", "cry"), ("4", "smile")])]
+# of: the photo's number (art-src/photos/<who>-<number>.jpg), the look on his face and,
+# where he has his head on one side in it, how far to turn it to set it straight (degrees,
+# anticlockwise).
+BAT_FACES = [("chad", [("1", "scowl", 0), ("2", "smile", 0), ("3", "grin", 0), ("4", "laugh", 0)]),
+             ("shane", [("1", "beam", 0), ("2", "wary", 0), ("3", "smirk", -17)])]
 
 
 def bat_faces():
@@ -664,7 +666,7 @@ def bat_faces():
     HEAD = 230
     made = {}
     for who, shots in BAT_FACES:
-        for number, look in shots:
+        for number, look, turn in shots:
             mask = f"PB-{who}-{number}-headmask.png"
             photo = os.path.join(ROOT, "art-src", "photos", f"{who}-{number}.jpg")
             if not (os.path.exists(os.path.join(SRC, mask)) and os.path.exists(photo)):
@@ -682,6 +684,14 @@ def bat_faces():
             n, lab, st, _ = cv2.connectedComponentsWithStats((head[..., 3] > 0.5).astype(np.uint8), 8)
             keep = cv2.dilate((lab == 1 + int(np.argmax(st[1:, cv2.CC_STAT_AREA]))).astype(np.uint8), np.ones((5, 5), np.uint8))
             head[..., 3] *= keep
+            if turn:
+                # set his head straight, on a page big enough to turn it on
+                tall, wide = head.shape[:2]
+                side = int(np.hypot(tall, wide)) + 4
+                page = np.zeros((side, side, 4), np.float32)
+                oy, ox = (side - tall) // 2, (side - wide) // 2
+                page[oy:oy + tall, ox:ox + wide] = head
+                head = cv2.warpAffine(page, cv2.getRotationMatrix2D((side / 2, side / 2), turn, 1), (side, side), flags=cv2.INTER_CUBIC)
             ys, xs = np.where(head[..., 3] > 0.5)
             # his chin: the middle of the lowest of him
             low = ys > ys.max() - (ys.max() - ys.min()) * 0.04

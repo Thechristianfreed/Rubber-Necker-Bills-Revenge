@@ -73,15 +73,17 @@ export const SHANE: Record<string, Doll> = {
     shoulders: [[-5, -95], [25, -95]], elbows: [[30, -76], [-14, -78]], hands: [[42, -62], [-26, -64]],
     head: [18, -121], tilt: 0.14,
   },
+  // got: off the ground, both hands to his head
   ow: {
     hips: [[-10, -52], [8, -52]], knees: [[-4, -30], [18, -34]], feet: [[-18, -14], [24, -20]],
-    shoulders: [[0, -96], [28, -94]], elbows: [[-18, -78], [-10, -72]], hands: [[-16, -54], [-10, -50]],
+    shoulders: [[0, -96], [28, -94]], elbows: [[-18, -112], [50, -108]], hands: [[-6, -136], [46, -134]],
     head: [22, -122], tilt: 0.22,
   },
-  tattle: {
+  // and afterwards: standing there holding it, howling
+  bawl: {
     hips: [[-9, -50], [9, -50]], knees: [[-10, -25], [10, -25]], feet: [[-13, 0], [13, 0]],
-    shoulders: [[-15, -96], [15, -96]], elbows: [[-34, -96], [20, -76]], hands: [[-54, -98], [14, -60]],
-    head: [0, -124], tilt: 0.08,
+    shoulders: [[-15, -96], [15, -96]], elbows: [[-34, -112], [34, -112]], hands: [[-26, -138], [26, -138]],
+    head: [0, -124], tilt: -0.1,
   },
 };
 
@@ -123,11 +125,11 @@ export const KID_LOOKS: Record<string, { hair: Paper; looks: Record<string, { pa
   shane: {
     hair: 'brown',
     looks: {
-      grin: { paper: 'grin', photo: 'grin' },
-      tongue: { paper: 'tongue', photo: 'grin' },
-      scared: { paper: 'scared', photo: 'scared' },
-      ow: { paper: 'ow', photo: 'cry' },
-      cry: { paper: 'cry', photo: 'cry' },
+      grin: { paper: 'grin', photo: 'smirk' },
+      tongue: { paper: 'tongue', photo: 'beam' },
+      scared: { paper: 'scared', photo: 'wary' },
+      ow: { paper: 'ow', photo: 'wary' },
+      cry: { paper: 'cry', photo: 'wary' },
     },
   },
 };

@@ -93,11 +93,12 @@ class Kid {
  *  on Friday Chad finds the baseball bat, and Shane finds out how fast he can
  *  run. Tap to swing when Chad is close enough: too soon and he spins round
  *  on the end of the bat, too late and Shane has noticed and is gone again.
- *  Three before Shane reaches the back door, and their mother, settles it. */
+ *  Three on the head before Shane reaches the back door, and their mother,
+ *  settles it; and then Chad explains himself, as he did. */
 export class BatMini extends Mini {
   readonly title = 'PAYBACK';
   readonly prompt = 'GET HIM BACK!';
-  readonly seconds = 20;
+  readonly seconds = 29;
 
   private phase: Phase = 'week';
   private t = 0;
@@ -140,6 +141,7 @@ export class BatMini extends Mini {
   private momHead!: Image;
   private alert!: Image;
   private halo!: Image;
+  private haloOn = false;
 
   // the week
   private page!: Image;
@@ -281,17 +283,39 @@ export class BatMini extends Mini {
         applyArt(this.momHead, this.won ? 'mom_pah' : 'mom_hold');
       });
       if (this.won) {
+        // Shane howling, their mother wanting to know, and Chad, bat behind his back, with his
+        // side of it: which is, word for word, what he said
         this.cue(0.62, () => {
-          this.shane.set('tattle', 'cry');
+          this.shane.set('bawl', 'cry');
           this.chad.set('hide', 'angel');
           this.batTurn = -1.45;
           this.chad.box.sendToBack(this.chad.bat!);
           this.halo.setVisible(true);
+          this.haloOn = true;
           sound.yelp();
         });
-        this.cue(0.8, () => this.say(this.shane, 'MOOOM! CHAD HIT ME!', 2.3, -84, -96));
-        this.cue(1.6, () => this.say({ mouth: { x: door, y: FLOOR - 246 } }, 'CHAD!!', 1.5, -40, -78, 26));
-        this.cue(3.0, () => this.end(true));
+        this.cue(0.8, () => this.say(this.shane, 'WAAAAAH!', 1.9, -96, -92, 24));
+        this.cue(1.5, () => this.say({ mouth: { x: door, y: FLOOR - 246 } }, 'CHAD! WHAT DID YOU DO?!', 1.5, -70, -84));
+        const plea = (at: number, text: string, secs: number) => this.cue(at, () => {
+          this.hush();
+          this.say(this.chad, text, secs, 150, -112);
+        });
+        plea(3.0, "I didn't do nuffing Mom.", 1.5);
+        plea(4.5, "I didn't do NUFFING!", 1.3);
+        this.cue(5.8, () => {
+          // (out it comes, to show her; and that is the end of the halo)
+          this.chad.set('mad', 'angel');
+          this.chad.box.moveTo(this.chad.bat!, 1);
+          this.batTurn = -1.3;
+          tw.add({ targets: this, batTurn: -1.05, duration: 160, yoyo: true, repeat: 3 });
+          this.haloOn = false;
+          tw.add({ targets: this.halo, y: this.halo.y + 250, rotation: 1.3, alpha: 0, duration: 800, ease: 'Quad.in' });
+          applyArt(this.momHead, 'mom_hold');
+          sound.tock();
+        });
+        plea(5.8, 'All I did was hit em in the head wiff dis bat.', 2.5);
+        plea(8.3, "I didn't do NUFFING Mom!", 1.6);
+        this.cue(10.0, () => this.end(true));
       } else {
         // he made it: round behind her, and safe
         this.cue(0.62, () => {
@@ -385,7 +409,7 @@ export class BatMini extends Mini {
     this.busy = 0.32;
     this.chad.set('swing');
     this.batTurn = -2.1;
-    tw.add({ targets: this, batTurn: 0.5, duration: 90, ease: 'Quad.in' });
+    tw.add({ targets: this, batTurn: -0.6, duration: 90, ease: 'Quad.in' });
     sound.whoosh();
     s.time.delayedCall(80, () => {
       if (this.phase !== 'chase') return;
@@ -402,12 +426,12 @@ export class BatMini extends Mini {
     const last = this.hits >= BONKS;
     this.tally.setText(`BONKS  ${this.hits} / ${BONKS}`).setScale(1.35);
     tw.add({ targets: this.tally, scale: 1, duration: 140 });
-    this.host.word(last ? 'homerun' : 'bonk', last ? this.cx : x - 56, last ? 210 : FLOOR - 92, last);
-    this.host.word('yeowch', x + 40, FLOOR - 250);
+    this.host.word(last ? 'homerun' : 'bonk', last ? this.cx : x - 12, last ? 190 : FLOOR - 246, last);
+    this.host.word('yeowch', x + 96, FLOOR - 168);
     sound.bonk(true);
     sound.yelp();
     s.cameras.main.shake(last ? 260 : 150, last ? 0.014 : 0.009);
-    for (let i = 0; i < 5; i++) this.puff('star', x - 26, FLOOR - 78, (Math.random() - 0.5) * 360, -160 - Math.random() * 220, 0.8);
+    for (let i = 0; i < 5; i++) this.puff('star', x + 6, FLOOR - 214, (Math.random() - 0.5) * 360, -160 - Math.random() * 220, 0.8);
     this.shane.set('ow', 'ow');
     this.chad.face(last ? 'joy' : 'glee');
     this.hop = 0;
@@ -556,7 +580,7 @@ export class BatMini extends Mini {
     s.box.setPosition(this.chadX + this.gap - this.lean * 40, FLOOR - hop + (s.pose.startsWith('run') ? bob : 0));
     c.bat?.setRotation(this.batTurn);
     this.alert.setPosition(s.top.x + 4, s.top.y - 14);
-    if (this.halo.visible) this.halo.setPosition(c.top.x, c.top.y - 8 + Math.sin(this.t * 5) * 3);
+    if (this.haloOn) this.halo.setPosition(c.top.x, c.top.y - 8 + Math.sin(this.t * 5) * 3);
   }
 
   timeUp(): boolean {

@@ -11,4 +11,9 @@ export const BAT_FACES: Record<string, Record<string, BatFace>> = {
     grin: { file: 'chadface-grin.png', tall: 1.004, chin: [0.433, 0.996] },
     laugh: { file: 'chadface-laugh.png', tall: 1.013, chin: [0.530, 0.993] },
   },
+  shane: {
+    beam: { file: 'shaneface-beam.png', tall: 1.004, chin: [0.539, 0.997] },
+    wary: { file: 'shaneface-wary.png', tall: 1.009, chin: [0.651, 0.996] },
+    smirk: { file: 'shaneface-smirk.png', tall: 1.004, chin: [0.518, 0.997] },
+  },
 };

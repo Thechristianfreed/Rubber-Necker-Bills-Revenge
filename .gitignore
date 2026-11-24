@@ -7,8 +7,11 @@ android/
 ios/
 __pycache__/
 
-# Chad's photos, and the heads cut from them, are a real person's. They stay out of this
-# public repository until the owner says they may go in (the game uses his paper face without them).
+# Chad's and Shane's photos, and the heads cut from them, are real people's. They stay out of this
+# public repository until the owner says they may go in (the game uses paper faces without them).
 art-src/photos/chad-*
 art-src/adobe/PB-chad-*
 src/assets/scrap/chadface-*
+art-src/photos/shane-*
+art-src/adobe/PB-shane-*
+src/assets/scrap/shaneface-*
