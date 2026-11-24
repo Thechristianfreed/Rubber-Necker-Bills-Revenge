@@ -317,15 +317,16 @@ The same woman exactly: the same face, the same hair tied up on top of her head,
 Made and in the game:
 
 - **The brothers' heads**, from the family's photos of them as they are now.
-  Chad has four (`art-src/photos/chad-1.jpg` to `chad-4.jpg`: scowling,
-  smiling, grinning, laughing) and Shane three (`shane-1.jpg` to
-  `shane-3.jpg`: beaming, wary and looking off to one side, smirking). They
-  are cut out by `bat_faces()` in `tools/make_cutouts.py`, which hangs each
-  from its chin; a new photo needs Adobe's cutout and head selection, and a
-  line in `BAT_FACES` in the tool. Which photo does for which look in the
-  game is the `KID_LOOKS` table in `src/art/bat.ts`. Nobody has a photo of
-  Shane frightened or crying, so the wary one stands in for both: see "More
-  looks for the faces" below.
+  Chad has five (`art-src/photos/chad-1.jpg` to `chad-5.jpg`: scowling,
+  smiling, grinning, laughing, and yelling, which is an edit of the grin)
+  and Shane four (`shane-1.jpg` to `shane-4.jpg`: beaming, wary and looking
+  off to one side, smirking, and frightened, which is cropped to leave out
+  somebody beside him). They are cut out by `bat_faces()` in
+  `tools/make_cutouts.py`, which hangs each from its chin; a new photo needs
+  Adobe's cutout and head selection, and a line in `BAT_FACES` in the tool.
+  Which photo does for which look in the game is the `KID_LOOKS` table in
+  `src/art/bat.ts`. There is no photo of Shane crying yet, so the frightened
+  one stands in for it: see "More looks for the faces" below.
 - **Their bodies** (PB1 and PB2), cut out by `bat_bodies()`: each sheet
   needs Adobe's cutout, its selection of the heads (`-headmask.png`) and,
   for Chad, of the bats (`-batmask.png`). The poses on each sheet, in order,
@@ -411,26 +412,20 @@ Two things side by side with a wide clear gap between them, on one plain flat li
 
 ### More looks for the faces
 
-The game asks for looks there is no photo of yet. Each is an edit of one
-photo of him, one look at a time, as Stephanie's and Bill's were. For Chad,
-use the grinning photo (`chad-3`):
-
-```text
-Edit this photo. Keep the man, his hair, his stubble, the lighting, the framing and the background exactly the same. Change only his expression: he is furious and yelling a battle cry, mouth wide open, eyebrows drawn hard down.
-```
-
-```text
-Edit this photo. Keep the man, his hair, his stubble, the lighting, the framing and the background exactly the same. Change only his expression: he is hurt and about to cry, bottom lip stuck out, eyebrows up in the middle.
-```
-
-For Shane, use the beaming photo (`shane-1`):
-
-```text
-Edit this photo. Keep the man, his hair, his beard, the lighting, the framing and the background exactly the same. Change only his expression: he is terrified, eyes wide open, eyebrows up, mouth a small round O.
-```
+A look there is no photo of is an edit of one photo of him, one look at a
+time, as Stephanie's and Bill's were. Made this way: Chad yelling (from the
+grinning photo, `chad-3`). Shane frightened turned out to be a real photo.
+Still to come, for Shane, from the beaming photo (`shane-1`):
 
 ```text
 Edit this photo. Keep the man, his hair, his beard, the lighting, the framing and the background exactly the same. Change only his expression: he is bawling like a small child, eyes screwed shut, mouth wide open and turned down, tears running down his cheeks.
+```
+
+And one for Chad that the game does not use yet (he could pull it while he
+is being shoved), from the grinning photo:
+
+```text
+Edit this photo. Keep the man, his hair, his stubble, the lighting, the framing and the background exactly the same. Change only his expression: he is hurt and about to cry, bottom lip stuck out, eyebrows up in the middle.
 ```
 
 ## Later

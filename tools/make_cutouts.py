@@ -649,10 +649,12 @@ def fight():
 # The day Chad had had enough. Whose faces there are photos of, and what each photo is
 # of: the photo's number (art-src/photos/<who>-<number>.jpg), the look on his face, how far
 # to turn his head to set it straight where he has it on one side (degrees, anticlockwise),
-# and how much more jaw to give him where the selection stopped short of his chin (as a
-# fraction of the height of his head: stubble in shadow is not always taken for face).
-BAT_FACES = [("chad", [("1", "scowl", 0, 0.045), ("2", "smile", 0, 0), ("3", "grin", 0, 0), ("4", "laugh", 0, 0)]),
-             ("shane", [("1", "beam", 0, 0), ("2", "wary", 0, 0), ("3", "smirk", -17, 0)])]
+# how much more jaw to give him where the selection stopped short of his chin (as a
+# fraction of the height of his head: stubble in shadow is not always taken for face),
+# and how much longer than usual his face is where his mouth is wide open (so that his
+# head comes out as wide as it does in his other photos, and not squeezed to their height).
+BAT_FACES = [("chad", [("1", "scowl", 0, 0.045, 1), ("2", "smile", 0, 0, 1), ("3", "grin", 0, 0, 1), ("4", "laugh", 0, 0, 1), ("5", "yell", 0, 0, 1.13)]),
+             ("shane", [("1", "beam", 0, 0, 1), ("2", "wary", 0, 0, 1), ("3", "smirk", -17, 0, 1), ("4", "scared", -8, 0, 1)])]
 
 
 def bat_faces():
@@ -661,13 +663,13 @@ def bat_faces():
     Adobe's body-part selection (art-src/adobe/PB-<who>-<number>-headmask.png)
     laid over its cutout of him (...-cutout.png).
     Each is saved with his head HEAD pixels tall from the top of his hair to
-    his chin. Writes src/data/bat.ts: for every face its file, how tall its
+    his chin (more where his mouth is wide open: see BAT_FACES). Writes src/data/bat.ts: for every face its file, how tall its
     picture is in heads, and where the chin is in it. A photo with no selection
     yet is left out, and the game keeps its paper face for that look."""
     HEAD = 230
     made = {}
     for who, shots in BAT_FACES:
-        for number, look, turn, jaw in shots:
+        for number, look, turn, jaw, long in shots:
             mask = f"PB-{who}-{number}-headmask.png"
             photo = os.path.join(ROOT, "art-src", "photos", f"{who}-{number}.jpg")
             if not (os.path.exists(os.path.join(SRC, mask)) and os.path.exists(photo)):
@@ -714,7 +716,7 @@ def bat_faces():
             # his chin: the middle of the lowest of him
             low = ys > ys.max() - (ys.max() - ys.min()) * 0.04
             chin = (float(xs[low].mean()), float(ys.max()))
-            k = HEAD / (chin[1] - ys.min())
+            k = HEAD * long / (chin[1] - ys.min())
             ys, xs = np.where(head[..., 3] > 0.08)
             x0, x1 = max(0, xs.min() - 2), min(head.shape[1], xs.max() + 3)
             y0, y1 = max(0, ys.min() - 2), min(head.shape[0], ys.max() + 3)

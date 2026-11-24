@@ -122,7 +122,7 @@ export const KID_LOOKS: Record<string, { hair: Paper; looks: Record<string, { pa
     looks: {
       sad: { paper: 'sad', photo: 'scowl' },
       mad: { paper: 'mad', photo: 'scowl' },
-      yell: { paper: 'yell', photo: 'scowl' },
+      yell: { paper: 'yell', photo: 'yell' },
       glee: { paper: 'grin', photo: 'grin' },
       joy: { paper: 'grin', photo: 'laugh' },
       angel: { paper: 'angel', photo: 'smile' },
@@ -133,9 +133,9 @@ export const KID_LOOKS: Record<string, { hair: Paper; looks: Record<string, { pa
     looks: {
       grin: { paper: 'grin', photo: 'smirk' },
       tongue: { paper: 'tongue', photo: 'beam' },
-      scared: { paper: 'scared', photo: 'wary' },
-      ow: { paper: 'ow', photo: 'wary' },
-      cry: { paper: 'cry', photo: 'wary' },
+      scared: { paper: 'scared', photo: 'scared' },
+      ow: { paper: 'ow', photo: 'scared' },
+      cry: { paper: 'cry', photo: 'scared' },
     },
   },
 };
