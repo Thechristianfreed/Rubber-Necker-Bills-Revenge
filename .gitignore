@@ -6,3 +6,4 @@ dist-single/
 android/
 ios/
 __pycache__/
+.venv/

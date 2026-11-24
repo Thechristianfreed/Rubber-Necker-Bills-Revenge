@@ -6,7 +6,9 @@ Outputs (src/assets/scrap):  one trimmed picture per game piece (saved as WebP)
 The game adds the white paper border and drop shadow itself, so these are just
 the clean cutouts, trimmed to their contents.
 
-Run:  python tools/make_cutouts.py     (needs pillow, numpy, opencv-python-headless)
+Run:  python tools/make_cutouts.py              every step, which takes a few minutes
+      python tools/make_cutouts.py sand         just the steps named (see STEPS at the bottom)
+(needs what is in tools/requirements.txt. How the inputs are made is in docs/cutting.md.)
 """
 import os
 import cv2
@@ -1371,15 +1373,18 @@ def papers():
     """Sheets of coloured paper for the interface, lettering and road paint.
     The grain is real: it is lifted from the blank billboard face and the yellow
     paper burst, flattened, mirrored so it tiles, and then dyed."""
-    def grain_of(name, x0, y0, x1, y1):
-        im = np.asarray(Image.open(os.path.join(OUT, name)).convert("RGB"), dtype=np.float32) / 255.0
+    def grain_of(sheet, which, x0, y0, x1, y1):
+        # (from the cutout itself, as props() and effects() cut it: the copy of it the game has
+        # is a WebP, which has lost a little)
+        piece = sorted(pieces(load(sheet)), key=lambda p: p[0])[which][2]
+        im = (np.clip(piece[..., :3], 0, 1) * 255).astype(np.uint8).astype(np.float32) / 255.0
         luma = im[y0:y1, x0:x1].mean(axis=2)
         flat = luma - cv2.GaussianBlur(luma, (0, 0), 9)      # drop lighting, keep fibres
         top = np.concatenate([flat, flat[:, ::-1]], axis=1)
         return np.concatenate([top, top[::-1]], axis=0)
 
-    smooth = grain_of("billboard.png", 22, 14, 84, 54)
-    rough = grain_of("burst.png", 84, 66, 172, 152)
+    smooth = grain_of("G-props-cutout.png", 1, 22, 14, 84, 54)        # the billboard
+    rough = grain_of("M-effects-cutout.png", 2, 84, 66, 172, 152)      # the burst
     sheets = {
         "cream": ((0.975, 0.955, 0.895), smooth, 1.6),
         "white": ((0.985, 0.98, 0.955), smooth, 1.3),
@@ -1616,38 +1621,23 @@ def postcard():
     print("postcard.jpg", both.size, os.path.getsize(path), "bytes")
 
 
+# Every step, in the order they are run. Each is one kind of picture: it reads its own
+# sources from art-src and writes its own pieces (and, for some, a table in src/data).
+STEPS = [
+    bug, vehicles, cars, heads, more_heads, bill, kid, mom, bill_faces, workout_bodies,
+    workout_set, fight, bat_faces, bat_bodies, sand, teen, hallway, locker_things, splats, mailman,
+    mailboxes, tree, fence, houses, concrete, guardrail, effects, phone_arm, birds, papers,
+    asphalt, dogs, props, postcard,
+]
+
 if __name__ == "__main__":
-    bug()
-    vehicles()
-    cars()
-    heads()
-    more_heads()
-    bill()
-    kid()
-    mom()
-    bill_faces()
-    workout_bodies()
-    workout_set()
-    fight()
-    bat_faces()
-    bat_bodies()
-    sand()
-    teen()
-    hallway()
-    locker_things()
-    splats()
-    mailman()
-    mailboxes()
-    tree()
-    fence()
-    houses()
-    concrete()
-    guardrail()
-    effects()
-    phone_arm()
-    birds()
-    papers()
-    asphalt()
-    dogs()
-    props()
-    postcard()
+    import sys
+
+    wanted = sys.argv[1:]
+    known = [step.__name__ for step in STEPS]
+    unknown = [name for name in wanted if name not in known]
+    if unknown:
+        sys.exit(f"no step called {', '.join(unknown)}: there are {', '.join(known)}")
+    for step in STEPS:
+        if not wanted or step.__name__ in wanted:
+            step()

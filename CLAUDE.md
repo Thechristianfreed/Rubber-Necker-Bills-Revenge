@@ -3,7 +3,11 @@
 A family present: a Phaser + TypeScript + Vite game about Bill (an Android
 wrap comes later). The owner directs and Claude builds. Read `README.md`
 first, then the doc for whatever is being touched: `docs/minigames.md`,
-`docs/art-prompts.md`, `docs/music.md`, `docs/voice.md`, `docs/level-ideas.md`.
+`docs/art-prompts.md`, `docs/cutting.md`, `docs/testing.md`, `docs/music.md`,
+`docs/voice.md`, `docs/level-ideas.md`.
+
+A fresh checkout is made ready with `bash tools/setup.sh` (the game's
+packages, and `.venv` with what the Python tools need).
 
 ## How we work
 
@@ -15,6 +19,7 @@ first, then the doc for whatever is being touched: `docs/minigames.md`,
   generates them and sends them back; Claude cuts them out (Adobe background
   removal and body-part selection, results kept in `art-src/adobe`) with
   `tools/make_cutouts.py`. Bill's own heads are `tools/make_heads.py`.
+  The steps, and what goes wrong with them, are in `docs/cutting.md`.
   Pictures the owner sends while Claude is in the middle of something can be
   seen but do not arrive as files: ask for them again in a message of their own.
 - **Real people:** the family's photos, their voice recording, the workout
@@ -24,10 +29,12 @@ first, then the doc for whatever is being touched: `docs/minigames.md`,
 - **Testing:** test what changed, not the whole game. The game plays itself:
   `?auto` or `?auto=clumsy`, with `&level=street|highway|locker|sleepover|minis`
   and `&mini=workout|phone|bop|bat|sand|fight`. Then show the owner screenshots.
+  The scripts that do it are in `tools/test` (`docs/testing.md`): keep a new
+  one there, not in scratch space, if another session would want it.
   Home Movies has a SKIP tag (top left) for the owner's own testing, for now.
-- **Sound:** measure what actually comes out (an AnalyserNode on
-  `sound.sfx`), never just that the code ran: quiet effects have slipped
-  through that way. Level short sounds by their loudest 40 ms, not their peak.
+- **Sound:** measure what actually comes out (`tools/test/listen.cjs`), never
+  just that the code ran: quiet effects have slipped through that way. Level
+  short sounds by their loudest 40 ms, not their peak.
 - **Words on screen** are American ("Mom"), and plain.
 
 ## Build and publish

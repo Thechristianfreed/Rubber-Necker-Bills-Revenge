@@ -1,0 +1,19 @@
+# What the Python tools in this folder need. These are the versions they were
+# last run with (on Python 3.13); newer ones have not been tried.
+#
+#   python -m venv .venv && .venv/bin/pip install -r tools/requirements.txt
+#
+# The sound tools (make_sfx.py, make_tape.py, make_voice.py, make_music.sh) and
+# tools/test/spec.py and audio_events.py also need ffmpeg on the path, and
+# make_sfx.py and make_music.sh need curl.
+
+# the cutting tools: make_cutouts.py, make_heads.py, shrink_assets.py
+# (and the sound tools, which use numpy alone)
+numpy==2.5.5
+pillow==13.0.0
+opencv-python-headless==5.1.0.95
+
+# Only for tools/test/voice_find.py and voice_check.py, which listen to the
+# family's lines with a speech recogniser. It is big, and its first run fetches
+# a model from Hugging Face, so it is left for whoever needs it:
+#   pip install faster-whisper==1.2.1

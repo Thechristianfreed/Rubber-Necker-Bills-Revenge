@@ -97,13 +97,23 @@ generated images (`art-src/generated`) that Adobe has cut out (`art-src/adobe`).
 To rebuild Bill's heads or the photo cutouts after changing the sources:
 
 ```bash
-pip install pillow numpy opencv-python-headless
+bash tools/setup.sh
 ```
 
 ```bash
-python tools/make_heads.py
+.venv/bin/python tools/make_heads.py
 ```
 
 ```bash
-python tools/make_cutouts.py
+.venv/bin/python tools/make_cutouts.py
 ```
+
+`tools/setup.sh` installs the game's packages and makes `.venv`, a Python
+with what `tools/requirements.txt` lists. `make_cutouts.py` with nothing
+after it re-cuts every piece, which takes about five minutes and should
+change nothing; with names after it (`make_cutouts.py sand`) it runs just
+those steps. How a new picture gets from the owner to the game is in
+`docs/cutting.md`.
+
+The game is tested by playing itself, with scripts that take pictures of it:
+`tools/test`, and `docs/testing.md`.
