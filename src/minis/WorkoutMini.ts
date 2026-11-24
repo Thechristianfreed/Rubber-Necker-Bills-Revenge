@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { H, HEAD_SRC_H, MAX_W, TEX, view } from '../config';
 import { BLEED } from '../art/finish';
-import { POSES, POSE_IDS, STANCE, TV, WORKOUT_HEAD } from '../art/minis';
+import { DEN_FLOOR, POSES, POSE_IDS, STANCE, TV, WORKOUT_HEAD } from '../art/minis';
 import { ART, applyArt, img } from '../art/sticker';
 import { sound } from '../audio/sound';
 import { WORKOUT_BODIES } from '../data/workout';
@@ -14,12 +14,18 @@ type Image = Phaser.GameObjects.Image;
  *  are two to be had from each: the right pose, and a proper breath). */
 const REPS = 3;
 const PASS = 4;
-/** Where the television stands, and how big Mom is on its screen. */
-const TV_AT = { x: 34, y: 36 };
-const MOM_FLOOR = 240;
-const MOM_SIZE = 0.72;
-/** Bill's head is a size too big for his body, as everywhere else. */
+/** Where the television stands; how far down its screen Mom's feet are, and how big she is on it. */
+const TV_AT = { x: 34, y: 18 };
+const MOM_FLOOR = 0.83;
+const MOM_SIZE = 0.6;
+/** Bill's head is a size too big for his body, as everywhere else. It hangs
+ *  from his chin: the middle of it is this far above. */
 const BILL_HEAD = WORKOUT_HEAD * 1.3;
+const BILL_CHIN = BILL_HEAD * 0.5 - 8;
+/** Bill is nearer to us than the television is, so he is drawn bigger than life. */
+const BILL_SIZE = 1.2;
+/** How big the snapshots of the poses are, next to the real thing. */
+const SNAP = 0.25;
 const FLOOR_Y = 404;
 /** A full breath in takes this long (as long as it does on the tape). Let go in the top part of it (ZONE and
  *  up) for a proper PAH; hold on this long past full and it ends in a cough. */
@@ -70,7 +76,7 @@ export class WorkoutMini extends Mini {
   private caption!: Phaser.GameObjects.Text;
   private note!: Phaser.GameObjects.Text;
   private noteTape!: Image;
-  private cards: { card: Image; thumb: Image; id: string }[] = [];
+  private cards: { card: Image; thumb: Image; head: Image; id: string }[] = [];
   private lungs!: Image;
   private breath!: Image;
   private band!: Phaser.GameObjects.Rectangle;
@@ -81,42 +87,50 @@ export class WorkoutMini extends Mini {
   }
 
   build(): void {
-    const s = this.scene, W = view.W;
-    const strip = (key: string, y: number, h: number) => s.add.tileSprite(-BLEED, y, (MAX_W + BLEED * 2) * TEX, h * TEX, key)
-      .setOrigin(0, 0).setScale(1 / TEX).setDepth(1);
-    strip('den_wall', -BLEED, FLOOR_Y + BLEED);
-    strip('den_carpet', FLOOR_Y, H - FLOOR_Y + BLEED);
+    const s = this.scene;
+    // the den: the photo of it, or wallpaper and carpet cut from paper
+    if (s.textures.exists('den')) {
+      s.add.image(-BLEED, FLOOR_Y - DEN_FLOOR, 'den').setOrigin(0, 0).setScale(1 / (ART.den.tex ?? TEX)).setDepth(1);
+    } else {
+      const strip = (key: string, y: number, h: number) => s.add.tileSprite(-BLEED, y, (MAX_W + BLEED * 2) * TEX, h * TEX, key)
+        .setOrigin(0, 0).setScale(1 / TEX).setDepth(1);
+      strip('den_wall', -BLEED, FLOOR_Y + BLEED);
+      strip('den_carpet', FLOOR_Y, H - FLOOR_Y + BLEED);
+    }
 
-    // the television, Mom on its screen, and the lines and the rolling bar of an old tape over her
+    // The television. Its glass is a hole, and the tape plays behind it: the room, Mom, and the
+    // lines and the rolling bar of an old tape over her. Nothing back there may stick out past the set.
+    const sx = TV_AT.x + TV.screen.x, sy = TV_AT.y + TV.screen.y, sw = TV.screen.w, sh = TV.screen.h;
+    const room = img(s, sx - 2, sy - 2, 'tape_room').setDepth(4);
+    room.setScale(((sw + 4) / ART.tape_room.w) * room.scaleX, ((sh + 4) / ART.tape_room.h) * room.scaleY);
+    this.mom = img(s, sx + sw / 2, sy + sh * MOM_FLOOR, 'pose_mom_lunge').setDepth(5);
+    this.momHead = img(s, 0, 0, 'mom_smile').setDepth(6);
+    s.add.tileSprite(sx, sy, sw, sh, 'tv_lines').setOrigin(0, 0).setDepth(7);
+    this.band = s.add.rectangle(sx + sw / 2, sy, sw - 12, 16, 0xffffff, 0.1).setDepth(7);
+    this.caption = label(s, sx + sw / 2, sy + sh - 19, '', 24).setDepth(8);
+    label(s, sx + 46, sy + 22, 'PLAY >', 15, '#eaffea', 3).setDepth(8).setAlpha(0.85);
     img(s, TV_AT.x, TV_AT.y, 'tv_set').setDepth(10);
-    const sx = TV_AT.x + TV.screen.x, sy = TV_AT.y + TV.screen.y;
-    this.mom = img(s, sx + TV.screen.w / 2, TV_AT.y + MOM_FLOOR, 'pose_mom_lunge').setDepth(12);
-    this.momHead = img(s, 0, 0, 'mom_smile').setDepth(13);
-    s.add.tileSprite(sx, sy, TV.screen.w, TV.screen.h, 'tv_lines').setOrigin(0, 0).setDepth(15);
-    this.band = s.add.rectangle(sx + TV.screen.w / 2, sy, TV.screen.w - 12, 16, 0xffffff, 0.1).setDepth(15);
-    this.caption = label(s, sx + TV.screen.w / 2, sy + TV.screen.h - 22, '', 26).setDepth(16);
-    label(s, sx + 44, sy + 20, 'PLAY >', 16, '#eaffea', 3).setDepth(16).setAlpha(0.85);
-    this.clock = s.add.text(TV_AT.x + 70, TV_AT.y + 346, '12:00', {
-      fontFamily: 'ui-monospace, "Courier New", monospace', fontStyle: 'bold', fontSize: '17px', color: '#7dff8a',
+    this.clock = s.add.text(TV_AT.x + TV.clock.x, TV_AT.y + TV.clock.y, '12:00', {
+      fontFamily: 'ui-monospace, "Courier New", monospace', fontStyle: 'bold', fontSize: '15px', color: '#7dff8a',
       resolution: Math.max(1, Math.ceil(view.RES)),
-    }).setDepth(16);
+    }).setOrigin(0.5).setDepth(11);
 
     // Bill, on the carpet, in the same get-up
-    this.bill = img(s, this.billX, 452, `pose_bill_${STANCE}`).setDepth(30);
-    this.billHead = s.add.image(0, 0, 'bill-sideeye').setDepth(31).setScale(BILL_HEAD / HEAD_SRC_H);
+    this.bill = img(s, this.billX, 462, `pose_bill_${STANCE}`).setDepth(30);
+    this.billHead = s.add.image(0, 0, 'bill-sideeye').setDepth(31).setScale((BILL_HEAD / HEAD_SRC_H) * BILL_SIZE);
 
-    // three snapshots under the television to pick from
+    // three snapshots in front of the television to pick from, each of Bill doing a pose
     for (let i = 0; i < 3; i++) {
-      const x = TV_AT.x + 78 + i * 142, y = 484;
+      const x = TV_AT.x + 78 + i * 142, y = 488;
       const card = img(s, x, y, 'pose_card').setDepth(40).setRotation((i - 1) * 0.05);
       const thumb = img(s, x, y + 30, 'pose_bill_lunge').setDepth(41);
-      this.cards.push({ card, thumb, id: '' });
+      const head = s.add.image(0, 0, 'bill-sideeye').setDepth(42).setScale((BILL_HEAD / HEAD_SRC_H) * SNAP);
+      this.cards.push({ card, thumb, head, id: '' });
     }
     this.lungs = img(s, this.billX + 172, 300, 'lungs').setDepth(40);
     this.breath = img(s, this.lungs.x, 394, 'breath').setDepth(41).setOrigin(0.5, 1);
     this.noteTape = img(s, 0, 0, 'tape_m').setDepth(44);
     this.note = written(s, 0, 0, '', 17).setDepth(45);
-    void W;
     this.startRep();
     this.place();
   }
@@ -140,9 +154,10 @@ export class WorkoutMini extends Mini {
       c.id = options[i];
       applyArt(c.card, 'pose_card');
       applyArt(c.thumb, `pose_bill_${c.id}`);
-      c.thumb.setScale(0.25 / TEX);
-      c.card.setVisible(true);
-      c.thumb.setVisible(true);
+      c.thumb.setScale(c.thumb.scale * SNAP);
+      const chin = chinOf('bill', c.id);
+      c.head.setPosition(c.thumb.x + chin.x * SNAP, c.thumb.y + (chin.y - BILL_CHIN) * SNAP).setRotation(chin.tilt);
+      this.show(c, true);
     });
     this.strike(this.target, STANCE);
     applyArt(this.momHead, 'mom_smile');
@@ -163,7 +178,7 @@ export class WorkoutMini extends Mini {
     this.strike(this.target, id);
     for (const c of this.cards) {
       if (c.id === id) applyArt(c.card, 'pose_card_on');
-      else { c.card.setVisible(false); c.thumb.setVisible(false); }
+      else this.show(c, false);
     }
     if (right) {
       this.points++;
@@ -180,7 +195,7 @@ export class WorkoutMini extends Mini {
   }
 
   private startBreath(): void {
-    for (const c of this.cards) { c.card.setVisible(false); c.thumb.setVisible(false); }
+    for (const c of this.cards) this.show(c, false);
     this.phase = 'breathe';
     this.left = 4.4;
     this.air = 0;
@@ -197,7 +212,10 @@ export class WorkoutMini extends Mini {
   /** Out it comes: a proper PAH if the lungs were full, or something less. */
   private exhale(): void {
     // over his head, not over his face: going purple is the good bit
-    const at = { x: this.billX + POSES[this.worn].head[0] + 50, y: Math.max(92, this.bill.y + POSES[this.worn].head[1] - 190) };
+    const chin = chinOf('bill', this.worn);
+    // (beside him instead, when he is stretched up so tall that there is no room above)
+    const above = this.bill.y + chin.y * BILL_SIZE - 230;
+    const at = above > 92 ? { x: this.billX + chin.x * BILL_SIZE + 50, y: above } : { x: this.billX - 170, y: 170 };
     this.holding = false;
     if (this.air > 1 + TOO_LONG / INHALE) {
       sound.cough();
@@ -221,6 +239,13 @@ export class WorkoutMini extends Mini {
     applyArt(this.momHead, 'mom_pah');
     this.lungs.setVisible(false);
     this.breath.setVisible(false);
+  }
+
+  /** Lay a snapshot out, or take it away. */
+  private show(c: { card: Image; thumb: Image; head: Image }, on: boolean): void {
+    c.card.setVisible(on);
+    c.thumb.setVisible(on);
+    c.head.setVisible(on);
   }
 
   /** Put the two of them into a pose each. */
@@ -289,19 +314,21 @@ export class WorkoutMini extends Mini {
     const mp = chinOf('mom', this.momPose), ms = MOM_SIZE;
     const momIn = this.phase === 'breathe' ? this.momAir : 0;
     const momHold = this.phase === 'hold' ? 1 : 0;
-    this.mom.setScale(k * ms * (1 + 0.07 * momIn - 0.1 * momHold), k * ms);
+    const momWide = 1 + 0.07 * momIn - 0.1 * momHold;
+    this.mom.setScale(k * ms * momWide, k * ms);
     this.momHead.setScale(k * ms)
-      .setPosition(this.mom.x + mp.x * ms, this.mom.y + mp.y * ms - momIn * 4)
+      .setPosition(this.mom.x + mp.x * ms * momWide, this.mom.y + mp.y * ms - momIn * 4)
       .setRotation(mp.tilt - momIn * 0.12 + (momHold ? Math.sin(this.t * 38) * 0.04 : 0));
     this.band.y = TV_AT.y + TV.screen.y + ((this.t * 46) % (TV.screen.h - 16)) + 8;
     this.clock.setVisible(Math.floor(this.t * 2) % 2 === 0);
 
     // Bill, on the carpet
-    const bp = POSES[this.billPose];
+    const bp = chinOf('bill', this.billPose);
     const full = Math.min(this.air, 1.2), held = this.phase === 'hold' ? 1 : 0;
     const strain = held || this.air > 1 ? Math.sin(this.t * 40) * 2.2 : 0;
-    this.bill.setScale(k * (1 + 0.13 * full - 0.12 * held), k);
-    this.billHead.setPosition(this.billX + bp.head[0] + strain, this.bill.y + bp.head[1] - full * 6)
+    const wide = 1 + 0.13 * full - 0.12 * held;
+    this.bill.setScale(k * wide * BILL_SIZE, k * BILL_SIZE);
+    this.billHead.setPosition(this.billX + bp.x * wide * BILL_SIZE + strain, this.bill.y + (bp.y - BILL_CHIN) * BILL_SIZE - full * 6)
       .setRotation(bp.tilt - full * 0.14);
     const face = held || this.air > 1 ? 'bill-glare' : this.phase === 'picked' && this.worn === this.target ? 'bill-grin' : 'bill-sideeye';
     if (this.billHead.texture.key !== face) this.billHead.setTexture(face);

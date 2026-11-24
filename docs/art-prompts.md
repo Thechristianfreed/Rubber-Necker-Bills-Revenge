@@ -146,13 +146,14 @@ Six head-and-shoulders photographs in a row with clear gaps between them, all on
 
 ## Home Movies: Mom's workout tape
 
-Done so far: Stephanie's three faces for the breathing (WT1) and her six
-bodies (WT2), cut out by `mom()` and `workout_bodies()` in
-`tools/make_cutouts.py`. Still paper stand-ins: Bill's bodies, the room on the
-tape, the television and the den. One thing is missing from WT1: her everyday
-face is still from the kitchen photo, with her hair up, so her hair changes
-when the breathing starts. The photo the three edits were made from (hair
-down, outdoors) would fix that.
+All of these have been made and are in the game, cut out by `mom()`,
+`workout_bodies()` and `workout_set()` in `tools/make_cutouts.py`: Stephanie's
+three faces for the breathing (WT1), her six bodies and Bill's (WT2), the room
+on the tape (WT3), the television (WT4) and the den (WT5). One thing is
+missing from WT1: her everyday face is still from the kitchen photo, with her
+hair up, so her hair changes when the breathing starts. The photo the three
+edits were made from (hair down, outdoors) fixes that. The prompts are kept
+here for making more poses or doing any of it again.
 
 ### WT1. Stephanie's faces
 

@@ -376,6 +376,8 @@ def mom():
 WORKOUT_SHEETS = [
     ("WT2a-mom-standing", "mom", [("ready", -0.10), ("lunge", 0.0), ("stretch", 0.0)]),
     ("WT2b-mom-floor", "mom", [("frog", 0.0), ("pretzel", 0.04), ("kick", 0.16)]),
+    ("WT2c-bill-standing", "bill", [("ready", -0.10), ("lunge", 0.0), ("stretch", 0.0)]),
+    ("WT2d-bill-floor", "bill", [("frog", 0.0), ("pretzel", 0.04), ("kick", 0.16)]),
 ]
 # How tall a chin is off the floor when its owner stands up straight, in the game's own pixels.
 STANDING_CHIN = 196
@@ -411,7 +413,8 @@ def workout_bodies():
             save(f"pose-{who}-{pose}.png", piece[y0:y1, x0:x1])
             spot = ((x0 + x1) / 2, ys.max())
             found[(who, pose)] = dict(file=f"pose-{who}-{pose}.png", spot=((spot[0] - x0) / (x1 - x0), (spot[1] - y0) / (y1 - y0)),
-                                      chin=(chin[0] - spot[0], chin[1] - spot[1]), tilt=tilt)
+                                      chin=(chin[0] - spot[0], chin[1] - spot[1]), tilt=tilt,
+                                      head=float(np.sqrt(head[hy:hy + hh, hx:hx + hw].sum())))
     table = os.path.join(ROOT, "src", "data", "workout.ts")
     with open(table, "w") as f:
         f.write("/** The photo bodies for the workout tape: for each pose, the picture, how big\n"
@@ -421,18 +424,71 @@ def workout_bodies():
                 " *  do not edit by hand. */\n"
                 "export interface WorkoutBody { file: string; scale: number; spot: [number, number]; chin: [number, number]; tilt: number }\n\n"
                 "export const WORKOUT_BODIES: Record<string, Record<string, WorkoutBody>> = {\n")
-        for who in sorted({w for w, _ in found}):
-            # everybody on a sheet is drawn to the size that stands the tall one's chin where the game expects it
-            scale = STANDING_CHIN / -found[(who, "stretch")]["chin"][1]
+        for who in sorted({w for w, _ in found}, reverse=True):
+            # everybody is drawn to the size that stands the tall one's chin where the game expects it...
+            standing = STANDING_CHIN / -found[(who, "stretch")]["chin"][1]
+            usual = float(np.median([b["head"] for (w, _), b in found.items() if w == who]))
             f.write(f"  {who}: {{\n")
             for (w, pose), b in found.items():
                 if w != who:
                     continue
+                # ...unless a figure was photographed from closer up or further off than the rest,
+                # which the size of the head it lost gives away
+                off = usual / b["head"]
+                scale = standing * (off if abs(off - 1) > 0.12 else 1.0)
                 f.write(f"    {pose}: {{ file: '{b['file']}', scale: {scale:.4f}, spot: [{b['spot'][0]:.3f}, {b['spot'][1]:.3f}],"
                         f" chin: [{b['chin'][0] * scale:.1f}, {b['chin'][1] * scale:.1f}], tilt: {b['tilt']} }},\n")
             f.write("  },\n")
         f.write("};\n")
     print("wrote", table)
+
+
+def workout_set():
+    """The rest of the workout tape's set. The television, with its green screen
+    taken out (the tape plays behind the glass) and saved beside it as the shape
+    of the hole; the room on the tape; and the den the television stands in.
+    Prints where the screen and the recorder's clock are on the television, as
+    fractions of its picture, for TV in src/art/minis.ts."""
+    cut = load("WT4-television-cutout.png")
+    src = original("WT4-television.webp")
+    green = ((src[..., 1] > 0.6) & (src[..., 0] < 0.55) & (src[..., 2] < 0.55)).astype(np.uint8)
+    n, lab, st, _ = cv2.connectedComponentsWithStats(green, 8)
+    glass = (lab == 1 + int(np.argmax(st[1:, cv2.CC_STAT_AREA]))).astype(np.uint8)
+    # a little wider than the green itself, to take its glow off the edge of the tube with it
+    glass = cv2.dilate(glass, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (7, 7)))
+    hole = cv2.GaussianBlur(glass.astype(np.float32), (0, 0), 0.8)
+    tv = cut.copy()
+    tv[..., :3] = tv[..., :3] * (1 - hole[..., None]) + np.float32((0.07, 0.08, 0.09)) * hole[..., None]
+    ys, xs = np.where(tv[..., 3] > 0.08)
+    x0, x1, y0, y1 = xs.min() - 2, xs.max() + 3, ys.min() - 2, ys.max() + 3
+    save("tv-set.png", tv[y0:y1, x0:x1])
+    mask = np.zeros_like(tv)
+    mask[..., :3] = 1
+    mask[..., 3] = hole
+    save("tv-glass.png", mask[y0:y1, x0:x1])
+    gy, gx = np.where(glass > 0)
+    w, h = x1 - x0, y1 - y0
+    print(f"  television: {w} x {h}; screen from ({(gx.min() - x0) / w:.3f}, {(gy.min() - y0) / h:.3f}),"
+          f" {(gx.max() - gx.min()) / w:.3f} wide and {(gy.max() - gy.min()) / h:.3f} tall")
+    # the recorder's display: the long dark window low down on the front of it
+    print(f"  clock at about ({(512 - x0) / w:.3f}, {(622 - y0) / h:.3f})")
+
+    def backdrop(name, rgb, quality=84):
+        path = os.path.join(OUT, name)
+        Image.fromarray((np.clip(rgb, 0, 1) * 255).astype(np.uint8), "RGB").save(path, quality=quality)
+        print(name, rgb.shape[1], "x", rgb.shape[0], os.path.getsize(path), "bytes")
+
+    # the room on the tape: a little soft and washed out, as a tape that has been played a lot is
+    room = cv2.resize(original("WT3-tape-room.webp"), (704, 528), interpolation=cv2.INTER_AREA)
+    room = cv2.GaussianBlur(room, (0, 0), 0.7)
+    backdrop("tape-room.jpg", room * 0.86 + 0.10)
+
+    # the den: the flat of the wall between the corners, laid beside its own mirror image so that
+    # it is wide enough for any screen, with more carpet added at the bottom the same way
+    den = original("WT5-den.webp")[:, 72:952]
+    den = np.concatenate([den, den[:, ::-1]], axis=1)
+    den = np.concatenate([den, den[:-70:-1]], axis=0)
+    backdrop("den.jpg", den, 80)
 
 
 def mailman():
@@ -869,6 +925,7 @@ if __name__ == "__main__":
     kid()
     mom()
     workout_bodies()
+    workout_set()
     teen()
     hallway()
     locker_things()

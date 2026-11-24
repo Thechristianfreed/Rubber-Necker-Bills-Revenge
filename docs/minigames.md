@@ -45,5 +45,9 @@ levels (the bus and the sleepover games do).
   `src/scenes/MiniScene.ts`.
 - The workout: how many poses and the pass mark (`REPS`, `PASS`), how long a
   breath takes and how big the green zone is (`INHALE`, `ZONE`, `TOO_LONG`),
-  at the top of `src/minis/WorkoutMini.ts`. The poses themselves are stick
-  figures described joint by joint in `POSES` in `src/art/minis.ts`.
+  at the top of `src/minis/WorkoutMini.ts`. Each pose is a photo of a body
+  with the head taken off (`src/data/workout.ts`, written by
+  `tools/make_cutouts.py`, says where each one's chin is); behind them are
+  paper dolls described joint by joint in `POSES` in `src/art/minis.ts`,
+  which show if a photo is missing. A new pose needs a line in `POSES` (for
+  its name) and a figure on a sheet in `WORKOUT_SHEETS` in the tool.

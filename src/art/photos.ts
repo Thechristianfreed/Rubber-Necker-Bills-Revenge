@@ -1,11 +1,11 @@
 import Phaser from 'phaser';
-import { INK } from '../config';
-import { Ctx, PhotoOpts, makeArt, makePhotoArt, makePhotoTile, star } from './sticker';
+import { INK, TEX } from '../config';
+import { ART, Ctx, PhotoOpts, makeArt, makePhotoArt, makePhotoTile, star } from './sticker';
 import { ARM_TINTS, VEHICLES, VehicleSpec, makeNeck, setHeadStyles } from './textures';
 import { PAPERS, addPaper } from './paper';
 import { buildPaperUi } from './ui';
 import { HALL, buildHallArt } from './hallway';
-import { buildMiniArt } from './minis';
+import { TV, buildMiniArt } from './minis';
 import { buildSleepoverArt } from './sleepover';
 import { buildStreetArt } from './street';
 import { WORKOUT_BODIES } from '../data/workout';
@@ -169,6 +169,8 @@ const PIECES: Piece[] = [
   ...Object.entries(WORKOUT_BODIES).flatMap(([who, poses]) => Object.entries(poses).map(([pose, body]): Piece => (
     { key: `pose_${who}_${pose}`, file: body.file, scale: body.scale, border: 2, anchor: body.spot }
   ))),
+  // the television and the recorder under it (its screen is cut out afterwards: see punchHole)
+  { key: 'tv_set', file: 'tv-set.png', w: TV.w, border: 2.5, anchor: [0, 0] },
   // a hand holding a phone, pinned at the wrist (which hides behind the gawker's head)
   { key: 'armphone', file: 'hand-phone.png', w: 54, border: 1.6, anchor: [0.97, 0.822] },
   // a bluebird, wings up and wings down, both pinned at the chest so only the wings move
@@ -235,11 +237,25 @@ function loadImage(src: string | undefined): Promise<HTMLImageElement | null> {
   });
 }
 
+/** Cut a hole in a sticker: the shape of `mask`, laid over the picture the
+ *  sticker was made from. The white edge and the shadow stay round the outside
+ *  only, which they would not if the hole were in the picture to begin with. */
+function punchHole(scene: Phaser.Scene, key: string, mask: HTMLImageElement): void {
+  const texture = scene.textures.get(key) as Phaser.Textures.CanvasTexture;
+  const a = ART[key], c = texture.getContext();
+  c.save();
+  c.globalCompositeOperation = 'destination-out';
+  c.drawImage(mask, a.pad * TEX, a.pad * TEX, a.w * TEX, a.h * TEX);
+  c.restore();
+  texture.refresh();
+}
+
 /** Load every photo cutout and swap it in over its drawn stand-in. */
 export async function loadPhotoArt(scene: Phaser.Scene): Promise<void> {
   const sheets = PAPERS;
   const names = new Set<string>([
     ...PIECES.map((p) => p.file), ...PHOTO_VEHICLES.map((v) => v.file), 'postcard.jpg', 'rail.png', 'asphalt.jpg', 'houses.jpg', 'fence.png', 'concrete.jpg', 'hallway.jpg',
+    'tv-glass.png', 'tape-room.jpg', 'den.jpg',
     ...sheets.map((n) => `paper-${n}.png`),
   ]);
   const loaded = new Map<string, HTMLImageElement>();
@@ -263,6 +279,15 @@ export async function loadPhotoArt(scene: Phaser.Scene): Promise<void> {
     const im = loaded.get(p.file);
     if (im) makePhotoArt(scene, p.key, im, p);
   }
+
+  // the workout tape: the glass of the television is a hole the tape shows through; the room on
+  // the tape goes behind it; and the den is the whole backdrop, kept at the photo's own size
+  const glass = loaded.get('tv-glass.png');
+  if (glass && loaded.has('tv-set.png')) punchHole(scene, 'tv_set', glass);
+  const room = loaded.get('tape-room.jpg');
+  if (room) makePhotoTile(scene, 'tape_room', room, TV.screen.h);
+  const den = loaded.get('den.jpg');
+  if (den) makePhotoTile(scene, 'den', den, den.naturalHeight, true);
 
   // Photo heads: only styles with both photos are used. Each gets a neck cut
   // from paper the colour of its own skin, and a tint so the arm that holds a

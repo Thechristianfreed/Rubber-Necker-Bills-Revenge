@@ -188,42 +188,51 @@ function momHead(c: Ctx, face: 'smile' | 'in' | 'pah' | 'hold'): void {
   }
 }
 
-/** The television, with the tape's living room on its screen and the video
- *  recorder underneath. 440 x 392; the screen is at SCREEN on it. */
-export const TV = { w: 440, h: 392, screen: { x: 26, y: 24, w: 352, h: 264 }, floor: 262 };
+/** The television and the video recorder under it: how big they are drawn,
+ *  where the glass of the screen is, and where the recorder's clock is (from
+ *  tools/make_cutouts.py, which also cuts the hole the tape shows through). */
+export const TV = { w: 440, h: 432, screen: { x: 43, y: 51, w: 290, h: 227 }, clock: { x: 219, y: 402 } };
+/** How far down the photo of the den the wall meets the carpet. */
+export const DEN_FLOOR = 431;
 
+/** The stand-in television: a wooden box with a hole for the screen, on top of a recorder. */
 function television(c: Ctx): void {
-  glued(c, () => { rr(c, 0, 0, TV.w, 316, 16); fillPaper(c, 'brown'); });
   const s = TV.screen;
-  // the room on the tape: a cream wall, a grey carpet, a picture, a plant, a fireplace
-  c.save();
-  rr(c, s.x, s.y, s.w, s.h, 22);
-  c.clip();
-  rect(c, s.x, s.y, s.w, s.h, 'cream');
-  rect(c, s.x, s.y + 176, s.w, s.h - 176, 'grey');
-  c.fillStyle = 'rgba(255, 255, 255, 0.5)';
-  c.fillRect(s.x, s.y + 176, s.w, s.h - 176);
-  rect(c, s.x + 44, s.y + 22, 86, 52, 'brown');
-  rect(c, s.x + 50, s.y + 28, 74, 40, 'green');
-  rect(c, s.x + 276, s.y + 60, 76, 116, 'manila');
-  rect(c, s.x + 290, s.y + 84, 50, 92, 'black');
-  strokePaper(c, [s.x + 214, s.y + 176, s.x + 206, s.y + 96], 'green', 5);
-  strokePaper(c, [s.x + 214, s.y + 176, s.x + 226, s.y + 88], 'green', 5);
-  strokePaper(c, [s.x + 214, s.y + 176, s.x + 240, s.y + 112], 'green', 5);
-  c.restore();
+  glued(c, () => { rr(c, 0, 0, TV.w, 318, 14); fillPaper(c, 'brown'); });
+  glued(c, () => { rr(c, s.x - 14, s.y - 14, s.w + 28, s.h + 28, 22); fillPaper(c, 'black'); });
   // the knobs down the side
-  for (const y of [70, 130]) {
-    glued(c, () => { circle(c, 408, y, 16); fillPaper(c, 'black'); });
-    rect(c, 406, y - 14, 4, 12, 'white');
+  for (const y of [84, 144]) {
+    glued(c, () => { circle(c, 396, y, 17); fillPaper(c, 'black'); });
+    rect(c, 394, y - 15, 4, 13, 'white');
   }
   c.fillStyle = 'rgba(0, 0, 0, 0.35)';
-  for (let y = 186; y < 290; y += 9) c.fillRect(392, y, 32, 3.5);
+  for (let y = 196; y < 296; y += 9) c.fillRect(378, y, 36, 3.5);
   // the video recorder, with the clock nobody ever set
-  glued(c, () => { rr(c, 30, 326, 380, 62, 6); fillPaper(c, 'black'); });
-  rect(c, 52, 344, 150, 24, 'grey');
-  c.fillStyle = 'rgba(0, 0, 0, 0.5)';
-  c.fillRect(56, 348, 142, 16);
-  for (const x of [330, 352, 374]) rect(c, x, 350, 14, 10, 'grey');
+  glued(c, () => { rr(c, 16, 324, TV.w - 32, TV.h - 326, 6); fillPaper(c, 'black'); });
+  rect(c, TV.clock.x - 70, TV.clock.y - 13, 140, 26, 'grey');
+  c.fillStyle = 'rgba(0, 0, 0, 0.55)';
+  c.fillRect(TV.clock.x - 66, TV.clock.y - 9, 132, 18);
+  for (const x of [338, 360, 382]) rect(c, x, TV.clock.y - 5, 14, 10, 'grey');
+  // the glass is a hole: whatever is on the tape shows through from behind
+  c.save();
+  c.globalCompositeOperation = 'destination-out';
+  rr(c, s.x, s.y, s.w, s.h, 22);
+  c.fill();
+  c.restore();
+}
+
+/** The stand-in room on the tape: a cream wall, a grey carpet, a picture, a plant, a fireplace. */
+function tapeRoom(c: Ctx): void {
+  const { w, h } = TV.screen, floor = h * 0.66;
+  rect(c, 0, 0, w, h, 'cream');
+  rect(c, 0, floor, w, h - floor, 'grey');
+  c.fillStyle = 'rgba(255, 255, 255, 0.5)';
+  c.fillRect(0, floor, w, h - floor);
+  rect(c, 34, 20, 76, 46, 'brown');
+  rect(c, 40, 26, 64, 34, 'green');
+  rect(c, w - 70, floor - 100, 70, 100, 'manila');
+  rect(c, w - 58, floor - 78, 46, 78, 'black');
+  for (const [dx, dy] of [[-8, -80], [12, -88], [26, -64]]) strokePaper(c, [w * 0.6, floor, w * 0.6 + dx, floor + dy], 'green', 5);
 }
 
 export function buildMiniArt(scene: Phaser.Scene): void {
@@ -241,6 +250,7 @@ export function buildMiniArt(scene: Phaser.Scene): void {
   }
 
   makePaperArt(scene, 'tv_set', TV.w, TV.h, television, { border: 2.5, ax: 0, ay: 0 });
+  makePaperArt(scene, 'tape_room', TV.screen.w, TV.screen.h, tapeRoom, { border: 0, ax: 0, ay: 0 });
   // scan lines to lay over the screen, and snow for when the channel changes
   const [lines, lc] = makeCanvas(8, 8);
   lc.fillStyle = 'rgba(10, 10, 30, 0.2)';
