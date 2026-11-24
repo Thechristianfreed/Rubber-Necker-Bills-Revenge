@@ -58,8 +58,8 @@ export const POSES: Record<string, Pose> = {
   },
 };
 
-/** Not one of the poses to pick from: how the breathing is done on the tape,
- *  bent forward towards the camera with a hand on each knee. */
+/** How the breathing is done on the tape: bent forward towards the camera with
+ *  a hand on each knee. It is one of the poses to copy, too. */
 export const STANCE = 'ready';
 POSES[STANCE] = {
   name: 'BREATHE!',
@@ -68,7 +68,7 @@ POSES[STANCE] = {
   head: [0, -178], tilt: 0,
 };
 
-export const POSE_IDS = Object.keys(POSES).filter((id) => id !== STANCE);
+export const POSE_IDS = Object.keys(POSES);
 
 /** The canvas every pose is drawn on, and where the floor spot is on it. */
 const POSE_W = 320, POSE_H = 310, POSE_AX = 160, POSE_AY = 300;

@@ -10,10 +10,12 @@ import { Mini, Point } from './Mini';
 
 type Image = Phaser.GameObjects.Image;
 
-/** How many poses there are to get through, and how many points pass (there
- *  are two to be had from each: the right pose, and a proper breath). */
-const REPS = 3;
-const PASS = 4;
+/** Every pose is done once, in a different order each time. There are two
+ *  points to be had from each (the right pose, and a proper breath), and two
+ *  thirds of them pass. Each pose is given this many seconds, all told. */
+const REPS = POSE_IDS.length;
+const PASS = Math.ceil((REPS * 2 * 2) / 3);
+const SECONDS_EACH = 8.7;
 /** Where the television stands, and how far down its screen Mom's feet are.
  *  She is shown as big as the screen will hold, whatever she is doing (as the
  *  camera would frame her), up to MOM_MAX of her full size and with MOM_ROOM
@@ -58,13 +60,15 @@ function chinOf(who: 'mom' | 'bill', pose: string): { x: number; y: number; tilt
 export class WorkoutMini extends Mini {
   readonly title = "MOM'S WORKOUT TAPE";
   readonly prompt = 'COPY MOM, THEN BREATHE!';
-  readonly seconds = 26;
+  readonly seconds = Math.round(REPS * SECONDS_EACH);
   readonly music = 'workout';
 
   private phase: 'pose' | 'picked' | 'breathe' | 'hold' | 'done' = 'pose';
   private left = 0;
   private rep = 0;
   private points = 0;
+  /** The poses in the order they will be called this time, and the one Mom is calling now. */
+  private order: string[] = [];
   private target = '';
   /** The pose picked for Bill this time, and what each of them is doing right now. */
   private worn = '';
@@ -145,6 +149,12 @@ export class WorkoutMini extends Mini {
     this.breath = img(s, this.lungs.x, 394, 'breath').setDepth(41).setOrigin(0.5, 1);
     this.noteTape = img(s, 0, 0, 'tape_m').setDepth(44);
     this.note = written(s, 0, 0, '', 17).setDepth(45);
+    // every pose once; not the breathing stance first, since that is how Bill starts out
+    this.order = Phaser.Utils.Array.Shuffle([...POSE_IDS]);
+    if (this.order[0] === STANCE) {
+      const swap = 1 + Math.floor(Math.random() * (this.order.length - 1));
+      [this.order[0], this.order[swap]] = [this.order[swap], this.order[0]];
+    }
     this.startRep();
     this.place();
   }
@@ -160,10 +170,9 @@ export class WorkoutMini extends Mini {
 
   /** Mom strikes the next pose, and there are three snapshots to choose from. */
   private startRep(): void {
-    const others = POSE_IDS.filter((id) => id !== this.target);
-    this.target = others[Math.floor(Math.random() * others.length)];
-    const wrong = POSE_IDS.filter((id) => id !== this.target).sort(() => Math.random() - 0.5).slice(0, 2);
-    const options = [this.target, ...wrong].sort(() => Math.random() - 0.5);
+    this.target = this.order[this.rep];
+    const wrong = Phaser.Utils.Array.Shuffle(POSE_IDS.filter((id) => id !== this.target)).slice(0, 2);
+    const options = Phaser.Utils.Array.Shuffle([this.target, ...wrong]);
     this.cards.forEach((c, i) => {
       c.id = options[i];
       applyArt(c.card, 'pose_card');
@@ -173,7 +182,8 @@ export class WorkoutMini extends Mini {
       c.head.setPosition(c.thumb.x + chin.x * SNAP, c.thumb.y + (chin.y + NECK) * SNAP).setRotation(chin.tilt);
       this.show(c, true);
     });
-    this.strike(this.target, STANCE);
+    // (Bill stays as he was, holding the last one, until he is given the next)
+    this.strike(this.target, this.billPose);
     applyArt(this.momHead, 'mom_smile');
     this.momAir = 0;
     this.air = 0;
@@ -182,7 +192,7 @@ export class WorkoutMini extends Mini {
     this.left = 3.6;
     this.lungs.setVisible(false);
     this.breath.setVisible(false);
-    this.say('TAP the pose Mom is doing');
+    this.say(`TAP the pose Mom is doing  (${this.rep + 1} of ${REPS})`);
   }
 
   private pick(id: string): void {

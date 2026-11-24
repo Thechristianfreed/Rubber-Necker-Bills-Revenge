@@ -10,7 +10,7 @@ and a cross for a miss. Then the tape ends, and says how many were cleared.
 
 | Game | What to do | Wins when |
 | --- | --- | --- |
-| Mom's workout tape (`workout`) | Mom is on the television and strikes a pose: tap the snapshot of the same pose. Then the breathing, done as on the tape, bent over with a hand on each knee: hold anywhere to breathe in, and let go in the green at the top of the meter for a "PAH". Then into the pose, and hold it. Three poses. | 4 points out of 6 (one for each right pose, one for each proper breath) |
+| Mom's workout tape (`workout`) | Mom is on the television and strikes a pose: tap the snapshot of the same pose. Then the breathing, done as on the tape, bent over with a hand on each knee: hold anywhere to breathe in, and let go in the green at the top of the meter for a "PAH". Then into the pose, and hold it. All six poses, once each, in a different order every time. | 8 points out of 12 (one for each right pose, one for each proper breath) |
 | The tour bus (`phone`) | Heads bob up at the windows. Tap the ones holding up a phone, and nobody else. | 3 filmers caught before 2 innocent gawkers are |
 | The sleepover (`bop`) | Bop DJ exactly the number of times asked, then stop. | The count is exact when the clock runs out, or has been for a moment |
 
@@ -43,7 +43,8 @@ levels (the bus and the sleepover games do).
 
 - Which games are on the tape, and in what order: `ROSTER` at the top of
   `src/scenes/MiniScene.ts`.
-- The workout: how many poses and the pass mark (`REPS`, `PASS`), how long a
+- The workout: the pass mark and how long each pose is given (`PASS`,
+  `SECONDS_EACH`; there are as many rounds as there are poses), how long a
   breath takes and how big the green zone is (`INHALE`, `ZONE`, `TOO_LONG`),
   at the top of `src/minis/WorkoutMini.ts`. Each pose is a photo of a body
   with the head taken off (`src/data/workout.ts`, written by
