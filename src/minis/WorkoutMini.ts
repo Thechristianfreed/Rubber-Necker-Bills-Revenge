@@ -15,7 +15,7 @@ type Image = Phaser.GameObjects.Image;
  *  thirds of them pass. Each pose is given this many seconds, all told. */
 const REPS = POSE_IDS.length;
 const PASS = Math.ceil((REPS * 2 * 2) / 3);
-const SECONDS_EACH = 8.7;
+const SECONDS_EACH = 9.2;
 /** Where the television stands, and how far down its screen Mom's feet are.
  *  She is shown as big as the screen will hold, whatever she is doing (as the
  *  camera would frame her), up to MOM_MAX of her full size and with MOM_ROOM
@@ -41,6 +41,11 @@ const FLOOR_Y = 404;
 const INHALE = 1.3;
 const ZONE = 0.76;
 const TOO_LONG = 0.5;
+/** Once a good breath is let go, the PAH stays on both their faces this long,
+ *  to be enjoyed, and then it is held in this long before the next pose is
+ *  called. (A breath that came to nothing is not dwelt on.) */
+const PAH_LINGERS = 0.9;
+const HELD_IN = 0.62;
 
 /** Where somebody's chin is in a pose, from the spot on the floor they are on,
  *  and how far their head tips: from the photo of that pose if there is one,
@@ -254,8 +259,8 @@ export class WorkoutMini extends Mini {
       this.host.word('pff', at.x, at.y);
     }
     this.phase = 'hold';
-    this.left = 1.0;
-    this.say('...and HOLD IT');
+    this.left = this.pahed ? PAH_LINGERS + HELD_IN : 1.0;
+    this.say(this.pahed ? 'PAH!' : '...and HOLD IT');
     // Mom lets hers go with ours, then holds it too
     applyArt(this.momHead, 'mom_pah');
     this.lungs.setVisible(false);
@@ -343,7 +348,10 @@ export class WorkoutMini extends Mini {
         this.exhale();
       }
     } else if (this.phase === 'hold' && this.left > 0) {
-      if (this.left < 0.62 && this.momHead.texture.key !== 'mom_hold') applyArt(this.momHead, 'mom_hold');
+      if (this.left < HELD_IN && this.momHead.texture.key !== 'mom_hold') {
+        applyArt(this.momHead, 'mom_hold');
+        this.say('...and HOLD IT');
+      }
     } else if (this.phase === 'hold') {
       this.rep++;
       if (this.rep >= REPS) {
@@ -378,7 +386,7 @@ export class WorkoutMini extends Mini {
     const wide = 1 + 0.13 * full - 0.12 * held;
     this.bill.setScale(k * wide * BILL_SIZE, k * BILL_SIZE);
     // his face: the PAH as it comes out, then holding it; the breath going in; or just himself
-    this.wear(held ? (this.pahed && this.left > 0.62 ? 'bill_pah' : 'bill_hold')
+    this.wear(held ? (this.pahed && this.left > HELD_IN ? 'bill_pah' : 'bill_hold')
       : this.air > 1 ? 'bill_hold'
         : this.holding ? 'bill_in'
           : this.phase === 'picked' && this.worn === this.target ? 'bill-grin' : 'bill-sideeye');

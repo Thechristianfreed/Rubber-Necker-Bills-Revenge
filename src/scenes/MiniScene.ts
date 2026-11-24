@@ -207,7 +207,7 @@ export class MiniScene extends Phaser.Scene {
     const full = im.scale;
     im.setScale(full * 0.3).setAlpha(0);
     this.tweens.add({ targets: im, scale: full, alpha: 1, duration: 110, ease: 'Back.out' });
-    this.tweens.add({ targets: im, y: y - 36, alpha: 0, duration: 320, delay: big ? 620 : 460, onComplete: () => im.destroy() });
+    this.tweens.add({ targets: im, y: y - 36, alpha: 0, duration: 320, delay: big ? 800 : 460, onComplete: () => im.destroy() });
   }
 
   private drawBar(frac: number): void {

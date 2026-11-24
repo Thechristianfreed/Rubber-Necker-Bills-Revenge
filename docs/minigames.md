@@ -46,6 +46,7 @@ levels (the bus and the sleepover games do).
 - The workout: the pass mark and how long each pose is given (`PASS`,
   `SECONDS_EACH`; there are as many rounds as there are poses), how long a
   breath takes and how big the green zone is (`INHALE`, `ZONE`, `TOO_LONG`),
+  how long the "PAH" stays on their faces before it is held in (`PAH_LINGERS`),
   at the top of `src/minis/WorkoutMini.ts`. Each pose is a photo of a body
   with the head taken off (`src/data/workout.ts`, written by
   `tools/make_cutouts.py`, says where each one's chin is); behind them are
