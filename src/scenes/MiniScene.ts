@@ -5,6 +5,7 @@ import { ART, applyArt, img } from '../art/sticker';
 import { sound } from '../audio/sound';
 import { loadBest, saveBest } from '../data/progress';
 import { BopMini } from '../minis/BopMini';
+import { FightMini } from '../minis/FightMini';
 import { Mini, MiniHost } from '../minis/Mini';
 import { PhoneMini } from '../minis/PhoneMini';
 import { WorkoutMini } from '../minis/WorkoutMini';
@@ -18,6 +19,7 @@ const ROSTER: { id: string; make: (host: MiniHost) => Mini }[] = [
   { id: 'workout', make: (h) => new WorkoutMini(h) },
   { id: 'phone', make: (h) => new PhoneMini(h) },
   { id: 'bop', make: (h) => new BopMini(h) },
+  { id: 'fight', make: (h) => new FightMini(h) },
 ];
 
 const BAR_W = 250;
@@ -41,6 +43,9 @@ export class MiniScene extends Phaser.Scene {
   private total = 0;
   private played = 0;
   private score = 0;
+  /** How many of the games played so far counted (one that cannot be won does not). */
+  private counted = 0;
+  private unscored: string[] = [];
   private auto: '' | 'good' | 'clumsy' = '';
   private only = '';
   private canRestart = false;
@@ -71,6 +76,8 @@ export class MiniScene extends Phaser.Scene {
     this.total = this.queue.length;
     this.played = 0;
     this.score = 0;
+    this.counted = 0;
+    this.unscored = [];
     this.mini = undefined;
     this.canRestart = false;
     this.card = [];
@@ -140,6 +147,7 @@ export class MiniScene extends Phaser.Scene {
     this.tweens.killAll();
     this.time.removeAllEvents();
     sound.stopBreath();
+    sound.stopPower();
     for (const o of [...this.children.list]) if (!this.keep.has(o)) o.destroy();
     this.card = [];
     this.cameras.main.setZoom(view.RES).centerOn(view.W / 2, H / 2);
@@ -187,6 +195,9 @@ export class MiniScene extends Phaser.Scene {
     if (this.state !== 'play') return;
     this.state = 'stamp';
     this.t = 1.05;
+    const scored = this.mini!.scored;
+    if (scored) this.counted++;
+    else this.unscored.push(this.mini!.title);
     if (won) {
       this.score++;
       sound.cash();
@@ -195,7 +206,9 @@ export class MiniScene extends Phaser.Scene {
       this.cameras.main.shake(160, 0.006);
     }
     this.scoreText.setText(`CLEARED  ${this.score}`);
-    applyArt(this.marks[this.played - 1], won ? 'mini_mark_win' : 'mini_mark_lose');
+    applyArt(this.marks[this.played - 1], !scored ? 'mini_mark_ko' : won ? 'mini_mark_win' : 'mini_mark_lose');
+    // a game that was never going to be won has said so itself: no stamp on top of that
+    if (!scored) return;
     const stamp = img(this, view.W / 2, 230, won ? 'stamp_win' : 'stamp_lose').setDepth(DEPTH.overlay + 3).setRotation(-0.08);
     const full = stamp.scale;
     stamp.setScale(full * 1.8).setAlpha(0);
@@ -234,7 +247,7 @@ export class MiniScene extends Phaser.Scene {
     this.state = 'over';
     this.mini = undefined;
     sound.stopMusic();
-    const all = this.score === this.total;
+    const all = this.counted > 0 && this.score === this.counted;
     if (all) sound.win();
     else if (this.score === 0) sound.lose();
     else sound.cash();
@@ -256,7 +269,8 @@ export class MiniScene extends Phaser.Scene {
     }, { border: 0 });
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.textures.remove('mini_results'));
     img(this, px, py, 'mini_results').setDepth(d - 1).setRotation(-0.01);
-    const rows: [string, string][] = [['Games cleared', `${this.score} of ${this.total}`], ['Best so far', `${best} of ${this.total}`]];
+    const rows: [string, string][] = [['Games cleared', `${this.score} of ${this.counted}`], ['Best so far', `${best} of ${this.counted}`]];
+    for (const title of this.unscored) rows.push([title.charAt(0) + title.slice(1).toLowerCase(), 'lost, as always']);
     rows.forEach(([k, v], i) => {
       const y = py - 18 + i * 40;
       written(this, px - 190, y, k, 22).setOrigin(0, 0.5).setDepth(d);

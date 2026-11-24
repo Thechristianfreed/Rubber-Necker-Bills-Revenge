@@ -243,6 +243,50 @@ A 1990s wood-cabinet television set with a video recorder sitting underneath it,
 An empty 1990s family den photographed straight on at standing height: a wood-panelled wall and wall-to-wall beige shag carpet, the line where the wall meets the carpet exactly three quarters of the way down the picture. Nobody in it and no furniture. Warm evening lamp light. No text. Wide 16:9 image.
 ```
 
+## Home Movies: After school (the fight)
+
+Everything in this game is a paper stand-in so far (`src/art/fight.ts`).
+Stephanie's head is already hers, the four faces made for the workout; the
+people in these pictures lose their heads to it, so hers do not matter. The
+other girl is described here as she was, from the two pictures the family
+sent of what she looked like; she keeps her own head.
+
+### AS1. Stephanie, in her cheer outfit (two sheets)
+
+The uniform is red and white here: change it to the school's real colours.
+
+```text
+Four full-length photographs of the same teenage cheerleader side by side with wide clear gaps between them, on one plain flat light-grey studio background. A late-1970s high school cheer uniform: red sleeveless top with white trim, short red pleated skirt with a white stripe, white ankle socks and white trainers, a red-and-white pom-pom in each hand, hair tied up in a tight bun so her neck and shoulders are clear. Her body is turned towards the right of the picture in all four. First: a fighting stance, feet apart, both pom-poms held up like fists. Second: both arms thrust straight out in front of her, pom-poms shaking. Third: a high kick, one leg kicked up above her waist towards the right, both arms up. Fourth: lunging forward, punching with one pom-pom. Her whole body is in frame from head to feet in every one. Soft even light, no shadows on the background. No text, no borders. Wide 16:9 image.
+```
+
+Then, with that sheet attached:
+
+```text
+The same cheerleader in the same uniform, on the same background in the same light: three more full-length photographs side by side with wide clear gaps between them. First: standing with her knees together and her hands clasped in front of her chest, pleading. Second: in mid-air, flung backwards, arms and legs thrown out wide like a starfish, pom-poms flying. Third: lying flat on her back on the floor, seen from the side, arms and legs sprawled, out cold. Her whole body is in frame in every one. No text, no borders. Wide 16:9 image.
+```
+
+### AS2. The other girl (two sheets)
+
+```text
+Four full-length photographs of the same teenage girl side by side with wide clear gaps between them, on one plain flat light-grey studio background. She is a heavyset Black girl of about seventeen with long dark wavy hair worn down over one shoulder, in a loose brown V-neck top over a brown camisole, dark jeans and trainers, a thin silver chain and heart-shaped earrings. Her body is turned towards the left of the picture in all four, and she is furious with somebody. First: stomping forward mid-stride, fists clenched. Second: standing with one hand on her hip, pointing straight at somebody with the other. Third: leaning back a little, annoyed, as if something small had just bounced off her. Fourth: feet wide apart, fists clenched at her sides, head thrown back, roaring. Her whole body is in frame from head to feet in every one. Soft even light, no shadows on the background. No text, no borders. Wide 16:9 image.
+```
+
+Then, with that sheet attached, what she turns into:
+
+```text
+The same girl, transformed: now she has the enormous muscles of a champion bodybuilder, her hair is tied up in a puff on top of her head, and she wears a black ribbed tank top, black sweatpants and a black sports watch. Three full-length photographs side by side with wide clear gaps between them, on the same plain flat light-grey background, her body turned towards the left of the picture. First: standing with her hands on her hips, looking down at somebody, quite calm. Second: one arm stretched out in front of her, flicking something away with one finger. Third: arms folded, the faintest smile. Her whole body is in frame from head to feet in every one. No text, no borders. Wide 16:9 image.
+```
+
+### AS3. The gym, and what gets broken in it
+
+```text
+An empty American high school gymnasium of the late 1970s, photographed straight on from the middle of the court: a painted cream cinder-block wall with one blue stripe along it, and a polished wooden floor filling the bottom quarter of the picture. No bleachers, no hoops, no people, nothing against the wall. Flat even light. No text. Wide 16:9 image.
+```
+
+```text
+Three things photographed straight on, side by side with wide clear gaps between them, on one plain flat light-grey background. First: a section of wooden gymnasium bleachers, five rows, pulled out. Second: a folding table with a white paper cloth and a hand-lettered card reading BAKE SALE, covered in cupcakes. Third: a school basketball backboard with its hoop and net. Soft even light, no shadows on the background. Wide 16:9 image.
+```
+
 ## Later
 
 - The other weapons (flyswatter, tennis racquet, nail board, kayak oar): each

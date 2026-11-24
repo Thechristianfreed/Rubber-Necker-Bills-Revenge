@@ -32,6 +32,8 @@ export abstract class Mini {
   abstract readonly seconds: number;
   /** Music of its own (a file in public/music), if it has any. */
   readonly music?: string;
+  /** False for a game that cannot be won: it is played, but left out of the score. */
+  readonly scored: boolean = true;
 
   constructor(protected readonly host: MiniHost) {}
 

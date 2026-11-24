@@ -23,6 +23,8 @@ type Clip = readonly [start: number, length: number];
 const DUCK = 0.4;
 /** How loud a full breath in gets: clearly there, but well under the PAH that follows. */
 const BREATH_IN = 0.52;
+/** How loud the power-up drone is at its height. */
+const POWER_UP = 0.14;
 
 /** Where the music is, relative to the page, and how loud it plays under the effects. */
 const MUSIC_DIR = 'music/';
@@ -80,6 +82,8 @@ class Sound {
   /** When each sound was last made, and which of a group was picked last. */
   private last: Record<string, number> = {};
   private picked: Record<string, number> = {};
+  /** The drone of something powering up, while it lasts. */
+  private power?: { parts: AudioScheduledSourceNode[]; out: GainNode };
   /** The breath being drawn in, if there is one. */
   private breath?: { src: AudioBufferSourceNode; gain: GainNode };
   muted = false;
@@ -435,6 +439,73 @@ class Sound {
       this.noise({ dur: 0.1, vol: 2.2 - i * 0.35, filter: 'lowpass', f0: 2600, f1: 500, at });
       this.tone({ type: 'sawtooth', f0: 190 - i * 20, f1: 110, dur: 0.08, vol: 0.3, at });
     });
+  }
+
+  /** A heavy footstep, coming this way. */
+  stomp(): void {
+    this.tone({ type: 'sine', f0: 110, f1: 40, dur: 0.24, vol: 0.65 });
+    this.noise({ dur: 0.12, vol: 0.55, filter: 'lowpass', f0: 700, f1: 120 });
+  }
+
+  /** Something enormous gathering itself: a drone that climbs and swells for
+   *  `seconds`, and goes on until stopPower(). */
+  powerUp(seconds: number): void {
+    const ctx = this.ctx;
+    if (!ctx) return;
+    this.stopPower();
+    const t = ctx.currentTime;
+    const out = ctx.createGain();
+    out.gain.setValueAtTime(POWER_UP * 0.15, t);
+    out.gain.linearRampToValueAtTime(POWER_UP, t + seconds);
+    out.connect(this.sfx);
+    const parts: AudioScheduledSourceNode[] = [];
+    for (const [type, from, to, vol] of [['sawtooth', 55, 220, 0.5], ['square', 82, 331, 0.25], ['sine', 40, 80, 0.9]] as const) {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = type;
+      o.frequency.setValueAtTime(from, t);
+      o.frequency.exponentialRampToValueAtTime(to, t + seconds);
+      g.gain.value = vol;
+      o.connect(g).connect(out);
+      o.start(t);
+      parts.push(o);
+    }
+    // and a shudder through all of it
+    const wob = ctx.createOscillator(), depth = ctx.createGain();
+    wob.frequency.setValueAtTime(7, t);
+    wob.frequency.linearRampToValueAtTime(19, t + seconds);
+    depth.gain.value = POWER_UP * 0.35;
+    wob.connect(depth).connect(out.gain);
+    wob.start(t);
+    parts.push(wob);
+    const hiss = ctx.createBufferSource(), f = ctx.createBiquadFilter(), hg = ctx.createGain();
+    hiss.buffer = this.noiseBuf;
+    hiss.loop = true;
+    f.type = 'bandpass';
+    f.Q.value = 0.8;
+    f.frequency.setValueAtTime(200, t);
+    f.frequency.exponentialRampToValueAtTime(2400, t + seconds);
+    hg.gain.value = 0.7;
+    hiss.connect(f).connect(hg).connect(out);
+    hiss.start(t);
+    parts.push(hiss);
+    this.power = { parts, out };
+  }
+
+  stopPower(): void {
+    const p = this.power;
+    if (!p || !this.ctx) return;
+    const t = this.ctx.currentTime;
+    p.out.gain.cancelScheduledValues(t);
+    p.out.gain.setTargetAtTime(0.0001, t, 0.03);
+    for (const part of p.parts) part.stop(t + 0.25);
+    this.power = undefined;
+  }
+
+  /** One very large thump. */
+  boom(): void {
+    this.tone({ type: 'sine', f0: 130, f1: 30, dur: 0.6, vol: 0.66 });
+    this.tone({ type: 'square', f0: 70, f1: 35, dur: 0.18, vol: 0.26 });
+    this.noise({ dur: 0.5, vol: 0.7, filter: 'lowpass', f0: 1400, f1: 90 });
   }
 
   /** A light switch: up for on, down for off. */

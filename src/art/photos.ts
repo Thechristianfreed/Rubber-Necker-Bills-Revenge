@@ -6,6 +6,7 @@ import { PAPERS, addPaper } from './paper';
 import { buildPaperUi } from './ui';
 import { HALL, buildHallArt } from './hallway';
 import { BILL_HEAD, TV, buildMiniArt } from './minis';
+import { buildFightArt } from './fight';
 import { buildSleepoverArt } from './sleepover';
 import { buildStreetArt } from './street';
 import { WORKOUT_BODIES } from '../data/workout';
@@ -281,6 +282,7 @@ export async function loadPhotoArt(scene: Phaser.Scene): Promise<void> {
   buildHallArt(scene);
   buildSleepoverArt(scene);
   buildMiniArt(scene);
+  buildFightArt(scene);
 
   for (const p of PIECES) {
     const im = loaded.get(p.file);
