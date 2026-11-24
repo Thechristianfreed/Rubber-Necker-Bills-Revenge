@@ -346,7 +346,7 @@ The same small boy in the same clothes, on the same plain light-grey background 
 ### PB2. Shane's body (two sheets)
 
 ```text
-Three full-length photographs of the same small boy, about six years old, side by side with wide clear gaps between them, on one plain flat light-grey studio background. He wears a red T-shirt, blue jeans and white trainers, in the style of about 1990, and has short hair. First: turned towards the left of the picture, leaning forward with both arms stretched straight out in front of him, palms forward, giving somebody a shove. Second: facing the camera with his hands on his hips, chest out, pleased with himself. Third: standing facing the camera with both hands clutching the top of his head, elbows out, howling. His whole body is in frame from head to feet in every one. Soft even light, no shadows on the background. No text, no borders. Wide 16:9 image.
+Three full-length photographs of the same small boy, about five years old, side by side with wide clear gaps between them, on one plain flat light-grey studio background. He wears a red T-shirt, blue jeans and white trainers, in the style of about 1990, and has short hair. First: turned towards the left of the picture, leaning forward with both arms stretched straight out in front of him, palms forward, giving somebody a shove. Second: facing the camera with his hands on his hips, chest out, pleased with himself. Third: standing facing the camera with both hands clutching the top of his head, elbows out, howling. His whole body is in frame from head to feet in every one. Soft even light, no shadows on the background. No text, no borders. Wide 16:9 image.
 ```
 
 ```text
