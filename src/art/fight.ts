@@ -108,11 +108,12 @@ export const HULK: Record<string, Doll> = {
 };
 
 /** How a doll is dressed and built. */
-interface Look {
+export interface Look {
   skin: Paper;
   top: Paper;
-  /** Legs that are trousers rather than bare, a skirt, and pom-poms in the hands. */
+  /** Legs that are trousers rather than bare (or shorts, to the knee), a skirt, and pom-poms in the hands. */
   legs?: Paper;
+  shorts?: Paper;
   skirt?: Paper;
   poms?: boolean;
   /** How thick the arms and legs are. */
@@ -140,11 +141,12 @@ function rect(c: Ctx, x: number, y: number, w: number, h: number, sheet: Paper):
 }
 
 /** Draw a doll: legs, then the body, then the arms over it. */
-function doll(c: Ctx, p: Doll, look: Look): void {
+export function doll(c: Ctx, p: Doll, look: Look): void {
   const limb = (pts: V[], sheet: Paper, w: number) => glued(c, () => strokePaper(c, pts.flat(), sheet, w));
   for (const side of [1, 0]) {
     limb([p.hips[side], p.knees[side], p.feet[side]], look.legs ?? look.skin, look.leg);
     if (!look.legs) limb([mid(p.knees[side], p.feet[side], 0.7), p.feet[side]], 'white', look.leg + 3);
+    if (look.shorts) limb([p.hips[side], mid(p.hips[side], p.knees[side], 0.7)], look.shorts, look.leg + 4);
     glued(c, () => { ellipse(c, p.feet[side][0], p.feet[side][1] - 2, look.leg * 0.85, look.leg * 0.5); fillPaper(c, 'white'); });
   }
   const [sl, sr] = p.shoulders, [hl, hr] = p.hips;

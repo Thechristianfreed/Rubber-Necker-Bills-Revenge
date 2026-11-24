@@ -7,6 +7,8 @@ import { buildPaperUi } from './ui';
 import { HALL, buildHallArt } from './hallway';
 import { BILL_HEAD, TV, buildMiniArt } from './minis';
 import { buildFightArt } from './fight';
+import { KID_FACE, KID_LOOKS, buildBatArt } from './bat';
+import { BAT_FACES } from '../data/bat';
 import { buildSleepoverArt } from './sleepover';
 import { buildStreetArt } from './street';
 import { FIGHT_BODIES } from '../data/fight';
@@ -182,6 +184,11 @@ const PIECES: Piece[] = [
   ...Object.entries(FIGHT_BODIES).flatMap(([who, poses]) => Object.entries(poses).map(([pose, body]): Piece => (
     { key: `${who}_${pose}`, file: body.file, scale: body.scale, border: 2, anchor: body.spot }
   ))),
+  // the day Chad had had enough: the brothers' own faces, for each look there is a photo to do
+  ...Object.entries(KID_LOOKS).flatMap(([who, { looks }]) => Object.entries(looks).flatMap(([look, { photo }]): Piece[] => {
+    const face = BAT_FACES[who]?.[photo];
+    return face ? [{ key: `${who}head_${look}`, file: face.file, h: KID_FACE * face.tall, border: 2, anchor: face.chin }] : [];
+  })),
   // ...and what gets broken in the gym
   { key: 'bleachers', file: 'gym-bleachers.png', w: 380, border: 2.2, anchor: [0.5, 0.975] },
   { key: 'bake_table', file: 'gym-table.png', w: 250, border: 2.2, anchor: [0.5, 0.975] },
@@ -292,6 +299,7 @@ export async function loadPhotoArt(scene: Phaser.Scene): Promise<void> {
   buildSleepoverArt(scene);
   buildMiniArt(scene);
   buildFightArt(scene);
+  buildBatArt(scene);
 
   for (const p of PIECES) {
     const im = loaded.get(p.file);

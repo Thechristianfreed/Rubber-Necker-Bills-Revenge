@@ -646,6 +646,72 @@ def fight():
     print("gym.jpg", gym.shape[1], "x", gym.shape[0], os.path.getsize(path), "bytes")
 
 
+# The day Chad had had enough. Whose faces there are photos of, and what each photo is
+# of: the photo's number (art-src/photos/<who>-<number>.jpg) and the look on his face.
+BAT_FACES = [("chad", [("1", "scowl"), ("2", "smile"), ("3", "grin"), ("4", "laugh")]),
+             ("shane", [("1", "grin"), ("2", "scared"), ("3", "cry"), ("4", "smile")])]
+
+
+def bat_faces():
+    """The brothers' heads, for the bodies of two five-year-olds: each is one of
+    the family's photos of him, as he is now, cut to hair, face and ears by
+    Adobe's body-part selection (art-src/adobe/PB-<who>-<number>-headmask.png)
+    laid over its cutout of him (...-cutout.png).
+    Each is saved with his head HEAD pixels tall from the top of his hair to
+    his chin. Writes src/data/bat.ts: for every face its file, how tall its
+    picture is in heads, and where the chin is in it. A photo with no selection
+    yet is left out, and the game keeps its paper face for that look."""
+    HEAD = 230
+    made = {}
+    for who, shots in BAT_FACES:
+        for number, look in shots:
+            mask = f"PB-{who}-{number}-headmask.png"
+            photo = os.path.join(ROOT, "art-src", "photos", f"{who}-{number}.jpg")
+            if not (os.path.exists(os.path.join(SRC, mask)) and os.path.exists(photo)):
+                continue
+            # Adobe's cutout of him where there is one (it knows his hair from a dark doorway
+            # behind it better than the selection of his hair does), and of that only the
+            # one piece that is his head: not a lamp the same colour somewhere behind him
+            cutout = f"PB-{who}-{number}-cutout.png"
+            if os.path.exists(os.path.join(SRC, cutout)):
+                rgba = load(cutout)
+            else:
+                rgb = np.asarray(Image.open(photo).convert("RGB"), dtype=np.float32) / 255.0
+                rgba = np.dstack([rgb, np.ones(rgb.shape[:2], np.float32)])
+            head = head_only(rgba, mask)
+            n, lab, st, _ = cv2.connectedComponentsWithStats((head[..., 3] > 0.5).astype(np.uint8), 8)
+            keep = cv2.dilate((lab == 1 + int(np.argmax(st[1:, cv2.CC_STAT_AREA]))).astype(np.uint8), np.ones((5, 5), np.uint8))
+            head[..., 3] *= keep
+            ys, xs = np.where(head[..., 3] > 0.5)
+            # his chin: the middle of the lowest of him
+            low = ys > ys.max() - (ys.max() - ys.min()) * 0.04
+            chin = (float(xs[low].mean()), float(ys.max()))
+            k = HEAD / (chin[1] - ys.min())
+            ys, xs = np.where(head[..., 3] > 0.08)
+            x0, x1 = max(0, xs.min() - 2), min(head.shape[1], xs.max() + 3)
+            y0, y1 = max(0, ys.min() - 2), min(head.shape[0], ys.max() + 3)
+            piece = head[y0:y1, x0:x1]
+            interpolation = cv2.INTER_AREA if k < 1 else cv2.INTER_CUBIC
+            out = cv2.resize(piece, (round(piece.shape[1] * k), round(piece.shape[0] * k)), interpolation=interpolation)
+            save(f"{who}face-{look}.png", out)
+            made.setdefault(who, {})[look] = (out.shape[0] / HEAD, (chin[0] - x0) / (x1 - x0), (chin[1] - y0) / (y1 - y0))
+    table = os.path.join(ROOT, "src", "data", "bat.ts")
+    with open(table, "w") as f:
+        f.write("/** The brothers' photo faces for the day Chad had had enough. For each look: the\n"
+                " *  picture, how tall it is in heads (a head being hair to chin), and where the\n"
+                " *  chin is in it (as a fraction of the picture): each is hung from its chin.\n"
+                " *  Written by tools/make_cutouts.py; do not edit by hand. */\n"
+                "export interface BatFace { file: string; tall: number; chin: [number, number] }\n\n"
+                "export const BAT_FACES: Record<string, Record<string, BatFace>> = {\n")
+        for who, looks in made.items():
+            f.write(f"  {who}: {{\n")
+            for look, (tall, cx, cy) in looks.items():
+                f.write(f"    {look}: {{ file: '{who}face-{look}.png', tall: {tall:.3f}, chin: [{cx:.3f}, {cy:.3f}] }},\n")
+            f.write("  },\n")
+        f.write("};\n")
+    print("wrote", table)
+
+
 def mailman():
     """The mailman, cheerful and furious. Prints where his feet are, so both
     photos can stand on the same spot."""
@@ -1083,6 +1149,7 @@ if __name__ == "__main__":
     workout_bodies()
     workout_set()
     fight()
+    bat_faces()
     teen()
     hallway()
     locker_things()

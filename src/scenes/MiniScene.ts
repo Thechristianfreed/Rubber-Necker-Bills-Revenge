@@ -4,6 +4,7 @@ import { cutText, fillPaper, makePaperArt } from '../art/paper';
 import { ART, applyArt, img } from '../art/sticker';
 import { sound } from '../audio/sound';
 import { loadBest, saveBest } from '../data/progress';
+import { BatMini } from '../minis/BatMini';
 import { BopMini } from '../minis/BopMini';
 import { FightMini } from '../minis/FightMini';
 import { Mini, MiniHost } from '../minis/Mini';
@@ -19,6 +20,7 @@ const ROSTER: { id: string; make: (host: MiniHost) => Mini }[] = [
   { id: 'workout', make: (h) => new WorkoutMini(h) },
   { id: 'phone', make: (h) => new PhoneMini(h) },
   { id: 'bop', make: (h) => new BopMini(h) },
+  { id: 'bat', make: (h) => new BatMini(h) },
   { id: 'fight', make: (h) => new FightMini(h) },
 ];
 

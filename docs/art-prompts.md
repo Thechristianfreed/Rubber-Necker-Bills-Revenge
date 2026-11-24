@@ -312,6 +312,83 @@ Attach the sheet of her transformed:
 The same woman exactly: the same face, the same hair tied up on top of her head, the same enormous muscles, black ribbed tank top, black sweatpants, grey trainers and black watch, on the same plain flat light-grey background in the same light. Four full-length photographs of her side by side with wide clear gaps between them. In all four she stands square to the camera with her feet apart, scowling, with the hand on the right-hand side of the picture resting on her hip. Only her other arm moves, and its hand is a tight fist, as if gripping the end of something. First: that arm stretched down and out towards the left of the picture, the fist at about the height of her knee and well out from her body, as if she has just brought something down hard on the floor beside her. Second: stretched straight out towards the left of the picture, level with her shoulder. Third: stretched up and out towards the left, halfway between level and straight up. Fourth: stretched straight up above her head. Her whole body is in frame from head to feet in every one, with clear space above the raised fist. No text, no borders. Wide 16:9 image.
 ```
 
+## Home Movies: Payback (Chad and the bat)
+
+In the game with stand-ins cut from paper: the two boys' bodies, Shane's
+head, the back yard and everything in it, the back of the house, their
+mother's body, and the bat. Made: Chad's head, four of them, from the
+family's photos of him as he is now (`art-src/photos/chad-1.jpg` to
+`chad-4.jpg`: scowling, smiling, grinning, laughing), cut out by
+`bat_faces()` in `tools/make_cutouts.py`, which hangs each from its chin.
+Which photo does for which look in the game is the `KID_LOOKS` table in
+`src/art/bat.ts`. Shane's photos go the same way: save them as
+`art-src/photos/shane-1.jpg` and so on, get Adobe's cutout and head
+selection for each, and list them in `BAT_FACES` in the tool.
+
+The bodies are five-year-olds and the heads are grown men: that is the
+joke, as with Bill on his bicycle. The heads come off these pictures.
+
+The year and the clothes here are guesses (about 1990): change them to
+what the boys really wore.
+
+### PB1. Chad's body (two sheets)
+
+```text
+Four full-length photographs of the same small boy, about five years old, side by side with wide clear gaps between them, on one plain flat light-grey studio background. He wears a light blue T-shirt, navy shorts, white socks and white trainers, in the style of about 1990, and has short hair. His body is turned towards the right of the picture in all four. First: standing still, arms at his sides, shoulders slumped. Second: stumbling backwards off balance, arms thrown up, one foot off the ground, as if he has just been pushed. Third: standing with his feet apart, holding a wooden baseball bat upright in both hands in front of him, like a batter waiting. Fourth: standing up straight with both hands behind his back, hiding the bat behind him, the top of it showing above his shoulder. His whole body is in frame from head to feet in every one. Soft even light, no shadows on the background. No text, no borders. Wide 16:9 image.
+```
+
+```text
+The same small boy in the same clothes, on the same plain light-grey background in the same light: four more full-length photographs side by side with wide clear gaps between them, his body turned towards the right of the picture. First: running flat out with a wooden baseball bat raised in both hands over his shoulder, left leg forward. Second: the same, right leg forward. Third: at the end of a swing, the bat stretched out in front of him in both hands at waist height, leaning into it. Fourth: standing with the bat hanging down from one hand, its end on the ground. His whole body and the whole bat are in frame in every one. No text, no borders. Wide 16:9 image.
+```
+
+### PB2. Shane's body (two sheets)
+
+```text
+Three full-length photographs of the same small boy, about six years old, side by side with wide clear gaps between them, on one plain flat light-grey studio background. He wears a red T-shirt, blue jeans and white trainers, in the style of about 1990, and has short hair. First: turned towards the left of the picture, leaning forward with both arms stretched straight out in front of him, palms forward, giving somebody a shove. Second: facing the camera with his hands on his hips, chest out, pleased with himself. Third: standing facing the right of the picture, pointing back over his shoulder with one arm towards the left, his other hand rubbing the seat of his jeans. His whole body is in frame from head to feet in every one. Soft even light, no shadows on the background. No text, no borders. Wide 16:9 image.
+```
+
+```text
+The same small boy in the same clothes, on the same plain light-grey background in the same light: three more full-length photographs side by side with wide clear gaps between them, his body turned towards the right of the picture. First: running away flat out, arms pumping, left leg forward, looking back over his shoulder. Second: the same, right leg forward. Third: jumping straight up in the air with both hands clapped to the seat of his jeans, knees tucked, as if he has sat on something hot. His whole body is in frame in every one. No text, no borders. Wide 16:9 image.
+```
+
+### PB3. The back yard
+
+It goes by sideways, so it is put beside its own mirror image as the gym
+is: nothing in it should be off to one side.
+
+```text
+A photograph of an empty suburban back yard on a sunny summer afternoon about 1990, looking straight at the back fence, which is a white picket fence running level across the whole width of the picture, exactly face-on with no perspective slant. Mown grass fills the bottom third of the picture; blue sky with a few small clouds fills the top half. Nothing else in the yard and nobody in it. No text. Very wide 21:9 image.
+```
+
+### PB4. What is in the yard, and the bat
+
+```text
+Five things photographed straight on, side by side with wide clear gaps between them, on one plain flat light-grey background. First: a child's red metal swing set with one swing. Second: a small round blue plastic paddling pool with a yellow rubber duck in it. Third: a clothesline on two poles with a few shirts and a towel pegged to it. Fourth: a round garden bush with red berries. Fifth: a wooden baseball bat lying level. Soft even light, no shadows on the background. Wide 16:9 image.
+```
+
+### PB5. The back door, and their mother
+
+```text
+Two things side by side with a wide clear gap between them, on one plain flat light-grey background. First: the back wall of a suburban house about 1990, photographed exactly face-on: cream siding, one window, and a back door standing wide open on a dark doorway, with one concrete step below it. Second: a full-length photograph of a mother of about thirty in the clothes of about 1990, a yellow blouse and high-waisted blue jeans, standing square to the camera with her hands on her hips, hair tied back so that her neck and shoulders are clear. Her whole body is in frame from head to feet. Soft even light, no shadows on the background. No text. Wide 16:9 image.
+```
+
+### More looks for the faces
+
+The game asks for looks there is no photo of yet. Each is an edit of one
+photo of him, one look at a time, as Stephanie's and Bill's were. For Chad,
+use the grinning photo (`chad-3`):
+
+```text
+Edit this photo. Keep the man, his hair, his stubble, the lighting, the framing and the background exactly the same. Change only his expression: he is furious and yelling a battle cry, mouth wide open, eyebrows drawn hard down.
+```
+
+```text
+Edit this photo. Keep the man, his hair, his stubble, the lighting, the framing and the background exactly the same. Change only his expression: he is hurt and about to cry, bottom lip stuck out, eyebrows up in the middle.
+```
+
+For Shane, from a front-on photo of him: grinning nastily; wide-eyed with
+fright, mouth a small O; and bawling, eyes screwed shut and mouth wide open.
+
 ## Later
 
 - The other weapons (flyswatter, tennis racquet, nail board, kayak oar): each
