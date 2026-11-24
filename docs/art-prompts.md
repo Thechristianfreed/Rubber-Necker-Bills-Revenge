@@ -314,33 +314,29 @@ The same woman exactly: the same face, the same hair tied up on top of her head,
 
 ## Home Movies: Payback (Chad and the bat)
 
-Made and in the game:
+All made and in the game; nothing in it is cut from paper any more.
 
 - **The brothers' heads**, from the family's photos of them as they are now.
   Chad has five (`art-src/photos/chad-1.jpg` to `chad-5.jpg`: scowling,
   smiling, grinning, laughing, and yelling, which is an edit of the grin)
-  and Shane four (`shane-1.jpg` to `shane-4.jpg`: beaming, wary and looking
-  off to one side, smirking, and frightened, which is cropped to leave out
-  somebody beside him). They are cut out by `bat_faces()` in
-  `tools/make_cutouts.py`, which hangs each from its chin; a new photo needs
-  Adobe's cutout and head selection, and a line in `BAT_FACES` in the tool.
-  Which photo does for which look in the game is the `KID_LOOKS` table in
-  `src/art/bat.ts`. There is no photo of Shane crying yet, so the frightened
-  one stands in for it: see "More looks for the faces" below.
+  and Shane five (`shane-1.jpg` to `shane-5.jpg`: beaming; wary and looking
+  off to one side; smirking; frightened, which is cropped to leave out
+  somebody beside him; and bawling, which is an edit of the first). They
+  are cut out by `bat_faces()` in `tools/make_cutouts.py`, which hangs each
+  from its chin; a new photo needs Adobe's cutout and head selection, and a
+  line in `BAT_FACES` in the tool. Which photo does for which look in the
+  game is the `KID_LOOKS` table in `src/art/bat.ts`.
 - **Their bodies** (PB1 and PB2), cut out by `bat_bodies()`: each sheet
   needs Adobe's cutout, its selection of the heads (`-headmask.png`) and,
   for Chad, of the bats (`-batmask.png`). The poses on each sheet, in order,
-  are in `BAT_SHEETS` in the tool.
-- **The back yard** (PB3), made into two strips by `bat_yard()`.
-
-Still cut from paper: the swing set, pool, clothesline, bush and tree (PB4),
-and the back of the house and their mother's body (PB5).
-
-Two things about the first body sheets, both put right by PB1c and PB2c
-when those are in. The two running photos of each boy came out as the same
-stride, so the run is a bob and not a step. And in Chad's swing the bat ran
-off the edge of its panel: `lengthen_bat()` finishes it with the end of the
-bat from another pose (`BAT_CUT_SHORT` in the tool says which).
+  are in `BAT_SHEETS` in the tool. The running and the swing are from the
+  second go at them (PB1c and PB2c): on the first sheets both runs were the
+  same stride, and the bat ran off the edge of its panel in the swing.
+- **The back yard** (PB3), made into two strips by `bat_yard()`; the five
+  things in it (PB4), by `bat_things()`.
+- **The back of the house and their mother's body** (PB5), by `bat_door()`.
+  Adobe's cutout of that sheet is only of her, so the house is taken as
+  whatever is not the white page it stands on.
 
 The bodies are five-year-olds and the heads are grown men: that is the
 joke, as with Bill on his bicycle. The heads come off these pictures.
@@ -414,15 +410,15 @@ Two things side by side with a wide clear gap between them, on one plain flat li
 
 A look there is no photo of is an edit of one photo of him, one look at a
 time, as Stephanie's and Bill's were. Made this way: Chad yelling (from the
-grinning photo, `chad-3`). Shane frightened turned out to be a real photo.
-Still to come, for Shane, from the beaming photo (`shane-1`):
+grinning photo, `chad-3`) and Shane bawling (from the beaming one,
+`shane-1`):
 
 ```text
 Edit this photo. Keep the man, his hair, his beard, the lighting, the framing and the background exactly the same. Change only his expression: he is bawling like a small child, eyes screwed shut, mouth wide open and turned down, tears running down his cheeks.
 ```
 
-And one for Chad that the game does not use yet (he could pull it while he
-is being shoved), from the grinning photo:
+One for Chad that the game does not use yet (he could pull it while he is
+being shoved), from the grinning photo:
 
 ```text
 Edit this photo. Keep the man, his hair, his stubble, the lighting, the framing and the background exactly the same. Change only his expression: he is hurt and about to cry, bottom lip stuck out, eyebrows up in the middle.

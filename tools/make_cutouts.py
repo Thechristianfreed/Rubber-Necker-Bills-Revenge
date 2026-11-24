@@ -654,7 +654,7 @@ def fight():
 # and how much longer than usual his face is where his mouth is wide open (so that his
 # head comes out as wide as it does in his other photos, and not squeezed to their height).
 BAT_FACES = [("chad", [("1", "scowl", 0, 0.045, 1), ("2", "smile", 0, 0, 1), ("3", "grin", 0, 0, 1), ("4", "laugh", 0, 0, 1), ("5", "yell", 0, 0, 1.13)]),
-             ("shane", [("1", "beam", 0, 0, 1), ("2", "wary", 0, 0, 1), ("3", "smirk", -17, 0, 1), ("4", "scared", -8, 0, 1)])]
+             ("shane", [("1", "beam", 0, 0, 1), ("2", "wary", 0, 0, 1), ("3", "smirk", -17, 0, 1), ("4", "scared", -8, 0, 1), ("5", "cry", 0, 0, 1)])]
 
 
 def bat_faces():
@@ -744,12 +744,16 @@ def bat_faces():
 
 # The brothers' bodies, by sheet: whose it is, the poses on it from left to right with how
 # far his head tips in each (radians, clockwise), and which pose on it has him standing up
-# straight, if any does: that one says how big the sheet is to be drawn.
+# straight, if any does: that one says how big the sheet is to be drawn. (None is a figure
+# that is not used: the running and the swing were made again, because both runs on the
+# first sheets were the same stride and the swing's bat ran off the edge of its panel.)
 BAT_SHEETS = [
     ("chad", "PB1a-chad-standing", [("stand", 0.0), ("shoved", -0.2), ("mad", 0.0), ("hide", 0.1)], "stand"),
-    ("chad", "PB1b-chad-bat", [("run1", 0.12), ("run2", 0.12), ("swing", 0.18), ("down", 0.0)], "down"),
+    ("chad", "PB1b-chad-bat", [None, None, None, ("down", 0.0)], "down"),
+    ("chad", "PB1c-chad-running", [("run1", 0.12), ("run2", 0.08), ("swing", 0.15)], None),
     ("shane", "PB2a-shane-standing", [("push", 0.15), ("laugh", 0.0), ("bawl", -0.06)], "laugh"),
-    ("shane", "PB2b-shane-running", [("run1", 0.12), ("run2", 0.12), ("ow", 0.12)], None),
+    ("shane", "PB2b-shane-running", [None, None, ("ow", 0.12)], None),
+    ("shane", "PB2c-shane-running", [("run1", 0.12), ("run2", 0.08)], None),
 ]
 # How far off the ground a boy's chin is when he stands up straight, in game pixels; and how
 # many of the picture's pixels are kept for each of the game's.
@@ -757,61 +761,61 @@ KID_CHIN = 110
 KID_DETAIL = 3
 # Poses in which he has the bat up in front of his face: his body goes over his head, not under it.
 BAT_IN_FRONT = {"mad", "run1", "run2", "swing"}
-# A sheet on which the bat ran off the edge of its panel in one pose, and the pose on the same
-# sheet whose bat is whole, to finish it from.
-BAT_CUT_SHORT = {"PB1b-chad-bat": ("swing", "run1")}
+# Their mother, in the back doorway: how far off the ground her chin is (in the units of the
+# piece of the game she is drawn in), and how tall the doorway she stands in is on the screen.
+MOM_CHIN = 178
+DOORWAY = 290
 
 
-def bat_axis(mask):
-    """The biggest piece of a selection, as a line: its middle, the way it runs, and its pixels."""
-    n, lab, st, _ = cv2.connectedComponentsWithStats(mask.astype(np.uint8), 8)
-    piece = lab == 1 + int(np.argmax(st[1:, cv2.CC_STAT_AREA]))
-    ys, xs = np.where(piece)
-    pts = np.stack([xs, ys], axis=1).astype(np.float64)
-    mid = pts.mean(axis=0)
-    way = np.linalg.eigh(np.cov((pts - mid).T))[1][:, -1]
-    return piece, mid, way, pts
+def headless(sheet):
+    """A sheet of people with their heads taken off: the cutout, what is left of it, its
+    selection of heads, and each head and each body from left to right."""
+    cut = load(f"{sheet}-cutout.png")
+    head = (selection(f"{sheet}-headmask.png") > 0.5).astype(np.uint8)
+    # (the whole of each head goes, with whatever the selection left inside it: an open mouth, say)
+    outlines, _ = cv2.findContours(head, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    whole = np.zeros(head.shape, np.uint8)
+    cv2.drawContours(whole, outlines, -1, 1, thickness=cv2.FILLED)
+    grown = cv2.GaussianBlur(cv2.dilate(whole, np.ones((9, 9), np.uint8)).astype(np.float32), (0, 0), 1.0)
+    body = cut.copy()
+    body[..., 3] *= 1 - np.clip(grown * 1.5, 0, 1)
+    # ...and so do the crumbs that taking a head off leaves round where it was
+    n, lab, bs, _ = cv2.connectedComponentsWithStats((body[..., 3] > 0.3).astype(np.uint8), 8)
+    big = max(bs[i][4] for i in range(1, n))
+    crumbs = np.isin(lab, [i for i in range(1, n) if bs[i][4] < big * 0.02])
+    rest = cv2.dilate(((lab > 0) & ~crumbs).astype(np.uint8), np.ones((3, 3), np.uint8)) > 0
+    body[cv2.dilate(crumbs.astype(np.uint8), np.ones((9, 9), np.uint8)).astype(bool) & ~rest, 3] = 0
+    n, hl, hs, hc = cv2.connectedComponentsWithStats(head, 8)
+    big = max(hs[i][4] for i in range(1, n))
+    heads = sorted((i for i in range(1, n) if hs[i][4] > big * 0.4), key=lambda i: hs[i][0])
+    n, lab, bs, bc = cv2.connectedComponentsWithStats((body[..., 3] > 0.3).astype(np.uint8), 8)
+    big = max(bs[i][4] for i in range(1, n))
+    bodies = sorted((i for i in range(1, n) if bs[i][4] > big * 0.3), key=lambda i: bs[i][0])
+    return cut, body, (hl, hs), (bs, bc), heads, bodies
 
 
-def lengthen_bat(piece, cut, short, whole):
-    """Finish a bat that ran off the edge of the picture, with the far end of another one.
-    `short` and `whole` are the selections of the two bats. Both come out of a pair of
-    fists, so they are lined up there: the whole one is turned to lie along the short one
-    and laid under it from just before where it stops. Returns the picture, and where the
-    end of the bat now is."""
-    _, mid_s, way_s, pts_s = bat_axis(short)
-    donor, mid_d, way_d, pts_d = bat_axis(whole)
-    if way_s[0] < 0:
-        way_s = -way_s                  # the short one runs off to the right
-    if way_d[1] > 0:
-        way_d = -way_d                  # the whole one points up
-    along_s = (pts_s - mid_s) @ way_s
-    along_d = (pts_d - mid_d) @ way_d
-    fist_s, stops = mid_s + along_s.min() * way_s, along_s.max()
-    fist_d, length = mid_d + along_d.min() * way_d, along_d.max() - along_d.min()
+def stood(piece, hl, h, middle, bats=None):
+    """Where somebody whose head has been taken off stands, and where their chin was: the
+    point of their head nearest the middle of the rest of them, and the spot on the ground
+    under the middle of their trunk. Returns the piece cut down to them, that spot as a
+    fraction of it, the chin from the spot (in the picture's pixels), and how far it is from
+    their chin to the ground."""
+    hy, hx = np.where(hl == h)
+    j = int(np.argmin((hx - middle[0]) ** 2 + (hy - middle[1]) ** 2))
+    chin = (float(hx[j]), float(hy[j]))
+    ys, xs = np.where(piece[..., 3] > 0.3)
+    feet = float(ys.max())
+    trunk = (ys > chin[1] + 0.25 * (feet - chin[1])) & (ys < chin[1] + 0.55 * (feet - chin[1]))
+    if bats is not None:
+        trunk &= ~bats[ys, xs]
+    spot = (float(np.median(xs[trunk])), feet)
+    x0, x1 = max(0, xs.min() - 3), min(piece.shape[1], xs.max() + 4)
+    y0, y1 = max(0, ys.min() - 3), min(piece.shape[0], ys.max() + 4)
+    return piece[y0:y1, x0:x1], ((spot[0] - x0) / (x1 - x0), (spot[1] - y0) / (y1 - y0)), (chin[0] - spot[0], chin[1] - spot[1]), feet - chin[1]
 
-    def thick(pts, mid, way, along, at):
-        near = np.abs(along - at) < 5
-        across = (pts[near] - mid) @ np.array([-way[1], way[0]])
-        return np.percentile(across, 97) - np.percentile(across, 3)
-    reach = (stops - along_s.min()) * 0.7
-    size = float(np.clip(thick(pts_s, mid_s, way_s, along_s, along_s.min() + reach) / thick(pts_d, mid_d, way_d, along_d, along_d.min() + reach), 0.8, 1.25))
-    turn = np.arctan2(way_s[1], way_s[0]) - np.arctan2(way_d[1], way_d[0])
-    spin = size * np.array([[np.cos(turn), -np.sin(turn)], [np.sin(turn), np.cos(turn)]])
-    move = np.hstack([spin, (fist_s - spin @ fist_d).reshape(2, 1)])
-    soft = cv2.GaussianBlur(cv2.dilate(donor.astype(np.uint8), np.ones((3, 3), np.uint8)).astype(np.float32), (0, 0), 0.8)
-    rest = cut.copy()
-    rest[..., 3] *= np.clip(soft * 1.4, 0, 1)
-    rest = cv2.warpAffine(rest, move, (cut.shape[1], cut.shape[0]), flags=cv2.INTER_LINEAR)
-    yy, xx = np.mgrid[0:cut.shape[0], 0:cut.shape[1]]
-    far = (xx - mid_s[0]) * way_s[0] + (yy - mid_s[1]) * way_s[1]
-    rest[..., 3] *= np.clip((far - (stops - 16)) / 10, 0, 1)
-    out = piece.copy()
-    under = rest[..., 3] * (1 - piece[..., 3])
-    alpha = piece[..., 3] + under
-    out[..., :3] = (piece[..., :3] * piece[..., 3:4] + rest[..., :3] * under[..., None]) / np.maximum(alpha, 1e-6)[..., None]
-    out[..., 3] = alpha
-    return out, fist_s + size * length * way_s
+
+def smaller(piece, k):
+    return cv2.resize(piece, (max(1, round(piece.shape[1] * k)), max(1, round(piece.shape[0] * k))), interpolation=cv2.INTER_AREA)
 
 
 def bat_bodies():
@@ -820,71 +824,28 @@ def bat_bodies():
     grew into hangs from the chin he leaves. Writes src/data/batbodies.ts: for every pose
     its file, its size, the spot on the ground it stands on (the middle of his trunk, at the
     bottom of his feet), and where his chin is from there. Also the back yard they run
-    round (see bat_yard)."""
+    round (bat_yard), and the back door and their mother in it (bat_door)."""
     made, sizes, known = {}, {}, {}
     for who, sheet, poses, straight in BAT_SHEETS:
         if not os.path.exists(os.path.join(SRC, f"{sheet}-cutout.png")):
             continue                    # not made yet
-        cut = load(f"{sheet}-cutout.png")
-        head = (selection(f"{sheet}-headmask.png") > 0.5).astype(np.uint8)
-        # (the whole of each head goes, with whatever the selection left inside it: an open mouth, say)
-        outlines, _ = cv2.findContours(head, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-        whole = np.zeros(head.shape, np.uint8)
-        cv2.drawContours(whole, outlines, -1, 1, thickness=cv2.FILLED)
-        grown = cv2.GaussianBlur(cv2.dilate(whole, np.ones((9, 9), np.uint8)).astype(np.float32), (0, 0), 1.0)
-        body = cut.copy()
-        body[..., 3] *= 1 - np.clip(grown * 1.5, 0, 1)
+        cut, body, (hl, hs), (bs, bc), heads, bodies = headless(sheet)
+        assert len(heads) == len(bodies) == len(poses), f"{sheet}: {len(heads)} heads, {len(bodies)} bodies"
         bats = None
         if os.path.exists(os.path.join(SRC, f"{sheet}-batmask.png")):
             bats = (selection(f"{sheet}-batmask.png") > 0.5) & (cut[..., 3] > 0.3)
-        # ...and so do the crumbs that taking a head off leaves round where it was
-        n, lab, bs, _ = cv2.connectedComponentsWithStats((body[..., 3] > 0.3).astype(np.uint8), 8)
-        big = max(bs[i][4] for i in range(1, n))
-        crumbs = np.isin(lab, [i for i in range(1, n) if bs[i][4] < big * 0.02])
-        rest = cv2.dilate(((lab > 0) & ~crumbs).astype(np.uint8), np.ones((3, 3), np.uint8)) > 0
-        body[cv2.dilate(crumbs.astype(np.uint8), np.ones((9, 9), np.uint8)).astype(bool) & ~rest, 3] = 0
-        n, hl, hs, hc = cv2.connectedComponentsWithStats(head, 8)
-        big = max(hs[i][4] for i in range(1, n))
-        heads = sorted((i for i in range(1, n) if hs[i][4] > big * 0.4), key=lambda i: hs[i][0])
-        n, lab, bs, bc = cv2.connectedComponentsWithStats((body[..., 3] > 0.3).astype(np.uint8), 8)
-        big = max(bs[i][4] for i in range(1, n))
-        bodies = sorted((i for i in range(1, n) if bs[i][4] > big * 0.3), key=lambda i: bs[i][0])
-        assert len(heads) == len(bodies) == len(poses), f"{sheet}: {len(heads)} heads, {len(bodies)} bodies"
         # everything between one boy and the next belongs to whichever is nearer
         edges = [0] + [int(bs[a][0] + bs[a][2] + bs[b][0]) // 2 for a, b in zip(bodies, bodies[1:])] + [cut.shape[1]]
         sizes[sheet] = float(np.median([np.sqrt(hs[i][4]) for i in heads]))
-        names = [name for name, _ in poses]
         found = {}
-        for k, ((pose, tilt), h, b) in enumerate(zip(poses, heads, bodies)):
+        for k, (pose, h, b) in enumerate(zip(poses, heads, bodies)):
+            if pose is None:
+                continue
             piece = body.copy()
             piece[:, :edges[k]] = 0
             piece[:, edges[k + 1]:] = 0
-            entry = dict(who=who, sheet=sheet, tilt=tilt)
-            if BAT_CUT_SHORT.get(sheet, ("",))[0] == pose:
-                mine, other = bats.copy(), bats.copy()
-                mine[:, :edges[k]] = False
-                mine[:, edges[k + 1]:] = False
-                j = names.index(BAT_CUT_SHORT[sheet][1])
-                other[:, :edges[j]] = False
-                other[:, edges[j + 1]:] = False
-                piece, entry["tip"] = lengthen_bat(piece, cut, mine, other)
-            # his chin: the point of his head nearest the middle of the rest of him
-            hy, hx = np.where(hl == h)
-            j = int(np.argmin((hx - bc[b][0]) ** 2 + (hy - bc[b][1]) ** 2))
-            chin = (float(hx[j]), float(hy[j]))
-            ys, xs = np.where(piece[..., 3] > 0.3)
-            feet = float(ys.max())
-            trunk = (ys > chin[1] + 0.25 * (feet - chin[1])) & (ys < chin[1] + 0.55 * (feet - chin[1]))
-            if bats is not None:
-                trunk &= ~bats[ys, xs]
-            spot = (float(np.median(xs[trunk])), feet)
-            x0, x1 = max(0, xs.min() - 3), min(piece.shape[1], xs.max() + 4)
-            y0, y1 = max(0, ys.min() - 3), min(piece.shape[0], ys.max() + 4)
-            entry.update(piece=piece[y0:y1, x0:x1], at=((spot[0] - x0) / (x1 - x0), (spot[1] - y0) / (y1 - y0)),
-                         chin=(chin[0] - spot[0], chin[1] - spot[1]), tall=feet - chin[1])
-            if "tip" in entry:
-                entry["tip"] = (entry["tip"][0] - spot[0], entry["tip"][1] - spot[1])
-            found[pose] = entry
+            piece, at, chin, tall = stood(piece, hl, h, bc[b], bats)
+            found[pose[0]] = dict(piece=piece, at=at, chin=chin, tall=tall, tilt=pose[1])
         # How big the sheet is drawn: by the boy on it who is standing up straight or, if nobody
         # is, by how big its heads are beside those of a sheet of the same boy that has been sized
         if straight:
@@ -893,14 +854,11 @@ def bat_bodies():
         else:
             scale = known[who][0] * known[who][1] / sizes[sheet]
         for pose, entry in found.items():
-            small = entry.pop("piece")
-            k = scale * KID_DETAIL
-            small = cv2.resize(small, (max(1, round(small.shape[1] * k)), max(1, round(small.shape[0] * k))), interpolation=cv2.INTER_AREA)
-            save(f"{who}-{pose}.png", small)
+            save(f"{who}-{pose}.png", smaller(entry.pop("piece"), scale * KID_DETAIL))
             entry["scale"] = scale
             made.setdefault(who, {})[pose] = entry
 
-    yard = bat_yard()
+    yard, door = bat_yard(), bat_door()
     table = os.path.join(ROOT, "src", "data", "batbodies.ts")
     with open(table, "w") as f:
         f.write("/** The brothers' photo bodies for the day Chad had had enough. For each pose: the\n"
@@ -908,24 +866,86 @@ def bat_bodies():
                 " *  the ground it stands on (as a fraction of the picture), where his chin goes from\n"
                 " *  that spot (in game pixels) and how far his head tips. `over` is a pose in which he\n"
                 " *  has the bat up in front of his face, so that his body is laid over his head and\n"
-                " *  not under it; `tip` is the far end of the bat where he has swung it.\n"
-                " *  And the back yard: how tall its two strips are, and where each one starts.\n"
+                " *  not under it.\n"
+                " *  The back yard: how tall its two strips are, and where each one starts.\n"
+                " *  The back door: the house (pinned at the middle of its doorstep, with how far\n"
+                " *  below that the ground is), and their mother's body, which stands there.\n"
                 " *  Written by tools/make_cutouts.py; do not edit by hand. */\n"
-                "export interface BatBody { file: string; scale: number; spot: [number, number]; chin: [number, number]; tilt: number; over?: boolean; tip?: [number, number] }\n\n"
+                "export interface BatBody { file: string; scale: number; spot: [number, number]; chin: [number, number]; tilt: number; over?: boolean }\n\n"
                 "export const BAT_BODIES: Record<string, Record<string, BatBody>> = {\n")
         for who, poses in made.items():
             f.write(f"  {who}: {{\n")
             for pose, e in poses.items():
                 k = e["scale"]
                 more = ", over: true" if who == "chad" and pose in BAT_IN_FRONT else ""
-                if "tip" in e:
-                    more += f", tip: [{e['tip'][0] * k:.1f}, {e['tip'][1] * k:.1f}]"
                 f.write(f"    {pose}: {{ file: '{who}-{pose}.png', scale: {1 / KID_DETAIL:.4f}, spot: [{e['at'][0]:.3f}, {e['at'][1]:.3f}],"
                         f" chin: [{e['chin'][0] * k:.1f}, {e['chin'][1] * k:.1f}], tilt: {e['tilt']:.2f}{more} }},\n")
             f.write("  },\n")
         f.write("};\n\n")
-        f.write("export const BAT_YARD = " + ("{ " + ", ".join(f"{name}: {value:.1f}" for name, value in yard.items()) + " }" if yard else "null as null | Record<string, number>") + ";\n")
+        f.write("export const BAT_YARD = " + ("{ " + ", ".join(f"{name}: {value:.1f}" for name, value in yard.items()) + " }" if yard else "null as null | Record<string, number>") + ";\n\n")
+        if door:
+            h, m = door["house"], door["mom"]
+            f.write("export const BAT_DOOR = {\n"
+                    f"  house: {{ file: 'yard-house.png', scale: {h['scale']:.4f}, spot: [{h['at'][0]:.3f}, {h['at'][1]:.3f}] as [number, number], drop: {h['drop']:.1f} }},\n"
+                    f"  mom: {{ file: 'batmom-akimbo.png', scale: {m['scale']:.4f}, spot: [{m['at'][0]:.3f}, {m['at'][1]:.3f}] as [number, number], chin: [{m['chin'][0]:.1f}, {m['chin'][1]:.1f}] as [number, number] }},\n"
+                    "};\n")
+        else:
+            f.write("export const BAT_DOOR = null as null | { house: { file: string; scale: number; spot: [number, number]; drop: number }; mom: { file: string; scale: number; spot: [number, number]; chin: [number, number] } };\n")
     print("wrote", table)
+    bat_things()
+
+
+def bat_door():
+    """The back of the house, and their mother's body, from one picture of the two side by
+    side on a white page. The house is whatever is not the page (Adobe does not take a wall
+    for a subject): it is pinned at the middle of the foot of its dark doorway, which is
+    where she stands. She loses her head, as the boys do, for Stephanie's."""
+    sheet = "PB5-house-mom"
+    if not os.path.exists(os.path.join(SRC, f"{sheet}-cutout.png")):
+        return None
+    photo = original(f"{sheet}.webp")
+    half = photo[:, :int(photo.shape[1] * 0.55)]
+    page = np.median(photo[:24, :24].reshape(-1, 3), axis=0)
+    n, lab, st, _ = cv2.connectedComponentsWithStats((np.abs(half - page).max(axis=2) > 0.035).astype(np.uint8), 8)
+    solid = (lab == 1 + int(np.argmax(st[1:, cv2.CC_STAT_AREA]))).astype(np.uint8)
+    outline, _ = cv2.findContours(solid, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    cv2.drawContours(solid, outline, -1, 1, thickness=cv2.FILLED)
+    house = np.dstack([half, cv2.GaussianBlur(solid.astype(np.float32), (0, 0), 0.7)])
+    ys, xs = np.where(solid > 0)
+    x0, x1, y0, y1 = xs.min() - 2, xs.max() + 3, ys.min() - 2, ys.max() + 3
+    n, lab, st, mid = cv2.connectedComponentsWithStats(((half.mean(axis=2) < 0.2) & (solid > 0)).astype(np.uint8), 8)
+    dark = 1 + int(np.argmax(st[1:, cv2.CC_STAT_AREA]))
+    step = st[dark][1] + st[dark][3]                         # the foot of the doorway
+    scale = DOORWAY / st[dark][3]
+    save("yard-house.png", house[y0:y1, x0:x1])
+    out = dict(house=dict(scale=scale, at=((mid[dark][0] - x0) / (x1 - x0), (step - y0) / (y1 - y0)), drop=(ys.max() - step) * scale))
+
+    cut, body, (hl, hs), (bs, bc), heads, bodies = headless(sheet)
+    assert len(heads) == len(bodies) == 1, f"{sheet}: {len(heads)} heads, {len(bodies)} bodies"
+    piece, at, chin, tall = stood(body, hl, heads[0], bc[bodies[0]])
+    scale = MOM_CHIN / tall
+    save("batmom-akimbo.png", smaller(piece, min(1, scale * KID_DETAIL)))
+    out["mom"] = dict(scale=scale / min(1, scale * KID_DETAIL), at=at, chin=(chin[0] * scale, chin[1] * scale))
+    return out
+
+
+def bat_things():
+    """What there is in the yard to run past: five things in a row on one sheet. Things
+    that are nearly touching (a wire and what hangs from it, a chain and its seat) are one
+    thing."""
+    if not os.path.exists(os.path.join(SRC, "PB4-yard-things-cutout.png")):
+        return
+    cut = load("PB4-yard-things-cutout.png")
+    joined = cv2.dilate((cut[..., 3] > 0.3).astype(np.uint8), np.ones((13, 13), np.uint8))
+    n, lab, st, _ = cv2.connectedComponentsWithStats(joined, 8)
+    big = max(st[i][4] for i in range(1, n))
+    things = sorted((i for i in range(1, n) if st[i][4] > big * 0.08), key=lambda i: st[i][0])
+    names = ["swing", "pool", "line", "bush", "tree"]
+    assert len(things) == len(names), f"{len(things)} things in the yard"
+    for name, i in zip(names, things):
+        piece = cut.copy()
+        piece[lab != i] = 0
+        save(f"yard-{name}.png", trim(piece))
 
 
 def bat_yard():

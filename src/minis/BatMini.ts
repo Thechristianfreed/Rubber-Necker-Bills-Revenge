@@ -6,7 +6,7 @@ import { BLEED } from '../art/finish';
 import { ART, applyArt, img } from '../art/sticker';
 import { sound } from '../audio/sound';
 import { BAT_FACES } from '../data/bat';
-import { BAT_BODIES, BAT_YARD } from '../data/batbodies';
+import { BAT_BODIES, BAT_DOOR, BAT_YARD } from '../data/batbodies';
 import { bubble } from '../ui/bubble';
 import { label, written } from '../ui/text';
 import { Mini, Point } from './Mini';
@@ -36,6 +36,14 @@ const SCROLL = 340;
 const YARD = 1560;
 /** How fast the sky drifts when nobody is running. */
 const DRIFT = 6;
+/** How long each of the two moments of a run is on for, and how far off the ground the one with both feet in the air is. */
+const STRIDE = 0.13;
+const AIRBORNE = 8;
+/** The back doorstep, where their mother stands: how high it is (the photo of the house has a
+ *  step up to it, and its ground a little nearer than the boys'), and where her chin is from there. */
+const DOORSTEP = BAT_DOOR ? FLOOR + 30 - BAT_DOOR.house.drop : FLOOR - 4;
+const MOM_SIZE = 1.15;
+const MOM_CHIN = BAT_DOOR ? { x: BAT_DOOR.mom.chin[0], y: BAT_DOOR.mom.chin[1] } : { x: 0, y: -198 };
 
 /** The boys are drawn this much bigger than their pictures, so that they can be seen from the couch. */
 const SIZE = 1.3;
@@ -148,6 +156,8 @@ export class BatMini extends Mini {
   /** Shane, got: how far through his hop he is (0 to 1). */
   private hop = 0;
   private lean = 0;
+  /** Shane, safe: how far up on the doorstep behind his mother he is. */
+  private perch = 0;
   private stride = 0;
   private batTurn = -1.3;
 
@@ -213,7 +223,7 @@ export class BatMini extends Mini {
     }
     const prop = (key: string, x: number, y: number, depth: number) => this.props.push(img(s, x, y, key).setDepth(depth));
     prop('yard_bush', this.cx - 196, FLOOR - 22, 4);
-    prop('yard_swing', W - 130, FLOOR - 22, 4);
+    prop('yard_swing', W - 112, FLOOR - 22, 4);
     prop('yard_line', W + 330, FLOOR - 24, 4);
     prop('yard_bush', W + 620, FLOOR - 22, 4);
     prop('yard_tree', W + 900, FLOOR - 24, 4);
@@ -221,11 +231,11 @@ export class BatMini extends Mini {
     prop('yard_pool', W + 760, FLOOR + 78, 14);
 
     // the back of the house, a long way off to the right, and their mother in its door
-    this.house = img(s, W + 420, FLOOR + 2, 'yard_house').setDepth(6);
-    this.house.setScale(this.house.scale * 1.14);
+    this.house = img(s, W + 420, BAT_DOOR ? DOORSTEP : FLOOR + 2, 'yard_house').setDepth(6);
+    if (!BAT_DOOR) this.house.setScale(this.house.scale * 1.14);
     const momBody = img(s, 0, 0, 'batmom_akimbo');
-    this.momHead = img(s, 0, -198, 'mom_hold');
-    this.mom = s.add.container(0, FLOOR - 4, [momBody, this.momHead]).setDepth(8).setVisible(false);
+    this.momHead = img(s, MOM_CHIN.x, MOM_CHIN.y, 'mom_hold');
+    this.mom = s.add.container(0, DOORSTEP, [momBody, this.momHead]).setDepth(8).setVisible(false);
 
     this.chadX = this.cx - 76;
     this.gap = 124;
@@ -238,9 +248,9 @@ export class BatMini extends Mini {
     this.halo = img(s, 0, 0, 'halo').setDepth(20).setVisible(false);
 
     // the week: a calendar that turns a page a day, and how fed up he is getting
-    const px = Math.min(W - 190, this.cx + 196);
-    this.page = img(s, px, 156, 'cal_page').setDepth(20).setRotation(0.04);
-    this.dayText = label(s, px, 174, '', 34, '#2a2320', 0).setDepth(21).setRotation(0.04);
+    const px = Math.min(W - 290, this.cx + 160);
+    this.page = img(s, px, 146, 'cal_page').setDepth(20).setRotation(0.04);
+    this.dayText = label(s, px, 164, '', 34, '#2a2320', 0).setDepth(21).setRotation(0.04);
     this.ring = s.add.graphics().setDepth(22);
     const mx = Math.max(84, this.cx - 300);
     this.meter = s.add.graphics().setDepth(20).setPosition(mx, 326);
@@ -314,13 +324,15 @@ export class BatMini extends Mini {
       this.tell('');
       this.alert.setVisible(false);
       const door = W - 152;
+      // (what she says comes from her mouth, and goes beside her head: there is no room over it)
+      const mom = { mouth: { x: door + MOM_CHIN.x * MOM_SIZE, y: DOORSTEP + MOM_CHIN.y * MOM_SIZE - 20 } };
       tw.add({ targets: this, scroll: 0, duration: 520, ease: 'Quad.out' });
       tw.add({ targets: this.house, x: door, duration: 520, ease: 'Quad.out' });
-      tw.add({ targets: this, gap: door - 96 - this.chadX, duration: 600, ease: 'Quad.out' });
+      tw.add({ targets: this, gap: door - 128 - this.chadX, duration: 600, ease: 'Quad.out' });
       this.mom.setX(door);
       this.cue(0.5, () => {
         this.mom.setVisible(true).setScale(0.9);
-        tw.add({ targets: this.mom, scale: 1.15, duration: 140, ease: 'Back.out' });
+        tw.add({ targets: this.mom, scale: MOM_SIZE, duration: 140, ease: 'Back.out' });
         applyArt(this.momHead, this.won ? 'mom_pah' : 'mom_hold');
       });
       if (this.won) {
@@ -336,7 +348,7 @@ export class BatMini extends Mini {
           sound.yelp();
         });
         this.cue(0.8, () => this.say(this.shane, 'WAAAAAH!', 1.9, -96, -92, 24));
-        this.cue(1.5, () => this.say({ mouth: { x: door, y: FLOOR - 246 } }, 'CHAD! WHAT DID YOU DO?!', 1.5, -70, -84));
+        this.cue(1.5, () => this.say(mom, 'CHAD! WHAT DID YOU DO?!', 1.5, -150, -26));
         const plea = (at: number, text: string, secs: number) => this.cue(at, () => {
           this.hush();
           this.say(this.chad, text, secs, 150, -112);
@@ -363,13 +375,13 @@ export class BatMini extends Mini {
           this.shane.set('laugh', 'tongue');
           this.shane.turn(-1);
           this.shane.box.setDepth(7);
-          tw.add({ targets: this, gap: door - 52 - this.chadX, duration: 220 });
+          tw.add({ targets: this, gap: door - 52 - this.chadX, perch: FLOOR - DOORSTEP, duration: 220 });
           this.chad.set('down', 'sad');
           this.batTurn = 1.25;
           sound.lose();
         });
-        this.cue(0.9, () => this.say(this.shane, 'NYAH NYAH!', 2.2, -130, -50));
-        this.cue(1.6, () => this.say({ mouth: { x: door, y: FLOOR - 246 } }, 'CHAD! DROP THAT BAT!', 1.5, -60, -84));
+        this.cue(0.9, () => this.say(this.shane, 'NYAH NYAH!', 2.2, -150, 26));
+        this.cue(1.6, () => this.say(mom, 'CHAD! DROP THAT BAT!', 1.5, -150, -26));
         this.cue(3.0, () => this.end(false));
       }
     }
@@ -613,13 +625,15 @@ export class BatMini extends Mini {
   /** Put the two of them where they are. */
   private place(): void {
     const running = this.phase === 'chase' || (this.phase === 'home' && this.scroll > 40);
-    const step = Math.floor(this.stride / 0.11) % 2, bob = running ? -Math.abs(Math.sin((this.stride * Math.PI) / 0.22)) * 5 : 0;
+    // a run is two moments by turns: at full stretch, with both feet off the ground (run1), and one foot down (run2)
+    const step = Math.floor(this.stride / STRIDE) % 2;
+    const up = (k: Kid) => (running && k.pose === 'run1' ? -AIRBORNE : 0);
     const c = this.chad, s = this.shane;
     if (running && (c.pose === 'run1' || c.pose === 'run2')) c.set(step ? 'run2' : 'run1');
     if (running && (s.pose === 'run1' || s.pose === 'run2')) s.set(step ? 'run1' : 'run2');
-    c.box.setPosition(this.chadX - this.knock * 34, FLOOR + (c.pose.startsWith('run') ? bob : 0)).setRotation(-0.28 * this.knock);
+    c.box.setPosition(this.chadX - this.knock * 34, FLOOR + up(c)).setRotation(-0.28 * this.knock);
     const hop = Math.sin(this.hop * Math.PI) * (this.won ? 100 : 66);
-    s.box.setPosition(this.chadX + this.gap - this.lean * 40, FLOOR - hop + (s.pose.startsWith('run') ? bob : 0));
+    s.box.setPosition(this.chadX + this.gap - this.lean * 40, FLOOR - hop - this.perch + up(s));
     c.swingBat(this.batTurn);
     this.alert.setPosition(s.top.x + 4, s.top.y - 14);
     if (this.haloOn) this.halo.setPosition(c.top.x, c.top.y - 8 + Math.sin(this.t * 5) * 3);

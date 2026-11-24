@@ -9,7 +9,7 @@ import { BILL_HEAD, TV, buildMiniArt } from './minis';
 import { buildFightArt } from './fight';
 import { KID_FACE, KID_LOOKS, buildBatArt } from './bat';
 import { BAT_FACES } from '../data/bat';
-import { BAT_BODIES, BAT_YARD } from '../data/batbodies';
+import { BAT_BODIES, BAT_DOOR, BAT_YARD } from '../data/batbodies';
 import { buildSleepoverArt } from './sleepover';
 import { buildStreetArt } from './street';
 import { FIGHT_BODIES } from '../data/fight';
@@ -194,6 +194,17 @@ const PIECES: Piece[] = [
   ...Object.entries(BAT_BODIES).flatMap(([who, poses]) => Object.entries(poses).map(([pose, body]): Piece => (
     { key: `${who}_${pose}`, file: body.file, scale: body.scale, border: 2, anchor: body.spot }
   ))),
+  // ...what there is in their back yard to run past; and the back of the house, pinned at the
+  // middle of its doorstep, with their mother's body to stand on it
+  { key: 'yard_swing', file: 'yard-swing.png', h: 240, border: 2, anchor: [0.5, 0.95] },
+  { key: 'yard_pool', file: 'yard-pool.png', w: 200, border: 2, anchor: [0.5, 0.75] },
+  { key: 'yard_line', file: 'yard-line.png', h: 205, border: 2, anchor: [0.5, 0.99] },
+  { key: 'yard_bush', file: 'yard-bush.png', h: 112, border: 2, anchor: [0.5, 0.95] },
+  { key: 'yard_tree', file: 'yard-tree.png', h: 310, border: 2, anchor: [0.5, 0.99] },
+  ...(BAT_DOOR ? [
+    { key: 'yard_house', file: BAT_DOOR.house.file, scale: BAT_DOOR.house.scale, border: 2.5, anchor: BAT_DOOR.house.spot },
+    { key: 'batmom_akimbo', file: BAT_DOOR.mom.file, scale: BAT_DOOR.mom.scale, border: 2.5, anchor: BAT_DOOR.mom.spot },
+  ] as Piece[] : []),
   // ...and what gets broken in the gym
   { key: 'bleachers', file: 'gym-bleachers.png', w: 380, border: 2.2, anchor: [0.5, 0.975] },
   { key: 'bake_table', file: 'gym-table.png', w: 250, border: 2.2, anchor: [0.5, 0.975] },
