@@ -39,8 +39,9 @@ npm run build && npm run build:single && node tools/make_artifact.mjs <somewhere
 - Sound is not inside the page. `public/music`, `public/voice` and
   `public/sfx` go up beside it as supporting files (`audio/mpeg`) whenever
   one of them changes.
-- The page has to stay under 16 MB and is at about 14.8. Compress the photo
-  cutouts (WebP) before adding many more.
+- The page has to stay under 16 MB. Pictures are kept as WebP to fit
+  (`tools/shrink_assets.py`; the cutout tools save WebP themselves, and the
+  code still calls each one "name.png").
 - Bump the `prototype x.y` on the title screen with each build that is
   published, so the owner can see they have the new one.
 

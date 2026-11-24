@@ -4,6 +4,7 @@ import { BLEED } from '../art/finish';
 import { POSES, POSE_IDS, STANCE, TV, WORKOUT_HEAD } from '../art/minis';
 import { ART, applyArt, img } from '../art/sticker';
 import { sound } from '../audio/sound';
+import { WORKOUT_BODIES } from '../data/workout';
 import { label, written } from '../ui/text';
 import { Mini, Point } from './Mini';
 
@@ -15,7 +16,7 @@ const REPS = 3;
 const PASS = 4;
 /** Where the television stands, and how big Mom is on its screen. */
 const TV_AT = { x: 34, y: 36 };
-const MOM_FLOOR = 276;
+const MOM_FLOOR = 240;
 const MOM_SIZE = 0.72;
 /** Bill's head is a size too big for his body, as everywhere else. */
 const BILL_HEAD = WORKOUT_HEAD * 1.3;
@@ -25,6 +26,16 @@ const FLOOR_Y = 404;
 const INHALE = 1.3;
 const ZONE = 0.76;
 const TOO_LONG = 0.5;
+
+/** Where somebody's chin is in a pose, from the spot on the floor they are on,
+ *  and how far their head tips: from the photo of that pose if there is one,
+ *  otherwise from the paper doll. */
+function chinOf(who: 'mom' | 'bill', pose: string): { x: number; y: number; tilt: number } {
+  const photo = WORKOUT_BODIES[who]?.[pose];
+  if (photo) return { x: photo.chin[0], y: photo.chin[1], tilt: photo.tilt };
+  const doll = POSES[pose];
+  return { x: doll.head[0], y: doll.head[1] + 30, tilt: doll.tilt };
+}
 
 /** Mom's workout tape. She is on the television, facing us, and calls a pose:
  *  pick the same one for Bill. Then the famous breathing, done as on the tape,
@@ -163,6 +174,7 @@ export class WorkoutMini extends Mini {
       this.host.word('nope', this.billX + 90, 250);
       this.scene.cameras.main.shake(120, 0.005);
     }
+    this.say(right ? 'That is the one!' : 'Not that one...');
     this.phase = 'picked';
     this.left = 0.55;
   }
@@ -274,12 +286,12 @@ export class WorkoutMini extends Mini {
   private place(): void {
     const k = 1 / TEX;
     // Mom, on the screen
-    const mp = POSES[this.momPose], ms = MOM_SIZE;
+    const mp = chinOf('mom', this.momPose), ms = MOM_SIZE;
     const momIn = this.phase === 'breathe' ? this.momAir : 0;
     const momHold = this.phase === 'hold' ? 1 : 0;
     this.mom.setScale(k * ms * (1 + 0.07 * momIn - 0.1 * momHold), k * ms);
     this.momHead.setScale(k * ms)
-      .setPosition(this.mom.x + mp.head[0] * ms, this.mom.y + (mp.head[1] + 30) * ms - momIn * 4)
+      .setPosition(this.mom.x + mp.x * ms, this.mom.y + mp.y * ms - momIn * 4)
       .setRotation(mp.tilt - momIn * 0.12 + (momHold ? Math.sin(this.t * 38) * 0.04 : 0));
     this.band.y = TV_AT.y + TV.screen.y + ((this.t * 46) % (TV.screen.h - 16)) + 8;
     this.clock.setVisible(Math.floor(this.t * 2) % 2 === 0);

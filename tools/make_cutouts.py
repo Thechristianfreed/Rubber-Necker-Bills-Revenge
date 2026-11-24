@@ -331,111 +331,108 @@ def kid():
     save("paper-roll.png", trim(np.concatenate([half[:, ::-1], half], axis=1)))
 
 
+def selection(name):
+    """One of Adobe's selections, as how selected each pixel is (0 to 1)."""
+    m = load(name)
+    return m[..., 3] if m[..., 3].std() > 0.01 else m[..., :3].mean(axis=2)
+
+
 def mom():
-    """Stephanie, the instructor on the workout tape: her head from one photo
-    (mom-1, smiling in the kitchen), and three more faces made from it the way
-    cut-out animation does. For the "PAH" her chin drops open on a hinge like a
-    ventriloquist's dummy; for the breath in her face goes long; for holding it
-    her cheeks puff out and she goes red. Prints, for each face, how tall it
-    is next to the plain one and where the chin is (as a fraction of the
-    image): what src/art/photos.ts needs to keep them all the same size and
-    hung from the same point."""
-    def sel(name):
-        m = load(name)
-        return m[..., 3] if m[..., 3].std() > 0.01 else m[..., :3].mean(axis=2)
+    """Stephanie, the instructor on the workout tape. Her everyday face is from
+    a photo of her in the kitchen (mom-1). The three faces of the breathing
+    (the breath in, the "PAH", holding it) are edits of another photo of her,
+    one expression each (WT1a to WT1c). All of them are saved with her face the
+    same size, FACE pixels from hairline to chin, and each prints how tall its
+    picture is in faces and where her chin is in it (her chin as it is with her
+    mouth shut, so that it does not move when her mouth drops open): what
+    src/art/photos.ts needs to show them the same size, hung from one point."""
+    FACE = 200
 
-    UP = 2                                  # work at twice the photo's size, so the cuts and warps stay crisp
-    OUT_H = 236                             # how tall the plain head is saved
-    DROP = 0.62                             # how far the chin drops, in mouth-widths
-    big = lambda a: cv2.resize(a, None, fx=UP, fy=UP, interpolation=cv2.INTER_CUBIC)
-    head = big(head_only(load("mom-1-cutout.png"), "mom-1-headmask.png"))
-    face = cv2.GaussianBlur(big(sel("mom-1-facemask.png")), (0, 0), 6)
-    mouth = big(sel("mom-1-mouthmask.png")) > 0.5
-    ys, xs = np.where(head[..., 3] > 0.08)
-    x0, x1, y0, y1 = xs.min() - 30, xs.max() + 31, ys.min() - 6, ys.max() + 7
-    my, mx = np.where(mouth)
-    width = mx.max() - mx.min()
-    drop = int(width * DROP)
-    chin = (int((mx.min() + mx.max()) / 2), ys.max())
-    scale = OUT_H / (ys.max() - ys.min())   # the same for every face, however much room each needs
-
-    def finish(name, rgba, x0=x0, y0=y0, x1=x1, y1=y1):
-        piece = np.clip(rgba[y0:y1, x0:x1], 0, 1)
-        ys2, xs2 = np.where(piece[..., 3] > 0.08)
-        a, b, c, d = xs2.min() - 2, xs2.max() + 3, ys2.min() - 2, ys2.max() + 3
-        piece = piece[c:d, a:b]
-        out = cv2.resize(piece, (round(piece.shape[1] * scale), round(piece.shape[0] * scale)), interpolation=cv2.INTER_AREA)
+    def one(name, cutout, mask, top, chin):
+        head = head_only(load(cutout), mask)
+        ys, xs = np.where(head[..., 3] > 0.08)
+        x0, x1, y0, y1 = xs.min() - 2, xs.max() + 3, ys.min() - 2, ys.max() + 3
+        k = FACE / (chin[1] - top)
+        piece = head[y0:y1, x0:x1]
+        out = cv2.resize(piece, (round(piece.shape[1] * k), round(piece.shape[0] * k)), interpolation=cv2.INTER_AREA)
         save(f"mom-{name}.png", out)
-        print(f"  mom-{name}: {out.shape[0] / OUT_H:.3f} of the plain head's height,"
-              f" chin at ({(chin[0] - x0 - a) / (b - a):.3f}, {(chin[1] - y0 - c) / (d - c):.3f})")
+        print(f"  mom-{name}: {out.shape[0] / FACE:.3f} faces tall, chin at ({(chin[0] - x0) / (x1 - x0):.3f}, {(chin[1] - y0) / (y1 - y0):.3f})")
 
-    finish("smile", head)
+    # the kitchen photo: Adobe's face selection runs from her hairline to her chin
+    fy, fx = np.where(selection("mom-1-facemask.png") > 0.5)
+    one("smile", "mom-1-cutout.png", "mom-1-headmask.png", fy.min(), ((fx.min() + fx.max()) / 2, fy.max()))
 
-    # the chin, cut out like a dummy's: from the corners of the mouth straight down, a little narrower as it goes
-    h, w = head.shape[:2]
-    line = np.full(w, float(my.mean()))
-    for x in range(mx.min(), mx.max() + 1):
-        col = np.where(mouth[:, x])[0]
-        if len(col):
-            line[x] = col.mean()
-    line = cv2.GaussianBlur(line.reshape(1, -1).astype(np.float32), (0, 0), 6).ravel()
-    yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
-    below = yy - line[None, :]
-    left, right = mx.min() - 8 + 0.10 * below, mx.max() + 8 - 0.10 * below
-    soft = lambda d: np.clip(d + 0.5, 0, 1)
-    slot = soft(below) * soft(xx - left) * soft(right - xx)
-    jaw = head.copy()
-    jaw[..., 3] *= slot
-    shift = np.float32([[1, 0, 0], [0, 1, drop]])
-    tall = np.zeros((h + drop, w, 4), np.float32)
-    tall[:h] = head
-    # the inside of the mouth shows where the chin was: dark, with a tongue at the bottom of it
-    inside = np.zeros_like(tall)
-    gap = np.zeros((h + drop, w), np.float32)
-    gap[:h] = slot * head[..., 3]
-    gap *= (np.mgrid[0:h + drop, 0:w][0] < line[None, :] + drop + 4)
-    inside[..., :3] = (0.20, 0.03, 0.05)
-    tongue = np.zeros((h + drop, w), np.float32)
-    cv2.ellipse(tongue, (chin[0], int(line[chin[0]] + drop + 6)), (int(width * 0.34), int(drop * 0.42)), 0, 0, 360, 1.0, -1, cv2.LINE_AA)
-    inside[..., :3] = inside[..., :3] * (1 - tongue[..., None]) + np.float32((0.74, 0.30, 0.33)) * tongue[..., None]
-    # darker towards the top, where the light does not reach
-    depth = np.clip((np.mgrid[0:h + drop, 0:w][0] - line[None, :]) / max(drop, 1), 0, 1)
-    inside[..., :3] *= (0.45 + 0.55 * depth)[..., None]
-    inside[..., 3] = gap
-    moved = cv2.warpAffine(np.pad(jaw, ((0, drop), (0, 0), (0, 0))), shift, (w, h + drop), flags=cv2.INTER_LINEAR, borderValue=(0, 0, 0, 0))
-    # a little shadow down each side of the chin, as cut paper has
-    edge = cv2.GaussianBlur(moved[..., 3], (0, 0), 2.2) - moved[..., 3]
-    for layer in (inside, moved):
-        a = layer[..., 3:4]
-        if layer is moved:
-            tall[..., :3] *= 1 - 0.5 * np.clip(edge, 0, 1)[..., None] * (tall[..., 3:4] > 0.5)
-        tall[..., :3] = tall[..., :3] * (1 - a) + layer[..., :3] * a
-        tall[..., 3:4] = np.maximum(tall[..., 3:4], a)
-    finish("pah", tall, y1=y1 + drop)
+    # the three edits share one framing, so they share one hairline and one chin:
+    # the lowest her chin is with her mouth shut (it drops a good way for the "PAH")
+    faces = {n: np.where(selection(f"WT1{c}-mom-{n}-facemask.png") > 0.5) for c, n in (("a", "pah"), ("b", "in"), ("c", "hold"))}
+    top = min(ys.min() for ys, _ in faces.values())
+    chin = (float(np.mean([(xs.min() + xs.max()) / 2 for _, xs in faces.values()])), float(np.mean([faces[n][0].max() for n in ("in", "hold")])))
+    for c, n in (("a", "pah"), ("b", "in"), ("c", "hold")):
+        one(n, f"WT1{c}-mom-{n}-cutout.png", f"WT1{c}-mom-{n}-headmask.png", top, chin)
 
-    # breathing in: a long face, cheeks drawn in
-    cx, cy = (x0 + x1) / 2, float(chin[1])
-    long_face = cv2.warpAffine(head, np.float32([[0.92, 0, cx * 0.08], [0, 1.07, -cy * 0.07]]), (w, h), flags=cv2.INTER_CUBIC, borderValue=(0, 0, 0, 0))
-    finish("in", long_face, y0=y0 - int((chin[1] - y0) * 0.07) - 2)
 
-    # holding it: cheeks blown out, lips pressed together, and going red
-    map_x, map_y = xx.copy(), yy.copy()
-    lips = (float(chin[0]), float(my.mean()))
-    for px, py, radius, power in ((lips[0] - width * 0.80, lips[1] - width * 0.05, width * 1.25, -0.55),
-                                  (lips[0] + width * 0.80, lips[1] - width * 0.05, width * 1.25, -0.55),
-                                  (lips[0], lips[1], width * 0.62, 0.45)):
-        # a negative power blows the picture up around the point; a positive one pinches it in
-        dx, dy = xx - px, yy - py
-        r = np.sqrt(dx * dx + dy * dy)
-        pull = np.where(r < radius, 1 + power * (1 - r / radius) ** 2, 1.0)
-        map_x += dx * (pull - 1)
-        map_y += dy * (pull - 1)
-    puffed = cv2.remap(head, map_x, map_y, cv2.INTER_CUBIC, borderValue=(0, 0, 0, 0))
-    # reddest in the cheeks, fading towards the forehead
-    blush = cv2.remap(face, map_x, map_y, cv2.INTER_LINEAR) * np.clip(0.35 + 0.65 * (yy - y0) / (lips[1] - y0), 0, 1)
-    blush = (blush * 0.62)[..., None]
-    puffed[..., :3] = puffed[..., :3] * (1 - blush) + puffed[..., :3] * np.float32((1.10, 0.52, 0.50)) * blush
-    finish("hold", puffed)
+# The workout's bodies: for each sheet, whose it is and which pose each figure
+# is doing, from left to right, with how far the new head should tip on it.
+WORKOUT_SHEETS = [
+    ("WT2a-mom-standing", "mom", [("ready", -0.10), ("lunge", 0.0), ("stretch", 0.0)]),
+    ("WT2b-mom-floor", "mom", [("frog", 0.0), ("pretzel", 0.04), ("kick", 0.16)]),
+]
+# How tall a chin is off the floor when its owner stands up straight, in the game's own pixels.
+STANDING_CHIN = 196
+
+
+def workout_bodies():
+    """Mom's (and Bill's) bodies for the workout tape, one for each pose. The
+    people in the generated sheets lose their heads, and the game hangs
+    Stephanie's and Bill's from the chins they leave. Writes src/data/workout.ts:
+    for each pose its file, how big to draw it, the spot on the floor it stands
+    on (as a fraction of the picture), and where the chin was from that spot."""
+    found = {}
+    for sheet, who, poses in WORKOUT_SHEETS:
+        cut = load(f"{sheet}-cutout.png")
+        head = (selection(f"{sheet}-headmask.png") > 0.5).astype(np.uint8)
+        grown = cv2.GaussianBlur(cv2.dilate(head, np.ones((7, 7), np.uint8)).astype(np.float32), (0, 0), 1.0)
+        body = cut.copy()
+        body[..., 3] *= 1 - np.clip(grown * 1.5, 0, 1)
+        n, _, hs, _ = cv2.connectedComponentsWithStats(head, 8)
+        heads = sorted((tuple(int(v) for v in hs[i][:4]) for i in range(1, n) if hs[i][4] > 600), key=lambda box: box[0])
+        n, lab, bs, _ = cv2.connectedComponentsWithStats((body[..., 3] > 0.3).astype(np.uint8), 8)
+        bodies = sorted((i for i in range(1, n) if bs[i][4] > 4000), key=lambda i: bs[i][0])
+        assert len(heads) == len(bodies) == len(poses), f"{sheet}: {len(heads)} heads, {len(bodies)} bodies"
+        for (pose, tilt), (hx, hy, hw, hh), i in zip(poses, heads, bodies):
+            # the chin: the middle of the lowest tenth of the head
+            rows = head[hy + int(hh * 0.9):hy + hh, hx:hx + hw]
+            chin = (hx + float(np.where(rows)[1].mean()), hy + hh)
+            near = cv2.dilate((lab == i).astype(np.uint8), np.ones((5, 5), np.uint8)).astype(bool)
+            piece = body.copy()
+            piece[~near] = 0
+            ys, xs = np.where(piece[..., 3] > 0.08)
+            x0, x1, y0, y1 = xs.min() - 2, xs.max() + 3, ys.min() - 2, ys.max() + 3
+            save(f"pose-{who}-{pose}.png", piece[y0:y1, x0:x1])
+            spot = ((x0 + x1) / 2, ys.max())
+            found[(who, pose)] = dict(file=f"pose-{who}-{pose}.png", spot=((spot[0] - x0) / (x1 - x0), (spot[1] - y0) / (y1 - y0)),
+                                      chin=(chin[0] - spot[0], chin[1] - spot[1]), tilt=tilt)
+    table = os.path.join(ROOT, "src", "data", "workout.ts")
+    with open(table, "w") as f:
+        f.write("/** The photo bodies for the workout tape: for each pose, the picture, how big\n"
+                " *  it is drawn (game pixels to one of the picture's), the spot on the floor it\n"
+                " *  stands on (as a fraction of the picture), where the chin goes from that spot\n"
+                " *  (in game pixels) and how far the head tips. Written by tools/make_cutouts.py;\n"
+                " *  do not edit by hand. */\n"
+                "export interface WorkoutBody { file: string; scale: number; spot: [number, number]; chin: [number, number]; tilt: number }\n\n"
+                "export const WORKOUT_BODIES: Record<string, Record<string, WorkoutBody>> = {\n")
+        for who in sorted({w for w, _ in found}):
+            # everybody on a sheet is drawn to the size that stands the tall one's chin where the game expects it
+            scale = STANDING_CHIN / -found[(who, "stretch")]["chin"][1]
+            f.write(f"  {who}: {{\n")
+            for (w, pose), b in found.items():
+                if w != who:
+                    continue
+                f.write(f"    {pose}: {{ file: '{b['file']}', scale: {scale:.4f}, spot: [{b['spot'][0]:.3f}, {b['spot'][1]:.3f}],"
+                        f" chin: [{b['chin'][0] * scale:.1f}, {b['chin'][1] * scale:.1f}], tilt: {b['tilt']} }},\n")
+            f.write("  },\n")
+        f.write("};\n")
+    print("wrote", table)
 
 
 def mailman():
@@ -871,6 +868,7 @@ if __name__ == "__main__":
     bill()
     kid()
     mom()
+    workout_bodies()
     teen()
     hallway()
     locker_things()

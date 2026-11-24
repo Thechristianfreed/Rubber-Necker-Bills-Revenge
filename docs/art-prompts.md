@@ -146,12 +146,13 @@ Six head-and-shoulders photographs in a row with clear gaps between them, all on
 
 ## Home Movies: Mom's workout tape
 
-Mom's head is Stephanie's own, from the kitchen photo
-(`art-src/photos/mom-1.jpg`); her other three faces are made from it by
-`tools/make_cutouts.py` (a hinged chin for the "PAH", a long face for the
-breath in, puffed red cheeks for holding it). The bodies, the room on the
-tape, the television and the den are paper stand-ins. In order of how much
-each would add:
+Done so far: Stephanie's three faces for the breathing (WT1) and her six
+bodies (WT2), cut out by `mom()` and `workout_bodies()` in
+`tools/make_cutouts.py`. Still paper stand-ins: Bill's bodies, the room on the
+tape, the television and the den. One thing is missing from WT1: her everyday
+face is still from the kitchen photo, with her hair up, so her hair changes
+when the breathing starts. The photo the three edits were made from (hair
+down, outdoors) would fix that.
 
 ### WT1. Stephanie's faces
 
