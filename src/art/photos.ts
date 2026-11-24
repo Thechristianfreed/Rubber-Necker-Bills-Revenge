@@ -159,12 +159,12 @@ const PIECES: Piece[] = [
   { key: 'puff', file: 'puff.png', w: 40, border: 0.8 },
   { key: 'burst', file: 'burst.png', w: 130, border: 2.5 },
   ...WORDS.map((w): Piece => ({ key: `word_${w}`, file: `word-${w}.png`, w: w === 'perfect' ? 124 : 106, border: 2.5 })),
-  // Stephanie, the instructor on the workout tape: her everyday face, and the three faces of the breathing
+  // Stephanie, the instructor on the workout tape: smiling, and the three faces of the breathing
   // (heights in faces and chins from tools/make_cutouts.py, so that all four are the same size and hang from the same point)
-  { key: 'mom_smile', file: 'mom-smile.png', h: MOM_FACE * 1.31, border: 2, anchor: [0.455, 0.982] },
-  { key: 'mom_in', file: 'mom-in.png', h: MOM_FACE * 1.92, border: 2, anchor: [0.482, 0.636] },
-  { key: 'mom_pah', file: 'mom-pah.png', h: MOM_FACE * 1.92, border: 2, anchor: [0.481, 0.636] },
-  { key: 'mom_hold', file: 'mom-hold.png', h: MOM_FACE * 1.92, border: 2, anchor: [0.482, 0.637] },
+  { key: 'mom_smile', file: 'mom-smile.png', h: MOM_FACE * 1.925, border: 2, anchor: [0.482, 0.635] },
+  { key: 'mom_in', file: 'mom-in.png', h: MOM_FACE * 1.925, border: 2, anchor: [0.482, 0.635] },
+  { key: 'mom_pah', file: 'mom-pah.png', h: MOM_FACE * 1.925, border: 2, anchor: [0.481, 0.635] },
+  { key: 'mom_hold', file: 'mom-hold.png', h: MOM_FACE * 1.92, border: 2, anchor: [0.482, 0.636] },
   // and the bodies their heads go on, one for each pose, standing on their spot on the floor
   ...Object.entries(WORKOUT_BODIES).flatMap(([who, poses]) => Object.entries(poses).map(([pose, body]): Piece => (
     { key: `pose_${who}_${pose}`, file: body.file, scale: body.scale, border: 2, anchor: body.spot }

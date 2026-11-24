@@ -338,37 +338,30 @@ def selection(name):
 
 
 def mom():
-    """Stephanie, the instructor on the workout tape. Her everyday face is from
-    a photo of her in the kitchen (mom-1). The three faces of the breathing
-    (the breath in, the "PAH", holding it) are edits of another photo of her,
-    one expression each (WT1a to WT1c). All of them are saved with her face the
-    same size, FACE pixels from hairline to chin, and each prints how tall its
-    picture is in faces and where her chin is in it (her chin as it is with her
-    mouth shut, so that it does not move when her mouth drops open): what
-    src/art/photos.ts needs to show them the same size, hung from one point."""
+    """Stephanie, the instructor on the workout tape: four faces. One is a
+    photo of her smiling (WT1d); the three of the breathing (the breath in, the
+    "PAH", holding it) are edits of that same photo, one expression each (WT1a
+    to WT1c). They share one framing, so they share one hairline and one chin:
+    the chin where it is with her mouth shut, so that her head stays put when
+    her mouth drops open. All four are saved with her face the same size, FACE
+    pixels from hairline to chin, and each prints how tall its picture is in
+    faces and where that chin is in it: what src/art/photos.ts needs to show
+    them the same size, hung from one point."""
     FACE = 200
-
-    def one(name, cutout, mask, top, chin):
-        head = head_only(load(cutout), mask)
+    names = (("d", "smile"), ("b", "in"), ("a", "pah"), ("c", "hold"))
+    faces = {n: np.where(selection(f"WT1{c}-mom-{n}-facemask.png") > 0.5) for c, n in names}
+    top = min(ys.min() for ys, _ in faces.values())
+    shut = [n for _, n in names if n != "pah"]
+    chin = (float(np.mean([(xs.min() + xs.max()) / 2 for _, xs in faces.values()])), float(np.mean([faces[n][0].max() for n in shut])))
+    k = FACE / (chin[1] - top)
+    for c, n in names:
+        head = head_only(load(f"WT1{c}-mom-{n}-cutout.png"), f"WT1{c}-mom-{n}-headmask.png")
         ys, xs = np.where(head[..., 3] > 0.08)
         x0, x1, y0, y1 = xs.min() - 2, xs.max() + 3, ys.min() - 2, ys.max() + 3
-        k = FACE / (chin[1] - top)
         piece = head[y0:y1, x0:x1]
         out = cv2.resize(piece, (round(piece.shape[1] * k), round(piece.shape[0] * k)), interpolation=cv2.INTER_AREA)
-        save(f"mom-{name}.png", out)
-        print(f"  mom-{name}: {out.shape[0] / FACE:.3f} faces tall, chin at ({(chin[0] - x0) / (x1 - x0):.3f}, {(chin[1] - y0) / (y1 - y0):.3f})")
-
-    # the kitchen photo: Adobe's face selection runs from her hairline to her chin
-    fy, fx = np.where(selection("mom-1-facemask.png") > 0.5)
-    one("smile", "mom-1-cutout.png", "mom-1-headmask.png", fy.min(), ((fx.min() + fx.max()) / 2, fy.max()))
-
-    # the three edits share one framing, so they share one hairline and one chin:
-    # the lowest her chin is with her mouth shut (it drops a good way for the "PAH")
-    faces = {n: np.where(selection(f"WT1{c}-mom-{n}-facemask.png") > 0.5) for c, n in (("a", "pah"), ("b", "in"), ("c", "hold"))}
-    top = min(ys.min() for ys, _ in faces.values())
-    chin = (float(np.mean([(xs.min() + xs.max()) / 2 for _, xs in faces.values()])), float(np.mean([faces[n][0].max() for n in ("in", "hold")])))
-    for c, n in (("a", "pah"), ("b", "in"), ("c", "hold")):
-        one(n, f"WT1{c}-mom-{n}-cutout.png", f"WT1{c}-mom-{n}-headmask.png", top, chin)
+        save(f"mom-{n}.png", out)
+        print(f"  mom-{n}: {out.shape[0] / FACE:.3f} faces tall, chin at ({(chin[0] - x0) / (x1 - x0):.3f}, {(chin[1] - y0) / (y1 - y0):.3f})")
 
 
 # The workout's bodies: for each sheet, whose it is and which pose each figure

@@ -14,10 +14,14 @@ type Image = Phaser.GameObjects.Image;
  *  are two to be had from each: the right pose, and a proper breath). */
 const REPS = 3;
 const PASS = 4;
-/** Where the television stands; how far down its screen Mom's feet are, and how big she is on it. */
+/** Where the television stands, and how far down its screen Mom's feet are.
+ *  She is shown as big as the screen will hold, whatever she is doing (as the
+ *  camera would frame her), up to MOM_MAX of her full size and with MOM_ROOM
+ *  to spare at the top and the sides. */
 const TV_AT = { x: 34, y: 18 };
-const MOM_FLOOR = 0.83;
-const MOM_SIZE = 0.6;
+const MOM_FLOOR = 0.94;
+const MOM_MAX = 1.2;
+const MOM_ROOM = 7;
 /** Bill's head is a size too big for his body, as everywhere else. It hangs
  *  from his chin: the middle of it is this far above. */
 const BILL_HEAD = WORKOUT_HEAD * 1.3;
@@ -73,7 +77,9 @@ export class WorkoutMini extends Mini {
   private momHead!: Image;
   private bill!: Image;
   private billHead!: Image;
-  private caption!: Phaser.GameObjects.Text;
+  /** How big Mom is on the screen in the pose she is in, and where on it her spot on the floor is. */
+  private momSize = 1;
+  private momX = 0;
   private note!: Phaser.GameObjects.Text;
   private noteTape!: Image;
   private cards: { card: Image; thumb: Image; head: Image; id: string }[] = [];
@@ -107,7 +113,6 @@ export class WorkoutMini extends Mini {
     this.momHead = img(s, 0, 0, 'mom_smile').setDepth(6);
     s.add.tileSprite(sx, sy, sw, sh, 'tv_lines').setOrigin(0, 0).setDepth(7);
     this.band = s.add.rectangle(sx + sw / 2, sy, sw - 12, 16, 0xffffff, 0.1).setDepth(7);
-    this.caption = label(s, sx + sw / 2, sy + sh - 19, '', 24).setDepth(8);
     label(s, sx + 46, sy + 22, 'PLAY >', 15, '#eaffea', 3).setDepth(8).setAlpha(0.85);
     img(s, TV_AT.x, TV_AT.y, 'tv_set').setDepth(10);
     this.clock = s.add.text(TV_AT.x + TV.clock.x, TV_AT.y + TV.clock.y, '12:00', {
@@ -161,7 +166,6 @@ export class WorkoutMini extends Mini {
     });
     this.strike(this.target, STANCE);
     applyArt(this.momHead, 'mom_smile');
-    this.caption.setText(POSES[this.target].name);
     this.momAir = 0;
     this.air = 0;
     this.holding = false;
@@ -205,7 +209,6 @@ export class WorkoutMini extends Mini {
     this.breath.setVisible(true);
     // the breathing is done bent over, a hand on each knee
     this.strike(STANCE, STANCE);
-    this.caption.setText(POSES[STANCE].name);
     this.say('HOLD to breathe in... LET GO at the top!');
   }
 
@@ -234,7 +237,6 @@ export class WorkoutMini extends Mini {
     this.say('...and HOLD IT');
     // and straight into the pose, holding it in
     this.strike(this.target, this.worn);
-    this.caption.setText(POSES[this.target].name);
     // Mom lets hers go with ours, then holds it too
     applyArt(this.momHead, 'mom_pah');
     this.lungs.setVisible(false);
@@ -254,6 +256,20 @@ export class WorkoutMini extends Mini {
     this.billPose = bill;
     applyArt(this.mom, `pose_mom_${mom}`);
     applyArt(this.bill, `pose_bill_${bill}`);
+    this.frame();
+  }
+
+  /** Frame Mom in the screen: as big as she can be with all of her in shot,
+   *  head included, and in the middle of it from side to side. */
+  private frame(): void {
+    const body = ART[`pose_mom_${this.momPose}`], head = ART.mom_pah, chin = chinOf('mom', this.momPose);
+    // how far she reaches from her spot on the floor: left, right and up
+    const left = Math.min(-body.ax, chin.x - head.ax);
+    const right = Math.max(body.w - body.ax, chin.x + head.w - head.ax);
+    const up = Math.max(body.ay, head.ay - chin.y);
+    const sw = TV.screen.w, sh = TV.screen.h;
+    this.momSize = Math.min(MOM_MAX, (sh * MOM_FLOOR - MOM_ROOM) / up, (sw - MOM_ROOM * 2) / (right - left));
+    this.momX = TV_AT.x + TV.screen.x + sw / 2 - ((left + right) / 2) * this.momSize;
   }
 
   // ---- taps --------------------------------------------------------------------------
@@ -311,11 +327,11 @@ export class WorkoutMini extends Mini {
   private place(): void {
     const k = 1 / TEX;
     // Mom, on the screen
-    const mp = chinOf('mom', this.momPose), ms = MOM_SIZE;
+    const mp = chinOf('mom', this.momPose), ms = this.momSize;
     const momIn = this.phase === 'breathe' ? this.momAir : 0;
     const momHold = this.phase === 'hold' ? 1 : 0;
     const momWide = 1 + 0.07 * momIn - 0.1 * momHold;
-    this.mom.setScale(k * ms * momWide, k * ms);
+    this.mom.setX(this.momX).setScale(k * ms * momWide, k * ms);
     this.momHead.setScale(k * ms)
       .setPosition(this.mom.x + mp.x * ms * momWide, this.mom.y + mp.y * ms - momIn * 4)
       .setRotation(mp.tilt - momIn * 0.12 + (momHold ? Math.sin(this.t * 38) * 0.04 : 0));

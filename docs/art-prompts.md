@@ -148,36 +148,33 @@ Six head-and-shoulders photographs in a row with clear gaps between them, all on
 
 All of these have been made and are in the game, cut out by `mom()`,
 `workout_bodies()` and `workout_set()` in `tools/make_cutouts.py`: Stephanie's
-three faces for the breathing (WT1), her six bodies and Bill's (WT2), the room
-on the tape (WT3), the television (WT4) and the den (WT5). One thing is
-missing from WT1: her everyday face is still from the kitchen photo, with her
-hair up, so her hair changes when the breathing starts. The photo the three
-edits were made from (hair down, outdoors) fixes that. The prompts are kept
-here for making more poses or doing any of it again.
+four faces (WT1), her six bodies and Bill's (WT2), the room on the tape
+(WT3), the television (WT4) and the den (WT5). The prompts are kept here for
+making more poses or doing any of it again.
 
 ### WT1. Stephanie's faces
 
 What goes wrong: asked for several new photographs of "this woman", the
 generator invents a new woman. It keeps a likeness when it *edits one photo*
 and changes one thing. So: one face per image, always starting from the
-kitchen photo, in a fresh chat each time, with the biggest copy of the photo
+photo of her smiling (`art-src/generated/WT1d-mom-smile.webp`), in a fresh chat each time, with the biggest copy of the photo
 there is. The tape frame goes in as a second image, for the expression only.
 If it starts copying the tape lady, leave her frame out and let the words do
 it. If the first try is not her, ask again rather than correcting it.
 
-The "PAH" (attach the kitchen photo, then the tape frame of the "PAH"):
+The "PAH" (attach the smiling photo, then the tape frame of the "PAH"):
 
 ```text
 Edit the first image. It is a photo of the woman I want. Keep her exactly as she is: the same face, age, skin, eyes, nose, teeth, hair, necklace and top, the same lighting, the same background and the same framing. Change one thing only, her expression: her mouth is thrown wide open in a big round shout, jaw dropped as far as it will go, top teeth showing, eyes rolled up toward the ceiling, eyebrows raised. The second image shows the expression I mean. Use it for the expression only: do not copy that woman's face, hair, clothes or the look of that picture. Do not make her younger, smoother or prettier. Photorealistic, the same quality as the original photo.
 ```
 
-The breath in (attach the kitchen photo, then the tape frame of the breath in):
+The breath in (attach the smiling photo, then the tape frame of the breath in):
 
 ```text
 Edit the first image. It is a photo of the woman I want. Keep her exactly as she is: the same face, age, skin, eyes, nose, hair, necklace and top, the same lighting, the same background and the same framing. Change one thing only, her expression: her lips are pushed forward and squeezed into a tight pucker, as if sucking air in through a straw, her cheeks are drawn in, and her eyes are half closed. The second image shows the expression I mean. Use it for the expression only: do not copy that woman's face, hair, clothes or the look of that picture. Do not make her younger, smoother or prettier. Photorealistic, the same quality as the original photo.
 ```
 
-Holding it (attach the kitchen photo only):
+Holding it (attach the smiling photo only):
 
 ```text
 Edit this photo. Keep this woman exactly as she is: the same face, age, skin, eyes, nose, hair, necklace and top, the same lighting, the same background and the same framing. Change one thing only, her expression: she is holding her breath, lips pressed tightly shut, cheeks puffed out as round as they will go, eyes squeezed shut, face flushed red with the strain. Do not make her younger, smoother or prettier. Photorealistic, the same quality as the original photo.
@@ -185,7 +182,7 @@ Edit this photo. Keep this woman exactly as she is: the same face, age, skin, ey
 
 The head is kept facing the camera on purpose (a head thrown back is where
 the likeness goes first); the game tips it. For the tape's big hair, do that
-first, as one edit of the kitchen photo ("give her big, teased, feathered
+first, as one edit of the smiling photo ("give her big, teased, feathered
 blonde 1990s hair to her shoulders; change nothing about her face"), check it
 is still her, and use the result as the first image for all three faces, so
 the hair matches from one face to the next.

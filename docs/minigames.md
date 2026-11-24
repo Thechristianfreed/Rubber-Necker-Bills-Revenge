@@ -49,5 +49,6 @@ levels (the bus and the sleepover games do).
   with the head taken off (`src/data/workout.ts`, written by
   `tools/make_cutouts.py`, says where each one's chin is); behind them are
   paper dolls described joint by joint in `POSES` in `src/art/minis.ts`,
-  which show if a photo is missing. A new pose needs a line in `POSES` (for
-  its name) and a figure on a sheet in `WORKOUT_SHEETS` in the tool.
+  which show if a photo is missing. A new pose needs a line in `POSES` and a
+  figure on a sheet in `WORKOUT_SHEETS` in the tool. Mom is framed to fill
+  the television's screen in whatever pose she is in (`frame()`).
