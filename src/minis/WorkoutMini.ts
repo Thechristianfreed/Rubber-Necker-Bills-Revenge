@@ -53,10 +53,10 @@ function chinOf(who: 'mom' | 'bill', pose: string): { x: number; y: number; tilt
 }
 
 /** Mom's workout tape. She is on the television, facing us, and calls a pose:
- *  pick the same one for Bill. Then the famous breathing, done as on the tape,
- *  bent over with a hand on each knee: hold to breathe in, let go at the top
- *  of the breath for the PAH, then into the pose and hold it while you turn
- *  purple. Three poses. The music and the breathing are the tape's own. */
+ *  pick the same one for Bill. Then, staying in that pose, the famous
+ *  breathing: hold to breathe in, let go at the top of the breath for the
+ *  PAH, and hold it while you turn purple. Every pose, once each. The music
+ *  and the breathing are the tape's own. */
 export class WorkoutMini extends Mini {
   readonly title = "MOM'S WORKOUT TAPE";
   readonly prompt = 'COPY MOM, THEN BREATHE!';
@@ -145,7 +145,8 @@ export class WorkoutMini extends Mini {
       const head = s.add.image(0, 0, 'bill-sideeye').setDepth(42).setOrigin(0.5, OLD_CHIN).setScale((BILL_HEAD / HEAD_SRC_H) * SNAP);
       this.cards.push({ card, thumb, head, id: '' });
     }
-    this.lungs = img(s, this.billX + 172, 300, 'lungs').setDepth(40);
+    // the meter for the breath: clear of him at his widest (on all fours, his head is well out to the side)
+    this.lungs = img(s, Math.min(this.billX + 200, view.W - 30), 300, 'lungs').setDepth(40);
     this.breath = img(s, this.lungs.x, 394, 'breath').setDepth(41).setOrigin(0.5, 1);
     this.noteTape = img(s, 0, 0, 'tape_m').setDepth(44);
     this.note = written(s, 0, 0, '', 17).setDepth(45);
@@ -226,8 +227,7 @@ export class WorkoutMini extends Mini {
     this.holding = false;
     this.lungs.setVisible(true);
     this.breath.setVisible(true);
-    // the breathing is done bent over, a hand on each knee
-    this.strike(STANCE, STANCE);
+    // (both of them stay in the pose for the breathing, and for holding it afterwards)
     this.say('HOLD to breathe in... LET GO at the top!');
   }
 
@@ -256,8 +256,6 @@ export class WorkoutMini extends Mini {
     this.phase = 'hold';
     this.left = 1.0;
     this.say('...and HOLD IT');
-    // and straight into the pose, holding it in
-    this.strike(this.target, this.worn);
     // Mom lets hers go with ours, then holds it too
     applyArt(this.momHead, 'mom_pah');
     this.lungs.setVisible(false);

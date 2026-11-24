@@ -58,8 +58,8 @@ export const POSES: Record<string, Pose> = {
   },
 };
 
-/** How the breathing is done on the tape: bent forward towards the camera with
- *  a hand on each knee. It is one of the poses to copy, too. */
+/** Bent forward towards the camera with a hand on each knee: one of the poses
+ *  to copy, and how Bill stands until he is given his first. */
 export const STANCE = 'ready';
 POSES[STANCE] = {
   name: 'BREATHE!',
