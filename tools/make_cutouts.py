@@ -364,6 +364,29 @@ def mom():
         print(f"  mom-{n}: {out.shape[0] / FACE:.3f} faces tall, chin at ({(chin[0] - x0) / (x1 - x0):.3f}, {(chin[1] - y0) / (y1 - y0):.3f})")
 
 
+def bill_faces():
+    """Bill's faces for the breathing on the workout tape: the breath in, holding
+    it, and the "PAH". They are edits of one photo of him, one expression each
+    (WT6a to WT6c), so they share one framing: the top of his hair, and his chin
+    where it is with his mouth shut. Each is saved with his head HEAD pixels
+    tall between those two, and prints how tall its picture is in heads and
+    where that chin is in it, for src/art/photos.ts."""
+    HEAD = 260
+    names = (("a", "in"), ("b", "hold"), ("c", "pah"))
+    heads = {n: np.where(selection(f"WT6{c}-bill-{n}-headmask.png") > 0.5) for c, n in names}
+    top = min(ys.min() for ys, _ in heads.values())
+    chin = (float(np.mean([(xs.min() + xs.max()) / 2 for _, xs in heads.values()])), float(np.mean([heads[n][0].max() for n in ("in", "hold")])))
+    k = HEAD / (chin[1] - top)
+    for c, n in names:
+        head = head_only(load(f"WT6{c}-bill-{n}-cutout.png"), f"WT6{c}-bill-{n}-headmask.png")
+        ys, xs = np.where(head[..., 3] > 0.08)
+        x0, x1, y0, y1 = xs.min() - 2, xs.max() + 3, ys.min() - 2, ys.max() + 3
+        piece = head[y0:y1, x0:x1]
+        out = cv2.resize(piece, (round(piece.shape[1] * k), round(piece.shape[0] * k)), interpolation=cv2.INTER_AREA)
+        save(f"billface-{n}.png", out)
+        print(f"  billface-{n}: {out.shape[0] / HEAD:.3f} heads tall, chin at ({(chin[0] - x0) / (x1 - x0):.3f}, {(chin[1] - y0) / (y1 - y0):.3f})")
+
+
 # The workout's bodies: for each sheet, whose it is and which pose each figure
 # is doing, from left to right, with how far the new head should tip on it.
 WORKOUT_SHEETS = [
@@ -917,6 +940,7 @@ if __name__ == "__main__":
     bill()
     kid()
     mom()
+    bill_faces()
     workout_bodies()
     workout_set()
     teen()

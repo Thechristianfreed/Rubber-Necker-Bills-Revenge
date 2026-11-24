@@ -74,6 +74,8 @@ export const POSE_IDS = Object.keys(POSES).filter((id) => id !== STANCE);
 const POSE_W = 320, POSE_H = 310, POSE_AX = 160, POSE_AY = 300;
 /** How big a head is next to one of these bodies. */
 export const WORKOUT_HEAD = 66;
+/** Bill's head is a size too big for his body, as everywhere else: this tall, hair to chin. */
+export const BILL_HEAD = WORKOUT_HEAD * 1.3;
 
 function rect(c: Ctx, x: number, y: number, w: number, h: number, sheet: Paper): void {
   c.beginPath();

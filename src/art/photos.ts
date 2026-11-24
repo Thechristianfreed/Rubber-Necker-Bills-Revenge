@@ -5,7 +5,7 @@ import { ARM_TINTS, VEHICLES, VehicleSpec, makeNeck, setHeadStyles } from './tex
 import { PAPERS, addPaper } from './paper';
 import { buildPaperUi } from './ui';
 import { HALL, buildHallArt } from './hallway';
-import { TV, buildMiniArt } from './minis';
+import { BILL_HEAD, TV, buildMiniArt } from './minis';
 import { buildSleepoverArt } from './sleepover';
 import { buildStreetArt } from './street';
 import { WORKOUT_BODIES } from '../data/workout';
@@ -71,6 +71,9 @@ const KID_SCALE = 0.5;
 const TEEN_SCALE = 0.8;
 /** Puts the middle of a mailbox 68 pixels above the kerb (MAILBOX_UP in NoodleNeck.ts). */
 const MAILBOX_SCALE = 0.352;
+/** How tall Bill's head is in the faces he pulls for the breathing. A little more than his everyday
+ *  heads measure, which were photographed from closer and so look bigger for their height. */
+const BILL_FACE = BILL_HEAD * 1.1;
 /** How tall the instructor's face is on the workout tape, hairline to chin: a size too big for her body, like everybody's. */
 const MOM_FACE = 60;
 
@@ -165,6 +168,10 @@ const PIECES: Piece[] = [
   { key: 'mom_in', file: 'mom-in.png', h: MOM_FACE * 1.925, border: 2, anchor: [0.482, 0.635] },
   { key: 'mom_pah', file: 'mom-pah.png', h: MOM_FACE * 1.925, border: 2, anchor: [0.481, 0.635] },
   { key: 'mom_hold', file: 'mom-hold.png', h: MOM_FACE * 1.92, border: 2, anchor: [0.482, 0.636] },
+  // Bill's faces for the same breathing (heights in heads and chins from tools/make_cutouts.py again)
+  { key: 'bill_in', file: 'billface-in.png', h: BILL_FACE * 1.031, border: 2.5, anchor: [0.498, 0.979] },
+  { key: 'bill_hold', file: 'billface-hold.png', h: BILL_FACE * 1.019, border: 2.5, anchor: [0.498, 0.991] },
+  { key: 'bill_pah', file: 'billface-pah.png', h: BILL_FACE * 1.092, border: 2.5, anchor: [0.498, 0.924] },
   // and the bodies their heads go on, one for each pose, standing on their spot on the floor
   ...Object.entries(WORKOUT_BODIES).flatMap(([who, poses]) => Object.entries(poses).map(([pose, body]): Piece => (
     { key: `pose_${who}_${pose}`, file: body.file, scale: body.scale, border: 2, anchor: body.spot }

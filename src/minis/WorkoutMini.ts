@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { H, HEAD_SRC_H, MAX_W, TEX, view } from '../config';
 import { BLEED } from '../art/finish';
-import { DEN_FLOOR, POSES, POSE_IDS, STANCE, TV, WORKOUT_HEAD } from '../art/minis';
+import { BILL_HEAD, DEN_FLOOR, POSES, POSE_IDS, STANCE, TV } from '../art/minis';
 import { ART, applyArt, img } from '../art/sticker';
 import { sound } from '../audio/sound';
 import { WORKOUT_BODIES } from '../data/workout';
@@ -22,10 +22,13 @@ const TV_AT = { x: 34, y: 18 };
 const MOM_FLOOR = 0.94;
 const MOM_MAX = 1.2;
 const MOM_ROOM = 7;
-/** Bill's head is a size too big for his body, as everywhere else. It hangs
- *  from his chin: the middle of it is this far above. */
-const BILL_HEAD = WORKOUT_HEAD * 1.3;
-const BILL_CHIN = BILL_HEAD * 0.5 - 8;
+/** Bill's head hangs from his chin, a little way down his neck. His everyday
+ *  heads are pictures with the head in the middle and room all round it: this
+ *  is how far down them his chin is. */
+const NECK = 8;
+const OLD_CHIN = 0.903;
+/** The faces he pulls for the breathing, and which everyday head stands in for each if its photo is missing. */
+const FACES: Record<string, string> = { bill_in: 'bill-sideeye', bill_hold: 'bill-glare', bill_pah: 'bill-glare' };
 /** Bill is nearer to us than the television is, so he is drawn bigger than life. */
 const BILL_SIZE = 1.2;
 /** How big the snapshots of the poses are, next to the real thing. */
@@ -71,12 +74,17 @@ export class WorkoutMini extends Mini {
   private air = 0;
   private holding = false;
   private momAir = 0;
+  /** Whether the breath just let go was a proper PAH. */
+  private pahed = false;
   private t = 0;
 
   private mom!: Image;
   private momHead!: Image;
   private bill!: Image;
   private billHead!: Image;
+  /** Which face he has on, and how big that picture has to be drawn. */
+  private billFace = '';
+  private billFaceSize = 1;
   /** How big Mom is on the screen in the pose she is in, and where on it her spot on the floor is. */
   private momSize = 1;
   private momX = 0;
@@ -122,14 +130,15 @@ export class WorkoutMini extends Mini {
 
     // Bill, on the carpet, in the same get-up
     this.bill = img(s, this.billX, 462, `pose_bill_${STANCE}`).setDepth(30);
-    this.billHead = s.add.image(0, 0, 'bill-sideeye').setDepth(31).setScale((BILL_HEAD / HEAD_SRC_H) * BILL_SIZE);
+    this.billHead = s.add.image(0, 0, 'bill-sideeye').setDepth(31);
+    this.wear('bill-sideeye');
 
     // three snapshots in front of the television to pick from, each of Bill doing a pose
     for (let i = 0; i < 3; i++) {
       const x = TV_AT.x + 78 + i * 142, y = 488;
       const card = img(s, x, y, 'pose_card').setDepth(40).setRotation((i - 1) * 0.05);
       const thumb = img(s, x, y + 30, 'pose_bill_lunge').setDepth(41);
-      const head = s.add.image(0, 0, 'bill-sideeye').setDepth(42).setScale((BILL_HEAD / HEAD_SRC_H) * SNAP);
+      const head = s.add.image(0, 0, 'bill-sideeye').setDepth(42).setOrigin(0.5, OLD_CHIN).setScale((BILL_HEAD / HEAD_SRC_H) * SNAP);
       this.cards.push({ card, thumb, head, id: '' });
     }
     this.lungs = img(s, this.billX + 172, 300, 'lungs').setDepth(40);
@@ -161,7 +170,7 @@ export class WorkoutMini extends Mini {
       applyArt(c.thumb, `pose_bill_${c.id}`);
       c.thumb.setScale(c.thumb.scale * SNAP);
       const chin = chinOf('bill', c.id);
-      c.head.setPosition(c.thumb.x + chin.x * SNAP, c.thumb.y + (chin.y - BILL_CHIN) * SNAP).setRotation(chin.tilt);
+      c.head.setPosition(c.thumb.x + chin.x * SNAP, c.thumb.y + (chin.y + NECK) * SNAP).setRotation(chin.tilt);
       this.show(c, true);
     });
     this.strike(this.target, STANCE);
@@ -220,11 +229,13 @@ export class WorkoutMini extends Mini {
     const above = this.bill.y + chin.y * BILL_SIZE - 230;
     const at = above > 92 ? { x: this.billX + chin.x * BILL_SIZE + 50, y: above } : { x: this.billX - 170, y: 170 };
     this.holding = false;
+    this.pahed = false;
     if (this.air > 1 + TOO_LONG / INHALE) {
       sound.cough();
       this.host.word('cough', at.x, at.y);
     } else if (this.air >= ZONE) {
       this.points++;
+      this.pahed = true;
       sound.pah();
       this.host.word('pah', at.x, at.y, true);
       this.scene.cameras.main.shake(220, 0.012);
@@ -241,6 +252,20 @@ export class WorkoutMini extends Mini {
     applyArt(this.momHead, 'mom_pah');
     this.lungs.setVisible(false);
     this.breath.setVisible(false);
+  }
+
+  /** Put a face on Bill: one of his everyday heads, or one of the faces for the breathing. */
+  private wear(face: string): void {
+    if (FACES[face] && !this.scene.textures.exists(face)) face = FACES[face];
+    if (face === this.billFace) return;
+    this.billFace = face;
+    if (FACES[face]) {
+      applyArt(this.billHead, face);
+      this.billFaceSize = this.billHead.scale;
+    } else {
+      this.billHead.setTexture(face).setOrigin(0.5, OLD_CHIN);
+      this.billFaceSize = BILL_HEAD / HEAD_SRC_H;
+    }
   }
 
   /** Lay a snapshot out, or take it away. */
@@ -344,12 +369,17 @@ export class WorkoutMini extends Mini {
     const strain = held || this.air > 1 ? Math.sin(this.t * 40) * 2.2 : 0;
     const wide = 1 + 0.13 * full - 0.12 * held;
     this.bill.setScale(k * wide * BILL_SIZE, k * BILL_SIZE);
-    this.billHead.setPosition(this.billX + bp.x * wide * BILL_SIZE + strain, this.bill.y + (bp.y - BILL_CHIN) * BILL_SIZE - full * 6)
+    // his face: the PAH as it comes out, then holding it; the breath going in; or just himself
+    this.wear(held ? (this.pahed && this.left > 0.62 ? 'bill_pah' : 'bill_hold')
+      : this.air > 1 ? 'bill_hold'
+        : this.holding ? 'bill_in'
+          : this.phase === 'picked' && this.worn === this.target ? 'bill-grin' : 'bill-sideeye');
+    this.billHead.setScale(this.billFaceSize * BILL_SIZE)
+      .setPosition(this.billX + bp.x * wide * BILL_SIZE + strain, this.bill.y + (bp.y + NECK) * BILL_SIZE - full * 6)
       .setRotation(bp.tilt - full * 0.14);
-    const face = held || this.air > 1 ? 'bill-glare' : this.phase === 'picked' && this.worn === this.target ? 'bill-grin' : 'bill-sideeye';
-    if (this.billHead.texture.key !== face) this.billHead.setTexture(face);
-    // he goes redder the longer he holds it
-    const red = held ? 1 : Math.max(0, this.air - 0.85) * 2.2;
+    // He goes redder the longer he holds it. (The photos of him holding it are red already.)
+    const photo = FACES[this.billFace] ? 0.3 : 1;
+    const red = this.billFace === 'bill_pah' ? 0 : (held ? 1 : Math.max(0, this.air - 0.85) * 2.2) * photo;
     const fade = Math.round(255 - Math.min(1, red) * 120);
     this.billHead.setTint((255 << 16) | (fade << 8) | fade);
     this.breath.setScale(k, (k * Math.min(this.air, 1) * 188) / 8);

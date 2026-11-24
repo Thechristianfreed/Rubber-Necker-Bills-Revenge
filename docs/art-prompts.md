@@ -149,7 +149,8 @@ Six head-and-shoulders photographs in a row with clear gaps between them, all on
 All of these have been made and are in the game, cut out by `mom()`,
 `workout_bodies()` and `workout_set()` in `tools/make_cutouts.py`: Stephanie's
 four faces (WT1), her six bodies and Bill's (WT2), the room on the tape
-(WT3), the television (WT4) and the den (WT5). The prompts are kept here for
+(WT3), the television (WT4), the den (WT5) and Bill's three faces for the
+breathing (WT6). The prompts are kept here for
 making more poses or doing any of it again.
 
 ### WT1. Stephanie's faces
@@ -186,6 +187,15 @@ first, as one edit of the smiling photo ("give her big, teased, feathered
 blonde 1990s hair to her shoulders; change nothing about her face"), check it
 is still her, and use the result as the first image for all three faces, so
 the hair matches from one face to the next.
+
+### WT6. Bill's faces
+
+Made the same way, from a photo of Bill: the breath in, holding it and the
+"PAH" (`bill_faces()` in the tool; `art-src/generated/WT6a` to `WT6c`). The
+same three prompts as Stephanie's do it, with his photo as the first image.
+The rest of the time he wears one of his everyday heads, which are from
+other photos and have no beard; the photo these three were made from, as it
+was before any editing, would give him a matching face for in between.
 
 ### WT2. The bodies
 
