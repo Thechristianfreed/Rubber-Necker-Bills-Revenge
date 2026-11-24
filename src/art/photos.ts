@@ -9,6 +9,7 @@ import { BILL_HEAD, TV, buildMiniArt } from './minis';
 import { buildFightArt } from './fight';
 import { KID_FACE, KID_LOOKS, buildBatArt } from './bat';
 import { BAT_FACES } from '../data/bat';
+import { BAT_BODIES, BAT_YARD } from '../data/batbodies';
 import { buildSleepoverArt } from './sleepover';
 import { buildStreetArt } from './street';
 import { FIGHT_BODIES } from '../data/fight';
@@ -189,6 +190,10 @@ const PIECES: Piece[] = [
     const face = BAT_FACES[who]?.[photo];
     return face ? [{ key: `${who}head_${look}`, file: face.file, h: KID_FACE * face.tall, border: 2, anchor: face.chin }] : [];
   })),
+  // ...and the bodies of the five-year-olds they were, one for each pose, standing on their spot on the grass
+  ...Object.entries(BAT_BODIES).flatMap(([who, poses]) => Object.entries(poses).map(([pose, body]): Piece => (
+    { key: `${who}_${pose}`, file: body.file, scale: body.scale, border: 2, anchor: body.spot }
+  ))),
   // ...and what gets broken in the gym
   { key: 'bleachers', file: 'gym-bleachers.png', w: 380, border: 2.2, anchor: [0.5, 0.975] },
   { key: 'bake_table', file: 'gym-table.png', w: 250, border: 2.2, anchor: [0.5, 0.975] },
@@ -279,7 +284,7 @@ export async function loadPhotoArt(scene: Phaser.Scene): Promise<void> {
   const sheets = PAPERS;
   const names = new Set<string>([
     ...PIECES.map((p) => p.file), ...PHOTO_VEHICLES.map((v) => v.file), 'postcard.jpg', 'rail.png', 'asphalt.jpg', 'houses.jpg', 'fence.png', 'concrete.jpg', 'hallway.jpg',
-    'tv-glass.png', 'tape-room.jpg', 'den.jpg', 'gym.jpg',
+    'tv-glass.png', 'tape-room.jpg', 'den.jpg', 'gym.jpg', 'yard-sky.jpg', 'yard-ground.png',
     ...sheets.map((n) => `paper-${n}.png`),
   ]);
   const loaded = new Map<string, HTMLImageElement>();
@@ -316,6 +321,12 @@ export async function loadPhotoArt(scene: Phaser.Scene): Promise<void> {
   if (den) makePhotoTile(scene, 'den', den, den.naturalHeight, true);
   const gym = loaded.get('gym.jpg');
   if (gym) makePhotoTile(scene, 'gym', gym, gym.naturalHeight, true);
+  // the back yard, in two strips that go by at different speeds: the sky, and the fence and grass
+  const yardSky = loaded.get('yard-sky.jpg'), yardGround = loaded.get('yard-ground.png');
+  if (BAT_YARD && yardSky && yardGround) {
+    makePhotoTile(scene, 'yard_sky_photo', yardSky, yardSky.naturalHeight / BAT_YARD.detail, true);
+    makePhotoTile(scene, 'yard_ground', yardGround, yardGround.naturalHeight / BAT_YARD.detail, true);
+  }
 
   // Photo heads: only styles with both photos are used. Each gets a neck cut
   // from paper the colour of its own skin, and a tint so the arm that holds a

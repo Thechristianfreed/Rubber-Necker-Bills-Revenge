@@ -15,6 +15,8 @@ first, then the doc for whatever is being touched: `docs/minigames.md`,
   generates them and sends them back; Claude cuts them out (Adobe background
   removal and body-part selection, results kept in `art-src/adobe`) with
   `tools/make_cutouts.py`. Bill's own heads are `tools/make_heads.py`.
+  Pictures the owner sends while Claude is in the middle of something can be
+  seen but do not arrive as files: ask for them again in a message of their own.
 - **Real people:** the family's photos, their voice recording, the workout
   tape's audio and the arcade announcer's clip that ends the fight are in
   this public repository on purpose; the owner has said so each time. Ask

@@ -314,18 +314,32 @@ The same woman exactly: the same face, the same hair tied up on top of her head,
 
 ## Home Movies: Payback (Chad and the bat)
 
-In the game with stand-ins cut from paper: the two boys' bodies, the back
-yard and everything in it, the back of the house, their mother's body, and
-the bat. Made: the brothers' heads, from the family's photos of them as
-they are now. Chad has four (`art-src/photos/chad-1.jpg` to `chad-4.jpg`:
-scowling, smiling, grinning, laughing) and Shane three (`shane-1.jpg` to
-`shane-3.jpg`: beaming, wary and looking off to one side, smirking). They
-are cut out by `bat_faces()` in `tools/make_cutouts.py`, which hangs each
-from its chin; a new photo needs Adobe's cutout and head selection, and a
-line in `BAT_FACES` in the tool. Which photo does for which look in the
-game is the `KID_LOOKS` table in `src/art/bat.ts`. Nobody has a photo of
-Shane frightened or crying, so the wary one stands in for both: see "More
-looks for the faces" below.
+Made and in the game:
+
+- **The brothers' heads**, from the family's photos of them as they are now.
+  Chad has four (`art-src/photos/chad-1.jpg` to `chad-4.jpg`: scowling,
+  smiling, grinning, laughing) and Shane three (`shane-1.jpg` to
+  `shane-3.jpg`: beaming, wary and looking off to one side, smirking). They
+  are cut out by `bat_faces()` in `tools/make_cutouts.py`, which hangs each
+  from its chin; a new photo needs Adobe's cutout and head selection, and a
+  line in `BAT_FACES` in the tool. Which photo does for which look in the
+  game is the `KID_LOOKS` table in `src/art/bat.ts`. Nobody has a photo of
+  Shane frightened or crying, so the wary one stands in for both: see "More
+  looks for the faces" below.
+- **Their bodies** (PB1 and PB2), cut out by `bat_bodies()`: each sheet
+  needs Adobe's cutout, its selection of the heads (`-headmask.png`) and,
+  for Chad, of the bats (`-batmask.png`). The poses on each sheet, in order,
+  are in `BAT_SHEETS` in the tool.
+- **The back yard** (PB3), made into two strips by `bat_yard()`.
+
+Still cut from paper: the swing set, pool, clothesline, bush and tree (PB4),
+and the back of the house and their mother's body (PB5).
+
+Two things about the first body sheets, both put right by PB1c and PB2c
+when those are in. The two running photos of each boy came out as the same
+stride, so the run is a bob and not a step. And in Chad's swing the bat ran
+off the edge of its panel: `lengthen_bat()` finishes it with the end of the
+bat from another pose (`BAT_CUT_SHORT` in the tool says which).
 
 The bodies are five-year-olds and the heads are grown men: that is the
 joke, as with Bill on his bicycle. The heads come off these pictures.
@@ -359,6 +373,19 @@ Three full-length photographs of the same small boy, about five years old, side 
 
 ```text
 The same small boy exactly, in the same clothes, on the same plain light-grey background in the same light: three more full-length photographs side by side with wide clear gaps between them, his body turned towards the right of the picture in all three. First: running away flat out, arms pumping, left leg forward. Second: the same, right leg forward. Third: jumping straight up in the air with his knees tucked up and both arms flung out wide, fingers spread, as if something has just hit him. His whole body is in frame in every one, and nothing covers his head or neck. No text, no borders. Wide 16:9 image.
+```
+
+### PB1c and PB2c. The running, again
+
+Running as two different moments (legs wide apart; and legs together), and
+the swing with the whole bat in the picture. Attach a sheet of the same boy.
+
+```text
+The same small boy exactly, in the same light blue T-shirt, navy shorts, white socks and white trainers, in the same light. Three full-length photographs of him side by side with wide clear gaps between them, all on one continuous plain light-grey background with no dividing lines or panels. Each is seen exactly from the side, facing the right of the picture. First: running at full stretch with a wooden baseball bat raised in both hands over his back shoulder, both feet off the ground, his front leg reaching far forward and his back leg stretched far out behind him, legs wide apart like open scissors. Second: the same run a moment later: standing on one straight leg directly under him with his other knee lifted high in front, legs close together, the bat still raised over his back shoulder. Third: at the end of a swing, leaning forward with the bat stretched straight out in front of him in both hands at the height of his own head. The whole bat is inside the picture in every one, with clear empty background beyond its end, and nothing covers his head or neck. No text, no borders. Wide 16:9 image.
+```
+
+```text
+The same small boy exactly, in the same red T-shirt, blue jeans and white trainers, in the same light. Two full-length photographs of him side by side with a wide clear gap between them, on one continuous plain light-grey background with no dividing lines or panels. Each is seen exactly from the side, running away towards the right of the picture with his arms pumping. First: at full stretch, both feet off the ground, his front leg reaching far forward and his back leg stretched far out behind him, legs wide apart like open scissors. Second: the same run a moment later: standing on one straight leg directly under him with his other knee lifted high in front, legs close together. His whole body is in frame in both, and nothing covers his head or neck. No text, no borders. Wide 16:9 image.
 ```
 
 ### PB3. The back yard

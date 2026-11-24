@@ -44,6 +44,12 @@ export const CHAD: Record<string, Doll> = {
     shoulders: [[-6, -92], [24, -92]], elbows: [[26, -90], [38, -84]], hands: [[46, -82], [52, -78]],
     head: [16, -120], tilt: 0.16,
   },
+  // caught with it, and nothing to say: the bat hangs from one hand
+  down: {
+    hips: [[-9, -50], [9, -50]], knees: [[-10, -25], [10, -25]], feet: [[-12, 0], [12, 0]],
+    shoulders: [[-15, -96], [15, -96]], elbows: [[-21, -74], [21, -74]], hands: [[-19, -54], [19, -54]],
+    head: [0, -124], tilt: 0,
+  },
   hide: {
     hips: [[-9, -50], [9, -50]], knees: [[-8, -25], [8, -25]], feet: [[-9, 0], [9, 0]],
     shoulders: [[-15, -96], [15, -96]], elbows: [[-24, -76], [-20, -72]], hands: [[-12, -58], [-8, -56]],
@@ -103,7 +109,7 @@ const MOM_LOOK: Look = { skin: 'manila', top: 'yellow', legs: 'blue', arm: 12, l
 /** How big a boy's paper head is drawn, and so where his chin is below the middle of it. */
 export const KID_HEAD = 23;
 /** ...and how tall his photo head is, hair to chin: bigger, since it is the best of him. */
-export const KID_FACE = 72;
+export const KID_FACE = 62;
 
 type Mood = 'sad' | 'mad' | 'yell' | 'angel' | 'grin' | 'scared' | 'ow' | 'cry' | 'tongue';
 

@@ -1,10 +1,12 @@
 import Phaser from 'phaser';
 import { H, MAX_W, TEX, view } from '../config';
-import { CHAD, KID_HEAD, SHANE } from '../art/bat';
+import { CHAD, KID_FACE, KID_HEAD, SHANE } from '../art/bat';
 import { Doll } from '../art/fight';
 import { BLEED } from '../art/finish';
 import { ART, applyArt, img } from '../art/sticker';
 import { sound } from '../audio/sound';
+import { BAT_FACES } from '../data/bat';
+import { BAT_BODIES, BAT_YARD } from '../data/batbodies';
 import { bubble } from '../ui/bubble';
 import { label, written } from '../ui/text';
 import { Mini, Point } from './Mini';
@@ -23,7 +25,8 @@ const CHASE = 11;
 /** How near Chad has to be for the bat to reach, how far ahead Shane gets when he
  *  gets away, how fast Chad gains on him, and how long Shane takes to notice that
  *  he is in reach and put a spurt on. */
-const REACH = 132;
+const REACH = 120;
+const NEAREST = 90;
 const AHEAD = 350;
 const GAINING = 170;
 const NOTICE = 0.6;
@@ -31,27 +34,34 @@ const NOTICE = 0.6;
 const SCROLL = 340;
 /** How far it is from one end of the yard to where it starts again. */
 const YARD = 1560;
+/** How fast the sky drifts when nobody is running. */
+const DRIFT = 6;
 
 /** The boys are drawn this much bigger than their pictures, so that they can be seen from the couch. */
 const SIZE = 1.3;
 
 type Phase = 'week' | 'snap' | 'chase' | 'home' | 'done';
 
-/** One of the brothers: a body, a head hung on it by the chin, and (Chad) a bat
- *  in one hand. Everything is drawn facing right; `turn(-1)` faces him left. */
+/** One of the brothers: a body, and a head hung on it by the chin. Everything
+ *  is drawn facing right; `turn(-1)` faces him left. His body is a photo of a
+ *  small boy in the pose (and of the bat, if he has it); or, with no photo, a
+ *  paper doll, and then Chad's bat is a piece of its own in one hand. */
 class Kid {
   readonly box: Box;
   private readonly body: Image;
   private readonly head: Image;
-  readonly bat?: Image;
+  private readonly bat?: Image;
+  /** How tall his head is, hair to chin. */
+  private readonly tall: number;
   pose = '';
   look = '';
 
   constructor(scene: Phaser.Scene, private readonly who: string, private readonly poses: Record<string, Doll>, pose: string, look: string, bat = false) {
     this.body = img(scene, 0, 0, `${who}_${pose}`);
     this.head = img(scene, 0, 0, `${who}head_${look}`);
+    this.tall = BAT_FACES[who] ? KID_FACE : KID_HEAD * 2;
     const parts: Image[] = [this.body, this.head];
-    if (bat) {
+    if (bat && !BAT_BODIES[who]) {
       this.bat = img(scene, 0, 0, 'bat').setVisible(false);
       parts.splice(1, 0, this.bat);
     }
@@ -65,9 +75,16 @@ class Kid {
     this.look = look;
     applyArt(this.body, `${this.who}_${pose}`);
     applyArt(this.head, `${this.who}head_${look}`);
-    const p = this.poses[pose];
-    this.head.setPosition(p.head[0] - Math.sin(p.tilt) * KID_HEAD, p.head[1] + Math.cos(p.tilt) * KID_HEAD).setRotation(p.tilt);
-    this.bat?.setPosition(p.hands[1][0], p.hands[1][1]);
+    const photo = BAT_BODIES[this.who]?.[pose];
+    if (photo) {
+      this.head.setPosition(photo.chin[0], photo.chin[1]).setRotation(photo.tilt);
+      // with the bat up in front of his face, he is laid over his head and not under it
+      this.box.bringToTop(photo.over ? this.body : this.head);
+    } else {
+      const p = this.poses[pose];
+      this.head.setPosition(p.head[0] - Math.sin(p.tilt) * KID_HEAD, p.head[1] + Math.cos(p.tilt) * KID_HEAD).setRotation(p.tilt);
+      this.bat?.setPosition(p.hands[1][0], p.hands[1][1]);
+    }
   }
 
   face(look: string): void {
@@ -78,14 +95,29 @@ class Kid {
     this.box.setScale(way * SIZE, SIZE);
   }
 
+  /** The paper bat: he has it from now on; which way it points; and whether it is behind his back. */
+  arm(): void {
+    this.bat?.setVisible(true);
+  }
+
+  swingBat(turn: number): void {
+    this.bat?.setRotation(turn);
+  }
+
+  batBehind(behind: boolean): void {
+    if (!this.bat) return;
+    if (behind) this.box.sendToBack(this.bat);
+    else this.box.moveTo(this.bat, 1);
+  }
+
   /** Where his mouth is on the page, for anything he says to come from. */
   get mouth(): Point {
-    return { x: this.box.x + this.head.x * this.box.scaleX, y: this.box.y + (this.head.y - 16) * SIZE };
+    return { x: this.box.x + this.head.x * this.box.scaleX, y: this.box.y + (this.head.y - this.tall * 0.27) * SIZE };
   }
 
   /** The top of his head. */
   get top(): Point {
-    return { x: this.box.x + this.head.x * this.box.scaleX, y: this.box.y + (this.head.y - 64) * SIZE };
+    return { x: this.box.x + this.head.x * this.box.scaleX, y: this.box.y + (this.head.y - this.tall - 2) * SIZE };
   }
 }
 
@@ -131,10 +163,10 @@ export class BatMini extends Mini {
   private scroll = 0;
   private won = false;
 
-  // the yard
-  private fence!: Phaser.GameObjects.TileSprite;
-  private grass!: Phaser.GameObjects.TileSprite;
-  private props: { im: Image; far: number }[] = [];
+  // the yard: strips of it that go by (each at its own share of the speed, and the sky drifting
+  // whether anybody is running or not), and what there is in it to run past
+  private strips: { ts: Phaser.GameObjects.TileSprite; share: number; drift: number; tex: number }[] = [];
+  private props: Image[] = [];
   private clouds: Image[] = [];
   private house!: Image;
   private mom!: Box;
@@ -163,21 +195,30 @@ export class BatMini extends Mini {
 
   build(): void {
     const s = this.scene, W = view.W;
-    const band = (key: string, y: number, h: number, depth: number) => s.add.tileSprite(-BLEED, y, (MAX_W + BLEED * 2) * TEX, h * TEX, key)
-      .setOrigin(0, 0).setScale(1 / TEX).setDepth(depth);
-    band('yard_sky', -BLEED, FLOOR + BLEED, 1);
-    img(s, W - 74, 96, 'yard_sun').setDepth(1.5);
-    for (const [x, y] of [[W * 0.3, 112], [W * 0.56, 150]]) this.clouds.push(img(s, x, y, 'yard_cloud').setDepth(1.6));
-    this.fence = band('yard_fence', FLOOR - 178, ART.yard_fence.h, 2);
-    this.grass = band('yard_grass', FLOOR - 32, H - FLOOR + 32 + BLEED, 3);
-    const prop = (key: string, x: number, y: number, depth: number, far: number) => this.props.push({ im: img(s, x, y, key).setDepth(depth), far });
-    prop('yard_bush', this.cx - 196, FLOOR - 22, 4, 0.8);
-    prop('yard_swing', W - 130, FLOOR - 22, 4, 0.8);
-    prop('yard_line', W + 330, FLOOR - 24, 4, 0.8);
-    prop('yard_bush', W + 620, FLOOR - 22, 4, 0.8);
-    prop('yard_tree', W + 900, FLOOR - 24, 4, 0.8);
-    prop('yard_pool', this.cx + 150, FLOOR + 78, 14, 1);
-    prop('yard_pool', W + 760, FLOOR + 78, 14, 1);
+    const strip = (key: string, y: number, tall: number, depth: number, share: number, drift = 0) => {
+      const tex = ART[key].tex ?? TEX;
+      const ts = s.add.tileSprite(-BLEED, y, (MAX_W + BLEED * 2) * tex, tall * tex, key).setOrigin(0, 0).setScale(1 / tex).setDepth(depth);
+      this.strips.push({ ts, share, drift, tex });
+    };
+    if (BAT_YARD && s.textures.exists('yard_ground')) {
+      // the photo of it: the sky, and the fence and the grass going by in front
+      strip('yard_sky_photo', BAT_YARD.skyTop, BAT_YARD.skyTall, 1, 0.03, DRIFT);
+      strip('yard_ground', BAT_YARD.groundTop, BAT_YARD.groundTall, 2, 1);
+    } else {
+      strip('yard_sky', -BLEED, FLOOR + BLEED, 1, 0);
+      img(s, W - 74, 96, 'yard_sun').setDepth(1.5);
+      for (const [x, y] of [[W * 0.3, 112], [W * 0.56, 150]]) this.clouds.push(img(s, x, y, 'yard_cloud').setDepth(1.6));
+      strip('yard_fence', FLOOR - 178, ART.yard_fence.h, 2, 1);
+      strip('yard_grass', FLOOR - 32, H - FLOOR + 32 + BLEED, 3, 1);
+    }
+    const prop = (key: string, x: number, y: number, depth: number) => this.props.push(img(s, x, y, key).setDepth(depth));
+    prop('yard_bush', this.cx - 196, FLOOR - 22, 4);
+    prop('yard_swing', W - 130, FLOOR - 22, 4);
+    prop('yard_line', W + 330, FLOOR - 24, 4);
+    prop('yard_bush', W + 620, FLOOR - 22, 4);
+    prop('yard_tree', W + 900, FLOOR - 24, 4);
+    prop('yard_pool', this.cx + 150, FLOOR + 78, 14);
+    prop('yard_pool', W + 760, FLOOR + 78, 14);
 
     // the back of the house, a long way off to the right, and their mother in its door
     this.house = img(s, W + 420, FLOOR + 2, 'yard_house').setDepth(6);
@@ -238,7 +279,7 @@ export class BatMini extends Mini {
       sound.rageReady();
       this.cue(0.3, () => {
         this.chad.set('mad', 'mad');
-        this.chad.bat!.setVisible(true);
+        this.chad.arm();
         this.batTurn = -1.3;
         this.host.word('thatsit', this.cx - 10, 150, true);
         sound.rageFire();
@@ -289,7 +330,7 @@ export class BatMini extends Mini {
           this.shane.set('bawl', 'cry');
           this.chad.set('hide', 'angel');
           this.batTurn = -1.45;
-          this.chad.box.sendToBack(this.chad.bat!);
+          this.chad.batBehind(true);
           this.halo.setVisible(true);
           this.haloOn = true;
           sound.yelp();
@@ -305,7 +346,7 @@ export class BatMini extends Mini {
         this.cue(5.8, () => {
           // (out it comes, to show her; and that is the end of the halo)
           this.chad.set('mad', 'angel');
-          this.chad.box.moveTo(this.chad.bat!, 1);
+          this.chad.batBehind(false);
           this.batTurn = -1.3;
           tw.add({ targets: this, batTurn: -1.05, duration: 160, yoyo: true, repeat: 3 });
           this.haloOn = false;
@@ -323,7 +364,7 @@ export class BatMini extends Mini {
           this.shane.turn(-1);
           this.shane.box.setDepth(7);
           tw.add({ targets: this, gap: door - 52 - this.chadX, duration: 220 });
-          this.chad.set('stand', 'sad');
+          this.chad.set('down', 'sad');
           this.batTurn = 1.25;
           sound.lose();
         });
@@ -344,12 +385,12 @@ export class BatMini extends Mini {
     const s = this.scene, tw = s.tweens;
     this.turnPage(DAYS[i]);
     this.shane.set('push', 'grin');
-    tw.add({ targets: this, lean: 1, duration: 90, yoyo: true, hold: 90, onComplete: () => this.shane.set('laugh', 'grin') });
+    tw.add({ targets: this, lean: 1, duration: 90, yoyo: true, hold: 230, onComplete: () => this.shane.set('laugh', 'grin') });
     s.time.delayedCall(90, () => {
       if (this.phase !== 'week') return;
       this.chad.set('shoved', i < 2 ? 'sad' : 'mad');
       tw.add({ targets: this, knock: 1, duration: 120, ease: 'Quad.out', yoyo: true, hold: 150, onComplete: () => this.chad.set('stand') });
-      this.host.word(i % 2 ? 'smack' : 'shove', this.chadX + 62, FLOOR - 196);
+      this.host.word(i % 2 ? 'smack' : 'shove', this.chadX + 56, FLOOR - 268);
       sound.bonk(false);
       s.cameras.main.shake(90, 0.005);
       this.fedUp = (i + 1) / (DAYS.length + 1);
@@ -413,7 +454,7 @@ export class BatMini extends Mini {
     sound.whoosh();
     s.time.delayedCall(80, () => {
       if (this.phase !== 'chase') return;
-      if (this.gap <= REACH + 14) this.bonk();
+      if (this.gap <= REACH + 10) this.bonk();
       else this.whiff();
     });
     s.time.delayedCall(300, () => { if (this.phase === 'chase' && this.chad.pose === 'swing') { this.chad.set('run1'); this.batTurn = -2.2; } });
@@ -426,12 +467,14 @@ export class BatMini extends Mini {
     const last = this.hits >= BONKS;
     this.tally.setText(`BONKS  ${this.hits} / ${BONKS}`).setScale(1.35);
     tw.add({ targets: this.tally, scale: 1, duration: 140 });
-    this.host.word(last ? 'homerun' : 'bonk', last ? this.cx : x - 12, last ? 190 : FLOOR - 246, last);
-    this.host.word('yeowch', x + 96, FLOOR - 168);
+    // (the words go where they do not cover his face: one over his head, where it landed, and one beside him)
+    const head = this.shane.top;
+    this.host.word(last ? 'homerun' : 'bonk', last ? this.cx : head.x - 8, last ? 176 : head.y - 22, last);
+    this.host.word('yeowch', Math.min(x + 140, view.W - 86), FLOOR - 96);
     sound.bonk(true);
     sound.yelp();
     s.cameras.main.shake(last ? 260 : 150, last ? 0.014 : 0.009);
-    for (let i = 0; i < 5; i++) this.puff('star', x + 6, FLOOR - 214, (Math.random() - 0.5) * 360, -160 - Math.random() * 220, 0.8);
+    for (let i = 0; i < 5; i++) this.puff('star', head.x, head.y + 14, (Math.random() - 0.5) * 360, -160 - Math.random() * 220, 0.8);
     this.shane.set('ow', 'ow');
     this.chad.face(last ? 'joy' : 'glee');
     this.hop = 0;
@@ -476,11 +519,10 @@ export class BatMini extends Mini {
     if (this.phase === 'chase') this.chase(dt);
 
     // the yard goes by
-    this.fence.tilePositionX += this.scroll * 0.8 * TEX * dt;
-    this.grass.tilePositionX += this.scroll * TEX * dt;
+    for (const st of this.strips) st.ts.tilePositionX += (this.scroll * st.share + st.drift) * st.tex * dt;
     for (const p of this.props) {
-      p.im.x -= this.scroll * p.far * dt;
-      if (p.im.x < -280 && this.phase === 'chase') p.im.x += Math.max(YARD, view.W + 600);
+      p.x -= this.scroll * dt;
+      if (p.x < -280 && this.phase === 'chase') p.x += Math.max(YARD, view.W + 600);
     }
     for (const c of this.clouds) {
       c.x -= (8 + this.scroll * 0.04) * dt;
@@ -536,7 +578,7 @@ export class BatMini extends Mini {
       this.surge = Math.min(0, this.surge + dt);
       closing *= 2.4;
     }
-    this.gap = Phaser.Math.Clamp(this.gap - closing * dt, 92, ahead);
+    this.gap = Phaser.Math.Clamp(this.gap - closing * dt, NEAREST, ahead);
 
     // in reach: he looks round, and in a moment he will be gone again
     if (this.gap <= REACH) {
@@ -578,7 +620,7 @@ export class BatMini extends Mini {
     c.box.setPosition(this.chadX - this.knock * 34, FLOOR + (c.pose.startsWith('run') ? bob : 0)).setRotation(-0.28 * this.knock);
     const hop = Math.sin(this.hop * Math.PI) * (this.won ? 100 : 66);
     s.box.setPosition(this.chadX + this.gap - this.lean * 40, FLOOR - hop + (s.pose.startsWith('run') ? bob : 0));
-    c.bat?.setRotation(this.batTurn);
+    c.swingBat(this.batTurn);
     this.alert.setPosition(s.top.x + 4, s.top.y - 14);
     if (this.haloOn) this.halo.setPosition(c.top.x, c.top.y - 8 + Math.sin(this.t * 5) * 3);
   }
