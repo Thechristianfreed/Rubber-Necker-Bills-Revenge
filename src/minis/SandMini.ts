@@ -3,10 +3,11 @@ import { H, MAX_W, TEX, view } from '../config';
 import { CHAD, SHANE } from '../art/bat';
 import { ART, applyArt, img } from '../art/sticker';
 import { sound } from '../audio/sound';
+import { SAND } from '../data/sand';
 import { bubble } from '../ui/bubble';
 import { label, written } from '../ui/text';
 import { Mini, Point } from './Mini';
-import { DOORSTEP, FLOOR, KID_SIZE, Kid, MOM_CHIN, MOM_SIZE, chinOf, headTall, layYard, momMouth, raiseHouse, standMom } from './yard';
+import { DOORSTEP, FLOOR, KID_SIZE, Kid, MOM_SIZE, headTall, layYard, momMouth, raiseHouse, standMom } from './yard';
 
 type Image = Phaser.GameObjects.Image;
 type Box = Phaser.GameObjects.Container;
@@ -27,6 +28,10 @@ const APART = 156;
 const SHOT = 50;
 /** Where somebody's eyes are on a head, from their chin, as fractions of how tall the head is. */
 const EYES = { x: 0.125, y: 0.53 };
+/** The photo of the sandbox was taken from well above it: it is drawn this much flatter, to lie on the grass. */
+const LIE = 0.4;
+/** The photo heads are a little bigger than the ones that came on the pictures of their mother from below. */
+const HEAD_UP = 1.15;
 
 type Phase = 'intro' | 'pick' | 'play' | 'done';
 
@@ -46,7 +51,12 @@ function resized(im: Image, key: string, tall: number): Image {
  *  no difference), then as Shane (who throws sand whichever is picked), then
  *  as their mother, who can let Chad handle it (he cannot) or give Shane a
  *  mother's love: a handful of sand in the eyes. It waits for the player, has
- *  no clock, and always ends the same way. */
+ *  no clock, and always ends the same way.
+ *
+ *  The boys are the ones from the day of the bat, in poses of their own for
+ *  this (yard.ts hangs their heads on); the two of them hugging is one picture
+ *  with both heads hung on it; and the two views, his of her and hers of him,
+ *  are pictures taken from below and from above, with a head each (data/sand.ts). */
 export class SandMini extends Mini {
   readonly title = 'POCKET SAND';
   readonly prompt = 'YOU CHOOSE!';
@@ -66,6 +76,11 @@ export class SandMini extends Mini {
   /** Each of them: how far back on his heels (0 to 1), and how far he is leaning into something. */
   private knock = 0;
   private lean = 0;
+  /** Chad, busy in the sand: he bobs. */
+  private dig = 0;
+  /** The two of them hugging: one picture, which stands in for them both while it lasts. */
+  private pair?: Box;
+  private pairMouth: Point = { x: 0, y: 0 };
   private weeping = new Set<Kid>();
   private tearIn = 0;
   private gritty: Image[] = [];
@@ -107,8 +122,14 @@ export class SandMini extends Mini {
 
     // the sandbox, with its near side in front of whoever is standing in it
     this.boxX = Math.max(214, this.cx - 196);
-    img(s, this.boxX, FLOOR + 4, 'sandbox').setDepth(7);
-    img(s, this.boxX, FLOOR + 4, 'sandbox_front').setDepth(13);
+    if (s.textures.exists('sandbox_photo')) {
+      const box = ART.sandbox_photo, flat = (im: Image) => im.setScale(im.scaleX, im.scaleY * LIE);
+      flat(img(s, this.boxX, FLOOR + 4, 'sandbox_photo').setDepth(7));
+      flat(img(s, this.boxX, FLOOR + 4 + (SAND.box.near * box.h - box.ay) * LIE, 'sandbox_near').setDepth(13));
+    } else {
+      img(s, this.boxX, FLOOR + 4, 'sandbox').setDepth(7);
+      img(s, this.boxX, FLOOR + 4, 'sandbox_front').setDepth(13);
+    }
     this.chadX = this.boxX - APART / 2;
     this.shaneX = this.boxX + APART / 2;
     this.chad = new Kid(s, 'chad', CHAD, 'stand', 'angel');
@@ -199,37 +220,46 @@ export class SandMini extends Mini {
 
   private playWith(toy: string): void {
     const s = this.scene, tw = s.tweens, bucket = toy === 'sand_bucket';
-    const hand = { x: this.chadX + 34, y: FLOOR - 62 };
+    // where it is in the sand while he is down there with it (it is in the picture of him)
+    const at = { x: this.chadX + 46, y: FLOOR - 18 };
     this.script([
       [0.25, () => {
-        this.chad.face('glee');
-        this.toy = img(s, hand.x, hand.y, toy).setDepth(12);
+        this.chad.set(bucket ? 'bucket' : 'dig', 'glee');
         if (bucket) {
-          // a bucket of sand, turned out: a castle
-          this.toy.setRotation(Math.PI);
-          tw.add({ targets: this.toy, y: FLOOR - 26, duration: 160, yoyo: true, hold: 120 });
-          s.time.delayedCall(330, () => {
-            this.castle = img(s, this.boxX - 4, FLOOR + 12, 'sandcastle').setDepth(9).setScale(0.1);
-            tw.add({ targets: this.castle, scale: 1 / TEX, duration: 180, ease: 'Back.out' });
+          // a bucket of sand, patted down and turned out: a castle
+          tw.add({ targets: this, dig: 1, duration: 110, yoyo: true, repeat: 2, onRepeat: () => sound.tick() });
+          s.time.delayedCall(760, () => {
+            this.castle = img(s, this.boxX + 8, FLOOR + 14, 'sandcastle').setDepth(9);
+            const full = this.castle.scale;
+            this.castle.setScale(full * 0.1);
+            tw.add({ targets: this.castle, scale: full, duration: 180, ease: 'Back.out' });
             sound.cash();
           });
         } else {
-          // digging: three goes at it, and a heap to show for them
-          tw.add({ targets: this.toy, y: FLOOR - 22, rotation: 0.5, duration: 130, yoyo: true, repeat: 2, onRepeat: () => { sound.sand(); this.spray(hand.x + 14, FLOOR - 8, 5, 120); } });
-          this.castle = img(s, this.boxX - 4, FLOOR + 12, 'sand_heap').setDepth(9).setScale(0.1);
-          tw.add({ targets: this.castle, scale: 1 / TEX, duration: 700 });
+          // digging: four goes at it, and a heap to show for them
+          tw.add({ targets: this, dig: 1, duration: 130, yoyo: true, repeat: 3, onRepeat: () => { sound.sand(); this.spray(at.x + 14, FLOOR - 4, 5, 120); } });
+          this.castle = img(s, this.boxX + 8, FLOOR + 14, 'sand_heap').setDepth(9);
+          const full = this.castle.scale;
+          this.castle.setScale(full * 0.1);
+          tw.add({ targets: this.castle, scale: full, duration: 900 });
         }
       }],
-      [1.5, () => this.say(this.shane, bucket ? 'NICE CASTLE.' : 'GIMME THAT!', 0.7, 96, -70)],
+      [1.5, () => {
+        if (!bucket) this.shane.set('reach', 'grin');
+        this.say(this.shane, bucket ? 'NICE CASTLE.' : 'GIMME THAT!', 0.7, 96, -70);
+      }],
       [0.75, () => {
         this.shove('shove');
-        // there goes the toy; and whatever he had made
-        if (this.toy) tw.add({ targets: this.toy, x: this.chadX - 190, y: FLOOR - 250, rotation: -7, alpha: 0, duration: 620, ease: 'Quad.out' });
-        if (this.castle && bucket) {
-          const flat = this.castle;
-          tw.add({ targets: flat, scaleY: 0.12 / TEX, duration: 120, onComplete: () => applyArt(flat, 'sand_heap') });
-          this.spray(flat.x, flat.y - 20, 10, 200);
-        }
+        s.time.delayedCall(90, () => {
+          // there goes the toy; and whatever he had made
+          this.toy = img(s, at.x, at.y, toy).setDepth(12);
+          tw.add({ targets: this.toy, x: this.chadX - 190, y: FLOOR - 250, rotation: -7, alpha: 0, duration: 620, ease: 'Quad.out' });
+          if (this.castle && bucket) {
+            const flat = this.castle, was = flat.scale;
+            tw.add({ targets: flat, scaleY: was * 0.12, duration: 120, onComplete: () => { applyArt(flat, 'sand_heap'); flat.setScale(flat.scale); } });
+            this.spray(flat.x, flat.y - 20, 10, 200);
+          }
+        });
       }],
       [0.75, () => this.throwSand()],
       [1.0, () => this.momSays('SHANE! KNOCK IT OFF!', 1.6)],
@@ -245,22 +275,31 @@ export class SandMini extends Mini {
     const steps: [number, () => void][] = hug ? [
       [0.2, () => {
         // over he goes, arms out
-        this.shane.set('push', 'sweet');
-        tw.add({ targets: this, shaneX: this.chadX + 58, duration: 300, ease: 'Quad.out' });
-        this.chad.face('angel');
+        this.shane.set('reach', 'sweet');
+        tw.add({ targets: this, shaneX: this.chadX + 88, duration: 300, ease: 'Quad.out' });
+        this.chad.set('stand', 'angel');
       }],
-      [0.45, () => {
-        this.say(this.shane, 'I LOVE YOU CHAD.', 2.3, 120, -76);
-        for (let i = 0; i < 6; i++) s.time.delayedCall(i * 190, () => this.puff('heart', this.chadX + 30 + (Math.random() - 0.5) * 70, FLOOR - 190, (Math.random() - 0.5) * 30, -70 - Math.random() * 40, 1.5, -20));
+      [0.4, () => {
+        // a proper hug, both arms
+        this.embrace('hug');
+        sound.tick();
+        this.hearts(5);
       }],
-      [0.55, () => {
+      [1.4, () => {
+        // ...and an arm round his shoulders, to say it
+        this.embrace('side');
+        this.say({ mouth: this.pairMouth }, 'I LOVE YOU CHAD.', 2.9, 124, -76);
+        this.hearts(7);
+      }],
+      [0.6, () => {
         sound.aww();
         this.host.word('dawww', this.boxX + 250, 330, true);
       }],
       // ...and nobody moves, for just long enough
-      [2.5, () => {
-        tw.add({ targets: this, shaneX: this.chadX + 92, duration: 90 });
-        this.shane.face('grin');
+      [2.4, () => {
+        // and then, from nowhere
+        this.letGo();
+        this.shaneX = this.chadX + 110;
         this.throwSand(true);
       }],
     ] : [
@@ -274,10 +313,7 @@ export class SandMini extends Mini {
       [0.9, () => this.momSays('SHANE! YOU HAD BETTER STOP PUSHING CHAD AROUND!', 2.2)],
       [2.5, () => this.momIn()],
       // ...and the moment the door shuts
-      [0.6, () => {
-        tw.add({ targets: this, shaneX: this.boxX + APART / 2, duration: 200 });
-        this.shove('smack');
-      }],
+      [0.6, () => this.shove('smack')],
       [0.6, () => this.throwSand(true)],
       [0.9, () => {
         // out she comes, for the last time, and all the way
@@ -290,7 +326,7 @@ export class SandMini extends Mini {
         applyArt(this.momHead, 'mom_hold');
         tw.add({ targets: this.momAt, x: Math.min(this.shaneX + 176, this.door - 96), y: FLOOR + 10, duration: 420, ease: 'Quad.inOut' });
         this.mom.setDepth(12);
-        this.shane.set('laugh', 'doe');
+        this.shane.set('good', 'doe');
         this.shane.turn(1);
       }],
       [0.7, () => this.pick(2)],
@@ -307,12 +343,12 @@ export class SandMini extends Mini {
       [0.3, () => {
         // close on Chad, who has made his mind up
         this.dry(this.chad);
-        this.chad.face('mad');
+        this.chad.set('stance', 'set');
         const dark = this.shoot(s.add.rectangle(this.cx, H / 2, MAX_W * 2, H * 2, 0x1c1430), 0);
         const lines = this.shoot(img(s, this.cx, 280, 'speed_lines').setAlpha(0.55), 1);
         lines.setScale(lines.scale * 2.2);
         tw.add({ targets: lines, rotation: 2.4, duration: 3000 });
-        const head = this.shoot(sized(s, this.cx, 404, this.close('chad', 'mad'), 250), 2).setName('face');
+        const head = this.shoot(sized(s, this.cx, 404, this.close('chad', 'set'), 250), 2).setName('face');
         const full = head.scale;
         head.setScale(full * 0.55).setY(360);
         tw.add({ targets: head, scale: full * 1.18, y: 432, duration: 1300, ease: 'Sine.in' });
@@ -337,10 +373,11 @@ export class SandMini extends Mini {
         // and back, to how it actually goes
         this.cut();
         s.cameras.main.resetFX();
-        this.chad.set('stand', 'yell');
+        this.chad.set('stance', 'yell');
         this.shane.turn(-1);
-        this.shane.set('push', 'grin');
-        tw.add({ targets: this, lean: 1, duration: 80, yoyo: true, hold: 200, onComplete: () => this.shane.set('laugh', 'grin') });
+        // (a fist goes further than a shove)
+        this.shane.set('punch', 'grin');
+        tw.add({ targets: this, lean: 1.7, duration: 80, yoyo: true, hold: 240, onComplete: () => this.shane.set('laugh', 'grin') });
       }],
       [0.1, () => {
         const top = this.chad.top;
@@ -349,11 +386,11 @@ export class SandMini extends Mini {
         s.cameras.main.shake(140, 0.01);
         for (let i = 0; i < 4; i++) this.puff('star', top.x, top.y + 16, (Math.random() - 0.5) * 300, -140 - Math.random() * 160, 0.7, 620);
         this.chad.set('shoved', 'cry');
-        tw.add({ targets: this, knock: 1, duration: 120, ease: 'Quad.out', yoyo: true, hold: 260, onComplete: () => this.chad.set('stand') });
+        tw.add({ targets: this, knock: 1, duration: 120, ease: 'Quad.out', yoyo: true, hold: 260, onComplete: () => this.rest() });
       }],
       [0.6, () => this.cry(this.chad)],
       [0.9, () => {
-        this.shane.set('laugh', 'doe');
+        this.shane.set('good', 'doe');
         this.shane.turn(1);
       }],
       [0.5, () => this.pick(2)],
@@ -364,51 +401,64 @@ export class SandMini extends Mini {
   private mothersLove(): void {
     const s = this.scene, tw = s.tweens, W = view.W;
     const grain = ART.sand_close.tex ?? TEX;
-    const sandy = () => this.shoot(s.add.tileSprite(-48, -48, (MAX_W + 96) * grain, (H + 96) * grain, 'sand_close').setOrigin(0, 0).setScale(2 / grain), 0);
+    /** Sand, close to: so much of it, with its middle at a spot. */
+    const sandy = (x: number, y: number, wide: number, tall: number) => s.add.tileSprite(x, y, (wide * grain) / 2, (tall * grain) / 2, 'sand_close').setScale(2 / grain);
     // Shane, as she sees him: a long way down, and nearly all eyes
     // (a little to one side, to leave room beside him for the words)
-    const chin = { x: this.cx + 120, y: 384 }, tall = 292, body = 1.9;
+    const chin = { x: this.cx + 120, y: 384 }, tall = 292;
     const eyes = [-1, 1].map((side) => ({ x: chin.x + side * EYES.x * tall, y: chin.y - EYES.y * tall }));
-    const below = (look: string) => {
-      sandy();
-      const from = chinOf('shane', 'bawl', SHANE);
-      const torso = this.shoot(img(s, chin.x - from.x * body, chin.y - from.y * body, 'shane_bawl'), 1);
-      torso.setScale(torso.scale * body);
-      return this.shoot(sized(s, chin.x, chin.y, this.close('shane', look), tall), 2);
+    /** ...standing in the sand, his hands behind his back: from further off (if it says how far), and then closer. */
+    const above = (look: string, far?: { x: number; y: number; size: number }) => {
+      const head = sized(s, 0, 0, this.close('shane', look), tall);
+      // (the rest of him is as big as that makes it: the head that came on the picture was so much of it)
+      const body = sized(s, 0, 0, 'shane_above', tall / SAND.above.head);
+      const him = this.shoot(s.add.container(chin.x, chin.y, [sandy(0, 200, 2800, 1400), body, head]), 1);
+      if (far) {
+        him.setPosition(far.x, far.y).setScale(far.size);
+        tw.add({ targets: him, x: chin.x, y: chin.y, scale: 1, duration: 850, delay: 380, ease: 'Sine.inOut' });
+      }
+      return head;
     };
+    // His mother, as he sees her: a long way up
+    const B = SAND.below, high = 760, wide = (high * ART.mom_below.w) / ART.mom_below.h;
+    const her = { x: this.cx - 40, y: 204 }, face = (B.head * high * HEAD_UP) / SAND.scold.chin[1];
+    const mouth = { x: her.x, y: her.y - (face / SAND.scold.tall) * 0.24 };
     this.script([
       [0.3, () => {
-        // Shane's view of it: a long way up, and a finger
+        // Shane's view of it: up from her shoes to her face, and a finger
         this.hush();
         this.shoot(s.add.rectangle(this.cx, H / 2, MAX_W * 2, H * 2, 0x8fc0e8), 0);
         if (s.textures.exists('yard_sky_photo')) {
           const tex = ART.yard_sky_photo.tex ?? TEX;
           this.shoot(s.add.tileSprite(-48, -60, (MAX_W + 96) * tex, ART.yard_sky_photo.h * tex, 'yard_sky_photo').setOrigin(0, 0).setScale(2 / tex), 0);
         }
-        const big = 2.35, feet = 258 - MOM_CHIN.y * big;
-        const her = this.shoot(s.add.container(this.cx - 36, feet, [img(s, 0, 0, 'batmom_akimbo')]).setScale(big), 1);
-        const key = s.textures.exists('mom_big_pah') ? 'mom_big_pah' : 'mom_pah';
-        her.add(sized(s, MOM_CHIN.x, MOM_CHIN.y, key, ART.mom_pah.h));
-        const finger = this.shoot(img(s, this.cx + 196, H + 30, 'mom_finger'), 3);
-        finger.setScale(finger.scale * 1.55).setRotation(-0.2);
-        tw.add({ targets: finger, rotation: 0.24, duration: 150, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
-        const mouth = { x: this.cx - 36 + MOM_CHIN.x * big, y: 232 };
+        // (her forearm is a piece of its own, pinned at the elbow, so that it can wag)
+        const arm = sized(s, (B.elbow[0] - B.chin[0]) * wide, (B.elbow[1] - B.chin[1]) * high, 'mom_forearm', high * B.arm.tall);
+        const all = this.shoot(s.add.container(her.x, her.y - 340, [sized(s, 0, 0, 'mom_below', high), arm, sized(s, 0, 0, 'mom_big_scold', face)]), 1);
+        tw.add({ targets: all, y: her.y, duration: 620, ease: 'Cubic.out' });
+        arm.setRotation(-0.2);
+        tw.add({ targets: arm, rotation: 0.18, duration: 150, delay: 520, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
+        sound.whoosh();
+      }],
+      [0.65, () => {
         const blah = ['BLAH BLAH BLAH.', 'BLAH BLAH. BLAH!', 'BLAH BLAH BLAH BLAH!'];
         blah.forEach((words, i) => s.time.delayedCall(i * 640, () => {
           if (!this.shot.length) return;
           this.hush();
-          this.say({ mouth }, words, 0.7, -Math.min(250, this.cx - 140), -40, 24);
+          this.say({ mouth }, words, 0.7, -Math.min(236, this.cx - 150), -34, 27);
         }));
         sound.wahwah(1.9);
       }],
       [2.05, () => {
-        // ...and hers of him. Butter would not melt
+        // ...and hers of him: all of him, down there, and then just the eyes. Butter would not melt
         this.cut();
-        const head = below('doe');
+        const head = above('doe', { x: this.cx, y: 168, size: 0.5 });
         head.setRotation(-0.05);
-        tw.add({ targets: head, rotation: 0.05, duration: 900, yoyo: true, ease: 'Sine.inOut' });
+        tw.add({ targets: head, rotation: 0.05, duration: 900, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
+      }],
+      [1.3, () => {
         for (const eye of eyes) {
-          for (const [dx, dy, k, wait] of [[5, -3, 0.9, 0], [-12, 8, 0.45, 200], [15, 12, 0.35, 380]]) {
+          for (const [dx, dy, k, wait] of [[5, -3, 1.3, 0], [-15, 10, 0.65, 200], [18, 14, 0.5, 380]]) {
             const star = this.shoot(img(s, eye.x + dx, eye.y + dy, 'sparkle'), 3);
             const full = star.scale * k;
             star.setScale(0);
@@ -417,31 +467,34 @@ export class SandMini extends Mini {
         }
         sound.twinkle();
       }],
-      [1.7, () => {
-        // her hand, and the sandbox
+      [1.5, () => {
+        // her hand, and the sandbox: down into it, and away with a handful
         this.cut();
-        sandy();
-        const heap = this.shoot(img(s, this.cx, 300, 'sand_heap'), 1);
-        heap.setScale(heap.scale * 3.4);
-        const hand = this.shoot(img(s, W + 260, 120, 'mom_hand'), 2);
-        hand.setScale(hand.scale * 2.1).setRotation(-0.5);
+        this.shoot(sandy(this.cx, H / 2, MAX_W + 96, H + 96), 0);
+        const hand = this.shoot(img(s, this.cx + 46, -300, 'hand_grab').setRotation(0.14), 1);
+        const pile = this.shoot(img(s, this.cx, 452, 'sand_pile'), 2);
         sound.whoosh();
-        tw.add({ targets: hand, x: this.cx + 40, y: 290, rotation: 0, duration: 230, ease: 'Quad.in' });
-        s.time.delayedCall(240, () => {
+        tw.add({ targets: hand, x: this.cx + 8, y: 330, rotation: 0, duration: 230, ease: 'Quad.in' });
+        s.time.delayedCall(250, () => {
           if (!this.shot.length) return;
           sound.sand();
-          this.spray(this.cx, 300, 26, 420, SHOT + 3);
-          heap.setVisible(false);
-          tw.add({ targets: hand, x: -260, y: 60, rotation: 0.6, duration: 260, ease: 'Quad.in' });
+          this.spray(this.cx, 400, 26, 420, SHOT + 3);
+          tw.add({ targets: pile, scale: pile.scale * 0.62, duration: 120 });
+          tw.add({ targets: hand, y: -330, rotation: -0.1, duration: 240, delay: 110, ease: 'Quad.in', onUpdate: () => { if (Math.random() < 0.6) this.puff('sand_clump', hand.x + (Math.random() - 0.5) * 60, hand.y + 40, (Math.random() - 0.5) * 60, 120, 0.5, 900, SHOT + 3); } });
         });
       }],
-      [0.6, () => {
+      [0.75, () => {
         // and back to him
         this.cut();
-        const head = below('doe');
+        const head = above('doe');
+        // (her hand, up from the bottom of the picture, open)
+        const hand = this.shoot(img(s, chin.x + 430, H + 300, 'hand_throw').setRotation(1.02), 5);
+        hand.setScale(hand.scale * 1.5);
         s.time.delayedCall(170, () => {
           if (!this.shot.length) return;
           // POCKET SAND
+          tw.add({ targets: hand, x: chin.x + 196, y: 408, duration: 80, ease: 'Quad.out' });
+          tw.add({ targets: hand, x: chin.x + 470, y: H + 330, duration: 320, delay: 760, ease: 'Quad.in' });
           const white = this.shoot(s.add.rectangle(this.cx, H / 2, MAX_W * 2, H * 2, 0xffffff), 6);
           tw.add({ targets: white, alpha: 0, duration: 260 });
           resized(head, this.close('shane', 'cry'), tall);
@@ -451,7 +504,7 @@ export class SandMini extends Mini {
           }
           for (let i = 0; i < 44; i++) {
             const a = Math.random() * Math.PI * 2, v = 160 + Math.random() * 520;
-            this.puff('sand_speck', chin.x + (Math.random() - 0.5) * 120, chin.y - EYES.y * tall + (Math.random() - 0.5) * 50, Math.cos(a) * v, Math.sin(a) * v - 120, 0.9 + Math.random() * 0.5, 900, SHOT + 4, 1.6 + Math.random() * 1.6);
+            this.puff('sand_clump', chin.x + (Math.random() - 0.5) * 120, chin.y - EYES.y * tall + (Math.random() - 0.5) * 50, Math.cos(a) * v, Math.sin(a) * v - 120, 0.9 + Math.random() * 0.5, 900, SHOT + 4, 0.7 + Math.random() * 0.8);
           }
           this.host.word('pocketsand', Math.max(236, chin.x - 330), 200, true);
           s.cameras.main.shake(380, 0.018);
@@ -498,8 +551,9 @@ export class SandMini extends Mini {
     this.shane.set('push', 'grin');
     tw.add({ targets: this, lean: 1, duration: 90, yoyo: true, hold: 230, onComplete: () => this.shane.set('laugh', 'grin') });
     s.time.delayedCall(90, () => {
+      this.dig = 0;
       this.chad.set('shoved', this.weeping.has(this.chad) ? 'cry' : 'sad');
-      tw.add({ targets: this, knock: 1, duration: 120, ease: 'Quad.out', yoyo: true, hold: 180, onComplete: () => this.chad.set('stand') });
+      tw.add({ targets: this, knock: 1, duration: 120, ease: 'Quad.out', yoyo: true, hold: 180, onComplete: () => this.rest() });
       this.host.word(word, this.boxX - 8, FLOOR - 262);
       sound.bonk(false);
       s.cameras.main.shake(90, 0.005);
@@ -510,10 +564,11 @@ export class SandMini extends Mini {
   private throwSand(hard = false): void {
     const s = this.scene, tw = s.tweens;
     this.shane.turn(-1);
-    this.shane.set('push', 'grin');
-    tw.add({ targets: this, lean: 0.6, duration: 80, yoyo: true, hold: 200, onComplete: () => this.shane.set('laugh', 'grin') });
+    this.shane.set('throw', 'grin');
+    tw.add({ targets: this, lean: 0.6, duration: 80, yoyo: true, hold: 220, onComplete: () => this.shane.set('laugh', 'grin') });
     sound.sand();
-    const from = { x: this.shane.box.x - 56, y: FLOOR - 126 }, to = this.chad.mouth;
+    // (out of the hand he has flung out, which is as high as Chad's face)
+    const from = { x: this.shaneX - 78, y: FLOOR - 152 }, to = { x: this.chadX + 4, y: this.chad.mouth.y };
     for (let i = 0; i < (hard ? 22 : 13); i++) {
       const im = img(s, from.x + (Math.random() - 0.5) * 16, from.y + (Math.random() - 0.5) * 16, 'sand_speck').setDepth(14);
       im.setScale(im.scale * (0.7 + Math.random() * 0.9));
@@ -525,7 +580,7 @@ export class SandMini extends Mini {
     s.time.delayedCall(170, () => {
       if (this.chad.pose !== 'shoved') {
         this.chad.set('shoved', this.weeping.has(this.chad) ? 'cry' : 'sad');
-        tw.add({ targets: this, knock: 0.7, duration: 100, ease: 'Quad.out', yoyo: true, hold: 160, onComplete: () => this.chad.set('stand') });
+        tw.add({ targets: this, knock: 0.7, duration: 100, ease: 'Quad.out', yoyo: true, hold: 160, onComplete: () => this.rest() });
       }
       if (hard) {
         sound.bonk(false);
@@ -534,16 +589,58 @@ export class SandMini extends Mini {
     });
   }
 
+  /** The two of them, hugging: both arms (`hug`), or one round the shoulders (`side`). It is one
+   *  picture of them both, with their heads hung on it, and it stands where Chad was. */
+  private embrace(how: 'hug' | 'side'): void {
+    const s = this.scene, pair = SAND.pairs[how];
+    this.letGo();
+    this.chad.box.setVisible(false);
+    this.shane.box.setVisible(false);
+    const head = (who: string, look: string, at: [number, number, number]) => img(s, at[0], at[1], `${who}head_${look}`).setRotation(at[2]);
+    const x = this.chadX - pair.chad[0] * KID_SIZE;
+    this.pair = s.add.container(x, FLOOR, [img(s, 0, 0, `pair_${how}`), head('chad', how === 'hug' ? 'angel' : 'glee', pair.chad), head('shane', 'sweet', pair.shane)]).setDepth(10);
+    // (a squeeze)
+    this.pair.setScale(KID_SIZE * 1.06, KID_SIZE * 0.96);
+    s.tweens.add({ targets: this.pair, scaleX: KID_SIZE, scaleY: KID_SIZE, duration: 220, ease: 'Back.out' });
+    this.pairMouth = { x: x + pair.shane[0] * KID_SIZE, y: FLOOR + (pair.shane[1] - headTall('shane') * 0.27) * KID_SIZE };
+  }
+
+  /** ...and not hugging any more. */
+  private letGo(): void {
+    if (this.pair) this.scene.tweens.killTweensOf(this.pair);
+    this.pair?.destroy();
+    this.pair = undefined;
+    this.chad.box.setVisible(true);
+    this.shane.box.setVisible(true);
+  }
+
+  /** Hearts, off the top of the two of them. */
+  private hearts(n: number): void {
+    for (let i = 0; i < n; i++) {
+      this.scene.time.delayedCall(i * 190, () => {
+        if (this.pair) this.puff('heart', this.chadX + 30 + (Math.random() - 0.5) * 80, FLOOR - 236, (Math.random() - 0.5) * 30, -70 - Math.random() * 40, 1.5, -20);
+      });
+    }
+  }
+
   /** Somebody is in tears, from now on. */
   private cry(who: Kid): void {
-    who.face('cry');
     this.weeping.add(who);
     sound.yelp();
-    if (who === this.chad) this.say(who, 'WAAAH!', 0.9, -88, -84, 22);
+    if (who === this.chad) {
+      // (all of him: his arms out, and his head back)
+      who.set('wail', 'cry');
+      this.say(who, 'WAAAH!', 0.9, -88, -84, 22);
+    } else who.face('cry');
   }
 
   private dry(who: Kid): void {
     this.weeping.delete(who);
+  }
+
+  /** How Chad stands when nothing is being done to him: in tears, or not. */
+  private rest(): void {
+    this.chad.set(this.weeping.has(this.chad) ? 'wail' : 'stand');
   }
 
   // ---- their mother, in the doorway -----------------------------------------------------------
@@ -555,11 +652,13 @@ export class SandMini extends Mini {
     this.momAt = { x: this.door, y: DOORSTEP };
     this.mom.setVisible(true).setDepth(8).setScale(MOM_SIZE * 0.8);
     s.tweens.add({ targets: this.mom, scale: MOM_SIZE, duration: 140, ease: 'Back.out' });
-    applyArt(this.momHead, 'mom_pah');
+    applyArt(this.momHead, s.textures.exists('mom_scold') ? 'mom_scold' : 'mom_pah');
     sound.flick(true);
     const mouth = momMouth(this.door);
     this.said.push({ box: bubble(s, mouth.x - 62, Math.max(118, mouth.y - 22), text, mouth, 19, 'left'), left: secs });
-    this.shane.set('laugh', 'sweet');
+    // (a step back from his brother, and his hands behind his back)
+    s.tweens.add({ targets: this, shaneX: this.boxX + APART / 2, duration: 160 });
+    this.shane.set('good', 'sweet');
     this.shane.turn(1);
   }
 
@@ -568,7 +667,7 @@ export class SandMini extends Mini {
     this.hush();
     this.mom.setVisible(false);
     sound.flick(false);
-    this.shane.face('grin');
+    this.shane.set('laugh', 'grin');
     this.shane.turn(-1);
   }
 
@@ -633,7 +732,7 @@ export class SandMini extends Mini {
   private spray(x: number, y: number, n: number, speed: number, depth = 14): void {
     for (let i = 0; i < n; i++) {
       const a = -Math.PI / 2 + (Math.random() - 0.5) * 2.2, v = speed * (0.4 + Math.random() * 0.8);
-      this.puff('sand_speck', x + (Math.random() - 0.5) * 20, y, Math.cos(a) * v, Math.sin(a) * v, 0.7, 760, depth, depth > 20 ? 2.2 : 1);
+      this.puff(depth > 20 ? 'sand_clump' : 'sand_speck', x + (Math.random() - 0.5) * 20, y, Math.cos(a) * v, Math.sin(a) * v, 0.7, 760, depth);
     }
   }
 
@@ -674,7 +773,7 @@ export class SandMini extends Mini {
 
   /** Put everybody where they are. */
   private place(): void {
-    this.chad.box.setPosition(this.chadX - this.knock * 30, FLOOR).setRotation(-0.26 * this.knock);
+    this.chad.box.setPosition(this.chadX - this.knock * 30, FLOOR + this.dig * 3).setRotation(-0.26 * this.knock + 0.05 * this.dig);
     this.shane.box.setPosition(this.shaneX - this.lean * 34, FLOOR);
     this.mom.setPosition(this.momAt.x, this.momAt.y);
     this.roleTape.setScale((this.role.width + 34) / ART.you_are.w / TEX, 1 / TEX);

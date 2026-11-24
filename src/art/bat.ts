@@ -112,7 +112,7 @@ export const KID_HEAD = 23;
 export const KID_FACE = 62;
 /** ...and how tall the photo of it kept for close-ups is; and whose looks are seen that close (in the sandbox). */
 export const KID_CLOSE = 280;
-export const KID_CLOSE_UPS: Record<string, string[]> = { chad: ['mad', 'yell'], shane: ['doe', 'cry'] };
+export const KID_CLOSE_UPS: Record<string, string[]> = { chad: ['set', 'yell'], shane: ['doe', 'cry'] };
 
 type Mood = 'sad' | 'mad' | 'yell' | 'angel' | 'grin' | 'scared' | 'ow' | 'cry' | 'tongue';
 
@@ -129,8 +129,9 @@ export const KID_LOOKS: Record<string, { hair: Paper; looks: Record<string, { pa
       glee: { paper: 'grin', photo: 'grin' },
       joy: { paper: 'grin', photo: 'laugh' },
       angel: { paper: 'angel', photo: 'smile' },
-      // (no photo of him crying yet: he scowls through it)
-      cry: { paper: 'cry', photo: 'scowl' },
+      cry: { paper: 'cry', photo: 'cry' },
+      // his mind made up
+      set: { paper: 'mad', photo: 'set' },
     },
   },
   shane: {
@@ -141,9 +142,9 @@ export const KID_LOOKS: Record<string, { hair: Paper; looks: Record<string, { pa
       scared: { paper: 'scared', photo: 'scared' },
       ow: { paper: 'ow', photo: 'scared' },
       cry: { paper: 'cry', photo: 'cry' },
-      // butter would not melt; and (no photo of it yet) the big eyes he turns on his mother
+      // butter would not melt; and the big eyes he turns on his mother
       sweet: { paper: 'angel', photo: 'beam' },
-      doe: { paper: 'angel', photo: 'beam' },
+      doe: { paper: 'angel', photo: 'doe' },
     },
   },
 };
@@ -216,6 +217,10 @@ function kids(scene: Phaser.Scene, prefix: string, poses: Record<string, Doll>, 
     }, { border: 2, ax: KID_AX, ay: KID_AY });
   }
 }
+
+// The poses there are only photos of (for the sandbox): on paper each is the nearest thing there is.
+Object.assign(CHAD, { dig: CHAD.hide, bucket: CHAD.hide, wail: CHAD.stand, stance: CHAD.mad });
+Object.assign(SHANE, { throw: SHANE.push, reach: SHANE.push, punch: SHANE.push, good: SHANE.laugh });
 
 export function buildBatArt(scene: Phaser.Scene): void {
   kids(scene, 'chad', CHAD, CHAD_LOOK);

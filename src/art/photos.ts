@@ -11,6 +11,7 @@ import { KID_CLOSE, KID_CLOSE_UPS, KID_FACE, KID_LOOKS, buildBatArt } from './ba
 import { buildSandArt } from './sand';
 import { BAT_FACES } from '../data/bat';
 import { BAT_BODIES, BAT_DOOR, BAT_YARD } from '../data/batbodies';
+import { SAND } from '../data/sand';
 import { buildSleepoverArt } from './sleepover';
 import { buildStreetArt } from './street';
 import { FIGHT_BODIES } from '../data/fight';
@@ -82,6 +83,10 @@ const MAILBOX_SCALE = 0.352;
 const BILL_FACE = BILL_HEAD * 1.1;
 /** How tall the instructor's face is on the workout tape, hairline to chin: a size too big for her body, like everybody's. */
 const MOM_FACE = 60;
+/** How tall the two views in the sandbox are made (the pictures of Shane from above and of their mother from below), before the game sizes them. */
+export const SAND_ABOVE = 640;
+export const SAND_BELOW = 720;
+export { MOM_FACE };
 
 /** The tree the birdhouse sits in: how tall it is drawn, and where the
  *  birdhouse is in the photo, measured from the foot of the trunk as fractions
@@ -196,8 +201,29 @@ const PIECES: Piece[] = [
     const face = BAT_FACES[who]?.[KID_LOOKS[who].looks[look].photo];
     return face?.big ? [{ key: `${who}bighead_${look}`, file: face.big, h: KID_CLOSE * face.tall, border: 4, anchor: face.chin }] : [];
   })),
-  { key: 'mom_big_pah', file: 'mom-pah.png', h: MOM_FACE * 1.925 * 2.6, border: 4, anchor: [0.481, 0.635] },
-  { key: 'mom_big_hold', file: 'mom-hold.png', h: MOM_FACE * 1.92 * 2.6, border: 4, anchor: [0.482, 0.636] },
+  { key: 'mom_scold', file: SAND.scold.file, h: MOM_FACE * SAND.scold.tall, border: 2, anchor: SAND.scold.chin },
+  { key: 'mom_big_scold', file: SAND.scold.file, h: MOM_FACE * SAND.scold.tall * 2.6, border: 4, anchor: SAND.scold.chin },
+  // the day of the pocket sand: the sandbox and the toys; the two of them hugging; their mother's
+  // hands; and the two views (each pinned at the chin its head goes on, her forearm at its elbow)
+  // (the sandbox is pinned where the boys stand in it, its near plank by its top edge; the toys
+  // are the size of the ones in the pictures of Chad playing with them)
+  { key: 'sandbox_photo', file: SAND.box.file, w: 430, border: 2.4, anchor: [0.5, 0.6] },
+  { key: 'sandbox_near', file: SAND.box.front, w: 430, border: 2.4, anchor: [0.5, 0] },
+  { key: 'sand_shovel', file: 'sand-shovel.png', h: 50, border: 1.6, anchor: [0.5, 0.5] },
+  { key: 'sand_bucket', file: 'sand-bucket.png', h: 36, border: 1.6, anchor: [0.5, 0.5] },
+  { key: 'sandcastle', file: 'sand-castle.png', h: 52, border: 1.6, anchor: [0.48, 0.97] },
+  { key: 'sand_heap', file: 'sand-heap.png', w: 66, border: 1.6, anchor: [0.5, 0.9] },
+  { key: 'sand_pile', file: 'sand-heap.png', w: 250, border: 3, anchor: [0.5, 0.9] },
+  // ...and what flies: a speck (in the yard), a clump (close to), and a faceful
+  { key: 'sand_speck', file: 'sand-heap.png', w: 13, border: 0.7, anchor: [0.5, 0.5] },
+  { key: 'sand_clump', file: 'sand-heap.png', w: 30, border: 1, anchor: [0.5, 0.5] },
+  { key: 'sand_blob', file: 'sand-heap.png', w: 66, border: 1.6, anchor: [0.5, 0.5] },
+  { key: 'hand_grab', file: 'hand-grab.png', h: 430, border: 3, anchor: [0.5, 0.84] },
+  { key: 'hand_throw', file: 'hand-throw.png', w: 340, border: 3, anchor: [0.17, 0.5] },
+  ...Object.entries(SAND.pairs).map(([name, pair]): Piece => ({ key: `pair_${name}`, file: pair.file, scale: pair.scale, border: 2, anchor: pair.spot })),
+  { key: 'shane_above', file: SAND.above.file, h: SAND_ABOVE, border: 3, anchor: SAND.above.chin },
+  { key: 'mom_below', file: SAND.below.file, h: SAND_BELOW, border: 3, anchor: SAND.below.chin },
+  { key: 'mom_forearm', file: SAND.below.arm.file, h: SAND_BELOW * SAND.below.arm.tall, border: 3, anchor: SAND.below.arm.pivot },
   // ...and the bodies of the five-year-olds they were, one for each pose, standing on their spot on the grass
   ...Object.entries(BAT_BODIES).flatMap(([who, poses]) => Object.entries(poses).map(([pose, body]): Piece => (
     { key: `${who}_${pose}`, file: body.file, scale: body.scale, border: 2, anchor: body.spot }
@@ -303,7 +329,7 @@ export async function loadPhotoArt(scene: Phaser.Scene): Promise<void> {
   const sheets = PAPERS;
   const names = new Set<string>([
     ...PIECES.map((p) => p.file), ...PHOTO_VEHICLES.map((v) => v.file), 'postcard.jpg', 'rail.png', 'asphalt.jpg', 'houses.jpg', 'fence.png', 'concrete.jpg', 'hallway.jpg',
-    'tv-glass.png', 'tape-room.jpg', 'den.jpg', 'gym.jpg', 'yard-sky.jpg', 'yard-ground.png',
+    'tv-glass.png', 'tape-room.jpg', 'den.jpg', 'gym.jpg', 'yard-sky.jpg', 'yard-ground.png', 'sand-close.jpg',
     ...sheets.map((n) => `paper-${n}.png`),
   ]);
   const loaded = new Map<string, HTMLImageElement>();
@@ -341,6 +367,9 @@ export async function loadPhotoArt(scene: Phaser.Scene): Promise<void> {
   if (den) makePhotoTile(scene, 'den', den, den.naturalHeight, true);
   const gym = loaded.get('gym.jpg');
   if (gym) makePhotoTile(scene, 'gym', gym, gym.naturalHeight, true);
+  // sand, close to
+  const sandClose = loaded.get('sand-close.jpg');
+  if (sandClose) makePhotoTile(scene, 'sand_close', sandClose, sandClose.naturalHeight / 2, true);
   // the back yard, in two strips that go by at different speeds: the sky, and the fence and grass
   const yardSky = loaded.get('yard-sky.jpg'), yardGround = loaded.get('yard-ground.png');
   if (BAT_YARD && yardSky && yardGround) {

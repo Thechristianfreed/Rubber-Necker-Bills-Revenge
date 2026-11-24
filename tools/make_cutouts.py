@@ -653,10 +653,12 @@ def fight():
 # fraction of the height of his head: stubble in shadow is not always taken for face),
 # and how much longer than usual his face is where his mouth is wide open (so that his
 # head comes out as wide as it does in his other photos, and not squeezed to their height).
-BAT_FACES = [("chad", [("1", "scowl", 0, 0.045, 1), ("2", "smile", 0, 0, 1), ("3", "grin", 0, 0, 1), ("4", "laugh", 0, 0, 1), ("5", "yell", 0, 0, 1.13)]),
-             ("shane", [("1", "beam", 0, 0, 1), ("2", "wary", 0, 0, 1), ("3", "smirk", -17, 0, 1), ("4", "scared", -8, 0, 1), ("5", "cry", 0, 0, 1)])]
+BAT_FACES = [("chad", [("1", "scowl", 0, 0.045, 1), ("2", "smile", 0, 0, 1), ("3", "grin", 0, 0, 1), ("4", "laugh", 0, 0, 1), ("5", "yell", 0, 0, 1.13),
+                       ("6", "cry", 0, 0, 1.07), ("7", "set", 0, 0, 1)]),
+             ("shane", [("1", "beam", 0, 0, 1), ("2", "wary", 0, 0, 1), ("3", "smirk", -17, 0, 1), ("4", "scared", -8, 0, 1), ("5", "cry", 0, 0, 1),
+                        ("6", "doe", 0, 0, 1)])]
 # The faces that are also seen close up (in the sandbox), and so are kept at a bigger size as well.
-BAT_CLOSE_UPS = {("chad", "scowl"), ("chad", "yell"), ("shane", "beam"), ("shane", "cry")}
+BAT_CLOSE_UPS = {("chad", "set"), ("chad", "yell"), ("shane", "doe"), ("shane", "cry")}
 
 
 def bat_faces():
@@ -764,6 +766,9 @@ BAT_SHEETS = [
     ("shane", "PB2a-shane-standing", [("push", 0.15), ("laugh", 0.0), ("bawl", -0.06)], "laugh"),
     ("shane", "PB2b-shane-running", [None, None, ("ow", 0.12)], None),
     ("shane", "PB2c-shane-running", [("run1", 0.12), ("run2", 0.08)], None),
+    # ...and for the sandbox
+    ("chad", "SB3-chad-sandbox", [("dig", 0.5), ("bucket", 0.5), ("wail", 0.0), ("stance", 0.0)], "stance"),
+    ("shane", "SB2-shane-sandbox", [("throw", 0.1), ("reach", 0.08), ("punch", 0.06), ("good", 0.0)], "good"),
 ]
 # How far off the ground a boy's chin is when he stands up straight, in game pixels; and how
 # many of the picture's pixels are kept for each of the game's.
@@ -956,6 +961,184 @@ def bat_things():
         piece = cut.copy()
         piece[lab != i] = 0
         save(f"yard-{name}.png", trim(piece))
+
+
+# The day of the pocket sand. The two pictures of the brothers hugging: what each is
+# called, its sheet, how far each of their heads tips in it (Chad's, then Shane's), and how
+# far apart their chins are put, in game pixels. (Further than in the picture: the heads
+# they are given are twice the size of the ones they had, and would be one on top of the other.)
+SAND_PAIRS = [("hug", "SB6-hug", 0.14, -0.12, 40), ("side", "SB7-side-hug", 0.05, -0.06, 46)]
+# Where their mother's raised arm bends, in the picture of her from below (SB9): the forearm is
+# everything of her to the right of FOREARM_FROM and above FOREARM_ENDS, and it turns at ELBOW.
+FOREARM_FROM, FOREARM_ENDS, ELBOW = 900, 574, (948, 614)
+# How far down the picture of the sandbox its near plank begins: that much of it is a
+# piece of its own as well, to go in front of whoever is standing in the sand.
+BOX_NEAR = 0.764
+
+
+def mom_scold():
+    """Stephanie, telling somebody off: a fifth face, made from the same photo as the four
+    for the workout (see mom) but sent back twice the size. It is cut to the same framing
+    as they are: the same hairline, the same chin, the same size. Returns how tall its
+    picture is in faces and where that chin is in it."""
+    FACE = 200
+    names = (("d", "smile"), ("b", "in"), ("a", "pah"), ("c", "hold"))
+    faces = {n: np.where(selection(f"WT1{c}-mom-{n}-facemask.png") > 0.5) for c, n in names}
+    top = min(ys.min() for ys, _ in faces.values())
+    chin = (float(np.mean([(xs.min() + xs.max()) / 2 for _, xs in faces.values()])), float(np.mean([faces[n][0].max() for n in ("smile", "in", "hold")])))
+    cut = load("WT1e-mom-scold-cutout.png")
+    was = selection("WT1d-mom-smile-facemask.png").shape[1]
+    big = cut.shape[1] / was                                   # how much bigger this one came back
+    head = head_only(cut, "WT1e-mom-scold-headmask.png")
+    ys, xs = np.where(head[..., 3] > 0.08)
+    x0, x1, y0, y1 = xs.min() - 2, xs.max() + 3, ys.min() - 2, ys.max() + 3
+    piece = head[y0:y1, x0:x1]
+    k = FACE / (chin[1] - top) / big
+    out = cv2.resize(piece, (round(piece.shape[1] * k), round(piece.shape[0] * k)), interpolation=cv2.INTER_AREA)
+    save("mom-scold.png", out)
+    return out.shape[0] / FACE, (chin[0] * big - x0) / (x1 - x0), (chin[1] * big - y0) / (y1 - y0)
+
+
+def without_heads(cut, heads):
+    """A cutout with some heads taken off it (and the crumbs that leaves)."""
+    whole = np.zeros(cut.shape[:2], np.uint8)
+    for head in heads:
+        outlines, _ = cv2.findContours((head > 0.5).astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+        cv2.drawContours(whole, outlines, -1, 1, thickness=cv2.FILLED)
+    grown = cv2.GaussianBlur(cv2.dilate(whole, np.ones((9, 9), np.uint8)).astype(np.float32), (0, 0), 1.0)
+    body = cut.copy()
+    body[..., 3] *= 1 - np.clip(grown * 1.5, 0, 1)
+    n, lab, st, _ = cv2.connectedComponentsWithStats((body[..., 3] > 0.3).astype(np.uint8), 8)
+    big = max(st[i][4] for i in range(1, n))
+    crumbs = np.isin(lab, [i for i in range(1, n) if st[i][4] < big * 0.02])
+    rest = cv2.dilate(((lab > 0) & ~crumbs).astype(np.uint8), np.ones((3, 3), np.uint8)) > 0
+    body[cv2.dilate(crumbs.astype(np.uint8), np.ones((9, 9), np.uint8)).astype(bool) & ~rest, 3] = 0
+    return body
+
+
+def chin_of(head):
+    """The chin of a head that has been selected: the middle of the lowest of it. And how tall the head is."""
+    ys, xs = np.where(head > 0.5)
+    low = ys > ys.max() - (ys.max() - ys.min()) * 0.04
+    return (float(xs[low].mean()), float(ys.max())), float(ys.max() - ys.min())
+
+
+def boxed(piece):
+    ys, xs = np.where(piece[..., 3] > 0.3)
+    return max(0, xs.min() - 3), min(piece.shape[1], xs.max() + 4), max(0, ys.min() - 3), min(piece.shape[0], ys.max() + 4)
+
+
+def sand():
+    """The day of the pocket sand: the sandbox and the toys, their mother's hands, the two
+    pictures of the brothers hugging, and the two views (Shane's of his mother, from below,
+    with the arm she wags a finger with cut off at the elbow so that it can; and hers of
+    him, from above). Writes src/data/sand.ts. The brothers' other poses for it are sheets
+    like any others (BAT_SHEETS), and their faces are in BAT_FACES."""
+    # the sandbox, and what is played with in it
+    found = sorted(pieces(load("SB1-sandbox-cutout.png"), 3000), key=lambda p: p[0])
+    assert len(found) == 5, f"{len(found)} things in the sandbox picture"
+    for name, (_, _, piece) in zip(["box", "shovel", "bucket", "castle", "heap"], found):
+        save(f"sand-{name}.png", piece)
+        if name == "box":
+            save("sand-box-near.png", piece[round(piece.shape[0] * BOX_NEAR):])
+    # ...and a piece of the sand in it, for close-ups: beside and above its own mirror image, to go on for ever
+    photo = original("SB1-sandbox.webp")
+    grain = photo[420:680, 300:820]
+    # (less its hills and hollows, which would show as a pattern once it repeats: only the grains are kept)
+    grain = grain - cv2.GaussianBlur(grain, (0, 0), 6) + grain.mean(axis=(0, 1))
+    grain = np.concatenate([grain, grain[:, ::-1]], axis=1)
+    grain = np.concatenate([grain, grain[::-1]], axis=0)
+    path = os.path.join(OUT, "sand-close.jpg")
+    Image.fromarray((np.clip(grain, 0, 1) * 255).astype(np.uint8), "RGB").save(path, quality=82)
+    print("sand-close.jpg", grain.shape[1], "x", grain.shape[0], os.path.getsize(path), "bytes")
+
+    # their mother's hands: the one that takes a handful, and the one that has just thrown it
+    hands = selection("SB4-hands-handmask.png")
+    n, lab, st, _ = cv2.connectedComponentsWithStats((hands > 0.5).astype(np.uint8), 8)
+    three = sorted((i for i in range(1, n) if st[i][4] > 5000), key=lambda i: st[i][0])
+    assert len(three) == 3, f"{len(three)} hands"
+    photo = original("SB4-hands.webp")
+    for name, i in zip([None, "grab", "throw"], three):
+        if name:
+            near = cv2.dilate((lab == i).astype(np.uint8), np.ones((5, 5), np.uint8)).astype(np.float32)
+            save(f"hand-{name}.png", trim(np.dstack([photo, hands * near])))
+
+    # the brothers, hugging: one picture of the two of them, less both heads
+    pairs = {}
+    for name, sheet, tip_chad, tip_shane, apart in SAND_PAIRS:
+        cut = load(f"{sheet}-cutout.png")
+        heads = [selection(f"{sheet}-headmask.png"), selection(f"{sheet}-headmask2.png")]
+        body = without_heads(cut, heads)
+        chins = [chin_of(h)[0] for h in heads]
+        x0, x1, y0, y1 = boxed(body)
+        feet = float(np.where(body[..., 3] > 0.3)[0].max())
+        spot = ((chins[0][0] + chins[1][0]) / 2, feet)
+        scale = KID_CHIN / (feet - (chins[0][1] + chins[1][1]) / 2)
+        save(f"pair-{name}.png", smaller(body[y0:y1, x0:x1], scale * KID_DETAIL))
+        out = max(apart, (chins[1][0] - chins[0][0]) * scale) / 2
+        pairs[name] = dict(at=((spot[0] - x0) / (x1 - x0), (spot[1] - y0) / (y1 - y0)),
+                           chad=(-out, (chins[0][1] - spot[1]) * scale, tip_chad),
+                           shane=(out, (chins[1][1] - spot[1]) * scale, tip_shane))
+
+    # hers of him, from above: all of him but his head
+    cut = load("SB10-shane-above-cutout.png")
+    head = selection("SB10-shane-above-headmask.png")
+    body = without_heads(cut, [head])
+    chin, tall = chin_of(head)
+    x0, x1, y0, y1 = boxed(body)
+    save("shane-above.png", body[y0:y1, x0:x1])
+    above = dict(chin=((chin[0] - x0) / (x1 - x0), (chin[1] - y0) / (y1 - y0)), head=tall / (y1 - y0))
+
+    # his of her, from below: all of her but her head, and her forearm on its own
+    cut = load("SB9-mom-below-cutout.png")
+    head = selection("SB9-mom-below-headmask.png")
+    body = without_heads(cut, [head])
+    chin, tall = chin_of(head)
+    yy, xx = np.mgrid[0:cut.shape[0], 0:cut.shape[1]]
+    upper = ((xx > FOREARM_FROM) & (yy < FOREARM_ENDS)).astype(np.float32)
+    # (it goes on down over her elbow, as far as the middle of it, and has a round end there to turn on)
+    joint = (xx > FOREARM_FROM + 6) & (((yy >= FOREARM_ENDS) & (yy <= ELBOW[1])) | ((xx - ELBOW[0]) ** 2 + (yy - ELBOW[1]) ** 2 < 40 ** 2))
+    arm = body.copy()
+    arm[..., 3] *= cv2.GaussianBlur(np.maximum(upper, joint.astype(np.float32)), (0, 0), 1.0)
+    body[..., 3] *= 1 - cv2.GaussianBlur(upper, (0, 0), 1.0)
+    x0, x1, y0, y1 = boxed(body)
+    a0, a1, b0, b1 = boxed(arm)
+    save("mom-below.png", body[y0:y1, x0:x1])
+    save("mom-forearm.png", arm[b0:b1, a0:a1])
+    below = dict(chin=((chin[0] - x0) / (x1 - x0), (chin[1] - y0) / (y1 - y0)), head=tall / (y1 - y0),
+                 elbow=((ELBOW[0] - x0) / (x1 - x0), (ELBOW[1] - y0) / (y1 - y0)),
+                 pivot=((ELBOW[0] - a0) / (a1 - a0), (ELBOW[1] - b0) / (b1 - b0)), arm=(b1 - b0) / (y1 - y0))
+
+    scold = mom_scold()
+    table = os.path.join(ROOT, "src", "data", "sand.ts")
+    with open(table, "w") as f:
+        f.write("/** The photo pieces for the day of the pocket sand, beyond the brothers' usual\n"
+                " *  bodies and faces (which are with the bat's: batbodies.ts and bat.ts).\n"
+                " *  `pairs`: the two of them hugging, as one picture less both heads; its size,\n"
+                " *  the spot on the ground between them, and for each of them where his chin goes\n"
+                " *  from that spot (game pixels) and how far his head tips.\n"
+                " *  `above`: Shane as his mother sees him. `below`: her as he sees her, with the\n"
+                " *  forearm she wags a finger with as a piece of its own that turns at the elbow.\n"
+                " *  For those, a chin and an elbow are fractions of the picture, `head` is how\n"
+                " *  tall the head that was on it was (as a fraction of the picture's height), and\n"
+                " *  `arm.tall` is how tall the forearm's picture is beside the body's.\n"
+                " *  `scold`: their mother's face for telling somebody off, as her others are (photos.ts).\n"
+                " *  `box.near`: how far down the picture of the sandbox its near plank (a piece of its own) begins.\n"
+                " *  Written by tools/make_cutouts.py; do not edit by hand. */\n"
+                "export interface SandPair { file: string; scale: number; spot: [number, number]; chad: [number, number, number]; shane: [number, number, number] }\n\n"
+                "export const SAND = {\n  pairs: {\n")
+        for name, e in pairs.items():
+            f.write(f"    {name}: {{ file: 'pair-{name}.png', scale: {1 / KID_DETAIL:.4f}, spot: [{e['at'][0]:.3f}, {e['at'][1]:.3f}],"
+                    f" chad: [{e['chad'][0]:.1f}, {e['chad'][1]:.1f}, {e['chad'][2]:.2f}], shane: [{e['shane'][0]:.1f}, {e['shane'][1]:.1f}, {e['shane'][2]:.2f}] }},\n")
+        f.write("  } as Record<string, SandPair>,\n")
+        f.write(f"  above: {{ file: 'shane-above.png', chin: [{above['chin'][0]:.3f}, {above['chin'][1]:.3f}] as [number, number], head: {above['head']:.3f} }},\n")
+        f.write(f"  below: {{\n    file: 'mom-below.png', chin: [{below['chin'][0]:.3f}, {below['chin'][1]:.3f}] as [number, number], head: {below['head']:.3f},\n"
+                f"    elbow: [{below['elbow'][0]:.3f}, {below['elbow'][1]:.3f}] as [number, number],\n"
+                f"    arm: {{ file: 'mom-forearm.png', pivot: [{below['pivot'][0]:.3f}, {below['pivot'][1]:.3f}] as [number, number], tall: {below['arm']:.3f} }},\n  }},\n")
+        f.write(f"  scold: {{ file: 'mom-scold.png', tall: {scold[0]:.3f}, chin: [{scold[1]:.3f}, {scold[2]:.3f}] as [number, number] }},\n")
+        f.write(f"  box: {{ file: 'sand-box.png', front: 'sand-box-near.png', near: {BOX_NEAR:.3f} }},\n")
+        f.write("};\n")
+    print("wrote", table)
 
 
 def bat_yard():
@@ -1448,6 +1631,7 @@ if __name__ == "__main__":
     fight()
     bat_faces()
     bat_bodies()
+    sand()
     teen()
     hallway()
     locker_things()

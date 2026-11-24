@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { burstPath, cutText, fillPaper, glued, heartPath, makePaperArt, makeWord, paper, strokePaper } from './paper';
-import { Ctx, circle, ellipse, makeArt, poly, rr, star } from './sticker';
+import { Ctx, circle, makeArt, poly, rr, star } from './sticker';
 
 /** Cut-paper art for the day of the pocket sand: the sandbox and what is in
  *  it, a hand or two for the close-ups, and the words. These are stand-ins:
@@ -73,6 +73,7 @@ export function buildSandArt(scene: Phaser.Scene): void {
 
   // sand in the air, and sand where it lands
   makeArt(scene, 'sand_speck', 10, 10, (c) => { circle(c, 5, 5, 4); fillPaper(c, 'manila'); c.fillStyle = 'rgba(120, 84, 30, 0.35)'; circle(c, 4, 4, 1.5); c.fill(); }, { border: 0.8 });
+  makeArt(scene, 'sand_clump', 22, 22, (c) => { circle(c, 11, 11, 9); fillPaper(c, 'manila'); c.fillStyle = 'rgba(120, 84, 30, 0.35)'; circle(c, 9, 9, 3); c.fill(); }, { border: 1.2 });
   makePaperArt(scene, 'sand_blob', 60, 44, (c) => {
     glued(c, () => { burstPath(c, 30, 22, 29, 21, 9, 21); fillPaper(c, 'manila'); });
     speckle(c, 8, 6, 44, 32, 30, 9);
@@ -81,21 +82,6 @@ export function buildSandArt(scene: Phaser.Scene): void {
     c.beginPath(); c.rect(0, 0, 128, 128); fillPaper(c, 'manila');
     speckle(c, 0, 0, 128, 128, 170, 11);
   }, { border: 0, ax: 0, ay: 0 });
-
-  // for the close-ups: a finger to wag, and a hand to take a handful
-  makePaperArt(scene, 'mom_finger', 120, 210, (c) => {
-    glued(c, () => { rr(c, 36, 120, 56, 90, 16); fillPaper(c, 'yellow'); });
-    glued(c, () => { rr(c, 22, 70, 82, 76, 26); fillPaper(c, 'manila'); });
-    glued(c, () => strokePaper(c, [48, 84, 44, 16], 'manila', 22));
-    for (const [x, y] of [[70, 84], [86, 92], [98, 104]]) glued(c, () => { circle(c, x, y, 13); fillPaper(c, 'manila'); });
-    glued(c, () => { ellipse(c, 30, 110, 13, 20, 0.5); fillPaper(c, 'manila'); });
-  }, { border: 3, ax: 62, ay: 200 });
-  makePaperArt(scene, 'mom_hand', 230, 170, (c) => {
-    glued(c, () => { c.save(); c.translate(54, 40); c.rotate(0.5); rr(c, -30, -70, 60, 110, 18); fillPaper(c, 'yellow'); c.restore(); });
-    glued(c, () => { ellipse(c, 112, 84, 58, 44, 0.35); fillPaper(c, 'manila'); });
-    for (const [x, y, a] of [[150, 126, 0.9], [172, 108, 0.7], [186, 84, 0.45], [188, 58, 0.15]]) glued(c, () => { ellipse(c, x, y, 26, 12, a); fillPaper(c, 'manila'); });
-    glued(c, () => { ellipse(c, 96, 128, 24, 12, 1.2); fillPaper(c, 'manila'); });
-  }, { border: 3, ax: 150, ay: 110 });
 
   makePaperArt(scene, 'heart', 30, 28, (c) => { glued(c, () => { heartPath(c, 30, 28); fillPaper(c, 'red'); }); }, { border: 1.4 });
   makeArt(scene, 'sparkle', 44, 44, (c) => {

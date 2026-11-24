@@ -50,6 +50,10 @@ export class MiniScene extends Phaser.Scene {
   /** How many of the games played so far counted (one that cannot be won does not). */
   private counted = 0;
   private unscored: string[] = [];
+  /** How many were skipped (with the button for that, which is there while the games are being made). */
+  private skipped = 0;
+  private skipAt = { x: 0, y: 26 };
+  private skipTag: (Image | Phaser.GameObjects.Text)[] = [];
   private auto: '' | 'good' | 'clumsy' = '';
   private only = '';
   private canRestart = false;
@@ -82,6 +86,7 @@ export class MiniScene extends Phaser.Scene {
     this.score = 0;
     this.counted = 0;
     this.unscored = [];
+    this.skipped = 0;
     this.mini = undefined;
     this.canRestart = false;
     this.card = [];
@@ -101,6 +106,9 @@ export class MiniScene extends Phaser.Scene {
     this.scoreText = written(this, view.W / 2, 17, 'CLEARED  0', 15).setDepth(d + 1);
     this.bar = this.add.graphics().setDepth(d);
     this.mute = img(this, view.W - 28, 28, sound.muted ? 'snd_off' : 'snd_on').setDepth(d);
+    // for now, while the games are being made: on to the next one without playing this one
+    this.skipAt = { x: Math.min(26 + this.total * step + 44, view.W / 2 - 126), y: 26 };
+    this.skipTag = [img(this, this.skipAt.x, this.skipAt.y, 'tape_s').setDepth(d).setRotation(0.02), written(this, this.skipAt.x, this.skipAt.y, 'SKIP', 14).setDepth(d + 1).setRotation(0.02)];
     this.snow = this.add.tileSprite(view.W / 2, H / 2, MAX_W + 96, H + 96, 'tv_snow').setDepth(DEPTH.overlay + 5).setAlpha(0);
     this.keep = new Set(this.children.list);
 
@@ -118,6 +126,8 @@ export class MiniScene extends Phaser.Scene {
       if (Math.hypot(at.x - (view.W - 28), at.y - 28) < 30) {
         sound.setMuted(!sound.muted);
         applyArt(this.mute, sound.muted ? 'snd_off' : 'snd_on');
+      } else if (this.state !== 'over' && Math.abs(at.x - this.skipAt.x) < 48 && Math.abs(at.y - this.skipAt.y) < 22) {
+        this.skip();
       } else if (this.state === 'play') {
         this.mini?.press(at);
       } else if (this.state === 'over' && this.canRestart) {
@@ -186,6 +196,18 @@ export class MiniScene extends Phaser.Scene {
     this.t = 0.3;
     this.bar.setVisible(this.mini.timed);
     this.drawBar(1);
+  }
+
+  /** On to the next game without playing this one: it is not counted, and its mark goes back to how it was. */
+  private skip(): void {
+    if (this.state === 'over') return;
+    if (this.state !== 'stamp') {
+      applyArt(this.marks[this.played - 1], 'mini_mark');
+      this.skipped++;
+    }
+    sound.tock();
+    if (this.queue.length === 0) this.theEnd();
+    else this.next();
   }
 
   private startPlay(): void {
@@ -257,8 +279,9 @@ export class MiniScene extends Phaser.Scene {
     else if (this.score === 0) sound.lose();
     else sound.cash();
     this.bar.clear();
+    this.skipTag.forEach((o) => o.setVisible(false));
     // the best is only kept for the whole tape, played by a person
-    const whole = this.total === ROSTER.length;
+    const whole = this.total === ROSTER.length && this.skipped === 0;
     const best = whole ? Math.max(this.score, loadBest(BEST)) : this.score;
     if (!this.auto && whole) saveBest(BEST, this.score);
     const W = view.W, d = DEPTH.overlay + 2, px = W / 2, py = H / 2 + 8, pw = 500, ph = 300;

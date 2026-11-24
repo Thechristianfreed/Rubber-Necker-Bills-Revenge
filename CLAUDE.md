@@ -24,6 +24,7 @@ first, then the doc for whatever is being touched: `docs/minigames.md`,
 - **Testing:** test what changed, not the whole game. The game plays itself:
   `?auto` or `?auto=clumsy`, with `&level=street|highway|locker|sleepover|minis`
   and `&mini=workout|phone|bop|bat|sand|fight`. Then show the owner screenshots.
+  Home Movies has a SKIP tag (top left) for the owner's own testing, for now.
 - **Sound:** measure what actually comes out (an AnalyserNode on
   `sound.sfx`), never just that the code ran: quiet effects have slipped
   through that way. Level short sounds by their loudest 40 ms, not their peak.

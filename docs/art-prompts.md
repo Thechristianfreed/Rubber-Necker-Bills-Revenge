@@ -426,13 +426,10 @@ Edit this photo. Keep the man, his hair, his stubble, the lighting, the framing 
 
 ## Home Movies: Pocket sand
 
-The same yard, house, mother and brothers as Payback, so most of it is
-made already. In the game with stand-ins cut from paper: the sandbox, the
-toy shovel and bucket, the sandcastle, and the two hands in the close-ups.
-Standing in for poses and looks there is no picture of yet: Shane's shove
-(for throwing, hugging and punching), his hands-on-hips (for looking up at
-his mother), his beaming face (for the big innocent eyes), and Chad's
-scowl (for crying).
+The same yard, house, mother and brothers as Payback. All of it is made and
+in the game. `sand()` in `tools/make_cutouts.py` cuts the pieces and writes
+`src/data/sand.ts`; the brothers' new poses and faces go through the same
+sheets and tables as Payback's (`BAT_SHEETS`, `BAT_FACES`).
 
 The same rules as before: every pose faces right, and nothing covers a
 head or neck, since the heads come off.
@@ -457,11 +454,24 @@ The same small boy exactly, in the same light blue T-shirt, navy shorts, white s
 
 ### SB4. Their mother's hands
 
+(The first of the three, the wagging finger, is not used: her own arm does
+that now, in SB9.)
+
 ```text
 Three photographs of the same woman's bare right forearm and hand, side by side with wide clear gaps between them, on one plain flat light-grey background. First: the forearm upright, the hand in a loose fist with the first finger pointing straight up, as if wagging a finger at somebody, seen from the front. Second: the arm reaching down from the top of the picture, the hand open with the fingers spread and curled like a claw, about to grab a handful of something. Third: the arm stretched out level towards the left of the picture, the hand flung open with the fingers spread wide, having just thrown something. Each arm ends at the elbow, cut off square. Soft even light, no shadows on the background. No text. Wide 16:9 image.
 ```
 
-### SB5 to SB8. The faces (one edit each)
+### SB6 and SB7. The two of them hugging
+
+The owner's own pictures, made from the two sheets: both arms round each
+other (`SB6-hug`), and then side by side with an arm round each other's
+shoulders (`SB7-side-hug`), Chad on the left in both. Each is one piece in
+the game, less both heads, with the photo heads hung on it.
+
+### The faces (one edit each)
+
+Kept as `art-src/photos/shane-6`, `chad-6`, `chad-7` and
+`art-src/generated/WT1e-mom-scold`.
 
 Shane, the big innocent eyes he turns on his mother (attach `shane-1`, the beaming photo):
 
@@ -491,8 +501,17 @@ Edit this photo. Keep the woman, her hair, the lighting, the framing and the bac
 
 Shane's view of his mother, and hers of him. The heads come off both.
 
+His of her took two goes: first with both hands on her hips (attach the
+picture of the house and the mother in the yellow blouse), and then an edit
+of that to raise one arm, so that the forearm can be cut off at the elbow
+and pinned there to wag. Only the second is kept (`SB9-mom-below`).
+
 ```text
-A full-length photograph taken from very low down, at the eye height of a small child, looking steeply up at a mother of about thirty who is standing right over the camera: a yellow short-sleeved blouse and high-waisted blue jeans, about 1990, one hand on her hip and the other arm bent, wagging its first finger down at the camera. Her hair is tied back so her neck is clear. Her whole body is in frame, from her feet at the bottom of the picture to the top of her head, with her raised hand clear of her face. Plain flat light-grey background, soft even light. No text. Tall 9:16 image.
+The same woman exactly, in the same yellow short-sleeved blouse, high-waisted blue jeans and white trainers. One full-length photograph of her taken from very low down, at the eye height of a small child, looking steeply up at her as she stands right over the camera with both hands on her hips, leaning forward a little to look straight down into it. Her hair is tied back so her neck is clear. Her whole body is in frame, from her feet at the bottom of the picture to the top of her head. Plain flat light-grey background, soft even light. No text, no borders. Tall 9:16 image.
+```
+
+```text
+Edit this photo. Keep the woman, her face, her clothes, the camera angle, the lighting and the background exactly the same. Change only one arm: the arm on the right-hand side of the picture is no longer on her hip. It is raised out to her side with the elbow at shoulder height and bent, the forearm pointing straight up, the hand in a loose fist with the first finger pointing straight up, as if she is wagging a finger at the camera. The whole of that arm and hand is against the plain background, well clear of her body, her head and her hair. Her other hand stays on her hip. Zoom out a little if needed so that the whole raised arm and hand are inside the picture with empty background all round them.
 ```
 
 Attach one of Shane's sheets:
