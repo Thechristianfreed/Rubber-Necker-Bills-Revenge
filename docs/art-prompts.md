@@ -247,9 +247,11 @@ An empty 1990s family den photographed straight on at standing height: a wood-pa
 
 Made and in the game, cut out by `fight()` in `tools/make_cutouts.py`:
 Stephanie's seven bodies in her cheer outfit (AS1), the other girl before and
-after (AS2), the gym, and the bleachers, bake sale and hoop (AS3). Still to
-make: the other girl's arm at four heights (AS4), so that it follows
-Stephanie round when she is swung. The first sheet of AS1 arrived at half
+after (AS2), the gym, the bleachers, bake sale and hoop (AS3), and the other
+girl's arm at four heights (AS4), which follows Stephanie round when she is
+swung. Not made, and only worth making if the opening shove should be a
+punch: the other girl, before she changes, throwing one (it is her pointing
+pose, lunging, for now). The first sheet of AS1 arrived at half
 size (512 pixels wide), so those four bodies are a little soft; a full-size
 copy would fix that. Stephanie's head is the four faces made for the workout;
 the people in her pictures lose theirs to it. The other girl is as the family
@@ -294,12 +296,15 @@ Three things photographed straight on, side by side with wide clear gaps between
 ### AS4. The other girl's arm, for the swing
 
 She swings Stephanie by the ankle from the floor on one side, up over her
-head, and down on the other. There is one photo of her with an arm out
-(level), so for now her arm stays there while Stephanie goes round. With
-these four it follows: the game shows whichever is nearest to where the
-swing has got to, and mirrors them for the other side. Save the cutout as
-`art-src/adobe/AS5-rival-arms-cutout.png` and `fight()` picks it up (the
-poses are `arm0` to `arm3`, low to high).
+head, and down on the other. These four photos are her arm on the way: the
+game shows whichever has it pointing most nearly the way Stephanie is flying
+from her fist, and mirrors them for the other side, so there are seven
+positions in a swing. Stephanie's ankle is on the fist in each. The sheet is
+`art-src/generated/AS5-rival-arms.webp`, its cutout
+`art-src/adobe/AS5-rival-arms-cutout.png`, and `fight()` makes `arm0` to
+`arm3` from it, low to high. How far above level the arm is in each is
+written in `ARMS` at the top of `src/minis/FightMini.ts`: measure again if
+the sheet is ever replaced.
 
 Attach the sheet of her transformed:
 

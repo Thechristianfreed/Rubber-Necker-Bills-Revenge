@@ -12,7 +12,8 @@ import { VOICE, VoiceId } from '../data/voice';
  *  files have loaded, and for the effects nobody has recorded, a stand-in
  *  synthesised with the Web Audio API plays instead. The breathing in the
  *  workout game is the tape's own, `sfx/tape.mp3` (tools/make_tape.py), which
- *  is not always there. The music is recordings
+ *  is not always there; nor is the announcer who ends the fight after school,
+ *  `sfx/fatality.mp3` (see docs/music.md). The music is recordings
  *  too, one per level, in `music/` (tools/make_music.sh). All of it sits
  *  beside the page rather than inside it. */
 
@@ -25,6 +26,8 @@ const DUCK = 0.4;
 const BREATH_IN = 0.52;
 /** How loud the power-up drone is at its height. */
 const POWER_UP = 0.14;
+/** How loud the announcer is at the end of the fight (his recording is a loud one). */
+const ANNOUNCER = 0.8;
 
 /** Where the music is, relative to the page, and how loud it plays under the effects. */
 const MUSIC_DIR = 'music/';
@@ -76,6 +79,8 @@ class Sound {
   private effects: Bank = { url: 'sfx/effects.mp3' };
   /** The workout tape's own breath in and "PAH" (may be missing: see tools/make_tape.py). */
   private tape: Bank = { url: 'sfx/tape.mp3' };
+  /** The announcer who has the last word on the fight after school (may be missing too). */
+  private announcer: Bank = { url: 'sfx/fatality.mp3' };
   private voiceOut!: GainNode;
   /** Lines being spoken right now. */
   private speaking: AudioBufferSourceNode[] = [];
@@ -125,7 +130,7 @@ class Sound {
   /** Start fetching the recordings; they are turned into sound as soon as
    *  there is something to play them with (after the first tap). */
   loadVoice(): void {
-    for (const bank of [this.voice, this.effects, this.tape]) {
+    for (const bank of [this.voice, this.effects, this.tape, this.announcer]) {
       if (!bank.file) {
         bank.file = fetch(new URL(bank.url, document.baseURI))
           .then((r) => (r.ok ? r.arrayBuffer() : null))
@@ -499,6 +504,36 @@ class Sound {
     p.out.gain.setTargetAtTime(0.0001, t, 0.03);
     for (const part of p.parts) part.stop(t + 0.25);
     this.power = undefined;
+  }
+
+  /** The screen stops for somebody's best move: a rising shriek, a ring of
+   *  high notes, and a thud as it lands. */
+  superMove(): void {
+    this.tone({ type: 'sawtooth', f0: 180, f1: 1500, dur: 0.34, vol: 0.2 });
+    this.noise({ dur: 0.36, vol: 0.5, filter: 'highpass', f0: 900, f1: 5200 });
+    [1319, 1568, 1976, 2637].forEach((f, i) => this.tone({ type: 'square', f0: f, dur: 0.16, vol: 0.09, at: 0.3 + i * 0.055 }));
+    this.tone({ type: 'sine', f0: 150, f1: 42, dur: 0.5, vol: 0.6, at: 0.3 });
+  }
+
+  /** The announcer: "Flawless victory." And then: "Fatality." The music drops
+   *  under him. Returns how long he takes (nothing, if he is not there: then
+   *  it is a groan and a few sad notes, as for any other loss). */
+  fatality(): number {
+    const ctx = this.ctx, clip = this.announcer.sound;
+    if (!ctx || !clip) {
+      this.lose();
+      return 0;
+    }
+    const src = ctx.createBufferSource(), g = ctx.createGain();
+    src.buffer = clip;
+    g.gain.value = ANNOUNCER;
+    src.connect(g).connect(this.sfx);
+    src.start();
+    const at = ctx.currentTime, m = this.music.gain;
+    m.cancelScheduledValues(at);
+    m.setTargetAtTime(MUSIC_VOLUME * this.musicLevel * DUCK, at, 0.04);
+    m.setTargetAtTime(MUSIC_VOLUME * this.musicLevel, at + clip.duration, 0.2);
+    return clip.duration;
   }
 
   /** One very large thump. */

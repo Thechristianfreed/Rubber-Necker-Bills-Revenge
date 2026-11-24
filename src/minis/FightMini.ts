@@ -21,19 +21,22 @@ const FIGHT_FOR = 6.5;
 const FIGHT_HITS = 8;
 /** Where the other girl's hand is when her arm is straight out, from the spot she stands on. */
 const HAND = { x: 118, y: 276 };
-/** Her arm, in each photo there is of it held out: the pose, and how far above
- *  level the arm is in it (in radians; below level is less than nothing). She is
- *  swung through these in turn, and mirrored for the other side. With only the
- *  one photo, her arm stays level. */
-const ARMS = [{ pose: 'arm0', up: -0.7 }, { pose: 'arm1', up: 0 }, { pose: 'arm2', up: 0.79 }, { pose: 'arm3', up: Math.PI / 2 }]
+/** Her arm, in each photo there is of it held out, lowest first: the pose, and how
+ *  far above level the arm is in it, shoulder to fist (in radians, measured off the
+ *  photos; below level is less than nothing). Whichever is nearest to the way
+ *  Stephanie is flying is the one that shows, mirrored for the other side. With
+ *  only the one photo, her arm stays level. */
+const ARMS = [{ pose: 'arm0', up: -1.13 }, { pose: 'arm1', up: 0.17 }, { pose: 'arm2', up: 0.63 }, { pose: 'arm3', up: 1.41 }]
   .filter((a) => FIGHT_BODIES.rival?.[a.pose]?.hand);
 if (!ARMS.length) ARMS.push({ pose: 'flick', up: 0 });
+/** The one Stephanie is held up by before the swinging starts: the lowest that keeps her head off the floor. */
+const HELD_UP = Math.max(0, ARMS.findIndex((a) => -(FIGHT_BODIES.rival[a.pose].hand as number[])[1] > 270));
 /** However low the arm goes, Stephanie is never quite laid flat: this is as near to it as she gets (radians off straight down). */
 const FLATTEST = 1.05;
 const STEEPEST = 0.26;
 /** How many times she is brought down, how long each swing over the top takes, and the pause after each. */
 const SLAMS = 7;
-const SWING = 0.24;
+const SWING = 0.27;
 const REST = 0.17;
 /** Where the floor meets the wall in the photo of the gym, and in the game. */
 const GYM_FLOOR = 455;
@@ -41,10 +44,49 @@ const WALL_ENDS = 410;
 
 const MOVES = ['SPIRIT FINGERS', 'HIGH KICK', 'POM-POM FLURRY'];
 const POSES = ['fingers', 'kick', 'flurry'];
-const PLEAS = ['APOLOGIZE', 'COMPLIMENT HER JACKET', 'OFFER HALL PASS'];
-const SAID = ['SORRY!!', 'I LOVE YOUR JACKET!', 'HALL PASS...?'];
+const PLEAS = ['APOLOGIZE', 'COMPLIMENT HER JACKET', 'BEG FOR MERCY'];
+const SAID = ['SORRY!!', 'I LOVE YOUR JACKET!', 'MERCY! PLEASE!'];
 
-type Phase = 'callout' | 'round' | 'fight' | 'power' | 'grab' | 'smash' | 'toss' | 'ko' | 'done';
+/** The other girl throws the first one, before anybody has said "fight": how far
+ *  it knocks Stephanie back, and how much of her health bar it takes. */
+const SHOVED = 74;
+const SHOVE_COSTS = 0.22;
+/** How long the screen stops for the words SUPER MOVE. */
+const SUPER_FOR = 1.25;
+/** In the announcer's recording, how long after "Flawless victory" he says "Fatality";
+ *  and how long he takes over all of it, if the recording is not there to say. */
+const FATALITY_AT = 1.92;
+const ANNOUNCED_FOR = 3.45;
+
+/** Speech bubbles. Nothing that is said sits higher than the names under the health
+ *  bars or lower than the buttons, and a line longer than this is broken in two. */
+const SAY_TOP = 108;
+const SAY_BOTTOM = 462;
+const SAY_WRAP = 215;
+const INK_COLOUR = 0x2a2320;
+const PAPER_COLOUR = 0xfbf6ea;
+
+type Phase = 'callout' | 'round' | 'fight' | 'power' | 'grab' | 'super' | 'smash' | 'toss' | 'ko' | 'done';
+type Who = 'steph' | 'rival';
+interface Box { x0: number; y0: number; x1: number; y1: number }
+/** Somebody's head: the middle of it, how big it is, and where the words come out. */
+interface Head { x: number; y: number; r: number; mouth: Point }
+/** Something somebody is saying: the paper it is on, how big that is, where it sits
+ *  from their head, and how much longer it has. */
+interface Bubble {
+  who: Who;
+  box: Phaser.GameObjects.Container;
+  g: Phaser.GameObjects.Graphics;
+  w: number;
+  h: number;
+  dx: number;
+  dy: number;
+  left: number;
+  shout: boolean;
+}
+
+const boxAt = (x: number, y: number, w: number, h: number): Box => ({ x0: x - w / 2, y0: y - h / 2, x1: x + w / 2, y1: y + h / 2 });
+const shared = (a: Box, b: Box): number => Math.max(0, Math.min(a.x1, b.x1) - Math.max(a.x0, b.x0)) * Math.max(0, Math.min(a.y1, b.y1) - Math.max(a.y0, b.y0));
 
 /** Where Stephanie's chin is in a pose, from the point she is held by (the spot
  *  on the floor she stands on, or in mid-air the ankle she is swung by), how far
@@ -58,22 +100,24 @@ function cheer(pose: string): { x: number; y: number; tilt: number; lie: number 
   return { x, y, tilt: doll.tilt, lie: Math.atan2(y, x) };
 }
 
-/** The fight after school. Stephanie, in her cheer outfit, is called out and
- *  stands her ground, and for a few seconds it goes well. Then the other girl
- *  powers up, at length, picks Stephanie up by one leg and brings her down on
- *  the gym floor, one side and then the other, the way the Hulk does Loki.
- *  It cannot be won, and is not counted in the score. */
+/** The fight after school. Stephanie, in her cheer outfit, is called out. The
+ *  other girl starts it, with a shove; Stephanie stands her ground, and for a
+ *  few seconds it goes well. Then the other girl powers up, at length, picks
+ *  Stephanie up by one leg and (SUPER MOVE) brings her down on the gym floor,
+ *  one side and then the other, the way the Hulk does Loki. An announcer from
+ *  another game calls it: flawless victory, fatality. It cannot be won, and is
+ *  not counted in the score. */
 export class FightMini extends Mini {
   readonly title = 'AFTER SCHOOL';
   readonly prompt = 'STAND YOUR GROUND!';
-  readonly seconds = 40;
+  readonly seconds = 50;
   readonly scored = false;
 
   private phase: Phase = 'callout';
   private t = 0;
   private cues: { at: number; run: () => void }[] = [];
-  /** Things that are on the page for a while and then are not. */
-  private passing: { objs: Phaser.GameObjects.GameObject[]; left: number; who?: string }[] = [];
+  /** What is being said just now: one thing each, at most. */
+  private bubbles: Bubble[] = [];
   /** Things thrown about: they fly, fall and are cleared away. */
   private bits: { im: Image; vx: number; vy: number; spin: number; drop: number; life: number }[] = [];
 
@@ -86,11 +130,16 @@ export class FightMini extends Mini {
   private cool = 0;
   private hits = 0;
   private said = 0;
+  /** How far back she has been knocked by the shove that starts it (0 to 1), and what is left of her health. */
+  private knock = 0;
+  private mine = 1;
   // ...once she has been picked up: where she is held and which way she hangs,
   // how far through a swing (0 is down on the left, 1 down on the right), and the slams so far
   private at = { x: 0, y: 0 };
   private hang = 0;
   private swing = 0;
+  /** How far through the swing she is in time (it starts slowly and ends fast). */
+  private go = 0;
   private swinging = false;
   private side = 0;
   private slams = 0;
@@ -102,6 +151,9 @@ export class FightMini extends Mini {
   private rival!: Image;
   private rx = 0;
   private rivalPose = 'walk';
+  /** The picture of her that is showing, and how far she is leaning out of her spot to shove. */
+  private shown = 'walk';
+  private reach = 0;
   private faceRight = false;
   private flinch = 0;
   private aura!: Image;
@@ -166,7 +218,8 @@ export class FightMini extends Mini {
     label(s, 26, 86, 'STEPHANIE', 18).setOrigin(0, 0.5).setDepth(hud);
     label(s, W - 26, 86, 'TROUBLE', 18).setOrigin(1, 0.5).setDepth(hud);
     this.stack = label(s, this.cx + 62, 86, '', 18, '#f6c430').setOrigin(0, 0.5).setDepth(hud);
-    this.power = label(s, W - 26, 110, '', 16, '#9fe870').setOrigin(1, 0.5).setDepth(hud);
+    // her power level is read off at her feet, out of the way of anything that is said
+    this.power = label(s, this.rx, FLOOR + 31, '', 16, '#9fe870').setDepth(hud);
     this.comboL = label(s, 150, 222, '', 26, '#f6c430').setDepth(hud).setRotation(-0.06);
     this.comboR = label(s, W - 150, 250, '', 26, '#ff7a5c').setDepth(hud).setRotation(0.06);
 
@@ -195,7 +248,7 @@ export class FightMini extends Mini {
     this.phase = phase;
     this.t = 0;
     this.cues = [];
-    const W = view.W;
+    this.hush();
     if (phase === 'callout') {
       // she stomps on over
       for (const at of [0.3, 0.78, 1.26, 1.74, 2.22]) {
@@ -204,16 +257,27 @@ export class FightMini extends Mini {
           this.scene.cameras.main.shake(110, 0.007);
         });
       }
-      this.cue(0.9, () => this.bubble('rival', Math.min(this.rx, W - 190), FLOOR - 300, 'HEY! LITTLE MISS PERFECT!', 1.5));
+      this.cue(0.9, () => this.say('rival', 'HEY! LITTLE MISS PERFECT!', 1.45));
       this.cue(2.5, () => {
         this.rivalPose = 'point';
-        this.bubble('rival', this.rx - 30, FLOOR - 304, 'YOU NEED AN ATTITUDE ADJUSTMENT.', 1.9);
+        this.say('rival', 'YOU NEED AN ATTITUDE ADJUSTMENT.', 1.65);
       });
-      this.cue(3.7, () => {
-        this.bubble('steph', this.sx, FLOOR - 310, 'I AM NOT SCARED OF YOU!', 1.3);
+      // ...and she is the one who starts it: one step in and a shove, before anybody has said "fight"
+      this.cue(4.3, () => {
+        sound.whoosh();
+        this.scene.tweens.add({ targets: this, reach: -(APART * 2 - 112), duration: 110, ease: 'Quad.in', yoyo: true, hold: 150 });
+      });
+      this.cue(4.41, () => this.shoved());
+      this.cue(5.15, () => {
+        this.scene.tweens.add({ targets: this, knock: 0, duration: 340, ease: 'Quad.inOut' });
+        applyArt(this.head, 'mom_hold');
+      });
+      this.cue(5.7, () => {
+        applyArt(this.head, 'mom_smile');
+        this.say('steph', 'I AM NOT SCARED OF YOU!', 1.3);
         this.scene.tweens.add({ targets: this, lunge: 16, duration: 90, yoyo: true });
       });
-      this.cue(5.0, () => this.enter('round'));
+      this.cue(7.1, () => this.enter('round'));
     } else if (phase === 'round') {
       this.cue(0, () => { this.host.word('round', this.cx, 210, true); sound.rageReady(); });
       this.cue(0.95, () => { this.host.word('fight', this.cx, 230, true); sound.rageFire(); });
@@ -221,11 +285,11 @@ export class FightMini extends Mini {
     } else if (phase === 'power') {
       this.cue(0, () => {
         this.rivalPose = 'point';
-        this.bubble('rival', this.rx - 20, FLOOR - 304, 'THAT ALL YOU GOT?', 1.1);
+        this.say('rival', 'THAT ALL YOU GOT?', 1.1);
       });
       this.cue(1.2, () => {
         this.rivalPose = 'charge';
-        this.bubble('rival', this.rx, FLOOR - 320, 'RRRRAAAAAAAHHH!!!', 5.2, 26);
+        this.say('rival', 'RRRAAAAAHHH!!!', 5.2, true);
         sound.powerUp(5.3);
         applyArt(this.head, 'mom_in');
       });
@@ -238,11 +302,11 @@ export class FightMini extends Mini {
         sound.stopPower();
         sound.dim(0.3);
         this.scene.tweens.add({ targets: this.aura, alpha: 0.4, duration: 300 });
-        this.bubble('rival', this.rx - 30, FLOOR - 400, 'MY TURN.', 1.2);
+        this.say('rival', 'MY TURN.', 1.3);
       });
       this.cue(8.9, () => {
         this.pose = 'plead';
-        this.bubble('steph', this.sx - 10, FLOOR - 310, 'uh oh.', 0.8);
+        this.say('steph', 'uh oh.', 0.8);
       });
       this.cue(9.8, () => this.enter('grab'));
     } else if (phase === 'grab') {
@@ -250,20 +314,26 @@ export class FightMini extends Mini {
       sound.dim(1);
       sound.stomp();
       this.scene.cameras.main.shake(140, 0.009);
+      this.power.setText('');
       this.rivalPose = 'flick';
-      this.scene.tweens.add({ targets: this, rx: this.sx - this.hand(ARMS[0].pose).x, duration: 260, ease: 'Quad.out' });
+      this.scene.tweens.add({ targets: this, rx: this.sx - this.hand(ARMS[HELD_UP].pose).x, duration: 260, ease: 'Quad.out' });
       this.cue(0.3, () => {
         this.pose = 'fly';
         this.swing = 0;
         this.hang = Math.PI / 2;
         applyArt(this.head, 'mom_in');
         sound.whoosh();
-        this.bubble('steph', this.sx - 110, FLOOR - 250, 'wait wait wai', 0.6);
       });
-      this.cue(1.0, () => this.enter('smash'));
+      this.cue(0.36, () => this.say('steph', 'wait wait wai', 0.62));
+      this.cue(1.0, () => this.enter('super'));
+    } else if (phase === 'super') {
+      this.superMove();
+      this.cue(SUPER_FOR, () => this.enter('smash'));
     } else if (phase === 'smash') {
       this.swinging = true;
       this.side = 0;
+      this.go = 0;
+      sound.whoosh();
       applyArt(this.head, 'mom_pah');
     } else if (phase === 'toss') {
       // and away
@@ -278,36 +348,208 @@ export class FightMini extends Mini {
         sound.boom();
         this.scene.cameras.main.shake(260, 0.014);
       });
-      this.cue(1.2, () => {
+      this.cue(1.3, () => {
         this.rivalPose = 'win';
-        this.bubble('rival', this.rx - 20, FLOOR - 420, 'LITTLE MISS PERFECT.', 2.2);
-        sound.lose();
+        this.say('rival', 'LITTLE MISS PERFECT.', 1.5);
       });
-      this.cue(1.9, () => this.host.word('flawless', Math.min(this.rx + 230, W - 160), 300, true));
-      this.cue(3.6, () => {
-        this.phase = 'done';
-        this.host.finish(false);
-      });
+      this.cue(3.0, () => this.announce());
     }
   }
 
-  /** A speech bubble, for as long as it takes to read (or until whoever said it says something else). */
-  private bubble(who: 'steph' | 'rival', x: number, y: number, text: string, secs: number, size = 19): void {
+  /** The shove lands: Stephanie goes back on her heels, and it comes off her health bar. */
+  private shoved(): void {
     const s = this.scene;
-    for (const p of this.passing) if (p.who === who) p.left = 0;
-    const words = written(s, 0, 0, text, size);
-    const w = words.width + 22, h = words.height + 8;
-    x = Phaser.Math.Clamp(x, w / 2 + 10, view.W - w / 2 - 10);
-    y = Math.max(y, 128);
-    const g = s.add.graphics().setDepth(94);
-    g.fillStyle(0x2a2320, 1);
-    g.fillRoundedRect(x - w / 2 - 3, y - h / 2 - 3, w + 6, h + 6, 14);
-    g.fillTriangle(x - 12, y + h / 2, x + 12, y + h / 2, x, y + h / 2 + 20);
-    g.fillStyle(0xfbf6ea, 1);
-    g.fillRoundedRect(x - w / 2, y - h / 2, w, h, 12);
-    g.fillTriangle(x - 8, y + h / 2 - 2, x + 8, y + h / 2 - 2, x, y + h / 2 + 14);
-    words.setPosition(x, y).setDepth(95);
-    this.passing.push({ objs: [g, words], left: secs, who });
+    sound.bonk(false);
+    sound.stomp();
+    s.cameras.main.shake(170, 0.011);
+    this.host.word('shove', this.sx + 44, FLOOR - 196);
+    this.mine = 1 - SHOVE_COSTS;
+    applyArt(this.head, 'mom_pah');
+    s.tweens.add({ targets: this, knock: 1, duration: 170, ease: 'Quad.out' });
+    s.tweens.add({ targets: this.barL, x: this.barL.x - 7, duration: 45, yoyo: true, repeat: 2 });
+  }
+
+  /** The screen stops, goes dark and streams with lines, and says so: SUPER MOVE. */
+  private superMove(): void {
+    const s = this.scene, tw = s.tweens, W = view.W;
+    sound.superMove();
+    const dark = s.add.rectangle(this.cx, H / 2, MAX_W * 2, H * 2, 0x120c1c).setDepth(8.4).setAlpha(0);
+    const lines = img(s, this.rx, FLOOR - 200, 'speed_lines').setDepth(8.5).setAlpha(0);
+    lines.setScale(lines.scale * 2.1);
+    tw.add({ targets: dark, alpha: 0.86, duration: 70 });
+    tw.add({ targets: lines, alpha: 0.9, duration: 70 });
+    tw.add({ targets: lines, rotation: 1.1, duration: SUPER_FOR * 1000 + 200 });
+    const flash = s.add.rectangle(this.cx, H / 2, MAX_W * 2, H * 2, 0xffffff, 0.95).setDepth(97);
+    tw.add({ targets: flash, alpha: 0, duration: 240, onComplete: () => flash.destroy() });
+    // the words, slammed on from far too close, and blinking white for as long as they are news
+    const words = img(s, this.cx, 252, 'word_super').setDepth(98).setRotation(-0.07);
+    const full = words.scale * Math.min(1, (W - 50) / ART.word_super.w);
+    words.setScale(full * 3.2).setAlpha(0);
+    tw.add({
+      targets: words, scale: full, alpha: 1, duration: 130, ease: 'Cubic.in',
+      onComplete: () => { s.cameras.main.shake(160, 0.012); sound.boom(); },
+    });
+    tw.addCounter({
+      from: 0, to: 7, duration: 520, delay: 130,
+      onUpdate: (t) => words.setTintMode(Math.floor(t.getValue() ?? 0) % 2 ? Phaser.TintModes.MULTIPLY : Phaser.TintModes.FILL),
+      onComplete: () => words.setTintMode(Phaser.TintModes.MULTIPLY),
+    });
+    // ...and off, and the lights back up, just as she starts
+    this.cue(SUPER_FOR - 0.2, () => tw.add({ targets: words, x: W + 420, duration: 150, ease: 'Quad.in', onComplete: () => words.destroy() }));
+    this.cue(SUPER_FOR - 0.12, () => tw.add({ targets: [dark, lines], alpha: 0, duration: 130, onComplete: () => { dark.destroy(); lines.destroy(); } }));
+  }
+
+  /** The last word, from the announcer of another game altogether: "Flawless
+   *  victory." And then, once that has sunk in: "Fatality." */
+  private announce(): void {
+    const s = this.scene, tw = s.tweens, W = view.W;
+    this.hush();
+    const long = sound.fatality() || ANNOUNCED_FOR;
+    const veil = s.add.rectangle(this.cx, H / 2, MAX_W * 2, H * 2, 0x0c0810).setDepth(97).setAlpha(0);
+    tw.add({ targets: veil, alpha: 0.3, duration: 200 });
+    const slam = (key: string, y: number, from: number): Image => {
+      const im = img(s, this.cx, y, key).setDepth(98);
+      const full = im.scale * Math.min(1, (W - 40) / ART[key].w);
+      im.setScale(full * from).setAlpha(0);
+      tw.add({ targets: im, scale: full, alpha: 1, duration: 140, ease: 'Cubic.in' });
+      return im;
+    };
+    const first = slam('word_flawless', 236, 1.7);
+    this.cue(this.t + FATALITY_AT, () => {
+      tw.add({ targets: first, alpha: 0, y: 150, duration: 160, onComplete: () => first.destroy() });
+      tw.add({ targets: veil, alpha: 0.62, duration: 160 });
+      slam('word_fatality', 272, 2.4);
+      s.time.delayedCall(140, () => s.cameras.main.shake(260, 0.012));
+    });
+    this.cue(this.t + long + 0.35, () => {
+      this.phase = 'done';
+      this.host.finish(false);
+    });
+  }
+
+  // ---- what they say ----------------------------------------------------------------------
+
+  /** Where somebody's head is just now. Stephanie's is its own picture, held by
+   *  the chin; the other girl's is wherever it is in the picture of her that is showing. */
+  private headOf(who: Who): Head {
+    if (who === 'steph') {
+      const r = this.head.rotation, ux = Math.sin(r), uy = -Math.cos(r);
+      return { x: this.head.x + ux * 34, y: this.head.y + uy * 34, r: 37, mouth: { x: this.head.x + ux * 15, y: this.head.y + uy * 15 } };
+    }
+    const big = this.rival.scale * TEX, face = FIGHT_BODIES.rival?.[this.shown]?.face ?? [0, -255];
+    const side = this.faceRight ? -1 : 1;
+    const x = this.rx + this.reach + side * face[0] * big, y = FLOOR + face[1] * big;
+    return { x, y, r: 33 * big, mouth: { x: x - side * 9 * big, y: y + 15 * big } };
+  }
+
+  /** Keep a bubble on the page: below the names, above the buttons, inside the edges. */
+  private keepIn(x: number, y: number, w: number, h: number): Point {
+    const foot = this.plates[0].plate.visible ? SAY_BOTTOM : H - 12;
+    return { x: Phaser.Math.Clamp(x, w / 2 + 8, view.W - w / 2 - 8), y: Phaser.Math.Clamp(y, SAY_TOP + h / 2, foot - h / 2) };
+  }
+
+  /** Somebody says something, for as long as it takes to read (or until they say
+   *  something else). It goes on a scrap of paper by their head, wherever beside or
+   *  above it covers least: not either of their faces, not what the other one is
+   *  saying, and nothing else if it can be helped. It then stays by their head
+   *  wherever that goes. A shout is on a jagged scrap, in bigger letters, and shakes. */
+  private say(who: Who, text: string, secs: number, shout = false): void {
+    const s = this.scene;
+    this.bubbles = this.bubbles.filter((b) => (b.who === who ? (b.box.destroy(), false) : true));
+    const words = written(s, 0, 0, text, shout ? 25 : 19);
+    if (words.width > SAY_WRAP && text.includes(' ')) {
+      // two lines, as near the same length as its spaces allow
+      let cut = -1;
+      for (let i = text.indexOf(' '); i >= 0; i = text.indexOf(' ', i + 1)) if (cut < 0 || Math.abs(i - text.length / 2) < Math.abs(cut - text.length / 2)) cut = i;
+      words.setText(`${text.slice(0, cut)}\n${text.slice(cut + 1)}`).setLineSpacing(-4);
+    }
+    const w = words.width + (shout ? 64 : 26), h = words.height + (shout ? 36 : 12);
+    const head = this.headOf(who), other = this.headOf(who === 'steph' ? 'rival' : 'steph');
+    const out = who === 'steph' ? -1 : 1;
+
+    // what it must not cover, and what it had better not
+    const never: Box[] = [boxAt(head.x, head.y, head.r * 2, head.r * 2), boxAt(other.x, other.y, other.r * 2, other.r * 2)];
+    for (const b of this.bubbles) never.push(boxAt(b.box.x, b.box.y, b.w + 8, b.h + 8));
+    const rather: Box[] = [];
+    for (const im of [this.body, this.rival, this.banner]) {
+      const r = im.getBounds();
+      if (im.visible && r.y < H) rather.push({ x0: r.x, y0: r.y, x1: r.right, y1: r.bottom });
+    }
+    for (const t of [this.comboL, this.comboR]) if (t.text && t.alpha > 0.2) rather.push(boxAt(t.x, t.y, t.width, t.height));
+
+    // the places it could go, best first: over the head (and a little to either side), beside it, beside and lower
+    const above = head.y - head.r - 14 - h / 2, beside = head.r + 18 + w / 2;
+    const places: Point[] = [0, 0.22 * out, -0.22 * out, 0.44 * out, -0.44 * out].map((k) => ({ x: head.x + k * w, y: above }));
+    for (const y of [head.y - head.r * 0.5 - h / 2 + 8, head.y + 6]) places.push({ x: head.x + out * beside, y }, { x: head.x - out * beside, y });
+    let best = places[0], least = Infinity;
+    places.forEach((p, i) => {
+      const at = this.keepIn(p.x, p.y, w, h), box = boxAt(at.x, at.y, w + 8, h + 8);
+      let cost = i * 25 + (Math.abs(at.x - p.x) + Math.abs(at.y - p.y)) * 2;
+      for (const n of never) cost += shared(box, n) * 3;
+      for (const r of rather) cost += shared(box, r) * 0.4;
+      if (cost < least) { least = cost; best = p; }
+    });
+
+    const g = s.add.graphics();
+    const box = s.add.container(0, 0, [g, words]).setDepth(94);
+    const b: Bubble = { who, box, g, w, h, dx: best.x - head.x, dy: best.y - head.y, left: secs, shout };
+    this.bubbles.push(b);
+    this.settle(b);
+    box.setScale(0.55);
+    s.tweens.add({ targets: box, scale: 1, duration: 120, ease: 'Back.out' });
+  }
+
+  /** Put a bubble where its speaker's head now is, and point it at their mouth. */
+  private settle(b: Bubble): void {
+    const head = this.headOf(b.who), at = this.keepIn(head.x + b.dx, head.y + b.dy, b.w, b.h);
+    const jolt = b.shout ? 3 : 0;
+    b.box.setPosition(at.x + (Math.random() - 0.5) * jolt, at.y + (Math.random() - 0.5) * jolt);
+    const g = b.g, a = b.w / 2 - 3, c = b.h / 2 - 3;
+    // The tail leaves by whichever edge the mouth is furthest beyond, and stops short of the face.
+    const mx = head.mouth.x - at.x, my = head.mouth.y - at.y;
+    const ex = Math.abs(mx) - a, ey = Math.abs(my) - c;
+    const inset = b.shout ? 12 : 0;
+    let tail: number[][] | undefined;
+    if (ex > 6 || ey > 6) {
+      const down = ey >= ex * 0.6;
+      const bx = down ? Phaser.Math.Clamp(mx, -a + 20, a - 20) : Math.sign(mx) * (a - inset);
+      const by = down ? Math.sign(my) * (c - inset) : Phaser.Math.Clamp(my, -c + 14, c - 14);
+      const far = Math.hypot(mx - bx, my - by) || 1, ux = (mx - bx) / far, uy = (my - by) / far;
+      const long = Phaser.Math.Clamp(far - head.r * 0.6, 10 + inset, 58 + inset);
+      // across the edge it leaves by, and a little way back inside the paper so that the join does not show
+      const ax = down ? 1 : 0, ay = down ? 0 : 1, inx = down ? 0 : -Math.sign(mx) * 4, iny = down ? -Math.sign(my) * 4 : 0;
+      tail = [
+        [bx - ax * 12, by - ay * 12, bx + ax * 12, by + ay * 12, bx + ux * (long + 5), by + uy * (long + 5)],
+        [bx - ax * 8.5 + inx, by - ay * 8.5 + iny, bx + ax * 8.5 + inx, by + ay * 8.5 + iny, bx + ux * long, by + uy * long],
+      ];
+    }
+    const sheet = (grow: number) => {
+      if (!b.shout) {
+        g.fillRoundedRect(-a - grow, -c - grow, (a + grow) * 2, (c + grow) * 2, 13 + grow);
+        return;
+      }
+      // a shout: the scrap is all points
+      const pts: Phaser.Math.Vector2[] = [], n = 26;
+      for (let i = 0; i < n; i++) {
+        const th = (i / n) * Math.PI * 2, k = i % 2 ? 1 : 0.8;
+        const cx = Math.cos(th), sy = Math.sin(th);
+        pts.push(new Phaser.Math.Vector2(Math.sign(cx) * Math.abs(cx) ** 0.55 * (a + grow) * k, Math.sign(sy) * Math.abs(sy) ** 0.55 * (c + grow) * k));
+      }
+      g.fillPoints(pts, true);
+    };
+    g.clear();
+    g.fillStyle(INK_COLOUR, 1);
+    sheet(3);
+    if (tail) g.fillTriangle(tail[0][0], tail[0][1], tail[0][2], tail[0][3], tail[0][4], tail[0][5]);
+    g.fillStyle(PAPER_COLOUR, 1);
+    sheet(0);
+    if (tail) g.fillTriangle(tail[1][0], tail[1][1], tail[1][2], tail[1][3], tail[1][4], tail[1][5]);
+  }
+
+  /** Nobody is saying anything any more. */
+  private hush(): void {
+    for (const b of this.bubbles) b.box.destroy();
+    this.bubbles = [];
   }
 
   /** Throw something: it flies off, turning, and falls. */
@@ -357,7 +599,7 @@ export class FightMini extends Mini {
       this.host.word(['pow', 'whack', 'bop'][this.hits % 3], x, y);
       this.scene.cameras.main.shake(70, 0.004);
       if (this.hits >= 2) this.pop(this.comboL, `${this.hits} HIT COMBO!`);
-      if (this.hits === 4) this.bubble('steph', this.sx - 30, FLOOR - 316, 'HA! TAKE THAT!', 1.0);
+      if (this.hits === 4) this.say('steph', 'HA! TAKE THAT!', 1.0);
     } else if (this.phase === 'power') {
       // it is like punching a bus
       this.said++;
@@ -381,7 +623,7 @@ export class FightMini extends Mini {
     this.cool = 0.55;
     this.pose = 'plead';
     this.squash(i);
-    this.bubble('steph', this.sx - 20 + i * 14, FLOOR - 312, SAID[i], 0.7);
+    this.say('steph', SAID[i], 0.7);
     sound.tock();
     this.scene.time.delayedCall(260, () => { if (this.phase === 'power') this.host.word('noeffect', this.rx - 30, FLOOR - 200); });
   }
@@ -392,8 +634,12 @@ export class FightMini extends Mini {
   }
 
   private pop(text: Text, words: string): void {
-    text.setText(words).setScale(1.3);
-    this.scene.tweens.add({ targets: text, scale: 1, duration: 120 });
+    // up with a bump, and gone again once there has been nothing to add to it for a while
+    const tw = this.scene.tweens;
+    tw.killTweensOf(text);
+    text.setText(words).setScale(1.3).setAlpha(1);
+    tw.add({ targets: text, scale: 1, duration: 120 });
+    tw.add({ targets: text, alpha: 0, duration: 300, delay: 1500 });
   }
 
   // ---- what happens to her ----------------------------------------------------------------------
@@ -410,7 +656,6 @@ export class FightMini extends Mini {
     s.cameras.main.shake(380, 0.016);
     sound.boom();
     this.bars = 9;
-    this.comboL.setText('');
     applyArt(this.head, 'mom_hold');
     this.pose = 'ready';
   }
@@ -508,11 +753,6 @@ export class FightMini extends Mini {
       });
     }
 
-    for (const p of this.passing) {
-      p.left -= dt;
-      if (p.left <= 0) p.objs.forEach((o) => o.destroy());
-    }
-    this.passing = this.passing.filter((p) => p.left > 0);
     for (const b of this.bits) {
       b.life -= dt;
       b.vy += b.drop * dt;
@@ -522,6 +762,13 @@ export class FightMini extends Mini {
     this.bits = this.bits.filter((b) => b.life > 0);
     this.draw();
     this.place();
+    // whatever is being said goes where its speaker has gone
+    for (const b of this.bubbles) {
+      b.left -= dt;
+      if (b.left <= 0) b.box.destroy();
+      else this.settle(b);
+    }
+    this.bubbles = this.bubbles.filter((b) => b.left > 0);
   }
 
   /** The power-up: the aura, the shaking, the rocks, the numbers. It goes on. */
@@ -576,15 +823,15 @@ export class FightMini extends Mini {
       sound.whoosh();
     }
     // slow off the floor and fast into it
-    const before = this.side ? 1 - this.swing : this.swing;
-    const go = Math.min(1, before + dt / SWING);
-    const eased = go * go;
-    if (before < 0.5 && go >= 0.5) this.overhead();
-    this.swing = this.side ? 1 - go : go;
-    this.place(this.side ? 1 - eased : eased);
-    if (go >= 1) {
+    const before = this.go * this.go;
+    this.go = Math.min(1, this.go + dt / SWING);
+    const eased = this.go * this.go;
+    if (before < 0.5 && eased >= 0.5) this.overhead();
+    this.swing = this.side ? 1 - eased : eased;
+    if (this.go >= 1) {
       this.side = 1 - this.side;
       this.swing = this.side;
+      this.go = 0;
       this.slam();
     }
   }
@@ -604,8 +851,9 @@ export class FightMini extends Mini {
       g.fillRect(fromRight ? x + len * (1 - frac) : x, -h / 2, len * frac, h);
     };
     if (!this.barBroken) {
-      this.barL.setPosition(24 + len / 2, y);
-      bar(this.barL, -len / 2, 1, 0x59c36a, false);
+      this.barL.setY(y);
+      if (!this.scene.tweens.isTweening(this.barL)) this.barL.setX(24 + len / 2);
+      bar(this.barL, -len / 2, this.mine, 0x59c36a, false);
     }
     this.barR.setPosition(W - 24 - len / 2, y);
     bar(this.barR, -len / 2, this.hp, this.bars > 1 ? 0xb46bff : 0xf6c430, true);
@@ -615,41 +863,48 @@ export class FightMini extends Mini {
   /** Put everybody where they are, and Stephanie's head on Stephanie. `over`
    *  is how far through a swing she is, if she is being swung just now. */
   private place(over = this.swing): void {
-    const held = this.phase === 'grab' && this.pose === 'fly' || this.phase === 'smash';
-    // The other girl. While she has Stephanie she turns to whichever side Stephanie is on, and
-    // her arm is in whichever photo of it is nearest to where the swing has got to: from as
-    // low as it goes on one side, up over her head, and down the other
+    const held = this.phase === 'grab' && this.pose === 'fly' || this.phase === 'super' || this.phase === 'smash';
+    // The other girl. While she has Stephanie by the ankle, which way Stephanie lies from her
+    // hand comes first: hanging nearly straight down while she is only held up; then round from
+    // lying out on one side, through standing on her head in the air, to lying out on the other.
+    // (On the floor she is as near flat as will reach it from the hand that put her there.) The
+    // other girl turns to whichever side that is, and her arm is in whichever photo has it
+    // pointing most nearly the same way.
     let pose = this.flinch > 0 && this.rivalPose === 'point' ? 'flinch' : this.rivalPose;
     if (held) {
-      this.faceRight = over > 0.5;
-      const lowest = ARMS[0].up, up = lowest + (Math.PI / 2 - lowest) * (1 - Math.abs(over * 2 - 1));
-      pose = ARMS.reduce((best, a) => (Math.abs(a.up - up) < Math.abs(best.up - up) ? a : best)).pose;
+      const fly = cheer('fly'), long = Math.hypot(fly.x, fly.y) + 66, low = this.hand(ARMS[0].pose);
+      const off = Phaser.Math.Clamp(Math.acos(Math.min(1, -low.y / long)), STEEPEST, FLATTEST);
+      const up = Math.PI / 2 + STEEPEST, round = Math.PI / 2 + off + (Math.PI * 2 - off * 2) * over;
+      const first = this.phase === 'smash' && this.slams === 0;
+      this.hang = this.phase !== 'smash' ? up : first ? up + (round - up) * Math.min(1, over / 0.2) : round;
+      this.faceRight = this.hang > Math.PI * 1.5;
+      const lift = this.faceRight ? Math.PI * 2 - this.hang : this.hang - Math.PI;
+      let arm = ARMS.reduce((best, a, i) => (Math.abs(a.up - lift) < Math.abs(ARMS[best].up - lift) ? i : best), 0);
+      // (from being held up, her arm does not dip before it rises)
+      if (this.phase !== 'smash' || (first && !this.faceRight)) arm = Math.max(arm, HELD_UP);
+      pose = ARMS[arm].pose;
     }
     const rival = `rival_${pose}`;
+    this.shown = pose;
     if (this.rival.texture.key !== rival) applyArt(this.rival, rival);
     const jx = (Math.random() - 0.5) * this.shake, jy = (Math.random() - 0.5) * this.shake;
     const stomp = this.phase === 'callout' ? -Math.abs(Math.sin((this.t * Math.PI) / 0.48)) * 10 : 0;
     const big = this.rivalPose === 'hulk' || this.rivalPose === 'flick' || this.rivalPose === 'win' ? this.size : 1;
     const [ox, oy] = originOf(rival);
     this.rival.setFlipX(this.faceRight).setOrigin(this.faceRight ? 1 - ox : ox, oy)
-      .setPosition(this.rx + jx, FLOOR + jy + stomp).setScale(big / TEX);
+      .setPosition(this.rx + this.reach + jx, FLOOR + jy + stomp).setScale(big / TEX);
+    this.power.setX(this.rx);
     this.aura.setPosition(this.rx, FLOOR + 14).setScale(((0.8 + Math.sin(this.t * 22) * 0.06) * (big > 1 || this.rivalPose !== 'charge' ? 1.25 : 1)) / TEX);
 
-    // Stephanie: on her feet; or held by the ankle, in the other girl's hand wherever that is,
-    // turning from lying out on one side, through standing on her head in the air, to lying
-    // out on the other
+    // Stephanie: on her feet; or held by the ankle, in the other girl's hand wherever that is
     const key = `cheer_${this.pose}`;
     if (this.body.texture.key !== key) applyArt(this.body, key);
     const c = cheer(this.pose);
-    let x = this.sx + this.lunge, y = FLOOR, turn = 0;
+    // (shoved, she goes back on her heels: away, tipped over backwards, and a little way off the floor)
+    let x = this.sx + this.lunge - SHOVED * this.knock, y = FLOOR - Math.sin(Math.min(1, this.knock) * Math.PI) * 10, turn = -0.3 * this.knock;
     if (held) {
       const hand = this.hand(pose);
       this.at = { x: this.rx + (this.faceRight ? -hand.x : hand.x), y: FLOOR + hand.y };
-      // how far off straight down she lies when she is on the floor: enough to reach it from the
-      // hand that brought her there, within reason
-      const low = this.hand(ARMS[0].pose), long = Math.hypot(c.x, c.y) + 66;
-      const off = Phaser.Math.Clamp(Math.acos(Math.min(1, -low.y / long)), STEEPEST, FLATTEST);
-      this.hang = Math.PI / 2 + off + (Math.PI * 2 - off * 2) * over;
     }
     if (this.pose === 'fly') {
       x = this.at.x;

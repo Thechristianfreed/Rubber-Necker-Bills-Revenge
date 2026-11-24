@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { Ctx, circle, ellipse, makeArt, poly, rr, star } from './sticker';
-import { Paper, burstPath, cutText, fillPaper, glued, makePaperArt, makeWord, paper, strokePaper } from './paper';
+import { DISPLAY, Paper, burstPath, cutText, fillPaper, glued, makePaperArt, makeWord, paper, strokePaper } from './paper';
 
 /** Cut-paper art for the fight after school: the gym, Stephanie in her cheer
  *  outfit, the other girl before and after, and everything that gets broken.
@@ -342,7 +342,63 @@ export function buildFightArt(scene: Phaser.Scene): void {
   makeWord(scene, 'word_tickles', 'IT TICKLES', 'grey', 'yellow', 136, 23, 55);
   makeWord(scene, 'word_ow', 'OW!', 'blue', 'white', 86, 34, 56);
   makeWord(scene, 'word_ko', 'K.O.', 'red', 'yellow', 380, 120, 57);
-  makeWord(scene, 'word_flawless', 'PERFECT!', 'yellow', 'red', 300, 70, 58);
+  makeWord(scene, 'word_shove', 'SHOVE!', 'red', 'white', 150, 36, 59);
+
+  // The screen stops for her best move: a slash of paper across it, the letters leaning into it.
+  makePaperArt(scene, 'word_super', 600, 124, (c) => {
+    glued(c, () => { poly(c, [30, 10, 596, 2, 570, 112, 4, 122]); fillPaper(c, 'black'); });
+    glued(c, () => { poly(c, [44, 22, 578, 14, 558, 100, 24, 110]); fillPaper(c, 'red'); });
+    c.translate(300, 62);
+    c.rotate(-0.015);
+    c.transform(1, 0, -0.2, 1, 0, 0);
+    cutText(c, 'SUPER MOVE', 0, 4, 84, 'yellow');
+  }, { border: 3 });
+  // ...the lines everything streams along while it does: thin wedges out from a middle that is left empty
+  makeArt(scene, 'speed_lines', 700, 700, (c) => {
+    let seed = 4711;
+    const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+    for (let i = 0; i < 46; i++) {
+      const a = (i / 46) * Math.PI * 2 + (rnd() - 0.5) * 0.09, wide = 0.012 + rnd() * 0.03, from = 78 + rnd() * 90;
+      c.beginPath();
+      c.moveTo(350 + Math.cos(a) * from, 350 + Math.sin(a) * from);
+      c.lineTo(350 + Math.cos(a - wide) * 350, 350 + Math.sin(a - wide) * 350);
+      c.lineTo(350 + Math.cos(a + wide) * 350, 350 + Math.sin(a + wide) * 350);
+      c.closePath();
+      c.fillStyle = i % 3 ? 'rgba(255, 244, 200, 0.85)' : 'rgba(255, 196, 40, 0.85)';
+      c.fill();
+    }
+  }, { border: 0 });
+
+  // The last word on it, as an arcade machine would have it: gold for the winner, and then red,
+  // running, for what she did.
+  makePaperArt(scene, 'word_flawless', 560, 92, (c) => {
+    c.translate(280, 46);
+    cutText(c, 'FLAWLESS VICTORY', 0, 4, 76, 'yellow');
+  }, { border: 3, keyline: 2 });
+  makePaperArt(scene, 'word_fatality', 520, 190, (c) => {
+    const letters = 'FATALITY', size = 124, y = 70;
+    c.font = `${size}px ${DISPLAY}`;
+    const wide = c.measureText(letters).width;
+    // it runs: from the foot of each letter, a drop or two, some longer than others
+    let seed = 90210, x = 260 - wide / 2;
+    const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+    glued(c, () => {
+      c.fillStyle = paper(c, 'red');
+      for (const ch of letters) {
+        const w = c.measureText(ch).width;
+        for (let n = 0; n < 2; n++) {
+          const dx = x + w * (0.2 + rnd() * 0.6), long = 14 + rnd() * 54, thick = 5 + rnd() * 4;
+          if (rnd() < 0.25) continue;
+          rr(c, dx - thick / 2, y + size * 0.3, thick, long, thick / 2);
+          c.fill();
+          circle(c, dx, y + size * 0.3 + long, thick * 0.75);
+          c.fill();
+        }
+        x += w;
+      }
+    });
+    cutText(c, letters, 260, y, size, 'red');
+  }, { border: 3, keyline: 2 });
 
   // the mark on the tape for a game that was never going to be won
   makePaperArt(scene, 'mini_mark_ko', 26, 26, (c) => {

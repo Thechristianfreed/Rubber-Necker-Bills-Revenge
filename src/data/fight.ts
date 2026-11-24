@@ -3,9 +3,10 @@
  *  floor it stands on (as a fraction of the picture). Stephanie's also say where
  *  her chin goes from that spot (in game pixels) and how far her head tips; in
  *  mid-air she is held by a foot, and `lie` is the direction from it to her chin.
- *  Where the other girl has an arm out, `hand` is where that hand is from her spot.
+ *  The other girl's say where her face is from her spot (for what she says to come
+ *  from) and, where she has an arm out, `hand` is where that hand is.
  *  Written by tools/make_cutouts.py; do not edit by hand. */
-export interface FightBody { file: string; scale: number; spot: [number, number]; chin?: [number, number]; tilt?: number; lie?: number; hand?: [number, number] }
+export interface FightBody { file: string; scale: number; spot: [number, number]; chin?: [number, number]; tilt?: number; lie?: number; face?: [number, number]; hand?: [number, number] }
 
 export const FIGHT_BODIES: Record<string, Record<string, FightBody>> = {
   cheer: {
@@ -18,12 +19,16 @@ export const FIGHT_BODIES: Record<string, Record<string, FightBody>> = {
     ko: { file: 'cheer-ko.png', scale: 0.6302, spot: [0.500, 0.976], chin: [-64.3, -54.2], tilt: -1.78 },
   },
   rival: {
-    walk: { file: 'rival-walk.png', scale: 0.6098, spot: [0.480, 0.994] },
-    point: { file: 'rival-point.png', scale: 0.6098, spot: [0.464, 0.994] },
-    flinch: { file: 'rival-flinch.png', scale: 0.6098, spot: [0.364, 0.994] },
-    charge: { file: 'rival-charge.png', scale: 0.6098, spot: [0.474, 0.994] },
-    hulk: { file: 'rival-hulk.png', scale: 0.6807, spot: [0.419, 0.994] },
-    flick: { file: 'rival-flick.png', scale: 0.6807, spot: [0.554, 0.994], hand: [-118.7, -282.2] },
-    win: { file: 'rival-win.png', scale: 0.6807, spot: [0.472, 0.994] },
+    walk: { file: 'rival-walk.png', scale: 0.6098, spot: [0.480, 0.994], face: [-6.5, -251.6] },
+    point: { file: 'rival-point.png', scale: 0.6098, spot: [0.464, 0.994], face: [8.4, -254.0] },
+    flinch: { file: 'rival-flinch.png', scale: 0.6098, spot: [0.364, 0.994], face: [28.8, -255.1] },
+    charge: { file: 'rival-charge.png', scale: 0.6098, spot: [0.474, 0.994], face: [-1.8, -254.7] },
+    hulk: { file: 'rival-hulk.png', scale: 0.6807, spot: [0.419, 0.994], face: [3.8, -299.0] },
+    flick: { file: 'rival-flick.png', scale: 0.6807, spot: [0.554, 0.994], face: [9.2, -291.2], hand: [-118.7, -282.2] },
+    win: { file: 'rival-win.png', scale: 0.6807, spot: [0.472, 0.994], face: [6.8, -290.5] },
+    arm0: { file: 'rival-arm0.png', scale: 0.2749, spot: [0.472, 0.998], face: [7.9, -299.7], hand: [-84.0, -170.9] },
+    arm1: { file: 'rival-arm1.png', scale: 0.2749, spot: [0.531, 0.998], face: [6.1, -301.6], hand: [-106.3, -289.6] },
+    arm2: { file: 'rival-arm2.png', scale: 0.2749, spot: [0.535, 0.998], face: [-1.3, -300.2], hand: [-106.8, -331.4] },
+    arm3: { file: 'rival-arm3.png', scale: 0.2749, spot: [0.431, 0.998], face: [-5.9, -325.5], hand: [-50.4, -379.8] },
   },
 };

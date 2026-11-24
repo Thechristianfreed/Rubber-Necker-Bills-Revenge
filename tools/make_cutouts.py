@@ -585,6 +585,13 @@ def fight():
             feet = xs[ys > ys.max() - piece.shape[0] * 0.1]
             spot = (float(feet.min() + feet.max()) / 2, float(ys.max()))
             rival[pose] = dict(scale=scale, at=(spot[0] / piece.shape[1], spot[1] / piece.shape[0]))
+            # her face, for anything she says to come from: the middle of what there is of her
+            # above her feet in the rows where a face would be (below her hair, above her shoulders)
+            tall_px = piece.shape[0]
+            over = np.abs(xs - spot[0]) < tall_px * 0.16
+            top = ys[over].min()
+            rows = over & (ys > top + tall_px * (0.085 if sheet != "AS2a-rival-before" else 0.045)) & (ys < top + tall_px * (0.20 if sheet != "AS2a-rival-before" else 0.15))
+            rival[pose]["face"] = ((float(xs[rows].mean()) - spot[0]) * scale, (float(ys[rows].mean()) - spot[1]) * scale)
             if pose in FIGHT_HANDS:
                 # the end of her arm: the last few pixels of her that way, and the middle of those
                 if FIGHT_HANDS[pose] == "left":
@@ -600,9 +607,10 @@ def fight():
                 " *  floor it stands on (as a fraction of the picture). Stephanie's also say where\n"
                 " *  her chin goes from that spot (in game pixels) and how far her head tips; in\n"
                 " *  mid-air she is held by a foot, and `lie` is the direction from it to her chin.\n"
-                " *  Where the other girl has an arm out, `hand` is where that hand is from her spot.\n"
+                " *  The other girl's say where her face is from her spot (for what she says to come\n"
+                " *  from) and, where she has an arm out, `hand` is where that hand is.\n"
                 " *  Written by tools/make_cutouts.py; do not edit by hand. */\n"
-                "export interface FightBody { file: string; scale: number; spot: [number, number]; chin?: [number, number]; tilt?: number; lie?: number; hand?: [number, number] }\n\n"
+                "export interface FightBody { file: string; scale: number; spot: [number, number]; chin?: [number, number]; tilt?: number; lie?: number; face?: [number, number]; hand?: [number, number] }\n\n"
                 "export const FIGHT_BODIES: Record<string, Record<string, FightBody>> = {\n  cheer: {\n")
         for pose, e in cheer.items():
             lie = f", lie: {e['lie']:.3f}" if "lie" in e else ""
@@ -611,7 +619,8 @@ def fight():
         f.write("  },\n  rival: {\n")
         for pose, e in rival.items():
             hand = f", hand: [{e['hand'][0]:.1f}, {e['hand'][1]:.1f}]" if "hand" in e else ""
-            f.write(f"    {pose}: {{ file: 'rival-{pose}.png', scale: {e['scale']:.4f}, spot: [{e['at'][0]:.3f}, {e['at'][1]:.3f}]{hand} }},\n")
+            face = f", face: [{e['face'][0]:.1f}, {e['face'][1]:.1f}]"
+            f.write(f"    {pose}: {{ file: 'rival-{pose}.png', scale: {e['scale']:.4f}, spot: [{e['at'][0]:.3f}, {e['at'][1]:.3f}]{face}{hand} }},\n")
         f.write("  },\n};\n")
     print("wrote", table)
 
