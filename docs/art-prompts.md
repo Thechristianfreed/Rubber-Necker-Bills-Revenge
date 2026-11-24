@@ -335,43 +335,51 @@ what the boys really wore.
 
 ### PB1. Chad's body (two sheets)
 
+Every pose faces right (the game turns them round), and nothing may cover
+the head or neck, since the head comes off. The bat is in the picture
+wherever he has it: the game's own paper bat is only for the stand-ins.
+Attach the first sheet when making the second, so it is the same boy.
+
 ```text
-Four full-length photographs of the same small boy, about five years old, side by side with wide clear gaps between them, on one plain flat light-grey studio background. He wears a light blue T-shirt, navy shorts, white socks and white trainers, in the style of about 1990, and has short hair. His body is turned towards the right of the picture in all four. First: standing still, arms at his sides, shoulders slumped. Second: stumbling backwards off balance, arms thrown up, one foot off the ground, as if he has just been pushed. Third: standing with his feet apart, holding a wooden baseball bat upright in both hands in front of him, like a batter waiting. Fourth: standing up straight with both hands behind his back, hiding the bat behind him, the top of it showing above his shoulder. His whole body is in frame from head to feet in every one. Soft even light, no shadows on the background. No text, no borders. Wide 16:9 image.
+Four full-length photographs of the same small boy, about five years old, side by side with wide clear gaps between them, on one plain flat light-grey studio background. He wears a light blue T-shirt, navy shorts, white socks and white trainers, in the style of about 1990, and has short hair. His body is turned three-quarters towards the right of the picture in all four. First: standing still, arms hanging at his sides, shoulders slumped. Second: stumbling backwards off balance, both arms thrown up and out, one foot off the ground, as if he has just been pushed in the chest. Third: standing with his feet apart, holding a wooden baseball bat upright in both hands in front of his chest, like a batter waiting. Fourth: standing up straight with both hands behind his back, holding the bat hidden behind him, its end sticking up behind one shoulder. His whole body is in frame from head to feet in every one, and nothing covers his head or neck. Soft even light, no shadows on the background. No text, no borders. Wide 16:9 image.
 ```
 
 ```text
-The same small boy in the same clothes, on the same plain light-grey background in the same light: four more full-length photographs side by side with wide clear gaps between them, his body turned towards the right of the picture. First: running flat out with a wooden baseball bat raised in both hands over his shoulder, left leg forward. Second: the same, right leg forward. Third: at the end of a swing, the bat stretched out in front of him in both hands at the height of his own head, leaning into it. Fourth: standing with the bat hanging down from one hand, its end on the ground. His whole body and the whole bat are in frame in every one. No text, no borders. Wide 16:9 image.
+The same small boy exactly, in the same clothes, on the same plain light-grey background in the same light: four more full-length photographs side by side with wide clear gaps between them, his body turned towards the right of the picture in all four. First: running flat out with a wooden baseball bat raised in both hands over his shoulder, left leg forward. Second: the same, right leg forward. Third: at the end of a swing, leaning forward with the bat stretched out in front of him in both hands at the height of his own head. Fourth: standing still with the bat hanging down from one hand, its end resting on the ground. His whole body and the whole bat are in frame in every one, and nothing covers his head or neck. No text, no borders. Wide 16:9 image.
 ```
 
 ### PB2. Shane's body (two sheets)
 
+The same rules. His hands stay away from his head even when he has been
+hit on it, or they would be left hanging in the air when the head comes off.
+
 ```text
-Three full-length photographs of the same small boy, about five years old, side by side with wide clear gaps between them, on one plain flat light-grey studio background. He wears a red T-shirt, blue jeans and white trainers, in the style of about 1990, and has short hair. First: turned towards the left of the picture, leaning forward with both arms stretched straight out in front of him, palms forward, giving somebody a shove. Second: facing the camera with his hands on his hips, chest out, pleased with himself. Third: standing facing the camera with both hands clutching the top of his head, elbows out, howling. His whole body is in frame from head to feet in every one. Soft even light, no shadows on the background. No text, no borders. Wide 16:9 image.
+Three full-length photographs of the same small boy, about five years old, side by side with wide clear gaps between them, on one plain flat light-grey studio background. He wears a red T-shirt, blue jeans and white trainers, in the style of about 1990, and has short hair. First: turned towards the right of the picture, leaning forward with both arms stretched straight out in front of him, palms forward, giving somebody a hard shove. Second: facing the camera with his hands on his hips, chest out, feet apart, pleased with himself. Third: facing the camera, standing stiff with his shoulders hunched up and his arms straight down at his sides, fists clenched, howling. His whole body is in frame from head to feet in every one, and nothing covers his head or neck. Soft even light, no shadows on the background. No text, no borders. Wide 16:9 image.
 ```
 
 ```text
-The same small boy in the same clothes, on the same plain light-grey background in the same light: three more full-length photographs side by side with wide clear gaps between them, his body turned towards the right of the picture. First: running away flat out, arms pumping, left leg forward, looking back over his shoulder. Second: the same, right leg forward. Third: jumping straight up in the air with both hands clapped to the top of his head, knees tucked. His whole body is in frame in every one. No text, no borders. Wide 16:9 image.
+The same small boy exactly, in the same clothes, on the same plain light-grey background in the same light: three more full-length photographs side by side with wide clear gaps between them, his body turned towards the right of the picture in all three. First: running away flat out, arms pumping, left leg forward. Second: the same, right leg forward. Third: jumping straight up in the air with his knees tucked up and both arms flung out wide, fingers spread, as if something has just hit him. His whole body is in frame in every one, and nothing covers his head or neck. No text, no borders. Wide 16:9 image.
 ```
 
 ### PB3. The back yard
 
 It goes by sideways, so it is put beside its own mirror image as the gym
-is: nothing in it should be off to one side.
+is: there should be nothing in it but fence, grass and sky.
 
 ```text
-A photograph of an empty suburban back yard on a sunny summer afternoon about 1990, looking straight at the back fence, which is a white picket fence running level across the whole width of the picture, exactly face-on with no perspective slant. Mown grass fills the bottom third of the picture; blue sky with a few small clouds fills the top half. Nothing else in the yard and nobody in it. No text. Very wide 21:9 image.
+A photograph of an empty suburban back yard on a sunny summer afternoon about 1990, looking straight at the back fence. A white picket fence runs dead level across the whole width of the picture, seen exactly face-on with no perspective slant, its foot two thirds of the way down the picture. Below it, plain mown grass fills the bottom third. Above it, clear blue sky with a few small white clouds fills the top half. Nothing else in the yard: no trees, no toys, no house, nobody. Even light, no long shadows. No text. Very wide 21:9 image.
 ```
 
-### PB4. What is in the yard, and the bat
+### PB4. What is in the yard
 
 ```text
-Five things photographed straight on, side by side with wide clear gaps between them, on one plain flat light-grey background. First: a child's red metal swing set with one swing. Second: a small round blue plastic paddling pool with a yellow rubber duck in it. Third: a clothesline on two poles with a few shirts and a towel pegged to it. Fourth: a round garden bush with red berries. Fifth: a wooden baseball bat lying level. Soft even light, no shadows on the background. Wide 16:9 image.
+Five things photographed straight on, side by side with wide clear gaps between them, on one plain flat light-grey background. First: a child's red metal swing set with one swing. Second: a small round blue plastic paddling pool with a yellow rubber duck in it. Third: a clothesline on two poles with a few shirts and a towel pegged to it. Fourth: a round garden bush with red berries. Fifth: a small leafy garden tree, the whole of it from the foot of its trunk to its top. Soft even light, no shadows on the background. Wide 16:9 image.
 ```
 
 ### PB5. The back door, and their mother
 
 ```text
-Two things side by side with a wide clear gap between them, on one plain flat light-grey background. First: the back wall of a suburban house about 1990, photographed exactly face-on: cream siding, one window, and a back door standing wide open on a dark doorway, with one concrete step below it. Second: a full-length photograph of a mother of about thirty in the clothes of about 1990, a yellow blouse and high-waisted blue jeans, standing square to the camera with her hands on her hips, hair tied back so that her neck and shoulders are clear. Her whole body is in frame from head to feet. Soft even light, no shadows on the background. No text. Wide 16:9 image.
+Two things side by side with a wide clear gap between them, on one plain flat light-grey background. First: a section of the back wall of a suburban house about 1990, photographed exactly face-on and cut off square at both sides: cream siding, one window, and a back door standing wide open on a dark doorway, with one concrete step below it. Second: a full-length photograph of a mother of about thirty in the clothes of about 1990, a yellow blouse and high-waisted blue jeans, standing square to the camera with her hands on her hips, hair tied back so that her neck and shoulders are clear. Her whole body is in frame from head to feet. Soft even light, no shadows on the background. No text. Wide 16:9 image.
 ```
 
 ### More looks for the faces
