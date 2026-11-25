@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { H, MAX_W, MIN_W, view } from './config';
+import { ART } from './art/sticker';
 import { sound } from './audio/sound';
 import { BootScene } from './scenes/BootScene';
 import { GameScene } from './scenes/GameScene';
@@ -43,6 +44,8 @@ const game = new Phaser.Game({
 
 (window as unknown as { __game: Phaser.Game }).__game = game;
 (window as unknown as { __sound: typeof sound }).__sound = sound;
+// (how big each picture is drawn and where it is pinned: for the catalogue, tools/test/catalogue.cjs)
+(window as unknown as { __art: typeof ART }).__art = ART;
 
 let resizeTimer = 0;
 const refit = () => {

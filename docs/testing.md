@@ -105,6 +105,7 @@ above; `<outPrefix>` is where the pictures go, and the start of their names.
 | --- | --- |
 | `sheet.py <folder> <out prefix> [columns] [per sheet] [tile width]` | A contact sheet of every PNG in a folder. |
 | `grid.py <picture> <out.png> <x0> <y0> <x1> <y1> <step>` | A piece of a picture with a ruled grid over it (see `cutting.md`). |
+| `catalogue.cjs <base url>` | Makes `docs/catalogue` again: every picture in the game by name, on sheets (see `pictures.md`). |
 
 The Python ones are run with the Python that `tools/setup.sh` makes:
 `.venv/bin/python tools/test/sheet.py ...`. The two that listen to the

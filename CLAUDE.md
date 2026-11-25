@@ -3,8 +3,9 @@
 A family present: a Phaser + TypeScript + Vite game about Bill (an Android
 wrap comes later). The owner directs and Claude builds. Read `README.md`
 first, then the doc for whatever is being touched: `docs/minigames.md`,
-`docs/characters.md`, `docs/art-prompts.md`, `docs/cutting.md`,
-`docs/testing.md`, `docs/music.md`, `docs/voice.md`, `docs/level-ideas.md`.
+`docs/pictures.md`, `docs/characters.md`, `docs/art-prompts.md`,
+`docs/cutting.md`, `docs/testing.md`, `docs/music.md`, `docs/voice.md`,
+`docs/level-ideas.md`.
 
 A fresh checkout is made ready with `bash tools/setup.sh` (the game's
 packages, and `.venv` with what the Python tools need).
@@ -30,6 +31,11 @@ that.
   The pictures the owner sends and Adobe's cutouts of them go in
   `art-src/games/<id>/`. A recording of its own is
   `public/sfx/<id>-<name>.mp3`.
+- **What is already made is there to use.** Every place, thing, effect and
+  word any game has made is in the catalogue (`docs/pictures.md`,
+  `docs/catalogue`), by the name to call it by; the places are laid with one
+  call each (`src/minis/shared/places.ts`). Look there before making
+  anything.
 - **The people are shared.** Who is in the game, and which faces each of
   them has, is in `docs/characters.md`. Use those. A face that is missing is
   asked of the owner once, for every game, and goes in with the common

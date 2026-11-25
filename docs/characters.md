@@ -24,9 +24,10 @@ here, once, for everybody: not made again in each game.
 
 ## The looks
 
-The set worth having for the leads: Bill, Stephanie, Chad and Shane, who are
-in game after game. The names are what the faces are called in the tables
-below.
+The set everybody in the family gets (the owner's decision): Bill,
+Stephanie, Chad and Shane now, and Mammy, Pappy, Nanner, Curt, Sherry,
+Christian and Branson once there is a photo of each. The names are what the
+faces are called in the tables below.
 
 | Look | What it is for |
 | --- | --- |
@@ -46,17 +47,18 @@ below.
 | disgusted | at a smell, or worse. These stories have a lot of that. |
 | asleep | eyes shut |
 
-**Somebody who is not a lead** starts with six: calm, smile, laugh, angry,
-shocked and cry. The rest are made when a game is written round them.
+**Rick DeGour, Cindy and Betty get six:** calm, smile, laugh, angry, shocked
+and cry. **The animals** get what their job needs, which is two or three
+pictures.
 
 Anything else is for one story (the doe eyes, the "PAH") and is made when a
 game needs it.
 
 A face is between 10 and 30 KB as a file (long hair costs more), and a third
 more than that in the page (`minigames.md`, "How much room there is"). The
-four leads' full sets come to about 1.3 MB of the page. Full sets for the
-ten people named further down as well would be about 3 MB more, which is
-half the room there is: hence the six.
+faces still to be made come to about 3.5 MB of the page, where there is 6 MB
+left: the pictures have to be moved out of the page before many more games
+are made.
 
 ## The family
 
@@ -170,15 +172,27 @@ names (`KID_LOOKS` in `src/art/bat.ts`: Chad's "glee" is his grin, Shane's
 
 ## Named, and not in the game yet
 
-The owner's list. Nothing is known here about any of them yet but the name:
-each needs a line saying who they are, and a picture to start from.
+The owner's list. Each needs a line saying who they are, and a picture to
+start from: facing the camera, evenly lit, the biggest copy there is, nobody
+else in it.
 
-| Who | Needs |
-| --- | --- |
-| **Mammy**, **Pappy**, **Nanner**, **Curt**, **Sherry**, **Branson**, **Rick**, **Cindy**, **Betty** | Who they are. One photo each to be the base: facing the camera, evenly lit, the biggest copy there is, nobody else in it. Then the six faces. |
-| **Christian** | The same. (He is at the light switch in The Hot Carl, cut from paper.) |
-| **Sheeba**, the dog | A photo or two of her. Two looks: as she is, and reacting. |
-| **The Grump**, the opossum | A photo, or a generated one if there is none. Three looks would suit an opossum: as it is, hissing, and playing dead. |
+| Who | Who they are | Faces |
+| --- | --- | --- |
+| **Mammy** | to come | all fifteen |
+| **Pappy** | to come | all fifteen |
+| **Nanner** | to come | all fifteen |
+| **Curt** | to come | all fifteen |
+| **Sherry** | to come | all fifteen |
+| **Christian** | The owner. He is at the light switch in The Hot Carl, cut from paper. | all fifteen |
+| **Branson** | to come | all fifteen |
+| **Rick DeGour** | to come | six |
+| **Cindy** | to come | six |
+| **Betty** | to come | six |
+| **Sheeba**, a dog | The first dog the owner had, growing up. A second dog: Lady is still the one not to hit. | Two: as she is, and reacting. From photos of her. |
+| **The Grump**, an opossum | to come | Three would suit an opossum: as it is, hissing, and playing dead. From a photo, or generated if there is none. |
+
+One of each person's faces will be the photo itself (a smile, usually), so
+there are fourteen to make of fifteen, and five of six.
 
 ## Faces still to make
 
@@ -192,6 +206,9 @@ https://claude.ai/artifact/27mH87aARmemxJtoMhiSNF. (Each prompt there also
 says "Keep his head upright and facing the camera", which keeps the chin
 where the cutting expects it.) When a face is made and in the game, take it
 off the lists here.
+
+For somebody whose photo has not been seen yet, the page uses a prompt that
+fits anybody ("Keep this person exactly as they are...").
 
 For Bill, Chad and Shane:
 
@@ -233,6 +250,8 @@ photo so that it matches the rest:
 | Stephanie | calm, talking, laugh, smug, guilty, worried, cry, ouch, dazed, disgusted, asleep | |
 | Chad | talking, smug, shocked, guilty, worried, ouch, dazed, disgusted, asleep | laugh, angry |
 | Shane | talking, laugh, angry, yell, guilty, worried, ouch, dazed, disgusted, asleep | calm, smug |
+| Mammy, Pappy, Nanner, Curt, Sherry, Christian, Branson | all fifteen, less the one the photo is | |
+| Rick DeGour, Cindy, Betty | calm, smile, laugh, angry, shocked, cry, less the one the photo is | |
 
 When they come back: each is cut out like the others (`cutting.md`), and
 goes in with the common pictures, where every game can use it.

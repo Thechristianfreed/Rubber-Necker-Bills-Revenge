@@ -53,8 +53,9 @@ Every quick game is a folder of its own in `src/minis`, and the master list
 folder by itself, so adding a game changes no file that anybody else works
 in. A new game is made in a chat of its own, on a branch of its own, and
 comes into the master game when the owner says so (`CLAUDE.md` has the
-rules). The people to put in it, and the faces each of them has, are in
-`characters.md`.
+rules). What there already is to put in it is in `pictures.md` (the places,
+the things, the effects) and `characters.md` (the people, and the faces each
+of them has).
 
 ```bash
 node tools/new_mini.mjs toaster "THE TOASTER"
@@ -115,10 +116,13 @@ Every picture is inside the page that gets published, and a page may be 16 MB
 and no more. It is at 9.8 MB with six games. The four games made with
 photos have between 0.6 and 1.3 MB of pictures each as files, and a third
 more than that once they are in the page: so there is room for about five
-more games made the way those were. `tools/make_preview.mjs` says how full the page is every time it
-builds one. A game with a great many big pictures should say so to the
-owner early; making room (keeping the pictures beside the page, as the
-sound is) is a job for the whole game, not for one chat.
+more games made the way those were. The faces the cast is to have
+(`characters.md`) will take about 3.5 MB of that, which leaves room for two.
+`tools/make_preview.mjs` says how full the page is every time it builds one.
+
+A game with a great many big pictures should say so to the owner early.
+Making room (keeping the pictures beside the page, as the sound is) is a job
+for the whole game, not for one chat.
 
 The first six games were made before games had folders. Their classes are in
 theirs (`src/minis/sand/SandMini.ts`); their paper art (`src/art`), tables
