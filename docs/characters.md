@@ -24,7 +24,7 @@ here, once, for everybody: not made again in each game.
 
 ## The looks
 
-The set everybody in the family gets (the owner's decision): Bill,
+The fifteen everybody in the family gets (the owner's decision): Bill,
 Stephanie, Chad and Shane now, and Mammy, Pappy, Nanner, Curt, Sherry,
 Christian and Branson once there is a photo of each. The names are what the
 faces are called in the tables below.
@@ -51,6 +51,12 @@ faces are called in the tables below.
 and cry. **The animals** get what their job needs, which is two or three
 pictures.
 
+**And everybody, all fourteen people, gets the back of their head,** for
+the games that are seen from behind. It is not a face pulled from the
+photo: it is a picture of its own, and a real photo of the back of
+somebody's head (from straight behind, at head height, against a plain
+wall) is better than a generated one. Bill has his.
+
 Anything else is for one story (the doe eyes, the "PAH") and is made when a
 game needs it.
 
@@ -64,14 +70,17 @@ is").
 Who is who, for anybody writing a line for one of them to say:
 
 - **Bill and Stephanie** are married.
-- **Their four boys are brothers:** Shane and Chad, who are Stephanie's sons
-  and were raised by Bill, whom they call **Beeb**; and Christian and
-  Branson, who are Stephanie and Bill's sons. Stephanie is "Mom" to all four.
+- **Their four boys are brothers.** Shane and Chad are Stephanie's sons, and
+  Bill is their stepfather: he is not their father by birth, but he raised
+  them most of their lives, and they call him **Beeb**. Christian and
+  Branson are Stephanie and Bill's sons, and call him **Dad**. So Shane and
+  Chad are Christian and Branson's half-brothers. Stephanie is "Mom" to all
+  four.
 - **Stephanie's side:** Mammy is her mother and Pappy her father (the boys'
   grandparents); Nanner is her sister and Curt her brother (their aunt and
   uncle).
-- **Bill's side:** Betty is his mother (a grandmother), and Sherry and Cindy
-  are his sisters (aunts).
+- **Bill's side:** Betty is his mother (Christian and Branson's grandmother),
+  and Sherry and Cindy are his sisters (their aunts).
 - **Rick DeGour** works with Bill.
 - **The animals:** Lady, the family's golden retriever; Sheeba, the first
   dog Christian had, growing up; and The Grump, Christian's pet opossum.
@@ -85,9 +94,9 @@ All of them, so that nothing already made is made twice or lost track of.
 
 **Outside the fifteen** are the looks made for one story: the three of the
 breathing (the breath in, holding it, the "PAH"), the scolding, the doe
-eyes, the set jaw, the back of a head, and the bigger copies for close-ups.
-They are kept and used, and they are **not being made for anybody else for
-now** (the owner's decision).
+eyes, the set jaw, and the bigger copies for close-ups. They are kept and
+used, and they are **not being made for anybody else for now** (the owner's
+decision). The back of a head is the exception: everybody is to have one.
 
 ### Bill
 
@@ -102,7 +111,7 @@ game, whatever age the body is.
 | holding it | outside the fifteen | `bill_hold` | `billface-hold` | an edit | the workout |
 | side-eye | smug | `bill-sideeye` | `head-sideeye` | other photo (`bill-2`): a moustache and no beard | his everyday head: the title, every level |
 | glaring down | angry | `bill-glare` | `head-glare` | other photo (`bill-1`): soft and dark, the weakest of his | losses, and when he is hurt or ducking in the levels |
-| from behind | outside the fifteen | `bill-back` | `head-back` | a generated picture | the hallway |
+| from behind | the back of his head | `bill-back` | `head-back` | a generated picture | the hallway |
 
 Missing: calm, talking, shocked, guilty, worried, cry, ouch, dazed,
 disgusted, asleep.
@@ -130,7 +139,7 @@ cheerleader in the fight, the mother at the back door.
 | holding it | outside the fifteen | `mom_hold` | `mom-hold` | an edit | the workout; everywhere else as her cross, lips-pressed face (hit in the fight, at the back door, deciding at the sandbox) |
 
 Missing: calm, talking, laugh, smug, guilty, worried, cry, ouch, dazed,
-disgusted, asleep.
+disgusted, asleep; and the back of her head.
 
 - **Base photo:** `art-src/generated/WT1d-mom-smile.webp`. All five of hers
   come from it, so they match: she is the model for how the others should be.
@@ -142,8 +151,8 @@ disgusted, asleep.
 
 ### Chad
 
-Stephanie's son, raised by Bill ("Beeb"); brother of Shane, Christian and
-Branson. In the games so far, a five-year-old's body (light blue T-shirt,
+Stephanie's son and Bill's stepson, who calls him Beeb; Shane's brother,
+and half-brother to Christian and Branson. In the games so far, a five-year-old's body (light blue T-shirt,
 navy shorts, white socks and trainers) with his head as he is now.
 
 | Look | Which of the fifteen | Name in the game | File | From | Used in |
@@ -157,7 +166,7 @@ navy shorts, white socks and trainers) with his head as he is now.
 | scowling | angry | `chadhead_mad`, `chadhead_sad` | `chadface-scowl` | other photo (`chad-1`): dark and red | Payback, the sandbox |
 
 Missing: talking, smug, shocked, guilty, worried, ouch, dazed, disgusted,
-asleep.
+asleep; and the back of his head.
 
 - **Base photo:** `art-src/photos/chad-3.jpg`.
 - **Bodies:** `chad_stand`, `chad_shoved`, `chad_mad`, `chad_hide`,
@@ -167,8 +176,9 @@ asleep.
 
 ### Shane
 
-Stephanie's son, raised by Bill ("Beeb"); brother of Chad, Christian and
-Branson, and the bigger of the two in the yard. In the games so far, a
+Stephanie's son and Bill's stepson, who calls him Beeb; Chad's brother,
+half-brother to Christian and Branson, and the bigger of the two in the
+yard. In the games so far, a
 five-year-old's body (red T-shirt, blue jeans, white trainers) with his
 head as he is now.
 
@@ -182,7 +192,7 @@ head as he is now.
 | wary, looking away | calm | none: cut out, and not used yet | `shaneface-wary` | other photo (`shane-2`): washed out | |
 
 Missing: talking, laugh, angry, yell, guilty, worried, ouch, dazed,
-disgusted, asleep.
+disgusted, asleep; and the back of his head.
 
 - **Base photo:** `art-src/photos/shane-1.jpg`.
 - **Bodies:** `shane_push`, `shane_laugh`, `shane_run1`, `shane_run2`,
@@ -232,7 +242,8 @@ evenly lit, the biggest copy there is, nobody else in it.
 | **The Grump**, an opossum | Christian's pet | Three would suit an opossum: as it is, hissing, and playing dead. From a photo, or generated if there is none. |
 
 One of each person's faces will be the photo itself (a smile, usually), so
-there are fourteen to make of fifteen, and five of six.
+there are fourteen to make of fifteen, and five of six. Each of them is to
+have the back of their head as well.
 
 ## Faces still to make
 
@@ -279,6 +290,16 @@ Edit this photo. Keep this woman exactly as she is: the same face, age, skin, ey
 | disgusted | disgusted, as if at a terrible smell. Nose wrinkled, upper lip curled, tongue pushed out a little, eyes narrowed. |
 | asleep | fast asleep. Eyes closed, face completely relaxed, mouth a little open. |
 
+The back of a head is asked for differently, since nothing of the photo is
+kept but the hair (for a woman, "this woman's" and "her"):
+
+```text
+The back of this man's head, photographed from directly behind at head height: his hair exactly as it is in the photo (the same colour, length and cut), his ears just visible at the sides if his hair does not cover them, and the back of his neck down to the collar line. No face visible. Plain flat light-grey background, soft even light. No shoulders, no clothing, no text, no borders. Square image.
+```
+
+It is hung by the top of the collar, where a face is hung by the chin
+(`build_back()` in `tools/make_heads.py` did Bill's).
+
 (For Stephanie, "herself" for "himself".)
 
 What each person is missing, and what could be done again from their base
@@ -292,6 +313,7 @@ photo so that it matches the rest:
 | Shane | talking, laugh, angry, yell, guilty, worried, ouch, dazed, disgusted, asleep | calm, smug |
 | Mammy, Pappy, Nanner, Curt, Sherry, Christian, Branson | all fifteen, less the one the photo is | |
 | Rick DeGour, Cindy, Betty | calm, smile, laugh, angry, shocked, cry, less the one the photo is | |
+| Everybody but Bill | the back of the head | |
 
 When they come back: each is cut out like the others (`cutting.md`), and
 goes in with the common pictures, where every game can use it.

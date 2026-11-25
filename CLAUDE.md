@@ -73,10 +73,13 @@ that.
   steps, and what goes wrong with them, are in `docs/cutting.md`. Pictures
   the owner sends while Claude is in the middle of something can be seen but
   do not arrive as files: ask for them again in a message of their own.
-- **Real people:** the family's photos, their voice recording, the workout
-  tape's audio and the arcade announcer's clip that ends the fight are in
-  this public repository on purpose; the owner has said so each time. Ask
-  again for anything new that is somebody else's.
+- **Real people, and a public repository:** the owner has said, once and for
+  every time to come, that nothing about this project needs keeping out of
+  the public repository: the family's photos, their names (full names
+  included), how they are related, their voices, the workout tape, the
+  arcade announcer's clip. Do not ask about it again, and do not soften or
+  leave out a fact because the repository is public. (Passwords and keys
+  are another matter, and never go in.)
 - **Testing:** test what changed, not the whole game. The game plays itself:
   `?auto` or `?auto=clumsy`, with `&level=street|highway|locker|sleepover|minis`
   and `&mini=<id>`. Then show the owner screenshots. The scripts that do it
