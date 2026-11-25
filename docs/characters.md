@@ -115,14 +115,51 @@ fifteen and the list below can be filled in later without the game
 changing. Each face is `face_<who>_<look>` in the catalogue, and its file is
 `src/assets/scrap/face-<who>-<look>.webp`.
 
-| Who | Called | Has | Of those, from pictures there were already | Missing |
-| --- | --- | --- | --- | --- |
-| Bill | `bill` | 13 | yell (his "PAH") | calm, laugh |
-| Stephanie | `stephanie` | 14 | yell (her "PAH"), angry (her scolding) | shocked |
-| Chad | `chad` | 15 | calm (his set jaw), yell, cry | |
-| Shane | `shane` | 15 | cry; and shocked, which is from a different photo and looks it | |
+**No face that has been made is left out of it** (the owner's decision).
+The faces each person had before there was a set, made for one game or
+another, are in their set as well, cut again by the same tool so that they
+are the same size and hang the same way. One that is a look of the fifteen
+fills that place in the set. One that is not keeps a name of its own, and is
+asked for like any other: `head(scene, 'shane', 'doe', x, y, 62)`.
 
-- **Nearly all of them are one batch** (November 2026): edits of each
+| Who | Called | Of the fifteen | Missing | And of their own |
+| --- | --- | --- | --- | --- |
+| Bill | `bill` | 13 | calm, laugh | `inhale` (the breath in), `hold` (holding it), `sideeye`, `glare` |
+| Stephanie | `stephanie` | 14 | shocked | `inhale` (the breath in), `hold` (holding it: her cross, lips-pressed face) |
+| Chad | `chad` | 15 | | `grin` (the base photo), `angel` (smiling), `joy` (laughing), `scowl` |
+| Shane | `shane` | 15 | | `beam` (the base photo), `wary`, `smirk`, `doe` (doe eyes) |
+
+There is a sheet of every face each of them has, labelled, made with
+`.venv/bin/python tools/test/every_face.py <out prefix>`: make it again
+whenever faces are added, and show the owner.
+
+Which of a set are the same picture as one the first six games use, under
+the name those games know it by (the next section has what each is used
+for):
+
+| Who | In the set | The first games' name for the same picture |
+| --- | --- | --- |
+| Bill | smile | `bill-grin` |
+| | yell | `bill_pah` |
+| | inhale, hold | `bill_in`, `bill_hold` |
+| | sideeye, glare | `bill-sideeye`, `bill-glare` (other photos: a moustache and no beard) |
+| Stephanie | smile | `mom_smile` |
+| | yell | `mom_pah` |
+| | angry | `mom_scold`, `mom_big_scold` |
+| | inhale, hold | `mom_in`, `mom_hold` |
+| Chad | calm | `chadhead_set`, `chadbighead_set` |
+| | yell | `chadhead_yell`, `chadbighead_yell` |
+| | cry | `chadhead_cry` |
+| | grin | `chadhead_glee` |
+| | angel, joy, scowl | `chadhead_angel`, `chadhead_joy`, `chadhead_mad` and `chadhead_sad` (other photos) |
+| Shane | cry | `shanehead_cry`, `shanebighead_cry` |
+| | shocked | `shanehead_scared`, `shanehead_ow` (another photo) |
+| | beam | `shanehead_sweet`, `shanehead_tongue` |
+| | smirk | `shanehead_grin` (another photo) |
+| | doe | `shanehead_doe`, `shanebighead_doe` |
+| | wary | none: no game has used it yet (another photo) |
+
+- **Most of the fifteen are one batch** (November 2026): edits of each
   person's base photo, made by the owner, one look to a picture. They are in
   his Google Drive, in "Rubber Necker Game Character Photos", "Full
   Expression Repo", a folder for each person, each file called by the person
@@ -131,13 +168,18 @@ changing. Each face is `face_<who>_<look>` in the catalogue, and its file is
 - **Bill's smile is the base photo,** a big open grin: it serves as his
   laugh as well. The picture that came as his calm was the same file as his
   talking, so he has no calm yet.
-- **Within a set they match,** being edits of one photo with one framing.
-  The few that fill a gap from an earlier picture are the same person from
-  the same photo and sit well beside the rest; Shane's shocked is the one
-  that does not (a different photo, darker, a different haircut).
+- **Within a batch they match,** being edits of one photo with one framing.
+  An earlier picture that is an edit of the same photo sits well beside
+  them. One from **another photo** does not (different light, sometimes a
+  different haircut, the head held another way): Shane's shocked is the only
+  one of those among the fifteen, and would match if it were made again.
+  Those are hung by their own chins, as they always were.
 - **The first six games keep the faces they were made with** (the next
-  section). Nothing of theirs has been changed, and a face in the set is a
-  new picture beside theirs, not theirs with a new name.
+  section), under the names they have always had. Nothing of theirs has been
+  changed: a face in the set is a new cutout beside theirs, even where it is
+  the same picture.
+- **Bill's head from behind** (`bill-back`) is not a face and is not in the
+  set.
 
 ## The faces the first six games use
 
@@ -149,8 +191,8 @@ All of them, so that nothing already made is made twice or lost track of.
 **Outside the fifteen** are the looks made for one story: the three of the
 breathing (the breath in, holding it, the "PAH"), the scolding, the doe
 eyes, the set jaw, and the bigger copies for close-ups. They are kept and
-used, and they are **not being made for anybody else for now** (the owner's
-decision). The back of a head is the exception: everybody who has the
+used, they are in their owner's set for any new game to use, and they are
+**not being made for anybody else for now** (the owner's decision). The back of a head is the exception: everybody who has the
 fifteen is to have one.
 
 ### Bill
@@ -356,6 +398,9 @@ photo so that it matches the rest:
 | Stephanie | shocked | yell and angry (hers are the "PAH" and the scolding) |
 | Chad | | calm, yell, cry (his are from the earlier pictures: the same photo, framed closer) |
 | Shane | | shocked (his is from a different photo), cry |
+
+(The faces that are a person's own, like the doe eyes, are not on this
+list: nobody else is getting those for now.)
 | Mammy, Pappy, Nanner, Curt, Sherry, Christian, Branson | all fifteen, less the one the photo is | |
 | Rick DeGour, Cindy, Betty | calm, smile, laugh, angry, shocked, cry, less the one the photo is | |
 | Stephanie, Chad, Shane, Mammy, Pappy, Nanner, Curt, Sherry, Christian, Branson | the back of the head: waiting (see "The looks") | |

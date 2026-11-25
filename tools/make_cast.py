@@ -21,9 +21,13 @@ was. A look whose picture is framed differently (it is measured, not assumed)
 is brought to the same size by the width of its head, and hung from the same
 place on its skull.
 
-Looks a person has from before, cut for one game or another, fill the gaps in
-their set (FILL below): they are the same person from the same photo, read
-straight from the cutouts those games were made from, in art-src/adobe.
+The faces a person had already, cut for one game or another, are in their set
+as well (PEOPLE below), cut again here from the same cutouts those games were
+made from (art-src/adobe) so that they are the same size and hang from the
+same place as the rest. One that is a look of the fifteen fills that gap in
+the set, until a picture of that look comes with the others. One that is not
+(the breath held in, the doe eyes) keeps a name of its own: no face that has
+been made is left out, and a new game can use any of them.
 
 usage: .venv/bin/python tools/make_cast.py [who ...] [--to <folder>]
 With nobody named, everybody. Writes src/assets/scrap/face-<who>-<look>.png
@@ -59,13 +63,23 @@ LOOKS = ["calm", "talking", "smile", "laugh", "smug", "angry", "yell", "shocked"
 # Whose mouth is shut, best first: the first of these a person has says where their chin is.
 SHUT = ["calm", "angry", "smug", "worried"]
 
-# Everybody who has a set, and the looks they have from before (the picture's name in
-# art-src/adobe, without "-cutout.png") that fill the gaps in it.
+# Everybody who has a set, and the pictures there were of them already: each by its name in
+# art-src/adobe (without "-cutout.png"), under the look it is in their set. A name from the
+# fifteen fills that gap; any other name is a face of that person's own. A picture can say how
+# far to turn the head to set it straight (degrees), how much longer to draw a jaw that
+# Adobe's selection stopped short of (docs/cutting.md), and that it is another photo
+# altogether: the head held another way, so it is hung from its own chin and not the set's.
 PEOPLE = {
-    "bill": {"yell": "WT6c-bill-pah"},
-    "stephanie": {"yell": "WT1a-mom-pah", "angry": "WT1e-mom-scold"},
-    "chad": {"calm": "PB-chad-7", "yell": "PB-chad-5", "cry": "PB-chad-6"},
-    "shane": {"cry": "PB-shane-5", "shocked": "PB-shane-4"},
+    "bill": {"yell": "WT6c-bill-pah",
+             "inhale": "WT6a-bill-in", "hold": "WT6b-bill-hold", "sideeye": ("bill-2", {"other": True}), "glare": ("bill-1", {"other": True})},
+    "stephanie": {"yell": "WT1a-mom-pah", "angry": "WT1e-mom-scold",
+                  "inhale": "WT1b-mom-in", "hold": "WT1c-mom-hold"},
+    "chad": {"calm": "PB-chad-7", "yell": "PB-chad-5", "cry": "PB-chad-6",
+             "grin": "PB-chad-3", "angel": ("PB-chad-2", {"other": True}), "joy": ("PB-chad-4", {"other": True}),
+             "scowl": ("PB-chad-1", {"other": True, "jaw": 0.045})},
+    "shane": {"cry": "PB-shane-5", "shocked": ("PB-shane-4", {"other": True, "turn": -8}),
+              "beam": "PB-shane-1", "wary": ("PB-shane-2", {"other": True}), "smirk": ("PB-shane-3", {"other": True, "turn": -17}),
+              "doe": "PB-shane-6"},
 }
 
 # A look whose head is this near the usual place and size in its picture has the same framing.
@@ -85,23 +99,25 @@ def sources(who):
     """Every look this person has a cutout and a head selection for: look -> (cutout, headmask, facemask or None)."""
     found = {}
     for look, stem in PEOPLE[who].items():
+        stem, how = stem if isinstance(stem, tuple) else (stem, {})
         base = os.path.join(mc.SRC, stem)
         if os.path.exists(base + "-cutout.png") and os.path.exists(base + "-headmask.png"):
             face = base + "-facemask.png"
-            found[look] = (base + "-cutout.png", base + "-headmask.png", face if os.path.exists(face) else None, False)
+            found[look] = (base + "-cutout.png", base + "-headmask.png", face if os.path.exists(face) and not how.get("turn") else None, False, how)
     for mask in sorted(glob.glob(os.path.join(CAST, who, "*-headmask.png"))):
         look = os.path.basename(mask)[:-len("-headmask.png")]
         base = mask[:-len("-headmask.png")]
         cut = next((base + "-cutout" + e for e in (".webp", ".png") if os.path.exists(base + "-cutout" + e)), None)
         if cut:
             face = base + "-facemask.png"
-            found[look] = (cut, mask, face if os.path.exists(face) else None, True)     # a new one takes an old one's place
+            found[look] = (cut, mask, face if os.path.exists(face) else None, True, {})     # a new one takes an old one's place
     return found
 
 
-def head_of(cut, mask):
+def head_of(cut, mask, turn=0, jaw=0):
     """The head alone: Adobe's cutout where its selection of the head says, the holes it
-    leaves at the eyes and mouth filled in, and only the one biggest piece of it."""
+    leaves at the eyes and mouth filled in, and only the one biggest piece of it. Then, where
+    the picture needs it, the jaw drawn out to where the chin really is, and the head set straight."""
     rgba = picture(cut)
     sel = selected(mask)
     solid = (sel > 0.5).astype(np.uint8)
@@ -112,9 +128,34 @@ def head_of(cut, mask):
     head = rgba.copy()
     head[..., 3] = np.minimum(head[..., 3], np.clip(soft * 1.6, 0, 1))
     n, lab, st, _ = cv2.connectedComponentsWithStats((head[..., 3] > 0.5).astype(np.uint8), 8)
-    if n > 2:
+    if n > 1:
+        # (a faint speck off to one side is not a piece, and goes as well)
         keep = cv2.dilate((lab == 1 + int(np.argmax(st[1:, cv2.CC_STAT_AREA]))).astype(np.uint8), np.ones((5, 5), np.uint8))
         head[..., 3] *= keep
+    if jaw:
+        # from the mouth down the outline is made the shape of a jaw, with nothing cut into it,
+        # and that shape is drawn out downwards as far as the chin really goes
+        solid = (head[..., 3] > 0.5).astype(np.uint8)
+        rows = np.where(solid.any(axis=1))[0]
+        tall = rows.max() - rows.min()
+        mouth = int(rows.min() + tall * 0.6)
+        low = solid.copy()
+        low[:mouth] = 0
+        shape = np.zeros_like(solid)
+        cv2.fillConvexPoly(shape, cv2.convexHull(cv2.findNonZero(low)), 1)
+        band = shape[mouth:rows.max() + 1]
+        longer = cv2.resize(band, (band.shape[1], band.shape[0] + round(tall * jaw)), interpolation=cv2.INTER_LINEAR)
+        longer = longer[:shape.shape[0] - mouth]
+        shape[mouth:mouth + longer.shape[0]] = longer
+        soft = cv2.GaussianBlur(shape.astype(np.float32), (0, 0), 1.2)
+        head[..., 3] = np.maximum(head[..., 3], np.minimum(rgba[..., 3], np.clip(soft * 1.6, 0, 1)))
+    if turn:
+        tall, wide = head.shape[:2]
+        side = int(np.hypot(tall, wide)) + 4
+        page = np.zeros((side, side, 4), np.float32)
+        oy, ox = (side - tall) // 2, (side - wide) // 2
+        page[oy:oy + tall, ox:ox + wide] = head
+        head = cv2.warpAffine(page, cv2.getRotationMatrix2D((side / 2, side / 2), turn, 1), (side, side), flags=cv2.INTER_CUBIC)
     return head
 
 
@@ -148,7 +189,7 @@ def cast(who):
     if not found:
         print(who, "has no pictures yet")
         return {}
-    heads = {look: head_of(cut, mask) for look, (cut, mask, _, _) in found.items()}
+    heads = {look: head_of(cut, mask, how.get("turn", 0), how.get("jaw", 0)) for look, (cut, mask, _, _, how) in found.items()}
     at = {look: measured(head) for look, head in heads.items()}
     # the look that says where the chin is: one of the new set, with the mouth shut
     new = [look for look in found if found[look][3]] or list(found)
@@ -157,7 +198,7 @@ def cast(who):
     chin = chin_of(heads[ref], found[ref][2])
     k = HEAD / (chin[1] - top)
     made = {}
-    for look in sorted(found, key=lambda n: LOOKS.index(n) if n in LOOKS else 99):
+    for look in sorted(found, key=lambda n: LOOKS.index(n) if n in LOOKS else 99 + list(PEOPLE[who]).index(n)):
         head = heads[look]
         t, w, m, _ = at[look]
         same = found[look][3] and abs(w / wide - 1) < SAME and abs(t - top) < SAME * wide and abs(m - middle) < SAME * wide
@@ -167,6 +208,8 @@ def cast(who):
             # framed differently: the same size by the width of the head, hung from the same place on the skull
             grow = w / wide
             scale, hang = k / grow, (m + (chin[0] - middle) * grow, t + (chin[1] - top) * grow)
+            if found[look][4].get("other"):
+                hang = chin_of(head, None)
         ys, xs = np.where(head[..., 3] > 0.08)
         x0, x1 = max(0, xs.min() - 2), min(head.shape[1], xs.max() + 3)
         y0, y1 = max(0, ys.min() - 2), min(head.shape[0], ys.max() + 3)
@@ -176,15 +219,19 @@ def cast(who):
         name = f"face-{who}-{look}.png"
         mc.save(name, np.clip(out, 0, 1))
         made[look] = (name, out.shape[0] / HEAD, (hang[0] - x0) / (x1 - x0), (hang[1] - y0) / (y1 - y0))
-        how = "the set's framing" if same else f"its own framing, {scale / k:.2f} of the set's size" + ("" if found[look][3] else ", from before")
+        how = "the set's framing" if same else f"its own framing, {scale / k:.2f} of the set's size" + ("" if found[look][3] else ", from before") + (
+            ", another photo: its own chin" if found[look][4].get("other") else "")
         print(f"  {who} {look}: {made[look][1]:.3f} heads tall, chin at ({made[look][2]:.3f}, {made[look][3]:.3f}); {how}")
-    print(f"  {who}: {len(made)} looks, chin from \"{ref}\"; missing: {', '.join(n for n in LOOKS if n not in made) or 'none'}")
+    own = [n for n in made if n not in LOOKS]
+    print(f"  {who}: {len(made) - len(own)} of the fifteen, chin from \"{ref}\"; missing: {', '.join(n for n in LOOKS if n not in made) or 'none'}; "
+          f"and {len(own)} of their own: {', '.join(own) or 'none'}")
     return made
 
 
 def table(everybody):
     with open(TABLE, "w") as f:
-        f.write("/** Everybody's faces: for each person, the looks they have. For each look: the\n"
+        f.write("/** Everybody's faces: for each person, the looks they have (those of the fifteen\n"
+                " *  first, then the ones that are only theirs). For each look: the\n"
                 " *  picture, how tall it is in heads (a head being the top of the hair to the chin\n"
                 " *  with the mouth shut), and where that chin is in it (as a fraction of the\n"
                 " *  picture): every face is hung from there, so that one look can be changed for\n"

@@ -1,4 +1,5 @@
-/** Everybody's faces: for each person, the looks they have. For each look: the
+/** Everybody's faces: for each person, the looks they have (those of the fifteen
+ *  first, then the ones that are only theirs). For each look: the
  *  picture, how tall it is in heads (a head being the top of the hair to the chin
  *  with the mouth shut), and where that chin is in it (as a fraction of the
  *  picture): every face is hung from there, so that one look can be changed for
@@ -9,18 +10,22 @@ export interface CastFace { file: string; tall: number; chin: [number, number] }
 export const CAST: Record<string, Record<string, CastFace>> = {
   bill: {
     talking: { file: 'face-bill-talking.png', tall: 1.036, chin: [0.523, 0.971] },
-    smile: { file: 'face-bill-smile.png', tall: 1.056, chin: [0.518, 0.958] },
-    smug: { file: 'face-bill-smug.png', tall: 1.019, chin: [0.520, 0.986] },
-    angry: { file: 'face-bill-angry.png', tall: 1.011, chin: [0.515, 0.994] },
-    yell: { file: 'face-bill-yell.png', tall: 1.131, chin: [0.519, 0.896] },
-    shocked: { file: 'face-bill-shocked.png', tall: 1.050, chin: [0.519, 0.959] },
-    guilty: { file: 'face-bill-guilty.png', tall: 1.011, chin: [0.520, 0.995] },
-    worried: { file: 'face-bill-worried.png', tall: 1.025, chin: [0.520, 0.981] },
-    cry: { file: 'face-bill-cry.png', tall: 1.031, chin: [0.519, 0.975] },
-    ouch: { file: 'face-bill-ouch.png', tall: 1.025, chin: [0.520, 0.981] },
-    dazed: { file: 'face-bill-dazed.png', tall: 1.022, chin: [0.520, 0.983] },
-    disgusted: { file: 'face-bill-disgusted.png', tall: 1.025, chin: [0.519, 0.982] },
-    asleep: { file: 'face-bill-asleep.png', tall: 1.022, chin: [0.518, 0.983] },
+    smile: { file: 'face-bill-smile.png', tall: 1.053, chin: [0.520, 0.957] },
+    smug: { file: 'face-bill-smug.png', tall: 1.019, chin: [0.517, 0.986] },
+    angry: { file: 'face-bill-angry.png', tall: 1.011, chin: [0.517, 0.994] },
+    yell: { file: 'face-bill-yell.png', tall: 1.131, chin: [0.517, 0.896] },
+    shocked: { file: 'face-bill-shocked.png', tall: 1.047, chin: [0.517, 0.959] },
+    guilty: { file: 'face-bill-guilty.png', tall: 1.011, chin: [0.518, 0.995] },
+    worried: { file: 'face-bill-worried.png', tall: 1.025, chin: [0.518, 0.981] },
+    cry: { file: 'face-bill-cry.png', tall: 1.031, chin: [0.518, 0.975] },
+    ouch: { file: 'face-bill-ouch.png', tall: 1.025, chin: [0.518, 0.981] },
+    dazed: { file: 'face-bill-dazed.png', tall: 1.022, chin: [0.517, 0.983] },
+    disgusted: { file: 'face-bill-disgusted.png', tall: 1.022, chin: [0.518, 0.982] },
+    asleep: { file: 'face-bill-asleep.png', tall: 1.022, chin: [0.517, 0.983] },
+    inhale: { file: 'face-bill-inhale.png', tall: 1.067, chin: [0.517, 0.950] },
+    hold: { file: 'face-bill-hold.png', tall: 1.053, chin: [0.517, 0.961] },
+    sideeye: { file: 'face-bill-sideeye.png', tall: 1.086, chin: [0.457, 0.994] },
+    glare: { file: 'face-bill-glare.png', tall: 1.128, chin: [0.620, 0.994] },
   },
   stephanie: {
     calm: { file: 'face-stephanie-calm.png', tall: 1.606, chin: [0.453, 0.627] },
@@ -37,6 +42,8 @@ export const CAST: Record<string, Record<string, CastFace>> = {
     dazed: { file: 'face-stephanie-dazed.png', tall: 1.606, chin: [0.453, 0.628] },
     disgusted: { file: 'face-stephanie-disgusted.png', tall: 1.606, chin: [0.453, 0.628] },
     asleep: { file: 'face-stephanie-asleep.png', tall: 1.608, chin: [0.453, 0.627] },
+    inhale: { file: 'face-stephanie-inhale.png', tall: 1.619, chin: [0.461, 0.622] },
+    hold: { file: 'face-stephanie-hold.png', tall: 1.617, chin: [0.460, 0.623] },
   },
   chad: {
     calm: { file: 'face-chad-calm.png', tall: 1.017, chin: [0.421, 0.988] },
@@ -54,6 +61,10 @@ export const CAST: Record<string, Record<string, CastFace>> = {
     dazed: { file: 'face-chad-dazed.png', tall: 1.017, chin: [0.422, 0.987] },
     disgusted: { file: 'face-chad-disgusted.png', tall: 1.022, chin: [0.422, 0.983] },
     asleep: { file: 'face-chad-asleep.png', tall: 1.014, chin: [0.421, 0.990] },
+    grin: { file: 'face-chad-grin.png', tall: 0.986, chin: [0.420, 1.013] },
+    angel: { file: 'face-chad-angel.png', tall: 0.911, chin: [0.458, 0.993] },
+    joy: { file: 'face-chad-joy.png', tall: 0.978, chin: [0.530, 0.993] },
+    scowl: { file: 'face-chad-scowl.png', tall: 0.925, chin: [0.474, 0.992] },
   },
   shane: {
     calm: { file: 'face-shane-calm.png', tall: 1.011, chin: [0.566, 0.994] },
@@ -63,7 +74,7 @@ export const CAST: Record<string, Record<string, CastFace>> = {
     smug: { file: 'face-shane-smug.png', tall: 1.011, chin: [0.566, 0.994] },
     angry: { file: 'face-shane-angry.png', tall: 1.011, chin: [0.566, 0.994] },
     yell: { file: 'face-shane-yell.png', tall: 1.075, chin: [0.566, 0.936] },
-    shocked: { file: 'face-shane-shocked.png', tall: 1.017, chin: [0.508, 0.989] },
+    shocked: { file: 'face-shane-shocked.png', tall: 1.031, chin: [0.453, 0.996] },
     guilty: { file: 'face-shane-guilty.png', tall: 1.017, chin: [0.566, 0.989] },
     worried: { file: 'face-shane-worried.png', tall: 1.011, chin: [0.566, 0.993] },
     cry: { file: 'face-shane-cry.png', tall: 0.986, chin: [0.544, 1.017] },
@@ -71,5 +82,9 @@ export const CAST: Record<string, Record<string, CastFace>> = {
     dazed: { file: 'face-shane-dazed.png', tall: 1.017, chin: [0.566, 0.989] },
     disgusted: { file: 'face-shane-disgusted.png', tall: 1.025, chin: [0.566, 0.980] },
     asleep: { file: 'face-shane-asleep.png', tall: 1.011, chin: [0.566, 0.996] },
+    beam: { file: 'face-shane-beam.png', tall: 0.992, chin: [0.543, 1.011] },
+    wary: { file: 'face-shane-wary.png', tall: 0.947, chin: [0.651, 0.996] },
+    smirk: { file: 'face-shane-smirk.png', tall: 0.967, chin: [0.518, 0.997] },
+    doe: { file: 'face-shane-doe.png', tall: 1.003, chin: [0.561, 1.006] },
   },
 };

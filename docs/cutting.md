@@ -163,9 +163,13 @@ tool; a new look of somebody is only its two files. Nothing else changes:
   jaw and leaves the head where it was. A look that is framed differently
   is measured and brought to the same size by the width of its head; the
   tool says which those are when it runs.
-- **Looks a person had already** (Chad's yell, Stephanie's "PAH") fill the
-  gaps in their set: `PEOPLE` names the picture each comes from, in
-  `art-src/adobe`. A new picture of the same look takes its place.
+- **Every face a person had already is in their set too:** `PEOPLE` names
+  the picture each comes from, in `art-src/adobe`. Under the name of one of
+  the fifteen (Chad's yell, Stephanie's "PAH") it fills that gap, and a new
+  picture of the same look takes its place when one comes. Under a name of
+  its own (Shane's `doe`) it is a face only that person has. One that is
+  from another photo altogether says so (`"other"`), and is hung by its own
+  chin; one whose head leans says how far to turn it (`"turn"`).
 - **Look at the whole set on one line,** chins level (step 5): a head that
   is the wrong size or hangs wrong shows at once beside its fourteen
   neighbours.

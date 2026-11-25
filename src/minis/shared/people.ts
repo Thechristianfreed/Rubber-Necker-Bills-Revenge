@@ -17,6 +17,12 @@ import { CAST } from '../../data/cast';
  *  `face_<who>_<look>`: `face('chad', 'guilty')` gives the name, for img() and
  *  applyArt().
  *
+ *  Besides the fifteen, each person has faces of their own, made for one game or
+ *  another before there was a set (Shane's doe eyes, Stephanie holding her
+ *  breath). They are in the set too, the same size and hung the same way, and are
+ *  asked for by name like any other: `head(scene, 'shane', 'doe', x, y)`.
+ *  `ownLooks('shane')` lists them.
+ *
  *  These are for using, not for changing. A face seen close up (bigger than
  *  about twice FACE) wants a bigger copy: a game makes one in its own PIECES,
  *  from the same file (`face-chad-guilty.png`), under a name of its own. */
@@ -49,33 +55,47 @@ const NEAREST: Record<Look, Look[]> = {
 };
 
 /** How tall somebody's look is, in heads: more than one where the mouth is wide open, or the hair hangs below the chin. */
-export function headsTall(who: string, look: Look): number {
+export function headsTall(who: string, look: string): number {
   return CAST[who][face(who, look).split('_').pop()!].tall;
+}
+
+/** Every look somebody has: those of the fifteen they have, and then the ones that are only theirs. */
+export function looksOf(who: string): string[] {
+  return Object.keys(CAST[who] ?? {});
+}
+
+/** The faces that are only this person's: not one of the fifteen. */
+export function ownLooks(who: string): string[] {
+  return looksOf(who).filter((look) => !(LOOKS as readonly string[]).includes(look));
 }
 
 /** Everybody who has faces. */
 export const PEOPLE: string[] = Object.keys(CAST);
 
-/** Whether somebody has a look of their own (and not just the nearest thing to it). */
-export function hasLook(who: string, look: Look): boolean {
+/** Whether somebody has this look themselves (and not just the nearest thing to it). */
+export function hasLook(who: string, look: string): boolean {
   return !!CAST[who]?.[look];
 }
 
-/** The name of somebody's face. Where they have not got that look, the nearest they have. */
-export function face(who: string, look: Look): string {
+/** The name of somebody's face. `look` is one of the fifteen (and where they have not got
+ *  that one, they give the nearest they have), or one of that person's own. */
+export function face(who: string, look: Look | (string & {})): string {
   const looks = CAST[who];
   if (!looks) throw new Error(`nobody called "${who}" has faces yet: docs/characters.md says who has`);
-  const found = [look, ...NEAREST[look], ...LOOKS].find((l) => looks[l]);
+  if (looks[look]) return `face_${who}_${look}`;
+  const near = NEAREST[look as Look];
+  if (!near) console.error(`${who} has no face called "${look}": docs/characters.md lists the ones there are`);
+  const found = [...(near ?? []), ...LOOKS].find((l) => looks[l]);
   return `face_${who}_${found}`;
 }
 
 /** Somebody's head, with its chin at (x, y), `tall` from the top of the hair to the chin. */
-export function head(scene: Phaser.Scene, who: string, look: Look, x: number, y: number, tall = FACE): Phaser.GameObjects.Image {
+export function head(scene: Phaser.Scene, who: string, look: Look | (string & {}), x: number, y: number, tall = FACE): Phaser.GameObjects.Image {
   return img(scene, x, y, face(who, look)).setScale(tall / FACE / TEX);
 }
 
 /** Change the look on a head that is already there. It keeps its place, its size, its tilt and which way it faces. */
-export function setLook(image: Phaser.GameObjects.Image, who: string, look: Look): void {
+export function setLook(image: Phaser.GameObjects.Image, who: string, look: Look | (string & {})): void {
   const { scaleX, scaleY } = image;
   applyArt(image, face(who, look));
   image.setScale(scaleX, scaleY);
