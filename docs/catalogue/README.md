@@ -9,8 +9,8 @@ The size is how big the picture is drawn, in the game's own pixels (the page is 
 - [Cars](#cars) (22)
 - [People: bodies](#bodies) (77)
 - [People: faces](#faces) (32)
-- [People: everybody's faces](#cast) (76)
-- [The rubberneckers, and the animals](#gawkers) (48)
+- [People: everybody's faces](#cast) (88)
+- [The rubberneckers, and the animals](#gawkers) (51)
 - [Effects](#effects) (25)
 - [Words on bursts](#words) (51)
 - [The interface](#interface) (26)
@@ -320,10 +320,13 @@ One set for each of the family, every look the same size and hung from the same 
 
 ![People: everybody's faces, sheet 2](cast-2.jpg)
 
+![People: everybody's faces, sheet 3](cast-3.jpg)
+
 | Name | Size | | File |
 | --- | --- | --- | --- |
 | `face_bill_angry` | 62 x 81 |  | `src/assets/scrap/face-bill-angry.webp` |
 | `face_bill_asleep` | 62 x 82 |  | `src/assets/scrap/face-bill-asleep.webp` |
+| `face_bill_calm` | 56 x 82 |  | `src/assets/scrap/face-bill-calm.webp` |
 | `face_bill_cry` | 62 x 82 |  | `src/assets/scrap/face-bill-cry.webp` |
 | `face_bill_dazed` | 62 x 82 |  | `src/assets/scrap/face-bill-dazed.webp` |
 | `face_bill_disgusted` | 62 x 82 |  | `src/assets/scrap/face-bill-disgusted.webp` |
@@ -361,8 +364,17 @@ One set for each of the family, every look the same size and hung from the same 
 | `face_chad_worried` | 52 x 80 |  | `src/assets/scrap/face-chad-worried.webp` |
 | `face_chad_yell` | 52 x 91 |  | `src/assets/scrap/face-chad-yell.webp` |
 | `face_christian_calm` | 52 x 81 |  | `src/assets/scrap/face-christian-calm.webp` |
+| `face_christian_gentle` | 59 x 94 |  | `src/assets/scrap/face-christian-gentle.webp` |
 | `face_christian_laugh` | 53 x 89 |  | `src/assets/scrap/face-christian-laugh.webp` |
 | `face_christian_smile` | 52 x 85 |  | `src/assets/scrap/face-christian-smile.webp` |
+| `face_curt_laugh` | 57 x 76 |  | `src/assets/scrap/face-curt-laugh.webp` |
+| `face_curt_smile` | 61 x 81 |  | `src/assets/scrap/face-curt-smile.webp` |
+| `face_mammy_smile` | 99 x 127 |  | `src/assets/scrap/face-mammy-smile.webp` |
+| `face_nanner_smile` | 93 x 126 |  | `src/assets/scrap/face-nanner-smile.webp` |
+| `face_pappy_silly` | 60 x 83 |  | `src/assets/scrap/face-pappy-silly.webp` |
+| `face_pappy_smile` | 56 x 81 |  | `src/assets/scrap/face-pappy-smile.webp` |
+| `face_sabra_calm` | 61 x 76 |  | `src/assets/scrap/face-sabra-calm.webp` |
+| `face_sabra_smile` | 66 x 84 |  | `src/assets/scrap/face-sabra-smile.webp` |
 | `face_shane_angry` | 53 x 81 |  | `src/assets/scrap/face-shane-angry.webp` |
 | `face_shane_asleep` | 53 x 81 |  | `src/assets/scrap/face-shane-asleep.webp` |
 | `face_shane_beam` | 50 x 79 |  | `src/assets/scrap/face-shane-beam.webp` |
@@ -382,6 +394,8 @@ One set for each of the family, every look the same size and hung from the same 
 | `face_shane_wary` | 53 x 76 |  | `src/assets/scrap/face-shane-wary.webp` |
 | `face_shane_worried` | 53 x 81 |  | `src/assets/scrap/face-shane-worried.webp` |
 | `face_shane_yell` | 53 x 86 |  | `src/assets/scrap/face-shane-yell.webp` |
+| `face_shorty_pout` | 94 x 98 |  | `src/assets/scrap/face-shorty-pout.webp` |
+| `face_shorty_smile` | 96 x 102 |  | `src/assets/scrap/face-shorty-smile.webp` |
 | `face_stephanie_angry` | 115 x 128 |  | `src/assets/scrap/face-stephanie-angry.webp` |
 | `face_stephanie_asleep` | 116 x 129 |  | `src/assets/scrap/face-stephanie-asleep.webp` |
 | `face_stephanie_calm` | 115 x 128 |  | `src/assets/scrap/face-stephanie-calm.webp` |
@@ -418,6 +432,7 @@ Twelve heads, each gawking and dazed, with a neck the colour of each; the dog; t
 | `grump_asleep` | 46 x 52 |  | `src/assets/scrap/grump-asleep.webp` |
 | `grump_eat` | 64 x 50 |  | `src/assets/scrap/grump-eat.webp` |
 | `grump_held` | 60 x 32 |  | `src/assets/scrap/grump-held.webp` |
+| `grump_up` | 44 x 60 |  | `src/assets/scrap/grump-up.webp` |
 | `head0` | 50 x 64 |  | `src/assets/scrap/head0.webp` |
 | `head0_dazed` | 50 x 65 |  | `src/assets/scrap/head0-dazed.webp` |
 | `head1` | 54 x 64 |  | `src/assets/scrap/head1.webp` |
@@ -458,7 +473,9 @@ Twelve heads, each gawking and dazed, with a neck the colour of each; the dog; t
 | `neck11` | 16 x 14 |  | paper |
 | `roger_happy` | 44 x 104 |  | `src/assets/scrap/roger-happy.webp` |
 | `roger_lie` | 60 x 78 |  | `src/assets/scrap/roger-lie.webp` |
+| `roger_portrait` | 58 x 78 |  | `src/assets/scrap/roger-portrait.webp` |
 | `roger_sit` | 42 x 104 |  | `src/assets/scrap/roger-sit.webp` |
+| `roger_sleepy` | 51 x 78 |  | `src/assets/scrap/roger-sleepy.webp` |
 
 <a id="effects"></a>
 

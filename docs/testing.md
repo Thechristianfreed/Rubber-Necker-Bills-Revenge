@@ -114,7 +114,7 @@ above; `<outPrefix>` is where the pictures go, and the start of their names.
 | `grid.py <picture> <out.png> <x0> <y0> <x1> <y1> <step>` | A piece of a picture with a ruled grid over it (see `cutting.md`). |
 | `catalogue.cjs <base url>` | Makes `docs/catalogue` again: every picture in the game by name, on sheets (see `pictures.md`). |
 | `faces.cjs <base url> <outPrefix> [who ...]` | Everybody's faces, in the game: a page for each person with every look they have, put there by the calls a quick game uses. |
-| `every_face.py <out prefix> [who ...]` | A sheet for each person of every face they have, big and labelled, for the owner: the fifteen, then the ones that are only theirs, each with the name a game calls it by. |
+| `every_face.py <out prefix> [who ...]` | A sheet for each person of every face they have, big and labelled, for the owner: the fifteen, then the ones that are only theirs, each with the name a game calls it by. With nobody named, one more sheet with everybody on it: who has which look, and where the gaps are. |
 
 The Python ones are run with the Python that `tools/setup.sh` makes:
 `.venv/bin/python tools/test/sheet.py ...`. The two that listen to the

@@ -97,6 +97,8 @@ Who is who, for anybody writing a line for one of them to say:
   curly-coated cream doodle).
 - **Sabra** has a folder of photos and is to be in the game. Who she is to
   the family has not been said yet: ask the owner before writing her in.
+  (Nor has who **Kim** is, who is in every photo of Curt, or **Brian**, who
+  is in one of Nanner's: neither is a character.)
 - **Christian** is the owner of this game.
 
 ## Everybody's faces: the set
@@ -129,12 +131,22 @@ asked for like any other: `head(scene, 'shane', 'doe', x, y, 62)`.
 
 | Who | Called | Of the fifteen | Missing | And of their own |
 | --- | --- | --- | --- | --- |
-| Bill | `bill` | 13 | calm, laugh | `inhale` (the breath in), `hold` (holding it), `sideeye`, `glare` |
+| Bill | `bill` | 14 (his calm is a photo of him years ago, with a moustache and no beard) | laugh | `inhale` (the breath in), `hold` (holding it), `sideeye`, `glare` |
 | Stephanie | `stephanie` | 14 | shocked | `inhale` (the breath in), `hold` (holding it: her cross, lips-pressed face) |
 | Chad | `chad` | 15 | | `grin` (the base photo), `angel` (smiling), `joy` (laughing), `scowl` |
 | Shane | `shane` | 15 | | `beam` (the base photo), `wary`, `smirk`, `doe` (doe eyes) |
-| Christian | `christian` | 3: calm, smile, laugh (real photos, each as it is) | the other twelve | |
-| Branson | `branson` | 2: smile, laugh (real photos, each as it is) | the other thirteen | |
+| Christian | `christian` | 3: calm, smile, laugh | the other twelve | `gentle` (a gentle smile, 2021) |
+| Branson | `branson` | 2: smile, laugh | the other thirteen | |
+| Shorty | `shorty` | 1: smile | the other fourteen | `pout` |
+| Mammy | `mammy` | 1: smile | the other fourteen | |
+| Pappy | `pappy` | 1: smile | the other fourteen | `silly` (tongue out, in his sunglasses) |
+| Nanner | `nanner` | 1: smile | the other fourteen | |
+| Curt | `curt` | 2: smile, laugh | the other thirteen | |
+| Sabra | `sabra` | 2: calm, smile | the other thirteen | |
+
+From Christian down, every face is a real photo, used as it is (the next
+section but one lists every photo and what became of it). Their sets fill up
+as the looks nobody was photographed with are generated.
 
 There is a sheet of every face each of them has, labelled, made with
 `.venv/bin/python tools/test/every_face.py <out prefix>`: make it again
@@ -341,8 +353,8 @@ evenly lit, the biggest copy there is, nobody else in it.
 | **Cindy** | Bill's sister | six |
 | **Betty** | Bill's mother | six |
 | **Sheeba**, a dog | The first dog Christian had, growing up: a white German shepherd. A second dog: Lady is still the one not to hit. | Two: as she is, and reacting. There is no photo of her; she is generated from pictures of dogs like her. |
-| **The Grump**, an opossum | Christian's pet | Three would suit an opossum: as it is, hissing, and playing dead. From the photos of him (two of the three are there: `grump_*`); the hiss would have to be generated. |
-| **Roger**, a dog | Branson and Shorty's: a big curly-coated cream doodle | From the photos of him: sitting with his tongue out, sitting with his mouth shut, lying down (`roger_*`). |
+| **The Grump**, an opossum | Christian's pet | Every photo of him is cut, whole: at his dish, held, asleep on his back (which will do for playing dead), held upright (`grump_eat`, `grump_held`, `grump_asleep`, `grump_up`). A hiss would have to be generated. |
+| **Roger**, a dog | Branson and Shorty's: a big curly-coated cream doodle | Every photo of him is cut, whole: sitting with his tongue out, sitting with his mouth shut, lying down, and twice from the chest up (`roger_happy`, `roger_sit`, `roger_lie`, `roger_sleepy`, `roger_portrait`). |
 
 **Photos there are now.** They are in the owner's Google Drive ("Rubber
 Necker Game Character Photos", "Family Game Images", a folder for each
@@ -357,22 +369,20 @@ to the one person:
 | **Christian** | `christian-1` (indoors, grey T-shirt, calm: as he is now, big and sharp), `christian-2` (a green T-shirt, a broad smile), `christian-3` (on a boat, a big laugh), `christian-4` (2021, a mustard jacket, a gentle smile: Adobe cannot find the face in it, it is so washed out), `christian-5` (in profile: no use for a face) | `christian-1`. He is alone in it, so no base is needed: every look is an edit of it. He has more in Google Photos, which Claude cannot reach: the owner copies any that are wanted into the Drive folder. |
 | **Branson** | Seven, all screenshots (a little soft) and every one a smile or a laugh. `branson-1` (on a street, a patterned shirt: the biggest), `branson-2` (a maroon T-shirt, laughing), `branson-3` (in a dinner jacket: square to the camera but small), `branson-4` (younger, with somebody else) | `branson-1`. A photo of him with his mouth shut, or the original of this one, would be a better start. |
 | **Shorty** | `shorty-1` (outdoors, a denim jacket, smiling: big and sharp, but her hair runs off the left and the bottom of the picture, and somebody else is at its edge), a studio portrait (head turned well away, lighter hair) and a small cut-out of her pulling a face (`shorty-3`) | `shorty-1`, by way of a base that brings all of her hair into the picture |
-| **Sabra** | Two: one in profile, one looking back over her shoulder, small and soft (`sabra-1`, `sabra-2`) | Neither. She needs a photo facing the camera. |
+| **Sabra** | Four. Close up in a restaurant, a wide smile (`sabra-3`); on a train, looking at her phone (`sabra-4`); looking back over her shoulder, small and soft (`sabra-1`); in profile (`sabra-2`) | `sabra-3`, by way of a base (it is dim, and her hair runs out of it) |
+| **Curt** | Five, all with Kim. On a rooftop, square to the camera and evenly lit (`curt-1`: the owner's "good lighting"); a close selfie, a broad grin, sunglasses on his head (`curt-2`: "accurate"); in a sun hat; and two from years ago | `curt-1`, by way of a base |
 | **Sheeba** | Four pictures in the Drive folder "Sheeba", of a white German shepherd: sitting by a lake, lying on a couch, asleep on a rug, standing in a studio. There is no photo of Sheeba herself: these are found pictures of dogs close to her (the owner's word; one has a photographer's mark on it). | Not for cutting out: she is generated from a description of them. |
-| **Roger** | Five. Sitting on a step with his tongue out (`roger-1`: sharp and big), sitting by a Christmas tree (`roger-2`), lying on an ottoman (`roger-3`, cropped out of a phone screenshot), and two that have been cut out or edited already (`roger-4`) | Cut whole, as they are. |
-| **The Grump** | Four, all small. At his dish, in profile (`grump-1`), in somebody's arms, looking at the camera (`grump-2`), curled up asleep on his back (`grump-3`), held upright (`grump-4`: soft) | Cut whole, as they are. |
+| **Roger** | Five. Sitting on a step with his tongue out (`roger-1`: sharp and big), sitting by a Christmas tree (`roger-2`), lying on an ottoman (`roger-3`, cropped out of a phone screenshot), and two that had been cut out or touched up already (`roger-4`, `roger-5`) | All five cut whole, as they are. |
+| **The Grump** | Four, all small. At his dish, in profile (`grump-1`), in somebody's arms, looking at the camera (`grump-2`), curled up asleep on his back (`grump-3`), held upright (`grump-4`: soft) | All four cut whole, as they are. |
 
 **A real photo can be a look as it is** (the owner's decision), so that it
 need not be generated: Christian laughing on the boat is his laugh. It has
-to be sharp, the whole head in the picture, the face to the camera or
-nearly, nothing over it, and him looking as he does in his base photo.
-Such a look is a photo in its own right (`PHOTOS` in `tools/make_cast.py`)
-and hangs by its own chin; it will not match the generated ones in its
-light, as any face from another photo does not. What the photos cover so
-far: Christian's calm, smile and laugh, and Branson's smile and laugh
-(their sets are begun with those: the table of the set, above). Shorty's
-one good photo is cut off by its frame, so her smile waits for her base.
-Nobody's photos show any of the other twelve looks.
+to be sharp enough, the whole head in the picture, the face to the camera
+or nearly, and nothing over it. Such a look is a photo in its own right
+(`PHOTOS` in `tools/make_cast.py`) and hangs by its own chin; it will not
+match the generated ones in its light, as any face from another photo does
+not. Every photo in every folder has been gone through for this: "Every
+photo there is, and what became of it", below.
 
 Mammy's, Pappy's and Nanner's photos are small (a head is 190 to 380
 pixels tall) and most have somebody else in them; Shorty's is cut off by
@@ -386,6 +396,142 @@ matches. The base is that person's smile.
 One of each person's faces will be the photo itself (a smile, usually), so
 there are fourteen to make of fifteen, and five of six. Those who get the
 fifteen are to have the back of their head as well.
+
+## Every photo there is, and what became of it
+
+The owner's rule: where a photo in a folder already shows an expression, it
+is used for it, and that look is not generated. So every photo in every
+folder of his Drive ("Family Game Images") is listed here with what it is in
+the game as, or why it is not. All of it was gone through on 25 November
+2026; a photo added since then is not here, and is to be gone through the
+same way (list the folder to its last page: a folder comes five files at a
+time, and the first pass over Sabra's stopped a page early and missed half
+of it).
+
+What keeps a photo out: a head too small to cut (under about 130 pixels),
+something over the face (a hand on the jaw, a glass at the mouth), a profile,
+blur, or black and white. A photo that shows a look somebody already has
+from a better photo is not cut again: it is "another smile" below, and there
+if a game wants that very picture.
+
+**Bill** (3 in the Drive; `bill-1` to `bill-5` came earlier, by hand)
+
+| Photo | What it shows | What became of it |
+| --- | --- | --- |
+| `bill-3` | Grinning, outdoors, in the blue T-shirt | His base: **smile**, and every edit of him |
+| "Bill and Branson" (`bill-branson-1`) | At a lookout in Hawaii, years ago: a moustache and no beard, mouth shut | **calm** |
+| "Bill and Branson Hawaii" (`bill-branson-2`) | At breakfast, smiling | Not used: his head is 110 pixels |
+| The Christmas one (`4976…`) | Chin on his hand, a closed-mouth smile, a moustache | Not used: his hand is over his jaw |
+| `bill-1`, `bill-2` | Glaring down; side-eye | **glare**, **sideeye** (his own) |
+| `bill-4`, `bill-5` | At night, full length; and from the side, in the dark | Not used: small, and dark |
+
+(Branson is in both Hawaii photos as a teenager, with braces: there if a
+game set back then wants him.)
+
+**Stephanie** (7)
+
+| Photo | What it shows | What became of it |
+| --- | --- | --- |
+| The Gemini portrait (it is `WT1d-mom-smile`) | Smiling, in the garden | Her base: **smile**, and every edit of her |
+| Two with a martini | Eyes up over the glass, mischievous | Not used: the glass is over her mouth and chin |
+| Two at a fence with another woman | Arm in arm; and squaring up to each other | Not used: full length, a head of 70 pixels |
+| In a kitchen, hair back | A closed-mouth smile | Not used: blurred |
+| The round profile picture | Smiling | Not used: 150 pixels, and cropped to a circle |
+
+**Chad** (5) and **Shane** (5)
+
+| Photo | What it shows | What became of it |
+| --- | --- | --- |
+| Chad "Media (5)" (`chad-3`) | Grinning | His base: **grin** (his own); his smile is the same photo made again by the generator |
+| Chad "Media (6)" (`chad-1`) | Scowling, in hard light | **scowl** (his own) |
+| Chad "Media (8)" (`chad-4`) | Laughing, darker hair | **joy** (his own) |
+| Chad "Media (9)" (`chad-2`) | Smiling, in a jacket and tie | **angel** (his own) |
+| Chad "Media (7)" | Smiling | Not used: black and white |
+| Shane "Media (4)" (`shane-1`) | Beaming | His base: **beam** (his own); his smile is the same photo made again |
+| Shane "Media (3)" (`shane-2`) | Calm, looking away, in a suit | **wary** (his own) |
+| Shane "Media" (`shane-3`) | A crooked grin, head tipped | **smirk** (his own) |
+| Shane "Media (2)" | A slight crooked smile, a grey shirt | Not cut: another smile |
+| Shane "Media (1)" | In profile, forehead to forehead with somebody | Not used: a profile, and half hidden |
+
+(`chad-5` to `chad-7` and `shane-4` to `shane-6` are not photos but the first
+edits, and one other photo of Shane looking frightened; all are in their
+sets: Chad's yell, cry and calm, Shane's shocked, cry and doe eyes.)
+
+**Christian** (5)
+
+| Photo | What it shows | What became of it |
+| --- | --- | --- |
+| `christian-1` (PXL_20260809) | Calm, indoors, a grey T-shirt | His base: **calm** |
+| `christian-2` (PXL_20260908) | A broad smile, a green T-shirt | **smile** |
+| `christian-3` (PXL_20260130) | Laughing, on a boat | **laugh** |
+| `christian-4` (20211010) | A gentle, sleepy-eyed smile, a mustard jacket; 2021 | **gentle** (his own). Adobe could not find the face in it until its contrast was put right; the cutout has the photo's own colours. |
+| `christian-5` (the screenshot) | Looking away, in profile | Not used: a profile |
+
+**Branson** (7)
+
+| Photo | What it shows | What became of it |
+| --- | --- | --- |
+| `branson-1` (…110221) | A broad smile, on a street | His base: **smile** |
+| `branson-2` (…110245) | Laughing, eyes screwed up | **laugh** |
+| `branson-3` (…105847) | Laughing, in a dinner jacket | Not cut: another laugh, and small |
+| `branson-4` (…105811) | Smiling, younger, somebody beside him | Not cut: another smile |
+| …105905 | Laughing, looking up and away | Not cut: another laugh, turned well away |
+| …110117 | A grin, head right over to one side | Not cut: another smile, leaning a long way |
+| …110150 | A grin, cheek to cheek with somebody | Not used: her head is against his |
+
+**Shorty** (3)
+
+| Photo | What it shows | What became of it |
+| --- | --- | --- |
+| `shorty-1` (…110606) | Smiling, outdoors, a denim jacket | Her base: **smile** (her hair runs out of the picture, and is trimmed under her chin) |
+| `shorty-3` (the cut-out one) | A pout, hands up by her head | **pout** (her own) |
+| The studio portrait | Smiling over her shoulder, lighter hair | Not cut: another smile, turned well away |
+
+**Mammy and Pappy** (5, most of the two of them)
+
+| Photo | What it shows | What became of it |
+| --- | --- | --- |
+| At Christmas | Both facing the camera; she has red hair | **Mammy's base: smile** (`mammy-1`). Pappy: another smile (`pappy-2`) |
+| Indoors, he in a leaf-print shirt | He smiles with his mouth shut; she is in tinted glasses | **Pappy's base: smile** (`pappy-1`). Mammy: not used, her eyes are hidden (`mammy-3`) |
+| On a patio, with wine | Both smiling; she is blonde here | Not cut: another smile each (`mammy-2`, `pappy-3`) |
+| A crowd, she in a wheelchair | He has sunglasses on and his tongue out; she is looking up at him | **Pappy's silly** (his own; `pappy-4`). Mammy: not used, in profile and in glasses |
+| She alone, in a suede hat | A big smile; younger | Not cut: another smile, and a hat (`mammy-4`) |
+
+**Nanner** (3)
+
+| Photo | What it shows | What became of it |
+| --- | --- | --- |
+| "Nanner and Brian" (`nanner-1`) | Smiling, at a wedding | Her base: **smile** |
+| "Nanner Braces" (`nanner-2`) | A big grin, braces, a birthday tiara | Not cut: another smile, and the tiara |
+| By the Christmas tree (`nanner-3`) | Smiling | Not cut: another smile, small and soft |
+
+**Curt** (5, all with Kim)
+
+| Photo | What it shows | What became of it |
+| --- | --- | --- |
+| "good lighting" (`curt-1`) | Smiling, on a rooftop | His base: **smile** |
+| "accurate" (`curt-2`) | A broad open grin, sunglasses up on his head | **laugh** |
+| "hat" | A grin under a sun hat | Not cut: another smile, and the hat |
+| "wedding" | Years younger, a moustache | Not used: another age, and small |
+| "Curt and Kim" | Shaved head, a closed-mouth smile | Not used: 90 pixels |
+
+**Sabra** (4)
+
+| Photo | What it shows | What became of it |
+| --- | --- | --- |
+| `sabra-3` (…5824) | A wide smile, close up, in a restaurant | Her base: **smile** |
+| `sabra-4` (…5726) | On a train, looking at her phone, mouth shut | **calm** |
+| `sabra-1` (…4296) | Smiling back over her shoulder | Not cut: another smile, small and soft |
+| `sabra-2` (…6146) | In profile, in a café | Not used: a profile |
+
+**Roger** (5) and **The Grump** (4): every photo is cut, whole (`roger_happy`,
+`roger_sit`, `roger_lie`, `roger_sleepy`, `roger_portrait`; `grump_eat`,
+`grump_held`, `grump_asleep`, `grump_up`). **Sheeba** (4) are pictures of
+other dogs, to describe her from.
+
+What nobody's photos show, and so has to be generated for everybody who is
+to have it: talking, smug, angry, yell, shocked, guilty, worried, cry, ouch,
+dazed, disgusted, asleep. (People are photographed smiling.)
 
 ## Faces still to make
 
@@ -443,19 +589,19 @@ photo so that it matches the rest:
 
 | | Missing | Could be done again to match |
 | --- | --- | --- |
-| Bill | calm (what came as his calm was his talking again); laugh, if his grin will not do for it | yell (his is the "PAH", head tipped back) |
+| Bill | laugh, if his grin will not do for it | calm (his is a photo from years ago, with no beard; what came as his calm in the batch was his talking again), yell (his is the "PAH", head tipped back) |
 | Stephanie | shocked | yell and angry (hers are the "PAH" and the scolding) |
 | Chad | | calm, yell, cry (his are from the earlier pictures: the same photo, framed closer) |
 | Shane | | shocked (his is from a different photo), cry |
 
 (The faces that are a person's own, like the doe eyes, are not on this
 list: nobody else is getting those for now.)
-| Mammy, Pappy, Nanner | the base (which is the smile), and the other fourteen | |
-| Curt, Sherry | all fifteen, less the one the photo is, once there is a photo | |
+| Sherry | all fifteen, less the one the photo is, once there is a photo | |
 | Christian | talking, smug, angry, yell, shocked, guilty, worried, cry, ouch, dazed, disgusted, asleep | |
 | Branson | calm, talking, smug, angry, yell, shocked, guilty, worried, cry, ouch, dazed, disgusted, asleep | |
-| Shorty | her base (which is her smile), and the other fourteen | |
-| Sabra | everything, once there is a photo of her facing the camera | |
+| Shorty, Mammy, Pappy, Nanner | the base (which takes the place of the photo as the smile), and the other fourteen | |
+| Curt | the base, and calm, talking, smug, angry, yell, shocked, guilty, worried, cry, ouch, dazed, disgusted, asleep | |
+| Sabra | the base, and talking, laugh, smug, angry, yell, shocked, guilty, worried, cry, ouch, dazed, disgusted, asleep | |
 | Rick DeGour, Cindy, Betty | calm, smile, laugh, angry, shocked, cry, less the one the photo is | |
 | Stephanie, Chad, Shane, Mammy, Pappy, Nanner, Curt, Sherry, Christian, Branson | the back of the head: waiting (see "The looks") | |
 

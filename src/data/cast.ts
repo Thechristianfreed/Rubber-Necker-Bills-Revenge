@@ -9,6 +9,7 @@ export interface CastFace { file: string; tall: number; chin: [number, number] }
 
 export const CAST: Record<string, Record<string, CastFace>> = {
   bill: {
+    calm: { file: 'face-bill-calm.png', tall: 1.019, chin: [0.529, 0.992] },
     talking: { file: 'face-bill-talking.png', tall: 1.036, chin: [0.523, 0.971] },
     smile: { file: 'face-bill-smile.png', tall: 1.053, chin: [0.520, 0.957] },
     smug: { file: 'face-bill-smug.png', tall: 1.019, chin: [0.517, 0.986] },
@@ -91,9 +92,32 @@ export const CAST: Record<string, Record<string, CastFace>> = {
     calm: { file: 'face-christian-calm.png', tall: 1.011, chin: [0.388, 0.995] },
     smile: { file: 'face-christian-smile.png', tall: 1.058, chin: [0.418, 0.996] },
     laugh: { file: 'face-christian-laugh.png', tall: 1.117, chin: [0.526, 0.995] },
+    gentle: { file: 'face-christian-gentle.png', tall: 1.175, chin: [0.412, 0.996] },
   },
   branson: {
     smile: { file: 'face-branson-smile.png', tall: 1.008, chin: [0.361, 0.996] },
     laugh: { file: 'face-branson-laugh.png', tall: 1.125, chin: [0.408, 0.993] },
+  },
+  shorty: {
+    smile: { file: 'face-shorty-smile.png', tall: 1.281, chin: [0.757, 0.785] },
+    pout: { file: 'face-shorty-pout.png', tall: 1.225, chin: [0.486, 0.525] },
+  },
+  mammy: {
+    smile: { file: 'face-mammy-smile.png', tall: 1.583, chin: [0.343, 0.636] },
+  },
+  pappy: {
+    smile: { file: 'face-pappy-smile.png', tall: 1.014, chin: [0.482, 0.994] },
+    silly: { file: 'face-pappy-silly.png', tall: 1.042, chin: [0.651, 0.994] },
+  },
+  nanner: {
+    smile: { file: 'face-nanner-smile.png', tall: 1.575, chin: [0.400, 0.639] },
+  },
+  curt: {
+    smile: { file: 'face-curt-smile.png', tall: 1.017, chin: [0.479, 0.991] },
+    laugh: { file: 'face-curt-laugh.png', tall: 0.953, chin: [0.491, 0.999] },
+  },
+  sabra: {
+    calm: { file: 'face-sabra-calm.png', tall: 0.947, chin: [0.693, 0.768] },
+    smile: { file: 'face-sabra-smile.png', tall: 1.056, chin: [0.402, 0.950] },
   },
 };

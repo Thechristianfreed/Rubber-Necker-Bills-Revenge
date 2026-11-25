@@ -84,6 +84,11 @@ PEOPLE = {
     "christian": {},
     "branson": {},
     "shorty": {},
+    "mammy": {},
+    "pappy": {},
+    "nanner": {},
+    "curt": {},
+    "sabra": {},
 }
 
 # A look in art-src/cast that is a real photo, used as it is, and not one of a batch of edits:
@@ -99,10 +104,19 @@ PEOPLE = {
 #           bottom), which is above where the neck begins.
 #   size    to make it a little bigger or smaller than the width of the head says (a head
 #           turned to one side measures narrow, and comes out big)
+#   below   to cut long hair off this far under the chin, in heads, along a curve: for a
+#           photo whose frame cuts the hair off anyhow, or that has a coat under it
 # (Give a person an empty entry in PEOPLE as well, if they have none.)
 PHOTOS = {
-    "christian": {"calm": {"base": True, "seal": 0.03, "turn": 10}, "smile": {}, "laugh": {"size": 0.95}},
+    "bill": {"calm": {"seal": 0.03, "size": 0.87}},
+    "christian": {"calm": {"base": True, "seal": 0.03, "turn": 10}, "smile": {}, "laugh": {"size": 0.95}, "gentle": {"seal": 0.03}},
     "branson": {"smile": {"base": True, "seal": 0.03, "above": 0.6}, "laugh": {"seal": 0.03, "size": 0.95}},
+    "shorty": {"smile": {"base": True, "below": 0.27}, "pout": {}},
+    "mammy": {"smile": {"base": True}},
+    "pappy": {"smile": {"base": True, "seal": 0.03}, "silly": {"seal": 0.03}},
+    "nanner": {"smile": {"base": True}},
+    "curt": {"smile": {"base": True, "seal": 0.03}, "laugh": {"seal": 0.03}},
+    "sabra": {"smile": {"base": True, "seal": 0.03, "below": 0.05}, "calm": {"seal": 0.04, "below": 0.3}},
 }
 
 # A look whose head is this near the usual place and size in its picture has the same framing.
@@ -116,6 +130,14 @@ def picture(path):
 def selected(path):
     m = picture(path)
     return m[..., 3] if m[..., 3].std() > 0.01 else m[..., :3].mean(axis=2)
+
+
+def face_of(path):
+    """Adobe's selection of somebody's face: the one biggest piece of it (a passer-by in the
+    background has a face as well, and it gets selected with hers)."""
+    solid = (selected(path) > 0.5).astype(np.uint8)
+    n, lab, st, _ = cv2.connectedComponentsWithStats(solid, 8)
+    return lab == 1 + int(np.argmax(st[1:, cv2.CC_STAT_AREA])) if n > 2 else solid.astype(bool)
 
 
 def sources(who):
@@ -141,7 +163,7 @@ def sources(who):
     return found
 
 
-def head_of(cut, mask, turn=0, jaw=0, seal=0, above=0):
+def head_of(cut, mask, turn=0, jaw=0, seal=0, above=0, below=0, face=None):
     """The head alone: Adobe's cutout where its selection of the head says, the holes it
     leaves at the eyes and mouth filled in, and only the one biggest piece of it. Then, where
     the picture needs it, the jaw drawn out to where the chin really is, and the head set straight."""
@@ -167,6 +189,14 @@ def head_of(cut, mask, turn=0, jaw=0, seal=0, above=0):
         # (a faint speck off to one side is not a piece, and goes as well)
         keep = cv2.dilate((lab == 1 + int(np.argmax(st[1:, cv2.CC_STAT_AREA]))).astype(np.uint8), np.ones((5, 5), np.uint8))
         head[..., 3] *= keep
+    if below and face:
+        fy, fx = np.where(face_of(face))
+        tall = fy.max() - np.where(head[..., 3] > 0.5)[0].min()
+        xs = np.arange(head.shape[1], dtype=np.float32)
+        # lowest in the middle and higher at the sides, as hair that has been cut is
+        edge = fy.max() + below * tall - 0.1 * tall * ((xs - (fx.min() + fx.max()) / 2) / (0.6 * tall)) ** 2
+        rows_ = np.arange(head.shape[0], dtype=np.float32)[:, None]
+        head[..., 3] *= np.clip(edge[None, :] - rows_ + 0.5, 0, 1)
     if jaw:
         # from the mouth down the outline is made the shape of a jaw, with nothing cut into it,
         # and that shape is drawn out downwards as far as the chin really goes
@@ -212,7 +242,7 @@ def chin_of(head, face):
     """The chin: the bottom of the face's own selection where there is one (long hair hangs
     below it), and of the head where there is not; and the middle of the lowest of it."""
     if face:
-        ys, xs = np.where(selected(face) > 0.5)
+        ys, xs = np.where(face_of(face))
     else:
         ys, xs = np.where(head[..., 3] > 0.5)
     low = ys > ys.max() - (ys.max() - ys.min()) * 0.04
@@ -224,8 +254,9 @@ def cast(who):
     if not found:
         print(who, "has no pictures yet")
         return {}
-    heads = {look: head_of(cut, mask, how.get("turn", 0), how.get("jaw", 0), how.get("seal", 0), how.get("above", 0))
-             for look, (cut, mask, _, _, how) in found.items()}
+    heads = {look: head_of(cut, mask, how.get("turn", 0), how.get("jaw", 0), how.get("seal", 0), how.get("above", 0),
+                           how.get("below", 0), face)
+             for look, (cut, mask, face, _, how) in found.items()}
     at = {look: measured(head) for look, head in heads.items()}
     # the look that says where the chin is: one of the new set, with the mouth shut
     new = [look for look in found if found[look][3] and not found[look][4].get("other")] or [look for look in found if found[look][3]] or list(found)
@@ -234,7 +265,8 @@ def cast(who):
     chin = chin_of(heads[ref], found[ref][2])
     k = HEAD / (chin[1] - top)
     made = {}
-    for look in sorted(found, key=lambda n: LOOKS.index(n) if n in LOOKS else 99 + list(PEOPLE[who]).index(n)):
+    theirs = list(PEOPLE[who]) + list(PHOTOS.get(who, {}))       # the order a person's own faces come in
+    for look in sorted(found, key=lambda n: LOOKS.index(n) if n in LOOKS else 99 + (theirs.index(n) if n in theirs else 99)):
         head = heads[look]
         t, w, m, _ = at[look]
         same = (found[look][3] and not found[look][4].get("other")
@@ -246,7 +278,7 @@ def cast(who):
             grow = w / wide
             scale, hang = k / grow, (m + (chin[0] - middle) * grow, t + (chin[1] - top) * grow)
             if found[look][4].get("other"):
-                hang = chin_of(head, None)
+                hang = chin_of(head, found[look][2])        # (her face's selection, if her hair hangs below her chin)
             scale *= found[look][4].get("size", 1)
         ys, xs = np.where(head[..., 3] > 0.08)
         x0, x1 = max(0, xs.min() - 2), min(head.shape[1], xs.max() + 3)

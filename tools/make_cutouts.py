@@ -1428,14 +1428,16 @@ def dogs():
 
 # The family's animals, from the family's photos of them: each photo's name in art-src/adobe
 # (Adobe's cutout of it), and how tall the piece is saved, in pixels.
-ANIMALS = [("roger-happy", 620), ("roger-sit", 620), ("roger-lie", 420),
-           ("grump-eat", 300), ("grump-held", 220), ("grump-asleep", 320)]
+ANIMALS = [("roger-happy", 620), ("roger-sit", 620), ("roger-lie", 420), ("roger-sleepy", 420), ("roger-portrait", 420),
+           ("grump-eat", 300), ("grump-held", 220), ("grump-asleep", 320), ("grump-up", 320)]
 
 
 def animals():
     """Roger the dog and The Grump the opossum, whole, as the photos have them: Roger
-    sitting with his tongue out, sitting with his mouth shut, and lying down; The Grump at
-    his dish, in somebody's arms (his head and shoulders), and curled up asleep on his back.
+    sitting with his tongue out, sitting with his mouth shut, lying down, and twice from the
+    chest up (sleepy-eyed in warm light; and a portrait that had been touched up before it
+    came); The Grump at his dish, in somebody's arms (his head and shoulders), curled up
+    asleep on his back, and held upright, looking away.
     Each is Adobe's cutout of the photo, which keeps the animal and leaves the arm it is held
     in or the dish it is eating from (asking Adobe to select "the opossum" did worse: it
     took the whole picture as often as not), and only the one biggest piece of it."""

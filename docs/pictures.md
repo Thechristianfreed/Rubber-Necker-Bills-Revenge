@@ -26,8 +26,8 @@ the repository.
 
 | | Where | What it is |
 | --- | --- | --- |
-| **The finished cutouts** | `src/assets/scrap` (288 files), and Bill's four everyday heads in `src/assets/bill`. A game with a folder of its own keeps its own in `src/minis/<id>/assets`. | What the game loads: each piece by itself, background gone, trimmed to its edges, heads taken off bodies, at the size it is drawn. **These are the ones to use**, and a game uses one by its name, not its file: the catalogue gives both. |
-| **Adobe's cutouts** | `art-src/adobe` (152 files): `...-cutout.png` is a whole picture with its background gone, and `...-headmask.png` (`-facemask`, `-handmask`, `-batmask`) is what Adobe selected in it. Everybody's faces are in `art-src/cast/<who>` (120 files), the same two for each look. | Full size, exactly as Adobe gave them back. For when a finished piece is not enough: a bigger copy for a close-up, or a piece cut a different way. Nothing has to go back to Adobe for that. |
+| **The finished cutouts** | `src/assets/scrap` (303 files), and Bill's four everyday heads in `src/assets/bill`. A game with a folder of its own keeps its own in `src/minis/<id>/assets`. | What the game loads: each piece by itself, background gone, trimmed to its edges, heads taken off bodies, at the size it is drawn. **These are the ones to use**, and a game uses one by its name, not its file: the catalogue gives both. |
+| **Adobe's cutouts** | `art-src/adobe` (155 files): `...-cutout.png` is a whole picture with its background gone, and `...-headmask.png` (`-facemask`, `-handmask`, `-batmask`) is what Adobe selected in it. Everybody's faces are in `art-src/cast/<who>` (150 files), the same two for each look. | Full size, exactly as Adobe gave them back. For when a finished piece is not enough: a bigger copy for a close-up, or a piece cut a different way. Nothing has to go back to Adobe for that. |
 | **The pictures they were cut from** | `art-src/generated` (what the owner generated) and `art-src/photos` (the family's photos) | The originals. |
 
 `tools/make_cutouts.py` makes the first layer from the other two, and can
