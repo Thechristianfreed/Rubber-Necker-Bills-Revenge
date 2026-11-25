@@ -62,19 +62,51 @@ are made.
 
 ## The family
 
+Who is who, for anybody writing a line for one of them to say:
+
+- **Bill and Stephanie** are married.
+- **Their four boys are brothers:** Shane and Chad, who are Stephanie's sons
+  and were raised by Bill, whom they call **Beeb**; and Christian and
+  Branson, who are Stephanie and Bill's sons. Stephanie is "Mom" to all four.
+- **Stephanie's side:** Mammy is her mother and Pappy her father (the boys'
+  grandparents); Nanner is her sister and Curt her brother (their aunt and
+  uncle).
+- **Bill's side:** Betty is his mother (a grandmother), and Sherry and Cindy
+  are his sisters (aunts).
+- **Rick DeGour** works with Bill.
+- **The animals:** Lady, the family's golden retriever; Sheeba, the first
+  dog Christian had, growing up; and The Grump, Christian's pet opossum.
+- **Christian** is the owner of this game.
+
+## Every face there is now
+
+All of them, so that nothing already made is made twice or lost track of.
+"Name in the game" is the picture a game asks for; the file is in
+`src/assets/scrap` (Bill's four everyday heads are in `src/assets/bill`).
+
+**Outside the fifteen** are the looks made for one story: the three of the
+breathing (the breath in, holding it, the "PAH"), the scolding, the doe
+eyes, the set jaw, the back of a head, and the bigger copies for close-ups.
+They are kept and used, and they are **not being made for anybody else for
+now** (the owner's decision).
+
 ### Bill
 
-The star: it is his scrapbook. A grown man in every game, whatever age the
-body is.
+The star: it is his scrapbook. Stephanie's husband. A grown man in every
+game, whatever age the body is.
 
-| Look | Have | From |
-| --- | --- | --- |
-| smile, laugh | `bill-grin` | the base photo (`bill-3`): short grey beard |
-| yell | `bill_pah` (the "PAH") | an edit |
-| smug | `bill-sideeye` | other photo (`bill-2`): a moustache and no beard |
-| angry | `bill-glare` | other photo (`bill-1`): looking down, soft and dark, the weakest of his |
-| calm, talking, shocked, guilty, worried, cry, ouch, dazed, disgusted, asleep | missing | |
-| (one story) | `bill_in`, `bill_hold` (the breathing); `bill-back` (from behind) | edits; a generated picture |
+| Look | Which of the fifteen | Name in the game | File | From | Used in |
+| --- | --- | --- | --- | --- | --- |
+| grinning | smile, laugh | `bill-grin` | `head-grin` | the base photo (`bill-3`) | wins, a good hit in the levels, the level cards, the workout when he gets a pose |
+| the "PAH" | yell | `bill_pah` | `billface-pah` | an edit | the workout |
+| the breath in | outside the fifteen | `bill_in` | `billface-in` | an edit | the workout |
+| holding it | outside the fifteen | `bill_hold` | `billface-hold` | an edit | the workout |
+| side-eye | smug | `bill-sideeye` | `head-sideeye` | other photo (`bill-2`): a moustache and no beard | his everyday head: the title, every level |
+| glaring down | angry | `bill-glare` | `head-glare` | other photo (`bill-1`): soft and dark, the weakest of his | losses, and when he is hurt or ducking in the levels |
+| from behind | outside the fifteen | `bill-back` | `head-back` | a generated picture | the hallway |
+
+Missing: calm, talking, shocked, guilty, worried, cry, ouch, dazed,
+disgusted, asleep.
 
 - **Base photo:** `art-src/photos/bill-3.jpg`. His grin and his three
   breathing faces are from it and match one another. His two other everyday
@@ -86,17 +118,20 @@ body is.
 
 ### Stephanie (Mom)
 
-Chad and Shane's mother, and "Mom" wherever the game says it. The instructor
-on the workout tape, the cheerleader in the fight, the mother at the back
-door.
+Bill's wife, and mother of Shane, Chad, Christian and Branson: "Mom"
+wherever the game says it. The instructor on the workout tape, the
+cheerleader in the fight, the mother at the back door.
 
-| Look | Have | From |
-| --- | --- | --- |
-| smile | `mom_smile` | the base photo |
-| angry (mid-word) | `mom_scold` | an edit |
-| yell, or shocked | `mom_pah` | an edit: mouth wide open, which reads as either |
-| calm, talking, laugh, smug, guilty, worried, cry, ouch, dazed, disgusted, asleep | missing | |
-| (one story) | `mom_in`, `mom_hold` (the breathing) | edits |
+| Look | Which of the fifteen | Name in the game | File | From | Used in |
+| --- | --- | --- | --- | --- | --- |
+| smiling | smile | `mom_smile` | `mom-smile` | the base photo | the workout, the fight, the end of the sandbox |
+| the "PAH" | yell, shocked | `mom_pah` | `mom-pah` | an edit: mouth wide open, which reads as either | the workout, the fight, the back door |
+| scolding | angry (mid-word); outside the fifteen | `mom_scold`, and `mom_big_scold` for close up | `mom-scold` | an edit | the sandbox |
+| the breath in | outside the fifteen | `mom_in` | `mom-in` | an edit | the workout, and the fight |
+| holding it | outside the fifteen | `mom_hold` | `mom-hold` | an edit | the workout; everywhere else as her cross, lips-pressed face (hit in the fight, at the back door, deciding at the sandbox) |
+
+Missing: calm, talking, laugh, smug, guilty, worried, cry, ouch, dazed,
+disgusted, asleep.
 
 - **Base photo:** `art-src/generated/WT1d-mom-smile.webp`. All five of hers
   come from it, so they match: she is the model for how the others should be.
@@ -108,19 +143,22 @@ door.
 
 ### Chad
 
-Stephanie's son. A five-year-old's body (light blue T-shirt, navy shorts,
-white socks and trainers) with his head as he is now.
+Stephanie's son, raised by Bill ("Beeb"); brother of Shane, Christian and
+Branson. In the games so far, a five-year-old's body (light blue T-shirt,
+navy shorts, white socks and trainers) with his head as he is now.
 
-| Look | Have | From |
-| --- | --- | --- |
-| smile | `chadface-grin` | the base photo (`chad-3`) |
-| calm (set, determined) | `chadface-set` | an edit |
-| yell | `chadface-yell` | an edit |
-| cry | `chadface-cry` | an edit |
-| smile (again) | `chadface-smile` | other photo (`chad-2`), warm and soft |
-| laugh | `chadface-laugh` | other photo (`chad-4`), dark |
-| angry | `chadface-scowl` | other photo (`chad-1`), dark and red |
-| talking, smug, shocked, guilty, worried, ouch, dazed, disgusted, asleep | missing | |
+| Look | Which of the fifteen | Name in the game | File | From | Used in |
+| --- | --- | --- | --- | --- | --- |
+| grinning | smile | `chadhead_glee` | `chadface-grin` | the base photo (`chad-3`) | Payback, the sandbox |
+| jaw set | calm; outside the fifteen | `chadhead_set`, and `chadbighead_set` for close up | `chadface-set` | an edit | the sandbox |
+| yelling | yell | `chadhead_yell`, and `chadbighead_yell` for close up | `chadface-yell` | an edit | Payback, the sandbox |
+| bawling | cry | `chadhead_cry` | `chadface-cry` | an edit | the sandbox |
+| smiling | smile (again) | `chadhead_angel` | `chadface-smile` | other photo (`chad-2`): warm and soft | Payback, the sandbox |
+| laughing | laugh | `chadhead_joy` | `chadface-laugh` | other photo (`chad-4`): dark | Payback, the sandbox |
+| scowling | angry | `chadhead_mad`, `chadhead_sad` | `chadface-scowl` | other photo (`chad-1`): dark and red | Payback, the sandbox |
+
+Missing: talking, smug, shocked, guilty, worried, ouch, dazed, disgusted,
+asleep.
 
 - **Base photo:** `art-src/photos/chad-3.jpg`.
 - **Bodies:** `chad_stand`, `chad_shoved`, `chad_mad`, `chad_hide`,
@@ -130,18 +168,22 @@ white socks and trainers) with his head as he is now.
 
 ### Shane
 
-Chad's brother, and the bigger of the two. A five-year-old's body (red
-T-shirt, blue jeans, white trainers) with his head as he is now.
+Stephanie's son, raised by Bill ("Beeb"); brother of Chad, Christian and
+Branson, and the bigger of the two in the yard. In the games so far, a
+five-year-old's body (red T-shirt, blue jeans, white trainers) with his
+head as he is now.
 
-| Look | Have | From |
-| --- | --- | --- |
-| smile | `shaneface-beam` | the base photo (`shane-1`) |
-| cry | `shaneface-cry` | an edit |
-| (one story) | `shaneface-doe` (big innocent eyes) | an edit |
-| smug | `shaneface-smirk` | other photo (`shane-3`), dark |
-| shocked | `shaneface-scared` | other photo (`shane-4`): a good one |
-| calm (wary, looking away) | `shaneface-wary` | other photo (`shane-2`), washed out |
-| talking, laugh, angry, yell, guilty, worried, ouch, dazed, disgusted, asleep | missing | |
+| Look | Which of the fifteen | Name in the game | File | From | Used in |
+| --- | --- | --- | --- | --- | --- |
+| beaming | smile | `shanehead_sweet`, `shanehead_tongue` | `shaneface-beam` | the base photo (`shane-1`) | Payback, the sandbox |
+| bawling | cry | `shanehead_cry`, and `shanebighead_cry` for close up | `shaneface-cry` | an edit | Payback, the sandbox |
+| doe eyes | outside the fifteen | `shanehead_doe`, and `shanebighead_doe` for close up | `shaneface-doe` | an edit | the sandbox |
+| smirking | smug | `shanehead_grin` | `shaneface-smirk` | other photo (`shane-3`): dark | Payback, the sandbox |
+| frightened | shocked | `shanehead_scared`, `shanehead_ow` | `shaneface-scared` | other photo (`shane-4`): a good one | Payback |
+| wary, looking away | calm | none: cut out, and not used yet | `shaneface-wary` | other photo (`shane-2`): washed out | |
+
+Missing: talking, laugh, angry, yell, guilty, worried, ouch, dazed,
+disgusted, asleep.
 
 - **Base photo:** `art-src/photos/shane-1.jpg`.
 - **Bodies:** `shane_push`, `shane_laugh`, `shane_run1`, `shane_run2`,
@@ -149,9 +191,9 @@ T-shirt, blue jeans, white trainers) with his head as he is now.
   `shane_punch`, `shane_good` (from the sandbox); and seen from above
   (`shane_above`).
 
-In the games the brothers' faces go by what they are doing, not by these
-names (`KID_LOOKS` in `src/art/bat.ts`: Chad's "glee" is his grin, Shane's
-"sweet" is his beam). The files are named as above.
+In the games the brothers' faces go by what they are doing, not by the name
+of the look (`KID_LOOKS` in `src/art/bat.ts`: Chad's "glee" is his grin,
+Shane's "sweet" is his beam), which is why one file can have two names.
 
 ## Everybody else
 
@@ -172,24 +214,23 @@ names (`KID_LOOKS` in `src/art/bat.ts`: Chad's "glee" is his grin, Shane's
 
 ## Named, and not in the game yet
 
-The owner's list. Each needs a line saying who they are, and a picture to
-start from: facing the camera, evenly lit, the biggest copy there is, nobody
-else in it.
+The owner's list. Each needs a picture to start from: facing the camera,
+evenly lit, the biggest copy there is, nobody else in it.
 
 | Who | Who they are | Faces |
 | --- | --- | --- |
-| **Mammy** | to come | all fifteen |
-| **Pappy** | to come | all fifteen |
-| **Nanner** | to come | all fifteen |
-| **Curt** | to come | all fifteen |
-| **Sherry** | to come | all fifteen |
-| **Christian** | The owner. He is at the light switch in The Hot Carl, cut from paper. | all fifteen |
-| **Branson** | to come | all fifteen |
-| **Rick DeGour** | to come | six |
-| **Cindy** | to come | six |
-| **Betty** | to come | six |
-| **Sheeba**, a dog | The first dog the owner had, growing up. A second dog: Lady is still the one not to hit. | Two: as she is, and reacting. From photos of her. |
-| **The Grump**, an opossum | to come | Three would suit an opossum: as it is, hissing, and playing dead. From a photo, or generated if there is none. |
+| **Mammy** | Stephanie's mother | all fifteen |
+| **Pappy** | Stephanie's father | all fifteen |
+| **Nanner** | Stephanie's sister | all fifteen |
+| **Curt** | Stephanie's brother | all fifteen |
+| **Sherry** | Bill's sister | all fifteen |
+| **Christian** | Stephanie and Bill's son, and the owner. He is at the light switch in The Hot Carl, cut from paper. | all fifteen |
+| **Branson** | Stephanie and Bill's son, Christian's brother | all fifteen |
+| **Rick DeGour** | Bill's coworker | six |
+| **Cindy** | Bill's sister | six |
+| **Betty** | Bill's mother | six |
+| **Sheeba**, a dog | The first dog Christian had, growing up. A second dog: Lady is still the one not to hit. | Two: as she is, and reacting. From photos of her. |
+| **The Grump**, an opossum | Christian's pet | Three would suit an opossum: as it is, hissing, and playing dead. From a photo, or generated if there is none. |
 
 One of each person's faces will be the photo itself (a smile, usually), so
 there are fourteen to make of fifteen, and five of six.
