@@ -24,24 +24,39 @@ here, once, for everybody: not made again in each game.
 
 ## The looks
 
-The set worth having for anybody who is in more than one game. The names
-are what the faces are called in the tables below.
+The set worth having for the leads: Bill, Stephanie, Chad and Shane, who are
+in game after game. The names are what the faces are called in the tables
+below.
 
 | Look | What it is for |
 | --- | --- |
 | calm | nothing happening; listening; in between |
+| talking | in the middle of a word. Flipped with calm, it makes anybody speak. |
 | smile | pleased |
 | laugh | laughing out loud |
 | smug | got away with it |
 | angry | mouth shut, glaring |
 | yell | mouth open, furious |
 | shocked | eyes wide, mouth open: surprise or fright |
+| guilty | caught at it |
 | worried | about to cry |
 | cry | bawling |
-| ouch | has just been hit |
+| ouch | the moment of being hit |
+| dazed | the moment after |
+| disgusted | at a smell, or worse. These stories have a lot of that. |
+| asleep | eyes shut |
+
+**Somebody who is not a lead** starts with six: calm, smile, laugh, angry,
+shocked and cry. The rest are made when a game is written round them.
 
 Anything else is for one story (the doe eyes, the "PAH") and is made when a
 game needs it.
+
+A face is between 10 and 30 KB as a file (long hair costs more), and a third
+more than that in the page (`minigames.md`, "How much room there is"). The
+four leads' full sets come to about 1.3 MB of the page. Full sets for the
+ten people named further down as well would be about 3 MB more, which is
+half the room there is: hence the six.
 
 ## The family
 
@@ -56,7 +71,7 @@ body is.
 | yell | `bill_pah` (the "PAH") | an edit |
 | smug | `bill-sideeye` | other photo (`bill-2`): a moustache and no beard |
 | angry | `bill-glare` | other photo (`bill-1`): looking down, soft and dark, the weakest of his |
-| calm, shocked, worried, cry, ouch | missing | |
+| calm, talking, shocked, guilty, worried, cry, ouch, dazed, disgusted, asleep | missing | |
 | (one story) | `bill_in`, `bill_hold` (the breathing); `bill-back` (from behind) | edits; a generated picture |
 
 - **Base photo:** `art-src/photos/bill-3.jpg`. His grin and his three
@@ -78,7 +93,7 @@ door.
 | smile | `mom_smile` | the base photo |
 | angry (mid-word) | `mom_scold` | an edit |
 | yell, or shocked | `mom_pah` | an edit: mouth wide open, which reads as either |
-| calm, laugh, smug, worried, cry, ouch | missing | |
+| calm, talking, laugh, smug, guilty, worried, cry, ouch, dazed, disgusted, asleep | missing | |
 | (one story) | `mom_in`, `mom_hold` (the breathing) | edits |
 
 - **Base photo:** `art-src/generated/WT1d-mom-smile.webp`. All five of hers
@@ -103,7 +118,7 @@ white socks and trainers) with his head as he is now.
 | smile (again) | `chadface-smile` | other photo (`chad-2`), warm and soft |
 | laugh | `chadface-laugh` | other photo (`chad-4`), dark |
 | angry | `chadface-scowl` | other photo (`chad-1`), dark and red |
-| smug, shocked, worried, ouch | missing | |
+| talking, smug, shocked, guilty, worried, ouch, dazed, disgusted, asleep | missing | |
 
 - **Base photo:** `art-src/photos/chad-3.jpg`.
 - **Bodies:** `chad_stand`, `chad_shoved`, `chad_mad`, `chad_hide`,
@@ -124,7 +139,7 @@ T-shirt, blue jeans, white trainers) with his head as he is now.
 | smug | `shaneface-smirk` | other photo (`shane-3`), dark |
 | shocked | `shaneface-scared` | other photo (`shane-4`): a good one |
 | calm (wary, looking away) | `shaneface-wary` | other photo (`shane-2`), washed out |
-| laugh, angry, yell, worried, ouch | missing | |
+| talking, laugh, angry, yell, guilty, worried, ouch, dazed, disgusted, asleep | missing | |
 
 - **Base photo:** `art-src/photos/shane-1.jpg`.
 - **Bodies:** `shane_push`, `shane_laugh`, `shane_run1`, `shane_run2`,
@@ -153,11 +168,30 @@ names (`KID_LOOKS` in `src/art/bat.ts`: Chad's "glee" is his grin, Shane's
 | **The dog** (a golden retriever, in the back of the wagon) | Two heads: happy with its tongue out, and cross | A stand-in for **Lady**, the family's own golden retriever. One photo of her replaces it. Two looks is enough. |
 | **The bluebirds** (round a head that has been hit) | Wings up, wings down | No |
 
+## Named, and not in the game yet
+
+The owner's list. Nothing is known here about any of them yet but the name:
+each needs a line saying who they are, and a picture to start from.
+
+| Who | Needs |
+| --- | --- |
+| **Mammy**, **Pappy**, **Nanner**, **Curt**, **Sherry**, **Branson**, **Rick**, **Cindy**, **Betty** | Who they are. One photo each to be the base: facing the camera, evenly lit, the biggest copy there is, nobody else in it. Then the six faces. |
+| **Christian** | The same. (He is at the light switch in The Hot Carl, cut from paper.) |
+| **Sheeba**, the dog | A photo or two of her. Two looks: as she is, and reacting. |
+| **The Grump**, the opossum | A photo, or a generated one if there is none. Three looks would suit an opossum: as it is, hissing, and playing dead. |
+
 ## Faces still to make
 
 One image each, starting from that person's base photo, in a fresh chat
 each time, with the biggest copy of the photo there is. If the first try is
 not them, ask again rather than correcting it.
+
+The owner works from a page that has every one of these written out, ready
+to copy, with a tick for each one made:
+https://claude.ai/artifact/27mH87aARmemxJtoMhiSNF. (Each prompt there also
+says "Keep his head upright and facing the camera", which keeps the chin
+where the cutting expects it.) When a face is made and in the game, take it
+off the lists here.
 
 For Bill, Chad and Shane:
 
@@ -174,6 +208,7 @@ Edit this photo. Keep this woman exactly as she is: the same face, age, skin, ey
 | Look | The words |
 | --- | --- |
 | calm | relaxed and neutral. Mouth closed, no smile, eyebrows level, looking straight into the camera. |
+| talking | in the middle of saying something. Mouth open as if speaking a word, face relaxed, eyebrows level, looking straight into the camera. |
 | laugh | laughing out loud. Eyes creased nearly shut, mouth wide open in a big laugh, head still facing the camera. |
 | smug | smug and pleased with himself. One corner of the mouth pulled up in a smirk, one eyebrow raised, eyes half closed. |
 | angry | angry. Eyebrows pulled hard down, jaw clenched, lips pressed thin, glaring straight into the camera. |
@@ -181,7 +216,11 @@ Edit this photo. Keep this woman exactly as she is: the same face, age, skin, ey
 | shocked | shocked. Eyes as wide as they will go, eyebrows right up, mouth dropped open in a round O. |
 | worried | hurt and about to cry. Bottom lip stuck out, eyebrows up in the middle. |
 | cry | bawling like a small child. Eyes screwed shut, mouth wide open and turned down, tears running down the cheeks. |
+| guilty | caught out and guilty. Eyes wide and looking off to one side, teeth clenched in an awkward grimace, eyebrows up. |
 | ouch | has just been hit on the head. Eyes squeezed shut, wincing, teeth gritted, the whole face scrunched up. |
+| dazed | dazed, as if knocked on the head a moment ago. Eyes unfocused and a little crossed, eyelids heavy, mouth hanging slack and crooked. |
+| disgusted | disgusted, as if at a terrible smell. Nose wrinkled, upper lip curled, tongue pushed out a little, eyes narrowed. |
+| asleep | fast asleep. Eyes closed, face completely relaxed, mouth a little open. |
 
 (For Stephanie, "herself" for "himself".)
 
@@ -190,10 +229,10 @@ photo so that it matches the rest:
 
 | | Missing | Could be done again to match |
 | --- | --- | --- |
-| Bill | calm, shocked, worried, cry, ouch | smug, angry (his are from photos with no beard) |
-| Stephanie | calm, laugh, smug, worried, cry, ouch | |
-| Chad | smug, shocked, worried, ouch | laugh, angry |
-| Shane | laugh, angry, yell, worried, ouch | calm, smug |
+| Bill | calm, talking, shocked, guilty, worried, cry, ouch, dazed, disgusted, asleep | smug, angry (his are from photos with no beard) |
+| Stephanie | calm, talking, laugh, smug, guilty, worried, cry, ouch, dazed, disgusted, asleep | |
+| Chad | talking, smug, shocked, guilty, worried, ouch, dazed, disgusted, asleep | laugh, angry |
+| Shane | talking, laugh, angry, yell, guilty, worried, ouch, dazed, disgusted, asleep | calm, smug |
 
 When they come back: each is cut out like the others (`cutting.md`), and
 goes in with the common pictures, where every game can use it.
