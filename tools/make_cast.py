@@ -267,12 +267,15 @@ def cast(who):
     if not found:
         print(who, "has no pictures yet")
         return {}
-    # the look that says where the chin is: one of the new set, with the mouth shut
-    new = [look for look in found if found[look][3] and not found[look][4].get("other")] or [look for look in found if found[look][3]] or list(found)
+    # the look that says where the chin is: one of the batch (the edits that came together, and
+    # share a framing to the pixel), with the mouth shut; for somebody who has only photos so
+    # far, one of those that is not another photo altogether
+    batch = {look for look in found if found[look][3] and look not in PHOTOS.get(who, {})}
+    new = ([look for look in found if look in batch]
+           or [look for look in found if found[look][3] and not found[look][4].get("other")] or [look for look in found if found[look][3]] or list(found))
     ref = next((look for look in SHUT if look in new), new[0])
     # (hair that is trimmed is trimmed along one line for a whole batch, under that chin: a
     # mouth that drops open must not take the hair down with it)
-    batch = {look for look in found if found[look][3] and look not in PHOTOS.get(who, {})}
     heads = {look: head_of(cut, mask, how.get("turn", 0), how.get("jaw", 0), how.get("seal", 0), how.get("above", 0),
                            how.get("below", 0), found[ref][2] if look in batch else face)
              for look, (cut, mask, face, _, how) in found.items()}
