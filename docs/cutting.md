@@ -135,8 +135,26 @@ is one picture, and is put through Adobe twice: the background off, and the
 head selected (`bodyParts` Hair, Face, Left Ear, Right Ear, and Beard for a
 man; for somebody whose hair hangs below her chin, the Face alone as well,
 as `-facemask.png`, which is what finds her chin). Adobe's two answers go
-in `art-src/cast/<who>/` as `<look>-cutout.png` and `<look>-headmask.png`,
-and then:
+in `art-src/cast/<who>/` as `<look>-cutout.png` and `<look>-headmask.png`.
+
+A batch of them (a person's fifteen, as they come from the owner's Drive) is
+got ready and checked by `tools/cast_jobs.py`, and sent by a helper for each
+person, whose brief is `tools/cast_jobs.md`:
+
+```bash
+.venv/bin/python tools/cast_jobs.py prepare <the folder the pictures are in> <who> <a work folder> [--woman]
+```
+
+```bash
+.venv/bin/python tools/cast_jobs.py check <the work folder>/<who>.json
+```
+
+The first makes the smaller copies to send and the list the helper works
+through (it reads the look from each file's name: "Default" is the smile);
+the second says whether everything Adobe answered is there, the right size,
+and selects a believable amount. `--only shocked` is one look that came
+later; `--crop` and `--tall` are for a person whose head is a small part of
+the picture (Bill: `--crop 0,0.5 --tall 1305`). And then:
 
 ```bash
 .venv/bin/python tools/make_cast.py --keep
@@ -165,8 +183,10 @@ tool; a new look of somebody is only its two files. Nothing else changes:
   tool says which those are when it runs.
 - **Every face a person had already is in their set too:** `PEOPLE` names
   the picture each comes from, in `art-src/adobe`. Under the name of one of
-  the fifteen (Chad's yell, Stephanie's "PAH") it fills that gap, and a new
-  picture of the same look takes its place when one comes. Under a name of
+  the fifteen (Chad's yell, Stephanie's "PAH") it fills that gap. When a
+  new picture of that look comes with the others, the new one is the look
+  and the old one is given a name of its own in `PEOPLE`, so that it is not
+  lost (Shane's first shocked face is his `startled` now). Under a name of
   its own (Shane's `doe`) it is a face only that person has. One that is
   from another photo altogether says so (`"other"`), and is hung by its own
   chin; one whose head leans says how far to turn it (`"turn"`).
@@ -175,7 +195,10 @@ tool; a new look of somebody is only its two files. Nothing else changes:
   the others and is named in `PHOTOS` in the tool, which is also where it is
   set straight (`turn`), made to match the others in size (`size`), has an
   eyebrow that opens Adobe's selection to the outside closed up (`seal`),
-  or gets back hair that the selection left out (`above`).
+  or gets back hair that the selection left out (`above`). The photo a
+  person's edits are made from is their `smile` until the edits come; then
+  the edit called "Default" is the smile, and the photo's own face is kept
+  as `photo` (rename its three files, and its entry in `PHOTOS`).
 - **Adobe cannot always find a face.** In a soft, washed-out photo it
   selects the hair and nothing else, whatever it is asked for
   ("body parts not found"). That photo is no use; take another.

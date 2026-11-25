@@ -126,27 +126,32 @@ changing. Each face is `face_<who>_<look>` in the catalogue, and its file is
 The faces each person had before there was a set, made for one game or
 another, are in their set as well, cut again by the same tool so that they
 are the same size and hang the same way. One that is a look of the fifteen
-fills that place in the set. One that is not keeps a name of its own, and is
-asked for like any other: `head(scene, 'shane', 'doe', x, y, 62)`.
+fills that place in the set, until a picture of that look comes with the
+others: then the new one is the look and the old one is given a name of its
+own (Shane's first shocked face is his `startled`). One that is not keeps a
+name of its own from the start, and is asked for like any other:
+`head(scene, 'shane', 'doe', x, y, 62)`.
 
 | Who | Called | Of the fifteen | Missing | And of their own |
 | --- | --- | --- | --- | --- |
 | Bill | `bill` | 14 (his calm is a photo of him years ago, with a moustache and no beard) | laugh | `inhale` (the breath in), `hold` (holding it), `sideeye`, `glare` |
-| Stephanie | `stephanie` | 14 | shocked | `inhale` (the breath in), `hold` (holding it: her cross, lips-pressed face) |
+| Stephanie | `stephanie` | 15 | | `inhale` (the breath in), `hold` (holding it: her cross, lips-pressed face) |
 | Chad | `chad` | 15 | | `grin` (the base photo), `angel` (smiling), `joy` (laughing), `scowl` |
-| Shane | `shane` | 15 | | `beam` (the base photo), `wary`, `smirk`, `doe` (doe eyes) |
+| Shane | `shane` | 15 | | `beam` (the base photo), `wary`, `smirk`, `doe` (doe eyes), `startled` (his first shocked face, from another photo) |
+| Mammy | `mammy` | 14 | ouch | `photo` (the Christmas photo her set was made from: its own smile) |
+| Pappy | `pappy` | 15 | | `photo` (a real photo: a closed-mouth smile, in the leaf-print shirt), `silly` (tongue out, in his sunglasses) |
+| Nanner | `nanner` | 15 | | `photo` (the wedding photo her set was made from: its own smile) |
 | Christian | `christian` | 3: calm, smile, laugh | the other twelve | `gentle` (a gentle smile, 2021) |
 | Branson | `branson` | 2: smile, laugh | the other thirteen | |
 | Shorty | `shorty` | 1: smile | the other fourteen | `pout` |
-| Mammy | `mammy` | 1: smile | the other fourteen | |
-| Pappy | `pappy` | 1: smile | the other fourteen | `silly` (tongue out, in his sunglasses) |
-| Nanner | `nanner` | 1: smile | the other fourteen | |
 | Curt | `curt` | 2: smile, laugh | the other thirteen | |
 | Sabra | `sabra` | 2: calm, smile | the other thirteen | |
 
 From Christian down, every face is a real photo, used as it is (the next
 section but one lists every photo and what became of it). Their sets fill up
-as the looks nobody was photographed with are generated.
+as the looks nobody was photographed with are generated. When a person's
+generated set comes, its "Default" is their smile, and the face cut from the
+real photo is kept as their `photo`.
 
 There is a sheet of every face each of them has, labelled, made with
 `.venv/bin/python tools/test/every_face.py <out prefix>`: make it again
@@ -172,7 +177,7 @@ for):
 | | grin | `chadhead_glee` |
 | | angel, joy, scowl | `chadhead_angel`, `chadhead_joy`, `chadhead_mad` and `chadhead_sad` (other photos) |
 | Shane | cry | `shanehead_cry`, `shanebighead_cry` |
-| | shocked | `shanehead_scared`, `shanehead_ow` (another photo) |
+| | startled | `shanehead_scared`, `shanehead_ow` (another photo) |
 | | beam | `shanehead_sweet`, `shanehead_tongue` |
 | | smirk | `shanehead_grin` (another photo) |
 | | doe | `shanehead_doe`, `shanebighead_doe` |
@@ -190,9 +195,21 @@ for):
 - **Within a batch they match,** being edits of one photo with one framing.
   An earlier picture that is an edit of the same photo sits well beside
   them. One from **another photo** does not (different light, sometimes a
-  different haircut, the head held another way): Shane's shocked is the only
-  one of those among the fifteen, and would match if it were made again.
-  Those are hung by their own chins, as they always were.
+  different haircut, the head held another way): Bill's calm is the only
+  one of those among the fifteen now. (Shane's shocked was another, until
+  one was made to match; the first is his `startled`.) Those are hung by
+  their own chins, as they always were.
+- **Mammy's, Pappy's and Nanner's came the same way** (25 November 2026),
+  with Stephanie's shocked and a shocked for Shane that matches his set.
+  Mammy has no ouch yet: it was not in the folder. Her other thirteen came
+  as small copies (480 by 639, where her "Default" is 1792 by 2388): they
+  are big enough for a head in the game, a little softer than her smile, and
+  full-size copies would replace them if the owner has them.
+- **Pappy's portrait has his head turned and tipped,** as it is in the
+  Christmas photo it was made from. Every look of his is set straight by the
+  same amount (`SETS` in `tools/make_cast.py`), which is also where his far
+  eyebrow, at the very edge of his face, is kept inside the cutout. Nanner's
+  hair is trimmed there too, where it ran down over her shoulders in tails.
 - **The first six games keep the faces they were made with** (the next
   section), under the names they have always had. Nothing of theirs has been
   changed: a face in the set is a new cutout beside theirs, even where it is
@@ -301,7 +318,7 @@ head as he is now.
 | bawling | cry | `shanehead_cry`, and `shanebighead_cry` for close up | `shaneface-cry` | an edit | Payback, the sandbox |
 | doe eyes | outside the fifteen | `shanehead_doe`, and `shanebighead_doe` for close up | `shaneface-doe` | an edit | the sandbox |
 | smirking | smug | `shanehead_grin` | `shaneface-smirk` | other photo (`shane-3`): dark | Payback, the sandbox |
-| frightened | shocked | `shanehead_scared`, `shanehead_ow` | `shaneface-scared` | other photo (`shane-4`): a good one | Payback |
+| frightened | shocked (in the set it is his `startled`) | `shanehead_scared`, `shanehead_ow` | `shaneface-scared` | other photo (`shane-4`): a good one | Payback |
 | wary, looking away | calm | none: cut out, and not used yet | `shaneface-wary` | other photo (`shane-2`): washed out | |
 
 (What he has now is in the table of the set: all fifteen.)
@@ -340,9 +357,9 @@ evenly lit, the biggest copy there is, nobody else in it.
 
 | Who | Who they are | Faces |
 | --- | --- | --- |
-| **Mammy** | Stephanie's mother | all fifteen |
-| **Pappy** | Stephanie's father | all fifteen |
-| **Nanner** | Stephanie's sister | all fifteen |
+| **Mammy** | Stephanie's mother | all fifteen: she has fourteen (ouch is to come) |
+| **Pappy** | Stephanie's father | all fifteen: he has them |
+| **Nanner** | Stephanie's sister | all fifteen: she has them |
 | **Curt** | Stephanie's brother | all fifteen |
 | **Sherry** | Bill's sister | all fifteen |
 | **Christian** | Stephanie and Bill's son, and the owner. He is at the light switch in The Hot Carl, cut from paper. | all fifteen |
@@ -363,9 +380,9 @@ to the one person:
 
 | Who | Photos | Which to start from |
 | --- | --- | --- |
-| **Pappy** | `pappy-1` (indoors, in a leaf-print shirt: the biggest and sharpest), `pappy-2` (at Christmas, in a suit, square to the camera), `pappy-3` (on a patio). White hair and a white moustache in all of them. | `pappy-1` |
-| **Mammy** | `mammy-1` (at Christmas: red hair, square to the camera, no glasses), `mammy-2` (on a patio: blonde), `mammy-3` (later: grey-blonde curls and tinted glasses; her head is biggest here, but the glasses hide her eyes), `mammy-4` (younger, in a suede hat) | The owner's to choose: she looks different in each. `mammy-1` is the easiest to work from. |
-| **Nanner** | `nanner-1` (at a wedding, cropped from a photo with somebody else), `nanner-2` (a selfie in a birthday tiara, with braces: square to the camera, and the biggest), `nanner-3` (by a Christmas tree: small and soft) | `nanner-1`; or `nanner-2`, with the tiara taken off |
+| **Pappy** | `pappy-1` (indoors, in a leaf-print shirt: the biggest and sharpest), `pappy-2` (at Christmas, in a suit, his head turned a little), `pappy-3` (on a patio). White hair and a white moustache in all of them. | Done: the owner made his portrait from `pappy-2`. |
+| **Mammy** | `mammy-1` (at Christmas: red hair, square to the camera, no glasses), `mammy-2` (on a patio: blonde), `mammy-3` (later: grey-blonde curls and tinted glasses; her head is biggest here, but the glasses hide her eyes), `mammy-4` (younger, in a suede hat) | Done: the owner made her portrait from `mammy-1`. |
+| **Nanner** | `nanner-1` (at a wedding, cropped from a photo with somebody else), `nanner-2` (a selfie in a birthday tiara, with braces: square to the camera, and the biggest), `nanner-3` (by a Christmas tree: small and soft) | Done: the owner made her portrait from `nanner-1`. |
 | **Christian** | `christian-1` (indoors, grey T-shirt, calm: as he is now, big and sharp), `christian-2` (a green T-shirt, a broad smile), `christian-3` (on a boat, a big laugh), `christian-4` (2021, a mustard jacket, a gentle smile: Adobe cannot find the face in it, it is so washed out), `christian-5` (in profile: no use for a face) | `christian-1`. He is alone in it, so no base is needed: every look is an edit of it. He has more in Google Photos, which Claude cannot reach: the owner copies any that are wanted into the Drive folder. |
 | **Branson** | Seven, all screenshots (a little soft) and every one a smile or a laugh. `branson-1` (on a street, a patterned shirt: the biggest), `branson-2` (a maroon T-shirt, laughing), `branson-3` (in a dinner jacket: square to the camera but small), `branson-4` (younger, with somebody else) | `branson-1`. A photo of him with his mouth shut, or the original of this one, would be a better start. |
 | **Shorty** | `shorty-1` (outdoors, a denim jacket, smiling: big and sharp, but her hair runs off the left and the bottom of the picture, and somebody else is at its edge), a studio portrait (head turned well away, lighter hair) and a small cut-out of her pulling a face (`shorty-3`) | `shorty-1`, by way of a base that brings all of her hair into the picture |
@@ -391,7 +408,9 @@ clean head-and-shoulders portrait of the one person, head upright, the whole
 head in the picture (the faces page has the prompt, as the first card for
 each of them). Every look is then an edit of the base, not of the photo:
 that is how Chad's and Shane's were done, and why each of their sets
-matches. The base is that person's smile.
+matches. The base is that person's smile. (Mammy's, Pappy's and Nanner's are
+made: each is "Default" in that person's folder of the Full Expression
+Repo. Shorty's, Curt's and Sabra's are to come.)
 
 One of each person's faces will be the photo itself (a smile, usually), so
 there are fourteen to make of fifteen, and five of six. Those who get the
@@ -455,7 +474,7 @@ game set back then wants him.)
 
 (`chad-5` to `chad-7` and `shane-4` to `shane-6` are not photos but the first
 edits, and one other photo of Shane looking frightened; all are in their
-sets: Chad's yell, cry and calm, Shane's shocked, cry and doe eyes.)
+sets: Chad's yell, cry and calm, Shane's startled, cry and doe eyes.)
 
 **Christian** (5)
 
@@ -491,8 +510,8 @@ sets: Chad's yell, cry and calm, Shane's shocked, cry and doe eyes.)
 
 | Photo | What it shows | What became of it |
 | --- | --- | --- |
-| At Christmas | Both facing the camera; she has red hair | **Mammy's base: smile** (`mammy-1`). Pappy: another smile (`pappy-2`) |
-| Indoors, he in a leaf-print shirt | He smiles with his mouth shut; she is in tinted glasses | **Pappy's base: smile** (`pappy-1`). Mammy: not used, her eyes are hidden (`mammy-3`) |
+| At Christmas | Both facing the camera; she has red hair | **The base for both.** Mammy (`mammy-1`): her portrait and every look are made from it, and its own face is her **photo**. Pappy (`pappy-2`): his portrait and every look are made from it |
+| Indoors, he in a leaf-print shirt | He smiles with his mouth shut; she is in tinted glasses | **Pappy's photo** (his own; `pappy-1`). Mammy: not used, her eyes are hidden (`mammy-3`) |
 | On a patio, with wine | Both smiling; she is blonde here | Not cut: another smile each (`mammy-2`, `pappy-3`) |
 | A crowd, she in a wheelchair | He has sunglasses on and his tongue out; she is looking up at him | **Pappy's silly** (his own; `pappy-4`). Mammy: not used, in profile and in glasses |
 | She alone, in a suede hat | A big smile; younger | Not cut: another smile, and a hat (`mammy-4`) |
@@ -501,7 +520,7 @@ sets: Chad's yell, cry and calm, Shane's shocked, cry and doe eyes.)
 
 | Photo | What it shows | What became of it |
 | --- | --- | --- |
-| "Nanner and Brian" (`nanner-1`) | Smiling, at a wedding | Her base: **smile** |
+| "Nanner and Brian" (`nanner-1`) | Smiling, at a wedding | Her base: her portrait and every look are made from it, and its own face is her **photo** |
 | "Nanner Braces" (`nanner-2`) | A big grin, braces, a birthday tiara | Not cut: another smile, and the tiara |
 | By the Christmas tree (`nanner-3`) | Smiling | Not cut: another smile, small and soft |
 
@@ -590,16 +609,17 @@ photo so that it matches the rest:
 | | Missing | Could be done again to match |
 | --- | --- | --- |
 | Bill | laugh, if his grin will not do for it | calm (his is a photo from years ago, with no beard; what came as his calm in the batch was his talking again), yell (his is the "PAH", head tipped back) |
-| Stephanie | shocked | yell and angry (hers are the "PAH" and the scolding) |
+| Stephanie | | yell and angry (hers are the "PAH" and the scolding) |
 | Chad | | calm, yell, cry (his are from the earlier pictures: the same photo, framed closer) |
-| Shane | | shocked (his is from a different photo), cry |
+| Shane | | cry (his is from the earlier pictures) |
+| Mammy | ouch | the thirteen that came small, if there are full-size copies |
 
 (The faces that are a person's own, like the doe eyes, are not on this
 list: nobody else is getting those for now.)
 | Sherry | all fifteen, less the one the photo is, once there is a photo | |
 | Christian | talking, smug, angry, yell, shocked, guilty, worried, cry, ouch, dazed, disgusted, asleep | |
 | Branson | calm, talking, smug, angry, yell, shocked, guilty, worried, cry, ouch, dazed, disgusted, asleep | |
-| Shorty, Mammy, Pappy, Nanner | the base (which takes the place of the photo as the smile), and the other fourteen | |
+| Shorty | the base (which takes the place of the photo as the smile), and the other fourteen | |
 | Curt | the base, and calm, talking, smug, angry, yell, shocked, guilty, worried, cry, ouch, dazed, disgusted, asleep | |
 | Sabra | the base, and talking, laugh, smug, angry, yell, shocked, guilty, worried, cry, ouch, dazed, disgusted, asleep | |
 | Rick DeGour, Cindy, Betty | calm, smile, laugh, angry, shocked, cry, less the one the photo is | |

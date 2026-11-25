@@ -25,9 +25,11 @@ The faces a person had already, cut for one game or another, are in their set
 as well (PEOPLE below), cut again here from the same cutouts those games were
 made from (art-src/adobe) so that they are the same size and hang from the
 same place as the rest. One that is a look of the fifteen fills that gap in
-the set, until a picture of that look comes with the others. One that is not
-(the breath held in, the doe eyes) keeps a name of its own: no face that has
-been made is left out, and a new game can use any of them.
+the set, until a picture of that look comes with the others; then it is given
+a name of its own here (Shane's first shocked face is his "startled"). One
+that is not (the breath held in, the doe eyes) has a name of its own from the
+start: no face that has been made is left out, and a new game can use any of
+them.
 
 usage: .venv/bin/python tools/make_cast.py [who ...] [--to <folder>]
 With nobody named, everybody. Writes src/assets/scrap/face-<who>-<look>.png
@@ -77,9 +79,9 @@ PEOPLE = {
     "chad": {"calm": "PB-chad-7", "yell": "PB-chad-5", "cry": "PB-chad-6",
              "grin": "PB-chad-3", "angel": ("PB-chad-2", {"other": True}), "joy": ("PB-chad-4", {"other": True}),
              "scowl": ("PB-chad-1", {"other": True, "jaw": 0.045})},
-    "shane": {"cry": "PB-shane-5", "shocked": ("PB-shane-4", {"other": True, "turn": -8}),
+    "shane": {"cry": "PB-shane-5",
               "beam": "PB-shane-1", "wary": ("PB-shane-2", {"other": True}), "smirk": ("PB-shane-3", {"other": True, "turn": -17}),
-              "doe": "PB-shane-6"},
+              "doe": "PB-shane-6", "startled": ("PB-shane-4", {"other": True, "turn": -8})},
     # ...and those who have no pictures from before
     "christian": {},
     "branson": {},
@@ -107,16 +109,27 @@ PEOPLE = {
 #   below   to cut long hair off this far under the chin, in heads, along a curve: for a
 #           photo whose frame cuts the hair off anyhow, or that has a coat under it
 # (Give a person an empty entry in PEOPLE as well, if they have none.)
+# The photo a person's edits were made from is their "smile" until the edits come, and their
+# "photo" after: the edit of it that came with the others is the smile then.
 PHOTOS = {
     "bill": {"calm": {"seal": 0.03, "size": 0.87}},
     "christian": {"calm": {"base": True, "seal": 0.03, "turn": 10}, "smile": {}, "laugh": {"size": 0.95}, "gentle": {"seal": 0.03}},
     "branson": {"smile": {"base": True, "seal": 0.03, "above": 0.6}, "laugh": {"seal": 0.03, "size": 0.95}},
     "shorty": {"smile": {"base": True, "below": 0.27}, "pout": {}},
-    "mammy": {"smile": {"base": True}},
-    "pappy": {"smile": {"base": True, "seal": 0.03}, "silly": {"seal": 0.03}},
-    "nanner": {"smile": {"base": True}},
+    "mammy": {"photo": {"size": 0.9}},
+    "pappy": {"photo": {"seal": 0.03, "size": 0.9}, "silly": {"seal": 0.03, "size": 0.9}},
+    "nanner": {"photo": {"size": 0.87}},
     "curt": {"smile": {"base": True, "seal": 0.03}, "laugh": {"seal": 0.03}},
     "sabra": {"smile": {"base": True, "seal": 0.03, "below": 0.05}, "calm": {"seal": 0.04, "below": 0.3}},
+}
+
+# What every look in a person's batch needs, where the portrait they are all edits of needs it
+# (the same things a photo can say, above). Pappy's head is turned in his, so the far eyebrow
+# is at the very edge of his face in every look, and he holds his head tipped. Nanner's hair
+# runs down over her shoulders and ends in thin tails where her dress begins.
+SETS = {
+    "pappy": {"seal": 0.055, "turn": 10},
+    "nanner": {"below": 0.4},
 }
 
 # A look whose head is this near the usual place and size in its picture has the same framing.
@@ -155,7 +168,7 @@ def sources(who):
         cut = next((base + "-cutout" + e for e in (".webp", ".png") if os.path.exists(base + "-cutout" + e)), None)
         if cut:
             face = base + "-facemask.png"
-            how = dict(PHOTOS.get(who, {}).get(look, {}))
+            how = dict(PHOTOS.get(who, {}).get(look, SETS.get(who, {})))
             if look in PHOTOS.get(who, {}) and not how.pop("base", False):
                 how["other"] = True
             # (a new one takes an old one's place)
@@ -254,13 +267,16 @@ def cast(who):
     if not found:
         print(who, "has no pictures yet")
         return {}
-    heads = {look: head_of(cut, mask, how.get("turn", 0), how.get("jaw", 0), how.get("seal", 0), how.get("above", 0),
-                           how.get("below", 0), face)
-             for look, (cut, mask, face, _, how) in found.items()}
-    at = {look: measured(head) for look, head in heads.items()}
     # the look that says where the chin is: one of the new set, with the mouth shut
     new = [look for look in found if found[look][3] and not found[look][4].get("other")] or [look for look in found if found[look][3]] or list(found)
     ref = next((look for look in SHUT if look in new), new[0])
+    # (hair that is trimmed is trimmed along one line for a whole batch, under that chin: a
+    # mouth that drops open must not take the hair down with it)
+    batch = {look for look in found if found[look][3] and look not in PHOTOS.get(who, {})}
+    heads = {look: head_of(cut, mask, how.get("turn", 0), how.get("jaw", 0), how.get("seal", 0), how.get("above", 0),
+                           how.get("below", 0), found[ref][2] if look in batch else face)
+             for look, (cut, mask, face, _, how) in found.items()}
+    at = {look: measured(head) for look, head in heads.items()}
     top, wide, middle, _ = at[ref]
     chin = chin_of(heads[ref], found[ref][2])
     k = HEAD / (chin[1] - top)

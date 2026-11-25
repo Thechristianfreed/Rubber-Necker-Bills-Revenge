@@ -36,20 +36,23 @@ NEAREST = {"calm": ["smug", "smile", "talking"], "talking": ["calm", "smile", "l
 # What each of a person's own faces is, and what the first six games call the pictures they
 # share with the set (docs/characters.md has both, in full).
 OWN = {
-    "pappy": {"silly": "tongue out, in his sunglasses"},
+    "mammy": {"photo": "the real photo her set was made from"},
+    "pappy": {"photo": "a real photo: a closed-mouth smile", "silly": "tongue out, in his sunglasses"},
+    "nanner": {"photo": "the real photo her set was made from"},
     "shorty": {"pout": "a pout"},
     "christian": {"gentle": "a gentle smile (2021)"},
     "bill": {"inhale": "the breath in", "hold": "holding his breath", "sideeye": "side-eye (another photo)", "glare": "glaring down (another photo)"},
     "stephanie": {"inhale": "the breath in", "hold": "holding her breath; her cross face"},
     "chad": {"grin": "grinning: the photo itself", "angel": "smiling (another photo)", "joy": "laughing (another photo)", "scowl": "scowling (another photo)"},
-    "shane": {"beam": "beaming: the photo itself", "wary": "wary, looking away (another photo)", "smirk": "smirking (another photo)", "doe": "doe eyes"},
+    "shane": {"beam": "beaming: the photo itself", "wary": "wary, looking away (another photo)", "smirk": "smirking (another photo)", "doe": "doe eyes",
+              "startled": "startled (another photo)"},
 }
 FIRST = {
     "bill": {"smile": "bill-grin", "yell": "bill_pah", "inhale": "bill_in", "hold": "bill_hold", "sideeye": "bill-sideeye", "glare": "bill-glare"},
     "stephanie": {"smile": "mom_smile", "yell": "mom_pah", "angry": "mom_scold, mom_big_scold", "inhale": "mom_in", "hold": "mom_hold"},
     "chad": {"calm": "chadhead_set, chadbighead_set", "yell": "chadhead_yell, chadbighead_yell", "cry": "chadhead_cry", "grin": "chadhead_glee",
              "angel": "chadhead_angel", "joy": "chadhead_joy", "scowl": "chadhead_mad, chadhead_sad"},
-    "shane": {"cry": "shanehead_cry, shanebighead_cry", "shocked": "shanehead_scared, shanehead_ow", "beam": "shanehead_sweet, shanehead_tongue",
+    "shane": {"cry": "shanehead_cry, shanebighead_cry", "startled": "shanehead_scared, shanehead_ow", "beam": "shanehead_sweet, shanehead_tongue",
               "smirk": "shanehead_grin", "doe": "shanehead_doe, shanebighead_doe", "wary": ""},
 }
 WOMEN = {"stephanie", "mammy", "nanner", "shorty", "sabra", "sherry", "cindy", "betty"}
