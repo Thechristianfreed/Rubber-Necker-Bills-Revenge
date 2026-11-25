@@ -119,15 +119,26 @@ node tools/make_preview.mjs <somewhere>/rubber-necker.html
 
 For both:
 
-- Sound is not inside the page. `public/music`, `public/voice` and
-  `public/sfx` go up beside it as supporting files (`audio/mpeg`): all of
-  them the first time an artifact is published, and after that whenever one
-  changes.
-- The page has to stay under 16 MB. Pictures are kept as WebP to fit
-  (`tools/shrink_assets.py`; the cutout tools save WebP themselves, and the
-  code still calls each one "name.png").
-- `dist-single` holds whichever was built last. Build the whole game again
-  before testing the whole tape.
+- **Neither the pictures nor the sound are inside the page.** They go up
+  beside it as supporting files, from `dist-single`, at the same paths:
+  `pictures/*.json` (`application/json`) and `music/`, `voice/`, `sfx/`
+  (`audio/mpeg`). `make_preview.mjs` lists them when it finishes.
+- **The pictures are sent with every publish.** Each file of them is named
+  for what is in it, so one that has not changed is the same file as before.
+  A `pictures/...` file the artifact still has from an earlier build, and
+  that is not in the new list, is taken away (pass `null` for it): list the
+  artifact's files to find them.
+- **The recordings are sent** the first time an artifact is published, and
+  after that when one changes.
+- If the pictures cannot be fetched the game still plays, all in cut paper:
+  somebody who sees paper dolls where there were photos is seeing that.
+- A page may be 16 MB, and a file beside it 16 MB. The page is under 2 MB
+  now, and the pictures are split into files of 6 MB, so neither is close.
+  Pictures are kept as WebP all the same (`tools/shrink_assets.py`; the
+  cutout tools save WebP themselves, and the code still calls each one
+  "name.png").
+- `dist-single` holds whichever was built last, and is what the tests are
+  run on. Build the whole game again before testing the whole tape.
 
 ## Adding things
 

@@ -12,17 +12,22 @@ find that browser.
 
 ## The page to test
 
-Test the built page, which is what gets published and has the recordings
-beside it:
+Test the page as it is published, with its pictures and recordings beside
+it:
 
 ```bash
-npm run build:single
+node tools/make_preview.mjs <somewhere>/rubber-necker.html
 ```
 
-(`tools/make_preview.mjs` does the same and then makes the page to publish.
-With `--only <game>` it builds a page that plays one quick game by itself,
-and `dist-single` is left holding that: on it, `&level=minis` is that one
-game. Build again without `--only` before testing the whole tape.)
+That builds `dist-single` (`npm run build:single`), takes the pictures out
+of the page into `dist-single/pictures`, and writes the page to publish.
+`dist-single/index.html` is the same page, for testing. (With
+`--only <game>` it builds a page that plays one quick game by itself, and
+`dist-single` is left holding that: on it, `&level=minis` is that one game.
+Build again without `--only` before testing the whole tape.)
+
+`npm run build:single` by itself leaves every picture inside the page, which
+also works, but is not what gets published.
 
 ```bash
 cd dist-single && python3 -m http.server 5180

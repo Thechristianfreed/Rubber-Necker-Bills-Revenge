@@ -59,7 +59,7 @@ Writes one `dist-single/index.html` that can be shared as a single file. Everyth
 node tools/make_preview.mjs <out.html>
 ```
 
-Does that build and turns it into a page fragment for hosts that add their own page wrapper: this is what is published as the preview. With `--only <game>` after it, the page plays one quick game by itself, which is how a game that is still being made is shown.
+Does that build, takes the pictures out of the page into files beside it (`dist-single/pictures`: a published page has a size limit, and the pictures were most of it), and turns the page into a fragment for hosts that add their own page wrapper: this is what is published as the preview. With `--only <game>` after it, the page plays one quick game by itself, which is how a game that is still being made is shown.
 
 ## How it is put together
 

@@ -54,11 +54,10 @@ pictures.
 Anything else is for one story (the doe eyes, the "PAH") and is made when a
 game needs it.
 
-A face is between 10 and 30 KB as a file (long hair costs more), and a third
-more than that in the page (`minigames.md`, "How much room there is"). The
-faces still to be made come to about 3.5 MB of the page, where there is 6 MB
-left: the pictures have to be moved out of the page before many more games
-are made.
+A face is between 10 and 30 KB as a file (long hair costs more). All the
+faces still to be made come to about 2.5 MB, which is no trouble now that
+the pictures are kept beside the page (`minigames.md`, "How much room there
+is").
 
 ## The family
 

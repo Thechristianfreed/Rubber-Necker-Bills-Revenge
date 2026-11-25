@@ -214,9 +214,9 @@ shows at once in a screenshot and not at all in the numbers.
 
 **With the files:**
 
-- **The page has a size limit** (16 MB with every picture inside it), which
-  is why pieces are WebP. A PNG that has come from somewhere else is turned
-  into one by `tools/shrink_assets.py`.
+- **Pieces are WebP,** a fraction of the size of a PNG: every picture is
+  fetched before the title comes up. A PNG that has come from somewhere else
+  is turned into one by `tools/shrink_assets.py`.
 - **A tool must not read its pictures back out of `src/assets`:** what is
   there has lost a little. Each step works from `art-src`.
 - **Uploads stay in the owner's Adobe storage**, in a folder called

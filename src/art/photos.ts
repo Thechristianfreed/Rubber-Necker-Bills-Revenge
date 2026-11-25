@@ -3,6 +3,7 @@ import { INK, TEX } from '../config';
 import { ART, Ctx, fence, makeArt, makePhotoArt, makePhotoTile, star } from './sticker';
 import { ARM_TINTS, VEHICLES, VehicleSpec, makeNeck, setHeadStyles } from './textures';
 import { PAPERS, addPaper } from './paper';
+import { loadPictures, picture } from './pictures';
 import { buildPaperUi } from './ui';
 import { HALL, buildHallArt } from './hallway';
 import { BILL_HEAD, TV, buildMiniArt } from './minis';
@@ -306,8 +307,9 @@ function tone(rgb: [number, number, number] | null): string {
   return '#' + rgb.map((v) => Math.round(v + (255 - v) * 0.12).toString(16).padStart(2, '0')).join('');
 }
 
-function loadImage(src: string | undefined): Promise<HTMLImageElement | null> {
+function loadImage(address: string | undefined): Promise<HTMLImageElement | null> {
   return new Promise((resolve) => {
+    const src = picture(address);
     if (!src) return resolve(null);
     const im = new Image();
     im.onload = () => resolve(im);
@@ -357,6 +359,7 @@ async function loadGames(scene: Phaser.Scene): Promise<void> {
 
 /** Load every photo cutout and swap it in over its drawn stand-in. */
 export async function loadPhotoArt(scene: Phaser.Scene): Promise<void> {
+  await loadPictures();
   const sheets = PAPERS;
   const names = new Set<string>([
     ...PIECES.map((p) => p.file), ...PHOTO_VEHICLES.map((v) => v.file), 'postcard.jpg', 'rail.png', 'asphalt.jpg', 'houses.jpg', 'fence.png', 'concrete.jpg', 'hallway.jpg',

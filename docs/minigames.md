@@ -112,17 +112,14 @@ added.
 
 ### How much room there is
 
-Every picture is inside the page that gets published, and a page may be 16 MB
-and no more. It is at 9.8 MB with six games. The four games made with
-photos have between 0.6 and 1.3 MB of pictures each as files, and a third
-more than that once they are in the page: so there is room for about five
-more games made the way those were. The faces the cast is to have
-(`characters.md`) will take about 3.5 MB of that, which leaves room for two.
-`tools/make_preview.mjs` says how full the page is every time it builds one.
+Plenty. A published page may be 16 MB, and the pictures used to be inside it,
+which left room for only a few more games. They are now kept beside the
+page, in files of about 6 MB (`tools/pack_pictures.mjs`,
+`src/art/pictures.ts`): the page itself is under 2 MB, and an artifact may
+have 256 MB of files beside it. With six games the pictures come to 8 MB.
 
-A game with a great many big pictures should say so to the owner early.
-Making room (keeping the pictures beside the page, as the sound is) is a job
-for the whole game, not for one chat.
+Pictures are still worth keeping small (they are all fetched before the
+title comes up), so they stay WebP, at the size they are drawn.
 
 The first six games were made before games had folders. Their classes are in
 theirs (`src/minis/sand/SandMini.ts`); their paper art (`src/art`), tables
