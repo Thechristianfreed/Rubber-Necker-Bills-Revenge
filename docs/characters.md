@@ -51,8 +51,8 @@ faces are called in the tables below.
 and cry. **The animals** get what their job needs, which is two or three
 pictures.
 
-**And everybody, all fourteen people, gets the back of their head,** for
-the games that are seen from behind. It is not a face pulled from the
+**And everybody in the family gets the back of their head** (all but Rick
+DeGour, Cindy and Betty), for the games that are seen from behind. It is not a face pulled from the
 photo: it is a picture of its own, and a real photo of the back of
 somebody's head (from straight behind, at head height, against a plain
 wall) is better than a generated one. Bill has his.
@@ -96,7 +96,8 @@ All of them, so that nothing already made is made twice or lost track of.
 breathing (the breath in, holding it, the "PAH"), the scolding, the doe
 eyes, the set jaw, and the bigger copies for close-ups. They are kept and
 used, and they are **not being made for anybody else for now** (the owner's
-decision). The back of a head is the exception: everybody is to have one.
+decision). The back of a head is the exception: everybody who has the
+fifteen is to have one.
 
 ### Bill
 
@@ -242,8 +243,8 @@ evenly lit, the biggest copy there is, nobody else in it.
 | **The Grump**, an opossum | Christian's pet | Three would suit an opossum: as it is, hissing, and playing dead. From a photo, or generated if there is none. |
 
 One of each person's faces will be the photo itself (a smile, usually), so
-there are fourteen to make of fifteen, and five of six. Each of them is to
-have the back of their head as well.
+there are fourteen to make of fifteen, and five of six. Those who get the
+fifteen are to have the back of their head as well.
 
 ## Faces still to make
 
@@ -313,7 +314,7 @@ photo so that it matches the rest:
 | Shane | talking, laugh, angry, yell, guilty, worried, ouch, dazed, disgusted, asleep | calm, smug |
 | Mammy, Pappy, Nanner, Curt, Sherry, Christian, Branson | all fifteen, less the one the photo is | |
 | Rick DeGour, Cindy, Betty | calm, smile, laugh, angry, shocked, cry, less the one the photo is | |
-| Everybody but Bill | the back of the head | |
+| Stephanie, Chad, Shane, Mammy, Pappy, Nanner, Curt, Sherry, Christian, Branson | the back of the head | |
 
 When they come back: each is cut out like the others (`cutting.md`), and
 goes in with the common pictures, where every game can use it.

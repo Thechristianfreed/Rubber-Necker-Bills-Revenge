@@ -125,7 +125,9 @@ For both:
 - **Neither the pictures nor the sound are inside the page.** They go up
   beside it as supporting files, from `dist-single`, at the same paths:
   `pictures/*.json` (`application/json`) and `music/`, `voice/`, `sfx/`
-  (`audio/mpeg`). `make_preview.mjs` lists them when it finishes.
+  (`audio/mpeg`). `make_preview.mjs` lists them when it finishes. (The
+  owner has seen the pictures and heard the sound arrive this way in the
+  preview.)
 - **The pictures are sent with every publish.** Each file of them is named
   for what is in it, so one that has not changed is the same file as before.
   A `pictures/...` file the artifact still has from an earlier build, and
