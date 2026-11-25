@@ -334,6 +334,27 @@ evenly lit, the biggest copy there is, nobody else in it.
 | **Sheeba**, a dog | The first dog Christian had, growing up. A second dog: Lady is still the one not to hit. | Two: as she is, and reacting. From photos of her. |
 | **The Grump**, an opossum | Christian's pet | Three would suit an opossum: as it is, hissing, and playing dead. From a photo, or generated if there is none. |
 
+**Photos there are now.** They are in the owner's Google Drive ("Rubber
+Necker Game Character Photos", "Family Game Images", a folder for each
+person), and the ones worth starting from are in `art-src/photos`, cropped
+to the one person:
+
+| Who | Photos | Which to start from |
+| --- | --- | --- |
+| **Pappy** | `pappy-1` (indoors, in a leaf-print shirt: the biggest and sharpest), `pappy-2` (at Christmas, in a suit, square to the camera), `pappy-3` (on a patio). White hair and a white moustache in all of them. | `pappy-1` |
+| **Mammy** | `mammy-1` (at Christmas: red hair, square to the camera, no glasses), `mammy-2` (on a patio: blonde), `mammy-3` (later: grey-blonde curls and tinted glasses; her head is biggest here, but the glasses hide her eyes), `mammy-4` (younger, in a suede hat) | The owner's to choose: she looks different in each. `mammy-1` is the easiest to work from. |
+| **Nanner** | `nanner-1` (at a wedding, cropped from a photo with somebody else), `nanner-2` (a selfie in a birthday tiara, with braces: square to the camera, and the biggest), `nanner-3` (by a Christmas tree: small and soft) | `nanner-1`; or `nanner-2`, with the tiara taken off |
+| **Sheeba** | Four pictures in the Drive folder "Sheeba", of a white German shepherd: sitting by a lake, lying on a couch, asleep on a rug, standing in a studio. They are found pictures (one has a photographer's mark on it), there to show what she looked like. | Not for cutting out: she is generated from a description of them. |
+| **Christian, Branson** | Folders made; nothing in them yet (25 November 2026) | |
+
+All of these are small (a head is 190 to 380 pixels tall) and most have
+somebody else in them. So the first thing made from each is a **base**: a
+clean head-and-shoulders portrait of the one person, head upright, the whole
+head in the picture (the faces page has the prompt, as the first card for
+each of them). Every look is then an edit of the base, not of the photo:
+that is how Chad's and Shane's were done, and why each of their sets
+matches. The base is that person's smile.
+
 One of each person's faces will be the photo itself (a smile, usually), so
 there are fourteen to make of fifteen, and five of six. Those who get the
 fifteen are to have the back of their head as well.
