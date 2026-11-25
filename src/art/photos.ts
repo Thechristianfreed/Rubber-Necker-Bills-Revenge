@@ -265,6 +265,14 @@ const PIECES: Piece[] = [
   { key: 'bird_up', file: 'bird-up.png', scale: 0.08, border: 1.2, anchor: [0.371, 0.774] },
   { key: 'bird_down', file: 'bird-down.png', scale: 0.08, border: 1.2, anchor: [0.251, 0.253] },
   { key: 'phone', file: 'phone.png', h: 26, border: 1.4 },
+  // the family's animals, from the family's photos (tools/make_cutouts.py, animals): Roger the dog,
+  // sitting twice and lying down, and The Grump the opossum, at his dish, held, and asleep on his back
+  { key: 'roger_happy', file: 'roger-happy.png', h: 104, border: 2, anchor: [0.595, 0.985] },
+  { key: 'roger_sit', file: 'roger-sit.png', h: 104, border: 2, anchor: [0.478, 0.985] },
+  { key: 'roger_lie', file: 'roger-lie.png', h: 78, border: 2, anchor: [0.4, 0.97] },
+  { key: 'grump_eat', file: 'grump-eat.png', w: 64, border: 1.6, anchor: [0.72, 0.97] },
+  { key: 'grump_held', file: 'grump-held.png', w: 60, border: 1.6, anchor: [0.3, 0.6] },
+  { key: 'grump_asleep', file: 'grump-asleep.png', w: 46, border: 1.6, anchor: [0.5, 0.95] },
 ];
 
 /** Photo vehicles, with where the open windows are (as fractions of the image). */

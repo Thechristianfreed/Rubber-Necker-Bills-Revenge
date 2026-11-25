@@ -80,6 +80,29 @@ PEOPLE = {
     "shane": {"cry": "PB-shane-5", "shocked": ("PB-shane-4", {"other": True, "turn": -8}),
               "beam": "PB-shane-1", "wary": ("PB-shane-2", {"other": True}), "smirk": ("PB-shane-3", {"other": True, "turn": -17}),
               "doe": "PB-shane-6"},
+    # ...and those who have no pictures from before
+    "christian": {},
+    "branson": {},
+    "shorty": {},
+}
+
+# A look in art-src/cast that is a real photo, used as it is, and not one of a batch of edits:
+# Christian laughing on a boat is his laugh. Unless it is the person's base photo ("base": the
+# one their edits are made from), it is another photo, and is hung by its own chin as the ones
+# marked "other" above are. A photo can also say:
+#   turn    how far to turn the head to set it straight, in degrees
+#   seal    to close slits in Adobe's selection: an eyebrow at the very edge of a face that is
+#           turned a little opens the selection to the outside, and the paper border then runs
+#           into it. The number is how wide a slit to close, as a part of the head's height.
+#   above   to take the hair and ears from Adobe's cutout where its selection left them out:
+#           everything in the cutout higher than this far down the selection (0 its top, 1 its
+#           bottom), which is above where the neck begins.
+#   size    to make it a little bigger or smaller than the width of the head says (a head
+#           turned to one side measures narrow, and comes out big)
+# (Give a person an empty entry in PEOPLE as well, if they have none.)
+PHOTOS = {
+    "christian": {"calm": {"base": True, "seal": 0.03, "turn": 10}, "smile": {}, "laugh": {"size": 0.95}},
+    "branson": {"smile": {"base": True, "seal": 0.03, "above": 0.6}, "laugh": {"seal": 0.03, "size": 0.95}},
 }
 
 # A look whose head is this near the usual place and size in its picture has the same framing.
@@ -110,17 +133,29 @@ def sources(who):
         cut = next((base + "-cutout" + e for e in (".webp", ".png") if os.path.exists(base + "-cutout" + e)), None)
         if cut:
             face = base + "-facemask.png"
-            found[look] = (cut, mask, face if os.path.exists(face) else None, True, {})     # a new one takes an old one's place
+            how = dict(PHOTOS.get(who, {}).get(look, {}))
+            if look in PHOTOS.get(who, {}) and not how.pop("base", False):
+                how["other"] = True
+            # (a new one takes an old one's place)
+            found[look] = (cut, mask, face if os.path.exists(face) and not how.get("turn") else None, True, how)
     return found
 
 
-def head_of(cut, mask, turn=0, jaw=0):
+def head_of(cut, mask, turn=0, jaw=0, seal=0, above=0):
     """The head alone: Adobe's cutout where its selection of the head says, the holes it
     leaves at the eyes and mouth filled in, and only the one biggest piece of it. Then, where
     the picture needs it, the jaw drawn out to where the chin really is, and the head set straight."""
     rgba = picture(cut)
     sel = selected(mask)
     solid = (sel > 0.5).astype(np.uint8)
+    rows = np.where(solid.any(axis=1))[0]
+    if seal:
+        across = max(3, int(seal * (rows.max() - rows.min()))) | 1
+        solid = cv2.morphologyEx(solid, cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (across, across)))
+    if above:
+        more = (rgba[..., 3] > 0.5).astype(np.uint8)
+        more[int(rows.min() + above * (rows.max() - rows.min())):] = 0
+        solid = np.maximum(solid, more)
     contours, _ = cv2.findContours(solid, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
     whole = np.zeros(solid.shape, np.uint8)
     cv2.drawContours(whole, contours, -1, 1, thickness=cv2.FILLED)
@@ -189,10 +224,11 @@ def cast(who):
     if not found:
         print(who, "has no pictures yet")
         return {}
-    heads = {look: head_of(cut, mask, how.get("turn", 0), how.get("jaw", 0)) for look, (cut, mask, _, _, how) in found.items()}
+    heads = {look: head_of(cut, mask, how.get("turn", 0), how.get("jaw", 0), how.get("seal", 0), how.get("above", 0))
+             for look, (cut, mask, _, _, how) in found.items()}
     at = {look: measured(head) for look, head in heads.items()}
     # the look that says where the chin is: one of the new set, with the mouth shut
-    new = [look for look in found if found[look][3]] or list(found)
+    new = [look for look in found if found[look][3] and not found[look][4].get("other")] or [look for look in found if found[look][3]] or list(found)
     ref = next((look for look in SHUT if look in new), new[0])
     top, wide, middle, _ = at[ref]
     chin = chin_of(heads[ref], found[ref][2])
@@ -201,7 +237,8 @@ def cast(who):
     for look in sorted(found, key=lambda n: LOOKS.index(n) if n in LOOKS else 99 + list(PEOPLE[who]).index(n)):
         head = heads[look]
         t, w, m, _ = at[look]
-        same = found[look][3] and abs(w / wide - 1) < SAME and abs(t - top) < SAME * wide and abs(m - middle) < SAME * wide
+        same = (found[look][3] and not found[look][4].get("other")
+                and abs(w / wide - 1) < SAME and abs(t - top) < SAME * wide and abs(m - middle) < SAME * wide)
         if same:
             scale, hang = k, chin
         else:
@@ -210,6 +247,7 @@ def cast(who):
             scale, hang = k / grow, (m + (chin[0] - middle) * grow, t + (chin[1] - top) * grow)
             if found[look][4].get("other"):
                 hang = chin_of(head, None)
+            scale *= found[look][4].get("size", 1)
         ys, xs = np.where(head[..., 3] > 0.08)
         x0, x1 = max(0, xs.min() - 2), min(head.shape[1], xs.max() + 3)
         y0, y1 = max(0, ys.min() - 2), min(head.shape[0], ys.max() + 3)

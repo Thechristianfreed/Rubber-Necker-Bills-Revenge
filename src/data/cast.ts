@@ -87,4 +87,13 @@ export const CAST: Record<string, Record<string, CastFace>> = {
     smirk: { file: 'face-shane-smirk.png', tall: 0.967, chin: [0.518, 0.997] },
     doe: { file: 'face-shane-doe.png', tall: 1.003, chin: [0.561, 1.006] },
   },
+  christian: {
+    calm: { file: 'face-christian-calm.png', tall: 1.011, chin: [0.388, 0.995] },
+    smile: { file: 'face-christian-smile.png', tall: 1.058, chin: [0.418, 0.996] },
+    laugh: { file: 'face-christian-laugh.png', tall: 1.117, chin: [0.526, 0.995] },
+  },
+  branson: {
+    smile: { file: 'face-branson-smile.png', tall: 1.008, chin: [0.361, 0.996] },
+    laugh: { file: 'face-branson-laugh.png', tall: 1.125, chin: [0.408, 0.993] },
+  },
 };

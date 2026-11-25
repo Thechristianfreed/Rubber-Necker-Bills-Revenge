@@ -170,6 +170,15 @@ tool; a new look of somebody is only its two files. Nothing else changes:
   its own (Shane's `doe`) it is a face only that person has. One that is
   from another photo altogether says so (`"other"`), and is hung by its own
   chin; one whose head leans says how far to turn it (`"turn"`).
+- **A real photo can be a look as it is,** where it shows one well enough
+  (the rule is in `characters.md`). It goes in `art-src/cast/<who>` like
+  the others and is named in `PHOTOS` in the tool, which is also where it is
+  set straight (`turn`), made to match the others in size (`size`), has an
+  eyebrow that opens Adobe's selection to the outside closed up (`seal`),
+  or gets back hair that the selection left out (`above`).
+- **Adobe cannot always find a face.** In a soft, washed-out photo it
+  selects the hair and nothing else, whatever it is asked for
+  ("body parts not found"). That photo is no use; take another.
 - **Look at the whole set on one line,** chins level (step 5): a head that
   is the wrong size or hangs wrong shows at once beside its fourteen
   neighbours.
@@ -257,6 +266,11 @@ shows at once in a screenshot and not at all in the numbers.
 - **Several things on one sheet** come back as one cutout. `pieces()` splits
   it into its separate things, left to right, so they need clear gaps
   between them: ask for those in the prompt.
+
+**With animals:** `image_remove_background` alone. It keeps the animal and
+leaves the arm it is held in and the dish it is eating from. Selecting "the
+opossum" or "the dog" by name took in the whole picture as often as not.
+(`animals()` in `tools/make_cutouts.py`.)
 
 **With the pictures themselves:**
 

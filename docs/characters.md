@@ -90,8 +90,13 @@ Who is who, for anybody writing a line for one of them to say:
 - **Bill's side:** Betty is his mother (Christian and Branson's grandmother),
   and Sherry and Cindy are his sisters (their aunts).
 - **Rick DeGour** works with Bill.
+- **Shorty** is Branson's wife.
 - **The animals:** Lady, the family's golden retriever; Sheeba, the first
-  dog Christian had, growing up; and The Grump, Christian's pet opossum.
+  dog Christian had, growing up (a white German shepherd); The Grump,
+  Christian's pet opossum; and Roger, Branson and Shorty's dog (a big
+  curly-coated cream doodle).
+- **Sabra** has a folder of photos and is to be in the game. Who she is to
+  the family has not been said yet: ask the owner before writing her in.
 - **Christian** is the owner of this game.
 
 ## Everybody's faces: the set
@@ -128,6 +133,8 @@ asked for like any other: `head(scene, 'shane', 'doe', x, y, 62)`.
 | Stephanie | `stephanie` | 14 | shocked | `inhale` (the breath in), `hold` (holding it: her cross, lips-pressed face) |
 | Chad | `chad` | 15 | | `grin` (the base photo), `angel` (smiling), `joy` (laughing), `scowl` |
 | Shane | `shane` | 15 | | `beam` (the base photo), `wary`, `smirk`, `doe` (doe eyes) |
+| Christian | `christian` | 3: calm, smile, laugh (real photos, each as it is) | the other twelve | |
+| Branson | `branson` | 2: smile, laugh (real photos, each as it is) | the other thirteen | |
 
 There is a sheet of every face each of them has, labelled, made with
 `.venv/bin/python tools/test/every_face.py <out prefix>`: make it again
@@ -328,11 +335,14 @@ evenly lit, the biggest copy there is, nobody else in it.
 | **Sherry** | Bill's sister | all fifteen |
 | **Christian** | Stephanie and Bill's son, and the owner. He is at the light switch in The Hot Carl, cut from paper. | all fifteen |
 | **Branson** | Stephanie and Bill's son, Christian's brother | all fifteen |
+| **Shorty** | Branson's wife | all fifteen |
+| **Sabra** | Not said yet | all fifteen, as for anybody but the three below, unless the owner says otherwise |
 | **Rick DeGour** | Bill's coworker | six |
 | **Cindy** | Bill's sister | six |
 | **Betty** | Bill's mother | six |
-| **Sheeba**, a dog | The first dog Christian had, growing up. A second dog: Lady is still the one not to hit. | Two: as she is, and reacting. From photos of her. |
-| **The Grump**, an opossum | Christian's pet | Three would suit an opossum: as it is, hissing, and playing dead. From a photo, or generated if there is none. |
+| **Sheeba**, a dog | The first dog Christian had, growing up: a white German shepherd. A second dog: Lady is still the one not to hit. | Two: as she is, and reacting. There is no photo of her; she is generated from pictures of dogs like her. |
+| **The Grump**, an opossum | Christian's pet | Three would suit an opossum: as it is, hissing, and playing dead. From the photos of him (two of the three are there: `grump_*`); the hiss would have to be generated. |
+| **Roger**, a dog | Branson and Shorty's: a big curly-coated cream doodle | From the photos of him: sitting with his tongue out, sitting with his mouth shut, lying down (`roger_*`). |
 
 **Photos there are now.** They are in the owner's Google Drive ("Rubber
 Necker Game Character Photos", "Family Game Images", a folder for each
@@ -344,11 +354,29 @@ to the one person:
 | **Pappy** | `pappy-1` (indoors, in a leaf-print shirt: the biggest and sharpest), `pappy-2` (at Christmas, in a suit, square to the camera), `pappy-3` (on a patio). White hair and a white moustache in all of them. | `pappy-1` |
 | **Mammy** | `mammy-1` (at Christmas: red hair, square to the camera, no glasses), `mammy-2` (on a patio: blonde), `mammy-3` (later: grey-blonde curls and tinted glasses; her head is biggest here, but the glasses hide her eyes), `mammy-4` (younger, in a suede hat) | The owner's to choose: she looks different in each. `mammy-1` is the easiest to work from. |
 | **Nanner** | `nanner-1` (at a wedding, cropped from a photo with somebody else), `nanner-2` (a selfie in a birthday tiara, with braces: square to the camera, and the biggest), `nanner-3` (by a Christmas tree: small and soft) | `nanner-1`; or `nanner-2`, with the tiara taken off |
-| **Sheeba** | Four pictures in the Drive folder "Sheeba", of a white German shepherd: sitting by a lake, lying on a couch, asleep on a rug, standing in a studio. They are found pictures (one has a photographer's mark on it), there to show what she looked like. | Not for cutting out: she is generated from a description of them. |
-| **Christian, Branson** | Folders made; nothing in them yet (25 November 2026) | |
+| **Christian** | `christian-1` (indoors, grey T-shirt, calm: as he is now, big and sharp), `christian-2` (a green T-shirt, a broad smile), `christian-3` (on a boat, a big laugh), `christian-4` (2021, a mustard jacket, a gentle smile: Adobe cannot find the face in it, it is so washed out), `christian-5` (in profile: no use for a face) | `christian-1`. He is alone in it, so no base is needed: every look is an edit of it. He has more in Google Photos, which Claude cannot reach: the owner copies any that are wanted into the Drive folder. |
+| **Branson** | Seven, all screenshots (a little soft) and every one a smile or a laugh. `branson-1` (on a street, a patterned shirt: the biggest), `branson-2` (a maroon T-shirt, laughing), `branson-3` (in a dinner jacket: square to the camera but small), `branson-4` (younger, with somebody else) | `branson-1`. A photo of him with his mouth shut, or the original of this one, would be a better start. |
+| **Shorty** | `shorty-1` (outdoors, a denim jacket, smiling: big and sharp, but her hair runs off the left and the bottom of the picture, and somebody else is at its edge), a studio portrait (head turned well away, lighter hair) and a small cut-out of her pulling a face (`shorty-3`) | `shorty-1`, by way of a base that brings all of her hair into the picture |
+| **Sabra** | Two: one in profile, one looking back over her shoulder, small and soft (`sabra-1`, `sabra-2`) | Neither. She needs a photo facing the camera. |
+| **Sheeba** | Four pictures in the Drive folder "Sheeba", of a white German shepherd: sitting by a lake, lying on a couch, asleep on a rug, standing in a studio. There is no photo of Sheeba herself: these are found pictures of dogs close to her (the owner's word; one has a photographer's mark on it). | Not for cutting out: she is generated from a description of them. |
+| **Roger** | Five. Sitting on a step with his tongue out (`roger-1`: sharp and big), sitting by a Christmas tree (`roger-2`), lying on an ottoman (`roger-3`, cropped out of a phone screenshot), and two that have been cut out or edited already (`roger-4`) | Cut whole, as they are. |
+| **The Grump** | Four, all small. At his dish, in profile (`grump-1`), in somebody's arms, looking at the camera (`grump-2`), curled up asleep on his back (`grump-3`), held upright (`grump-4`: soft) | Cut whole, as they are. |
 
-All of these are small (a head is 190 to 380 pixels tall) and most have
-somebody else in them. So the first thing made from each is a **base**: a
+**A real photo can be a look as it is** (the owner's decision), so that it
+need not be generated: Christian laughing on the boat is his laugh. It has
+to be sharp, the whole head in the picture, the face to the camera or
+nearly, nothing over it, and him looking as he does in his base photo.
+Such a look is a photo in its own right (`PHOTOS` in `tools/make_cast.py`)
+and hangs by its own chin; it will not match the generated ones in its
+light, as any face from another photo does not. What the photos cover so
+far: Christian's calm, smile and laugh, and Branson's smile and laugh
+(their sets are begun with those: the table of the set, above). Shorty's
+one good photo is cut off by its frame, so her smile waits for her base.
+Nobody's photos show any of the other twelve looks.
+
+Mammy's, Pappy's and Nanner's photos are small (a head is 190 to 380
+pixels tall) and most have somebody else in them; Shorty's is cut off by
+its frame. So the first thing made from each is a **base**: a
 clean head-and-shoulders portrait of the one person, head upright, the whole
 head in the picture (the faces page has the prompt, as the first card for
 each of them). Every look is then an edit of the base, not of the photo:
@@ -422,7 +450,12 @@ photo so that it matches the rest:
 
 (The faces that are a person's own, like the doe eyes, are not on this
 list: nobody else is getting those for now.)
-| Mammy, Pappy, Nanner, Curt, Sherry, Christian, Branson | all fifteen, less the one the photo is | |
+| Mammy, Pappy, Nanner | the base (which is the smile), and the other fourteen | |
+| Curt, Sherry | all fifteen, less the one the photo is, once there is a photo | |
+| Christian | talking, smug, angry, yell, shocked, guilty, worried, cry, ouch, dazed, disgusted, asleep | |
+| Branson | calm, talking, smug, angry, yell, shocked, guilty, worried, cry, ouch, dazed, disgusted, asleep | |
+| Shorty | her base (which is her smile), and the other fourteen | |
+| Sabra | everything, once there is a photo of her facing the camera | |
 | Rick DeGour, Cindy, Betty | calm, smile, laugh, angry, shocked, cry, less the one the photo is | |
 | Stephanie, Chad, Shane, Mammy, Pappy, Nanner, Curt, Sherry, Christian, Branson | the back of the head: waiting (see "The looks") | |
 

@@ -9,8 +9,8 @@ The size is how big the picture is drawn, in the game's own pixels (the page is 
 - [Cars](#cars) (22)
 - [People: bodies](#bodies) (77)
 - [People: faces](#faces) (32)
-- [People: everybody's faces](#cast) (71)
-- [The rubberneckers, and the animals](#gawkers) (42)
+- [People: everybody's faces](#cast) (76)
+- [The rubberneckers, and the animals](#gawkers) (48)
 - [Effects](#effects) (25)
 - [Words on bursts](#words) (51)
 - [The interface](#interface) (26)
@@ -339,6 +339,8 @@ One set for each of the family, every look the same size and hung from the same 
 | `face_bill_talking` | 62 x 83 |  | `src/assets/scrap/face-bill-talking.webp` |
 | `face_bill_worried` | 62 x 82 |  | `src/assets/scrap/face-bill-worried.webp` |
 | `face_bill_yell` | 63 x 90 |  | `src/assets/scrap/face-bill-yell.webp` |
+| `face_branson_laugh` | 55 x 90 |  | `src/assets/scrap/face-branson-laugh.webp` |
+| `face_branson_smile` | 56 x 81 |  | `src/assets/scrap/face-branson-smile.webp` |
 | `face_chad_angel` | 52 x 73 |  | `src/assets/scrap/face-chad-angel.webp` |
 | `face_chad_angry` | 52 x 81 |  | `src/assets/scrap/face-chad-angry.webp` |
 | `face_chad_asleep` | 52 x 81 |  | `src/assets/scrap/face-chad-asleep.webp` |
@@ -358,6 +360,9 @@ One set for each of the family, every look the same size and hung from the same 
 | `face_chad_talking` | 52 x 82 |  | `src/assets/scrap/face-chad-talking.webp` |
 | `face_chad_worried` | 52 x 80 |  | `src/assets/scrap/face-chad-worried.webp` |
 | `face_chad_yell` | 52 x 91 |  | `src/assets/scrap/face-chad-yell.webp` |
+| `face_christian_calm` | 52 x 81 |  | `src/assets/scrap/face-christian-calm.webp` |
+| `face_christian_laugh` | 53 x 89 |  | `src/assets/scrap/face-christian-laugh.webp` |
+| `face_christian_smile` | 52 x 85 |  | `src/assets/scrap/face-christian-smile.webp` |
 | `face_shane_angry` | 53 x 81 |  | `src/assets/scrap/face-shane-angry.webp` |
 | `face_shane_asleep` | 53 x 81 |  | `src/assets/scrap/face-shane-asleep.webp` |
 | `face_shane_beam` | 50 x 79 |  | `src/assets/scrap/face-shane-beam.webp` |
@@ -398,9 +403,11 @@ One set for each of the family, every look the same size and hung from the same 
 
 ## The rubberneckers, and the animals
 
-Twelve heads, each gawking and dazed, with a neck the colour of each; the dog; the bluebirds.
+Twelve heads, each gawking and dazed, with a neck the colour of each; the dog; the bluebirds; and the family's own animals, from their photos: Roger the dog and The Grump the opossum.
 
-![The rubberneckers, and the animals](gawkers.jpg)
+![The rubberneckers, and the animals, sheet 1](gawkers-1.jpg)
+
+![The rubberneckers, and the animals, sheet 2](gawkers-2.jpg)
 
 | Name | Size | | File |
 | --- | --- | --- | --- |
@@ -408,6 +415,9 @@ Twelve heads, each gawking and dazed, with a neck the colour of each; the dog; t
 | `bird_up` | 30 x 23 |  | `src/assets/scrap/bird-up.webp` |
 | `dog` | 84 x 60 |  | `src/assets/scrap/dog.webp` |
 | `dog_mad` | 67 x 59 |  | `src/assets/scrap/dog-mad.webp` |
+| `grump_asleep` | 46 x 52 |  | `src/assets/scrap/grump-asleep.webp` |
+| `grump_eat` | 64 x 50 |  | `src/assets/scrap/grump-eat.webp` |
+| `grump_held` | 60 x 32 |  | `src/assets/scrap/grump-held.webp` |
 | `head0` | 50 x 64 |  | `src/assets/scrap/head0.webp` |
 | `head0_dazed` | 50 x 65 |  | `src/assets/scrap/head0-dazed.webp` |
 | `head1` | 54 x 64 |  | `src/assets/scrap/head1.webp` |
@@ -446,6 +456,9 @@ Twelve heads, each gawking and dazed, with a neck the colour of each; the dog; t
 | `neck9` | 16 x 14 |  | paper |
 | `neck10` | 16 x 14 |  | paper |
 | `neck11` | 16 x 14 |  | paper |
+| `roger_happy` | 44 x 104 |  | `src/assets/scrap/roger-happy.webp` |
+| `roger_lie` | 60 x 78 |  | `src/assets/scrap/roger-lie.webp` |
+| `roger_sit` | 42 x 104 |  | `src/assets/scrap/roger-sit.webp` |
 
 <a id="effects"></a>
 

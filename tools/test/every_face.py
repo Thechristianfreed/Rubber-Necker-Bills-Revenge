@@ -46,6 +46,7 @@ FIRST = {
     "shane": {"cry": "shanehead_cry, shanebighead_cry", "shocked": "shanehead_scared, shanehead_ow", "beam": "shanehead_sweet, shanehead_tongue",
               "smirk": "shanehead_grin", "doe": "shanehead_doe, shanebighead_doe", "wary": ""},
 }
+WOMEN = {"stephanie", "mammy", "nanner", "shorty", "sabra", "sherry", "cindy", "betty"}
 HEAD, BORDER, W = 190, 5, 2200
 GREEN, CHIP, OWN_CHIP = np.array([0x5c, 0x78, 0x68]) / 255, (0x3f, 0x55, 0x48), (0x2b, 0x3a, 0x55)
 
@@ -78,7 +79,7 @@ def tile(face):
 
 
 def sheet(who, looks, out):
-    his = "her" if who == "stephanie" else "his"
+    his = "her" if who in WOMEN else "his"
     own = [look for look in looks if look not in LOOKS]
     got = [look for look in LOOKS if look in looks]
     # how far below its chin the lowest of any face goes (long hair hangs well below it)

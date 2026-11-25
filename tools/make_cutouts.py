@@ -1426,6 +1426,36 @@ def dogs():
     save("dog-mad.png", trim(ellipse_crop(sheet, 757, 243, 188, 160)))
 
 
+# The family's animals, from the family's photos of them: each photo's name in art-src/adobe
+# (Adobe's cutout of it), and how tall the piece is saved, in pixels.
+ANIMALS = [("roger-happy", 620), ("roger-sit", 620), ("roger-lie", 420),
+           ("grump-eat", 300), ("grump-held", 220), ("grump-asleep", 320)]
+
+
+def animals():
+    """Roger the dog and The Grump the opossum, whole, as the photos have them: Roger
+    sitting with his tongue out, sitting with his mouth shut, and lying down; The Grump at
+    his dish, in somebody's arms (his head and shoulders), and curled up asleep on his back.
+    Each is Adobe's cutout of the photo, which keeps the animal and leaves the arm it is held
+    in or the dish it is eating from (asking Adobe to select "the opossum" did worse: it
+    took the whole picture as often as not), and only the one biggest piece of it."""
+    for name, tall in ANIMALS:
+        if not os.path.exists(os.path.join(SRC, f"{name}-cutout.png")):
+            continue
+        rgba = load(f"{name}-cutout.png")
+        n, lab, st, _ = cv2.connectedComponentsWithStats((rgba[..., 3] > 0.5).astype(np.uint8), 8)
+        if n > 1:
+            keep = cv2.dilate((lab == 1 + int(np.argmax(st[1:, cv2.CC_STAT_AREA]))).astype(np.uint8), np.ones((5, 5), np.uint8))
+            rgba[..., 3] *= keep
+        piece = trim(rgba)
+        k = min(1.0, tall / piece.shape[0])
+        if k < 1:
+            piece = cv2.resize(piece, (round(piece.shape[1] * k), round(piece.shape[0] * k)), interpolation=cv2.INTER_AREA)
+        save(f"{name}.png", np.clip(piece, 0, 1))
+        feet = np.where(piece[int(piece.shape[0] * 0.93):, :, 3].max(axis=0) > 0.5)[0]
+        print(f"  {name}: {piece.shape[1]} x {piece.shape[0]}, its foot in the middle of {(feet.min() + feet.max()) / 2 / piece.shape[1]:.3f} across")
+
+
 def props():
     sheet = sorted(pieces(load("G-props-cutout.png")), key=lambda p: p[0])
     for name, (_, _, piece) in zip(("palm", "billboard", "sign", "cone"), sheet):
@@ -1631,7 +1661,7 @@ STEPS = [
     bug, vehicles, cars, heads, more_heads, bill, kid, mom, bill_faces, workout_bodies,
     workout_set, fight, bat_faces, bat_bodies, sand, teen, hallway, locker_things, splats, mailman,
     mailboxes, tree, fence, houses, concrete, guardrail, effects, phone_arm, birds, papers,
-    asphalt, dogs, props, postcard,
+    asphalt, dogs, animals, props, postcard,
 ]
 
 if __name__ == "__main__":

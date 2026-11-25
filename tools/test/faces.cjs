@@ -23,7 +23,7 @@ const { open } = require('./lib.cjs');
       const seen = scene.cameras.main.worldView, W = seen.width, cols = 7, tall = 84;
       const own = P.ownLooks(who), all = [...P.LOOKS, ...own];
       made.push(scene.add.rectangle(seen.centerX, 270, W + 40, 560, 0x5c7868).setDepth(900));
-      made.push(scene.add.text(seen.x + 16, 10, `${who}: ${P.LOOKS.filter((l) => P.hasLook(who, l)).length} of the ${P.LOOKS.length} looks, and ${own.length} of ${who === 'stephanie' ? 'her' : 'his'} own`, { fontFamily: 'sans-serif', fontSize: '18px', color: '#ffffff' }).setDepth(902));
+      made.push(scene.add.text(seen.x + 16, 10, `${who}: ${P.LOOKS.filter((l) => P.hasLook(who, l)).length} of the ${P.LOOKS.length} looks, and ${own.length} of ${['stephanie', 'mammy', 'nanner', 'shorty', 'sabra', 'sherry', 'cindy', 'betty'].includes(who) ? 'her' : 'his'} own`, { fontFamily: 'sans-serif', fontSize: '18px', color: '#ffffff' }).setDepth(902));
       all.forEach((look, i) => {
         const x = seen.x + (W / cols) * (i % cols + 0.5), y = 132 + Math.floor(i / cols) * 166;
         made.push(P.head(scene, who, look, x, y, tall).setDepth(901));
