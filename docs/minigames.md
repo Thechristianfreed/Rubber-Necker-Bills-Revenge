@@ -76,6 +76,16 @@ as an artifact of its own:
 node tools/make_preview.mjs <somewhere>/toaster.html --only toaster
 ```
 
+Where the previews are (add a game's here when it gets one):
+
+| | |
+| --- | --- |
+| The whole game | https://claude.ai/artifact/GwrBX3NsV3Jue3LDMUhb1c |
+| Pocket sand by itself | https://claude.ai/artifact/11orTeMeACo1UbsrVrHxcQ |
+
+A chat other than the one that made a preview can publish to it by passing
+its address as `url`.
+
 What keeps one game from spoiling another:
 
 - **Its pictures have its name on them.** Every key is `toaster_something`
