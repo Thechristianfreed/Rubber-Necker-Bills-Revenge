@@ -1,0 +1,75 @@
+/** Everybody's faces: for each person, the looks they have. For each look: the
+ *  picture, how tall it is in heads (a head being the top of the hair to the chin
+ *  with the mouth shut), and where that chin is in it (as a fraction of the
+ *  picture): every face is hung from there, so that one look can be changed for
+ *  another and the head stays where it was.
+ *  Written by tools/make_cast.py; do not edit by hand. */
+export interface CastFace { file: string; tall: number; chin: [number, number] }
+
+export const CAST: Record<string, Record<string, CastFace>> = {
+  bill: {
+    talking: { file: 'face-bill-talking.png', tall: 1.036, chin: [0.523, 0.971] },
+    smile: { file: 'face-bill-smile.png', tall: 1.056, chin: [0.518, 0.958] },
+    smug: { file: 'face-bill-smug.png', tall: 1.019, chin: [0.520, 0.986] },
+    angry: { file: 'face-bill-angry.png', tall: 1.011, chin: [0.515, 0.994] },
+    yell: { file: 'face-bill-yell.png', tall: 1.131, chin: [0.519, 0.896] },
+    shocked: { file: 'face-bill-shocked.png', tall: 1.050, chin: [0.519, 0.959] },
+    guilty: { file: 'face-bill-guilty.png', tall: 1.011, chin: [0.520, 0.995] },
+    worried: { file: 'face-bill-worried.png', tall: 1.025, chin: [0.520, 0.981] },
+    cry: { file: 'face-bill-cry.png', tall: 1.031, chin: [0.519, 0.975] },
+    ouch: { file: 'face-bill-ouch.png', tall: 1.025, chin: [0.520, 0.981] },
+    dazed: { file: 'face-bill-dazed.png', tall: 1.022, chin: [0.520, 0.983] },
+    disgusted: { file: 'face-bill-disgusted.png', tall: 1.025, chin: [0.519, 0.982] },
+    asleep: { file: 'face-bill-asleep.png', tall: 1.022, chin: [0.518, 0.983] },
+  },
+  stephanie: {
+    calm: { file: 'face-stephanie-calm.png', tall: 1.606, chin: [0.453, 0.627] },
+    talking: { file: 'face-stephanie-talking.png', tall: 1.608, chin: [0.454, 0.627] },
+    smile: { file: 'face-stephanie-smile.png', tall: 1.608, chin: [0.455, 0.627] },
+    laugh: { file: 'face-stephanie-laugh.png', tall: 1.608, chin: [0.454, 0.627] },
+    smug: { file: 'face-stephanie-smug.png', tall: 1.606, chin: [0.453, 0.627] },
+    angry: { file: 'face-stephanie-angry.png', tall: 1.594, chin: [0.454, 0.630] },
+    yell: { file: 'face-stephanie-yell.png', tall: 1.619, chin: [0.460, 0.622] },
+    guilty: { file: 'face-stephanie-guilty.png', tall: 1.608, chin: [0.454, 0.627] },
+    worried: { file: 'face-stephanie-worried.png', tall: 1.608, chin: [0.453, 0.627] },
+    cry: { file: 'face-stephanie-cry.png', tall: 1.608, chin: [0.453, 0.627] },
+    ouch: { file: 'face-stephanie-ouch.png', tall: 1.608, chin: [0.453, 0.627] },
+    dazed: { file: 'face-stephanie-dazed.png', tall: 1.606, chin: [0.453, 0.628] },
+    disgusted: { file: 'face-stephanie-disgusted.png', tall: 1.606, chin: [0.453, 0.628] },
+    asleep: { file: 'face-stephanie-asleep.png', tall: 1.608, chin: [0.453, 0.627] },
+  },
+  chad: {
+    calm: { file: 'face-chad-calm.png', tall: 1.017, chin: [0.421, 0.988] },
+    talking: { file: 'face-chad-talking.png', tall: 1.019, chin: [0.422, 0.985] },
+    smile: { file: 'face-chad-smile.png', tall: 1.014, chin: [0.422, 0.991] },
+    laugh: { file: 'face-chad-laugh.png', tall: 1.025, chin: [0.421, 0.979] },
+    smug: { file: 'face-chad-smug.png', tall: 1.028, chin: [0.421, 0.977] },
+    angry: { file: 'face-chad-angry.png', tall: 1.008, chin: [0.422, 0.995] },
+    yell: { file: 'face-chad-yell.png', tall: 1.133, chin: [0.420, 0.885] },
+    shocked: { file: 'face-chad-shocked.png', tall: 1.050, chin: [0.421, 0.955] },
+    guilty: { file: 'face-chad-guilty.png', tall: 1.014, chin: [0.421, 0.991] },
+    worried: { file: 'face-chad-worried.png', tall: 1.006, chin: [0.424, 1.000] },
+    cry: { file: 'face-chad-cry.png', tall: 0.983, chin: [0.416, 1.019] },
+    ouch: { file: 'face-chad-ouch.png', tall: 1.014, chin: [0.422, 0.990] },
+    dazed: { file: 'face-chad-dazed.png', tall: 1.017, chin: [0.422, 0.987] },
+    disgusted: { file: 'face-chad-disgusted.png', tall: 1.022, chin: [0.422, 0.983] },
+    asleep: { file: 'face-chad-asleep.png', tall: 1.014, chin: [0.421, 0.990] },
+  },
+  shane: {
+    calm: { file: 'face-shane-calm.png', tall: 1.011, chin: [0.566, 0.994] },
+    talking: { file: 'face-shane-talking.png', tall: 1.025, chin: [0.566, 0.979] },
+    smile: { file: 'face-shane-smile.png', tall: 1.011, chin: [0.567, 0.994] },
+    laugh: { file: 'face-shane-laugh.png', tall: 1.031, chin: [0.566, 0.977] },
+    smug: { file: 'face-shane-smug.png', tall: 1.011, chin: [0.566, 0.994] },
+    angry: { file: 'face-shane-angry.png', tall: 1.011, chin: [0.566, 0.994] },
+    yell: { file: 'face-shane-yell.png', tall: 1.075, chin: [0.566, 0.936] },
+    shocked: { file: 'face-shane-shocked.png', tall: 1.017, chin: [0.508, 0.989] },
+    guilty: { file: 'face-shane-guilty.png', tall: 1.017, chin: [0.566, 0.989] },
+    worried: { file: 'face-shane-worried.png', tall: 1.011, chin: [0.566, 0.993] },
+    cry: { file: 'face-shane-cry.png', tall: 0.986, chin: [0.544, 1.017] },
+    ouch: { file: 'face-shane-ouch.png', tall: 1.011, chin: [0.566, 0.993] },
+    dazed: { file: 'face-shane-dazed.png', tall: 1.017, chin: [0.566, 0.989] },
+    disgusted: { file: 'face-shane-disgusted.png', tall: 1.025, chin: [0.566, 0.980] },
+    asleep: { file: 'face-shane-asleep.png', tall: 1.011, chin: [0.566, 0.996] },
+  },
+};

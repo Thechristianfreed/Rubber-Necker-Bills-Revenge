@@ -22,6 +22,8 @@ const GROUPS = [
     /^(bill_rest|bill_swing|bill_windup|kid_rest|kid_swing|kid_windup|kid_duck|teen_.*|pose_(bill|mom)_.*|cheer_.*|rival_.*|chad_.*|shane_.*|pair_.*|batmom_akimbo|mom_below|mom_forearm|mailman.*|alex_dad|dj_.*|kid_christian|kid_forrest|kid_neil|neil_arm)$/],
   ['faces', 'People: faces', 'The family\'s heads. Who has which look, and which are missing, is in `docs/characters.md`.',
     /^(bill-.*|bill_in|bill_hold|bill_pah|mom_(smile|in|pah|hold|scold|big_.*)|chadhead_.*|chadbighead_.*|shanehead_.*|shanebighead_.*)$/],
+  ['cast', 'People: everybody\'s faces', 'One set for each of the family, every look the same size and hung from the same chin: `head(scene, \'chad\', \'guilty\', x, y, 62)` in `src/minis/shared/people.ts`. Who has which is in `docs/characters.md`.',
+    /^face_.*$/],
   ['gawkers', 'The rubberneckers, and the animals', 'Twelve heads, each gawking and dazed, with a neck the colour of each; the dog; the bluebirds.',
     /^(head\d+(_dazed)?|neck.*|dog|dog_mad|bird_.*)$/],
   ['effects', 'Effects', 'Small things that fly, flash or float.',

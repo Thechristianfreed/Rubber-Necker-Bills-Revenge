@@ -37,7 +37,8 @@ that.
   call each (`src/minis/shared/places.ts`). Look there before making
   anything.
 - **The people are shared.** Who is in the game, and which faces each of
-  them has, is in `docs/characters.md`. Use those. A face that is missing is
+  them has, is in `docs/characters.md`. Use those: a head is put on a body,
+  and its look changed, with one call each (`src/minis/shared/people.ts`). A face that is missing is
   asked of the owner once, for every game, and goes in with the common
   pictures: that is one of the things to stop and ask about.
 - **Keep to it.** A chat making a game does not edit another game's folder,

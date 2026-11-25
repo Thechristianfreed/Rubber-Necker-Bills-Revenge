@@ -55,7 +55,7 @@ in. A new game is made in a chat of its own, on a branch of its own, and
 comes into the master game when the owner says so (`CLAUDE.md` has the
 rules). What there already is to put in it is in `pictures.md` (the places,
 the things, the effects) and `characters.md` (the people, and the faces each
-of them has).
+of them has: `head(scene, 'chad', 'guilty', x, y, 62)` puts one on a body).
 
 ```bash
 node tools/new_mini.mjs toaster "THE TOASTER"

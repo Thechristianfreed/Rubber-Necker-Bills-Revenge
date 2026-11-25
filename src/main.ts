@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { H, MAX_W, MIN_W, view } from './config';
 import { ART, FROM } from './art/sticker';
 import { sound } from './audio/sound';
+import * as people from './minis/shared/people';
 import { BootScene } from './scenes/BootScene';
 import { GameScene } from './scenes/GameScene';
 import { LevelSelectScene } from './scenes/LevelSelectScene';
@@ -47,6 +48,8 @@ const game = new Phaser.Game({
 // (how big each picture is drawn and where it is pinned: for the catalogue, tools/test/catalogue.cjs)
 (window as unknown as { __art: typeof ART }).__art = ART;
 (window as unknown as { __from: typeof FROM }).__from = FROM;
+// ...and everybody's faces, with what puts one on the page (tools/test/faces.cjs)
+(window as unknown as { __people: typeof people }).__people = people;
 
 let resizeTimer = 0;
 const refit = () => {

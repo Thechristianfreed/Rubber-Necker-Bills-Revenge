@@ -13,6 +13,7 @@ import { buildSandArt } from './sand';
 import { BAT_FACES } from '../data/bat';
 import { BAT_BODIES, BAT_DOOR, BAT_YARD } from '../data/batbodies';
 import { SAND } from '../data/sand';
+import { CAST } from '../data/cast';
 import { buildSleepoverArt } from './sleepover';
 import { buildStreetArt } from './street';
 import { FIGHT_BODIES } from '../data/fight';
@@ -93,6 +94,8 @@ const MOM_FACE = 60;
 export const SAND_ABOVE = 640;
 export const SAND_BELOW = 720;
 export { MOM_FACE };
+/** How tall everybody's faces are made, from the top of the hair to the chin (the same as FACE in src/minis/shared/people.ts, which is what sizes them for a game). */
+const CAST_FACE = 80;
 
 /** The tree the birdhouse sits in: how tall it is drawn, and where the
  *  birdhouse is in the photo, measured from the foot of the trunk as fractions
@@ -207,6 +210,11 @@ const PIECES: Piece[] = [
     const face = BAT_FACES[who]?.[KID_LOOKS[who].looks[look].photo];
     return face?.big ? [{ key: `${who}bighead_${look}`, file: face.big, h: KID_CLOSE * face.tall, border: 4, anchor: face.chin }] : [];
   })),
+  // everybody's faces, one set for each of the family (tools/make_cast.py): every look the same
+  // size and hung from the same chin, so any of them goes on any body (src/minis/shared/people.ts)
+  ...Object.entries(CAST).flatMap(([who, looks]) => Object.entries(looks).map(([look, f]): Piece => (
+    { key: `face_${who}_${look}`, file: f.file, h: CAST_FACE * f.tall, border: 2.4, anchor: f.chin }
+  ))),
   { key: 'mom_scold', file: SAND.scold.file, h: MOM_FACE * SAND.scold.tall, border: 2, anchor: SAND.scold.chin },
   { key: 'mom_big_scold', file: SAND.scold.file, h: MOM_FACE * SAND.scold.tall * 2.6, border: 4, anchor: SAND.scold.chin },
   // the day of the pocket sand: the sandbox and the toys; the two of them hugging; their mother's

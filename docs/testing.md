@@ -59,6 +59,8 @@ What a script can reach on the page:
   `play`, `stamp`, `over`), `playing` (which game), `score`, `counted`,
   `marks`, and `mini`, the game itself, with everything in it (private or
   not: `mini.phase`, `mini.chad.pose`, `mini.said`).
+- `window.__people`: what puts a head on the page (`head`, `setLook`,
+  `face`, `LOOKS`, `PEOPLE`: `src/minis/shared/people.ts`).
 - `window.__sound`: the sound, with its outputs (`master`, `sfx`, `music`,
   `voiceOut`) and everything that makes a noise (`aww()`, `sand()`).
 
@@ -111,6 +113,7 @@ above; `<outPrefix>` is where the pictures go, and the start of their names.
 | `sheet.py <folder> <out prefix> [columns] [per sheet] [tile width]` | A contact sheet of every PNG in a folder. |
 | `grid.py <picture> <out.png> <x0> <y0> <x1> <y1> <step>` | A piece of a picture with a ruled grid over it (see `cutting.md`). |
 | `catalogue.cjs <base url>` | Makes `docs/catalogue` again: every picture in the game by name, on sheets (see `pictures.md`). |
+| `faces.cjs <base url> <outPrefix> [who ...]` | Everybody's faces, in the game: a page for each person with every look they have, put there by the calls a quick game uses. |
 
 The Python ones are run with the Python that `tools/setup.sh` makes:
 `.venv/bin/python tools/test/sheet.py ...`. The two that listen to the

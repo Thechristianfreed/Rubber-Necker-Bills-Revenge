@@ -10,6 +10,10 @@ here, once, for everybody: not made again in each game.
 - **A head from a real photo, hung by the chin on a generated body.** The
   body belongs to the game that needs the pose. The head belongs to the
   person, and is the same in every game.
+- **Everybody in the family has one set of faces,** all cut the same way:
+  every head the same size and hung from the same chin, so any look can be
+  changed for any other and the head does not move. That set is what a new
+  game uses ("Everybody's faces: the set", below).
 - **A new expression is an edit of one photo of that person**, one face to
   an image ("Change only his expression"). That keeps the likeness, and it
   keeps the light, so one face matches the next. Each person below has a
@@ -55,7 +59,11 @@ pictures.
 DeGour, Cindy and Betty), for the games that are seen from behind. It is not a face pulled from the
 photo: it is a picture of its own, and a real photo of the back of
 somebody's head (from straight behind, at head height, against a plain
-wall) is better than a generated one. Bill has his.
+wall) is better than a generated one. Bill has his. **The rest are
+waiting:** asking a generator to turn a photo of a face round gave nothing
+like the person (Stephanie and Chad were tried, November 2026), and the
+owner remembers Bill's being made another way. Ask him how before trying
+again.
 
 Anything else is for one story (the doe eyes, the "PAH") and is made when a
 game needs it.
@@ -86,9 +94,55 @@ Who is who, for anybody writing a line for one of them to say:
   dog Christian had, growing up; and The Grump, Christian's pet opossum.
 - **Christian** is the owner of this game.
 
-## Every face there is now
+## Everybody's faces: the set
+
+Each of the family has one set of looks, cut the same way
+(`tools/make_cast.py`): every head the same size, hung from the same chin.
+**These are the faces a new game uses.** A head goes on any body with one
+call and changes its look with another, without moving
+(`src/minis/shared/people.ts`):
+
+```ts
+import { head, setLook } from '../shared/people';
+
+const chad = head(scene, 'chad', 'calm', x, neckY, 62).setDepth(12);   // 62 from hair to chin
+setLook(chad, 'chad', 'guilty');
+```
+
+A look somebody has not got is stood in for by the nearest they have (Bill's
+calm is his smug, for now), so a game can ask anybody for any of the
+fifteen and the list below can be filled in later without the game
+changing. Each face is `face_<who>_<look>` in the catalogue, and its file is
+`src/assets/scrap/face-<who>-<look>.webp`.
+
+| Who | Called | Has | Of those, from pictures there were already | Missing |
+| --- | --- | --- | --- | --- |
+| Bill | `bill` | 13 | yell (his "PAH") | calm, laugh |
+| Stephanie | `stephanie` | 14 | yell (her "PAH"), angry (her scolding) | shocked |
+| Chad | `chad` | 15 | calm (his set jaw), yell, cry | |
+| Shane | `shane` | 15 | cry; and shocked, which is from a different photo and looks it | |
+
+- **Nearly all of them are one batch** (November 2026): edits of each
+  person's base photo, made by the owner, one look to a picture. They are in
+  his Google Drive, in "Rubber Necker Game Character Photos", "Full
+  Expression Repo", a folder for each person, each file called by the person
+  and the look ("Chad Guilty.png"). "Default" is the photo itself, and is
+  that person's smile. Adobe's cutouts of them are in `art-src/cast/<who>`.
+- **Bill's smile is the base photo,** a big open grin: it serves as his
+  laugh as well. The picture that came as his calm was the same file as his
+  talking, so he has no calm yet.
+- **Within a set they match,** being edits of one photo with one framing.
+  The few that fill a gap from an earlier picture are the same person from
+  the same photo and sit well beside the rest; Shane's shocked is the one
+  that does not (a different photo, darker, a different haircut).
+- **The first six games keep the faces they were made with** (the next
+  section). Nothing of theirs has been changed, and a face in the set is a
+  new picture beside theirs, not theirs with a new name.
+
+## The faces the first six games use
 
 All of them, so that nothing already made is made twice or lost track of.
+(A new game uses the set, above.)
 "Name in the game" is the picture a game asks for; the file is in
 `src/assets/scrap` (Bill's four everyday heads are in `src/assets/bill`).
 
@@ -114,8 +168,7 @@ game, whatever age the body is.
 | glaring down | angry | `bill-glare` | `head-glare` | other photo (`bill-1`): soft and dark, the weakest of his | losses, and when he is hurt or ducking in the levels |
 | from behind | the back of his head | `bill-back` | `head-back` | a generated picture | the hallway |
 
-Missing: calm, talking, shocked, guilty, worried, cry, ouch, dazed,
-disgusted, asleep.
+(What he has now, and what he is missing, is in the table of the set.)
 
 - **Base photo:** `art-src/photos/bill-3.jpg`. His grin and his three
   breathing faces are from it and match one another. His two other everyday
@@ -139,8 +192,7 @@ cheerleader in the fight, the mother at the back door.
 | the breath in | outside the fifteen | `mom_in` | `mom-in` | an edit | the workout, and the fight |
 | holding it | outside the fifteen | `mom_hold` | `mom-hold` | an edit | the workout; everywhere else as her cross, lips-pressed face (hit in the fight, at the back door, deciding at the sandbox) |
 
-Missing: calm, talking, laugh, smug, guilty, worried, cry, ouch, dazed,
-disgusted, asleep; and the back of her head.
+(What she has now, and what she is missing, is in the table of the set.)
 
 - **Base photo:** `art-src/generated/WT1d-mom-smile.webp`. All five of hers
   come from it, so they match: she is the model for how the others should be.
@@ -166,8 +218,7 @@ navy shorts, white socks and trainers) with his head as he is now.
 | laughing | laugh | `chadhead_joy` | `chadface-laugh` | other photo (`chad-4`): dark | Payback, the sandbox |
 | scowling | angry | `chadhead_mad`, `chadhead_sad` | `chadface-scowl` | other photo (`chad-1`): dark and red | Payback, the sandbox |
 
-Missing: talking, smug, shocked, guilty, worried, ouch, dazed, disgusted,
-asleep; and the back of his head.
+(What he has now is in the table of the set: all fifteen.)
 
 - **Base photo:** `art-src/photos/chad-3.jpg`.
 - **Bodies:** `chad_stand`, `chad_shoved`, `chad_mad`, `chad_hide`,
@@ -192,8 +243,7 @@ head as he is now.
 | frightened | shocked | `shanehead_scared`, `shanehead_ow` | `shaneface-scared` | other photo (`shane-4`): a good one | Payback |
 | wary, looking away | calm | none: cut out, and not used yet | `shaneface-wary` | other photo (`shane-2`): washed out | |
 
-Missing: talking, laugh, angry, yell, guilty, worried, ouch, dazed,
-disgusted, asleep; and the back of his head.
+(What he has now is in the table of the set: all fifteen.)
 
 - **Base photo:** `art-src/photos/shane-1.jpg`.
 - **Bodies:** `shane_push`, `shane_laugh`, `shane_run1`, `shane_run2`,
@@ -291,15 +341,9 @@ Edit this photo. Keep this woman exactly as she is: the same face, age, skin, ey
 | disgusted | disgusted, as if at a terrible smell. Nose wrinkled, upper lip curled, tongue pushed out a little, eyes narrowed. |
 | asleep | fast asleep. Eyes closed, face completely relaxed, mouth a little open. |
 
-The back of a head is asked for differently, since nothing of the photo is
-kept but the hair (for a woman, "this woman's" and "her"):
-
-```text
-The back of this man's head, photographed from directly behind at head height: his hair exactly as it is in the photo (the same colour, length and cut), his ears just visible at the sides if his hair does not cover them, and the back of his neck down to the collar line. No face visible. Plain flat light-grey background, soft even light. No shoulders, no clothing, no text, no borders. Square image.
-```
-
-It is hung by the top of the collar, where a face is hung by the chin
-(`build_back()` in `tools/make_heads.py` did Bill's).
+The back of a head is not asked for this way: see "The looks", above. (Bill's
+is hung by the top of the collar, where a face is hung by the chin:
+`build_back()` in `tools/make_heads.py`.)
 
 (For Stephanie, "herself" for "himself".)
 
@@ -308,13 +352,16 @@ photo so that it matches the rest:
 
 | | Missing | Could be done again to match |
 | --- | --- | --- |
-| Bill | calm, talking, shocked, guilty, worried, cry, ouch, dazed, disgusted, asleep | smug, angry (his are from photos with no beard) |
-| Stephanie | calm, talking, laugh, smug, guilty, worried, cry, ouch, dazed, disgusted, asleep | |
-| Chad | talking, smug, shocked, guilty, worried, ouch, dazed, disgusted, asleep | laugh, angry |
-| Shane | talking, laugh, angry, yell, guilty, worried, ouch, dazed, disgusted, asleep | calm, smug |
+| Bill | calm (what came as his calm was his talking again); laugh, if his grin will not do for it | yell (his is the "PAH", head tipped back) |
+| Stephanie | shocked | yell and angry (hers are the "PAH" and the scolding) |
+| Chad | | calm, yell, cry (his are from the earlier pictures: the same photo, framed closer) |
+| Shane | | shocked (his is from a different photo), cry |
 | Mammy, Pappy, Nanner, Curt, Sherry, Christian, Branson | all fifteen, less the one the photo is | |
 | Rick DeGour, Cindy, Betty | calm, smile, laugh, angry, shocked, cry, less the one the photo is | |
-| Stephanie, Chad, Shane, Mammy, Pappy, Nanner, Curt, Sherry, Christian, Branson | the back of the head | |
+| Stephanie, Chad, Shane, Mammy, Pappy, Nanner, Curt, Sherry, Christian, Branson | the back of the head: waiting (see "The looks") | |
 
-When they come back: each is cut out like the others (`cutting.md`), and
-goes in with the common pictures, where every game can use it.
+When they come back (a folder for each person in the owner's Drive, each
+file called by the person and the look): each goes through Adobe and
+`tools/make_cast.py` (`cutting.md`, "For everybody's faces"), which puts it
+in the set, where every game can use it. Then `tools/test/faces.cjs` shows
+the whole set in the game, and the catalogue is made again.

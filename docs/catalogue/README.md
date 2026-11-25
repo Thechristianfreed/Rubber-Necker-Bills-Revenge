@@ -9,6 +9,7 @@ The size is how big the picture is drawn, in the game's own pixels (the page is 
 - [Cars](#cars) (22)
 - [People: bodies](#bodies) (77)
 - [People: faces](#faces) (32)
+- [People: everybody's faces](#cast) (57)
 - [The rubberneckers, and the animals](#gawkers) (42)
 - [Effects](#effects) (25)
 - [Words on bursts](#words) (51)
@@ -308,6 +309,76 @@ The family's heads. Who has which look, and which are missing, is in `docs/chara
 | `shanehead_scared` | 40 x 63 |  | `src/assets/scrap/shaneface-scared.webp` |
 | `shanehead_sweet` | 39 x 62 |  | `src/assets/scrap/shaneface-beam.webp` |
 | `shanehead_tongue` | 39 x 62 |  | `src/assets/scrap/shaneface-beam.webp` |
+
+<a id="cast"></a>
+
+## People: everybody's faces
+
+One set for each of the family, every look the same size and hung from the same chin: `head(scene, 'chad', 'guilty', x, y, 62)` in `src/minis/shared/people.ts`. Who has which is in `docs/characters.md`.
+
+![People: everybody's faces, sheet 1](cast-1.jpg)
+
+![People: everybody's faces, sheet 2](cast-2.jpg)
+
+| Name | Size | | File |
+| --- | --- | --- | --- |
+| `face_bill_angry` | 62 x 81 |  | `src/assets/scrap/face-bill-angry.webp` |
+| `face_bill_asleep` | 62 x 82 |  | `src/assets/scrap/face-bill-asleep.webp` |
+| `face_bill_cry` | 63 x 82 |  | `src/assets/scrap/face-bill-cry.webp` |
+| `face_bill_dazed` | 62 x 82 |  | `src/assets/scrap/face-bill-dazed.webp` |
+| `face_bill_disgusted` | 62 x 82 |  | `src/assets/scrap/face-bill-disgusted.webp` |
+| `face_bill_guilty` | 62 x 81 |  | `src/assets/scrap/face-bill-guilty.webp` |
+| `face_bill_ouch` | 62 x 82 |  | `src/assets/scrap/face-bill-ouch.webp` |
+| `face_bill_shocked` | 63 x 84 |  | `src/assets/scrap/face-bill-shocked.webp` |
+| `face_bill_smile` | 63 x 84 |  | `src/assets/scrap/face-bill-smile.webp` |
+| `face_bill_smug` | 62 x 82 |  | `src/assets/scrap/face-bill-smug.webp` |
+| `face_bill_talking` | 62 x 83 |  | `src/assets/scrap/face-bill-talking.webp` |
+| `face_bill_worried` | 62 x 82 |  | `src/assets/scrap/face-bill-worried.webp` |
+| `face_bill_yell` | 63 x 90 |  | `src/assets/scrap/face-bill-yell.webp` |
+| `face_chad_angry` | 52 x 81 |  | `src/assets/scrap/face-chad-angry.webp` |
+| `face_chad_asleep` | 52 x 81 |  | `src/assets/scrap/face-chad-asleep.webp` |
+| `face_chad_calm` | 52 x 81 |  | `src/assets/scrap/face-chad-calm.webp` |
+| `face_chad_cry` | 52 x 79 |  | `src/assets/scrap/face-chad-cry.webp` |
+| `face_chad_dazed` | 52 x 81 |  | `src/assets/scrap/face-chad-dazed.webp` |
+| `face_chad_disgusted` | 52 x 82 |  | `src/assets/scrap/face-chad-disgusted.webp` |
+| `face_chad_guilty` | 52 x 81 |  | `src/assets/scrap/face-chad-guilty.webp` |
+| `face_chad_laugh` | 52 x 82 |  | `src/assets/scrap/face-chad-laugh.webp` |
+| `face_chad_ouch` | 52 x 81 |  | `src/assets/scrap/face-chad-ouch.webp` |
+| `face_chad_shocked` | 52 x 84 |  | `src/assets/scrap/face-chad-shocked.webp` |
+| `face_chad_smile` | 52 x 81 |  | `src/assets/scrap/face-chad-smile.webp` |
+| `face_chad_smug` | 53 x 82 |  | `src/assets/scrap/face-chad-smug.webp` |
+| `face_chad_talking` | 52 x 82 |  | `src/assets/scrap/face-chad-talking.webp` |
+| `face_chad_worried` | 52 x 80 |  | `src/assets/scrap/face-chad-worried.webp` |
+| `face_chad_yell` | 52 x 91 |  | `src/assets/scrap/face-chad-yell.webp` |
+| `face_shane_angry` | 53 x 81 |  | `src/assets/scrap/face-shane-angry.webp` |
+| `face_shane_asleep` | 53 x 81 |  | `src/assets/scrap/face-shane-asleep.webp` |
+| `face_shane_calm` | 53 x 81 |  | `src/assets/scrap/face-shane-calm.webp` |
+| `face_shane_cry` | 50 x 79 |  | `src/assets/scrap/face-shane-cry.webp` |
+| `face_shane_dazed` | 53 x 81 |  | `src/assets/scrap/face-shane-dazed.webp` |
+| `face_shane_disgusted` | 53 x 82 |  | `src/assets/scrap/face-shane-disgusted.webp` |
+| `face_shane_guilty` | 53 x 81 |  | `src/assets/scrap/face-shane-guilty.webp` |
+| `face_shane_laugh` | 53 x 82 |  | `src/assets/scrap/face-shane-laugh.webp` |
+| `face_shane_ouch` | 53 x 81 |  | `src/assets/scrap/face-shane-ouch.webp` |
+| `face_shane_shocked` | 53 x 81 |  | `src/assets/scrap/face-shane-shocked.webp` |
+| `face_shane_smile` | 53 x 81 |  | `src/assets/scrap/face-shane-smile.webp` |
+| `face_shane_smug` | 53 x 81 |  | `src/assets/scrap/face-shane-smug.webp` |
+| `face_shane_talking` | 53 x 82 |  | `src/assets/scrap/face-shane-talking.webp` |
+| `face_shane_worried` | 53 x 81 |  | `src/assets/scrap/face-shane-worried.webp` |
+| `face_shane_yell` | 53 x 86 |  | `src/assets/scrap/face-shane-yell.webp` |
+| `face_stephanie_angry` | 115 x 128 |  | `src/assets/scrap/face-stephanie-angry.webp` |
+| `face_stephanie_asleep` | 116 x 129 |  | `src/assets/scrap/face-stephanie-asleep.webp` |
+| `face_stephanie_calm` | 115 x 128 |  | `src/assets/scrap/face-stephanie-calm.webp` |
+| `face_stephanie_cry` | 115 x 129 |  | `src/assets/scrap/face-stephanie-cry.webp` |
+| `face_stephanie_dazed` | 115 x 128 |  | `src/assets/scrap/face-stephanie-dazed.webp` |
+| `face_stephanie_disgusted` | 115 x 128 |  | `src/assets/scrap/face-stephanie-disgusted.webp` |
+| `face_stephanie_guilty` | 115 x 129 |  | `src/assets/scrap/face-stephanie-guilty.webp` |
+| `face_stephanie_laugh` | 115 x 129 |  | `src/assets/scrap/face-stephanie-laugh.webp` |
+| `face_stephanie_ouch` | 115 x 129 |  | `src/assets/scrap/face-stephanie-ouch.webp` |
+| `face_stephanie_smile` | 115 x 129 |  | `src/assets/scrap/face-stephanie-smile.webp` |
+| `face_stephanie_smug` | 116 x 128 |  | `src/assets/scrap/face-stephanie-smug.webp` |
+| `face_stephanie_talking` | 115 x 129 |  | `src/assets/scrap/face-stephanie-talking.webp` |
+| `face_stephanie_worried` | 115 x 129 |  | `src/assets/scrap/face-stephanie-worried.webp` |
+| `face_stephanie_yell` | 114 x 130 |  | `src/assets/scrap/face-stephanie-yell.webp` |
 
 <a id="gawkers"></a>
 

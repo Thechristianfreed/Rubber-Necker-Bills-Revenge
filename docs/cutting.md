@@ -22,6 +22,17 @@ the owner's picture         art-src/games/<id>/<ID>-<what>.webp
   -> src/minis/<id>/index.ts registered in its PIECES, under a key that starts "<id>_"
 ```
 
+Everybody's faces (the fifteen looks each of the family has) are a third
+kind, cut by a tool of their own so that they all come out alike:
+
+```text
+the owner's picture         his Google Drive, a folder for each person: "Chad Guilty.png"
+  -> a copy to send          cropped to the head and made smaller (it is not kept)
+  -> Adobe                   art-src/cast/<who>/<look>-cutout.webp, <look>-headmask.png
+  -> tools/make_cast.py      src/assets/scrap/face-<who>-<look>.webp, and the table src/data/cast.ts
+  -> src/art/photos.ts       registered as face_<who>_<look>, for every game
+```
+
 Everything in `art-src` is kept, so any piece can be cut again without going
 back to Adobe. `python tools/make_cutouts.py` with nothing after it re-cuts
 every common piece from those files, and should change nothing.
@@ -31,6 +42,15 @@ every common piece from those files, and should change nothing.
 - Pictures arrive as files only when the owner sends them in a message of
   their own. One sent while Claude is in the middle of something can be seen
   but is not on disk: ask for it again.
+- **Or they come from the owner's Google Drive,** which is how a big batch
+  arrives (fifty faces at 6 MB each). The Drive connector's
+  `download_file_content` puts the file on disk, byte for byte, and its
+  answer says where (`[Image: source: /root/.claude/.../tool-results/...]`):
+  copy it from there. `search_files` with `parentId = '<folder id>'` lists a
+  folder, about five files to a page. Each download also shows the picture,
+  which fills a conversation fast: hand a batch to helpers (one for each
+  person), have them copy the files and say what each is, and look at the
+  whole batch afterwards on a contact sheet (`tools/test/sheet.py`).
 - Name it by its number in `art-prompts.md` and what it is:
   `art-src/generated/SB3-chad-sandbox.webp`. Family photos go in
   `art-src/photos` (`chad-7.jpg`). Crop anybody else out of a photo before it
@@ -109,6 +129,46 @@ the game's own folders, so it cannot read or write another game's pictures:
 
 A table the game needs (where a chin is, how far a head tips) is written by
 that file into the game's own folder too.
+
+**For everybody's faces:** `tools/make_cast.py`. Each look of each person
+is one picture, and is put through Adobe twice: the background off, and the
+head selected (`bodyParts` Hair, Face, Left Ear, Right Ear, and Beard for a
+man; for somebody whose hair hangs below her chin, the Face alone as well,
+as `-facemask.png`, which is what finds her chin). Adobe's two answers go
+in `art-src/cast/<who>/` as `<look>-cutout.png` and `<look>-headmask.png`,
+and then:
+
+```bash
+.venv/bin/python tools/make_cast.py --keep
+```
+
+```bash
+.venv/bin/python tools/make_cast.py
+```
+
+The first turns the cutouts from PNG into WebP, a tenth of the size, which
+is how they are kept. The second cuts every head and writes
+`src/data/cast.ts`. A new person is a new name in `PEOPLE` at the top of the
+tool; a new look of somebody is only its two files. Nothing else changes:
+`src/art/photos.ts` registers whatever the table has.
+
+- **Send Adobe a smaller copy.** A generated picture is 1800 by 2400 and
+  6 MB; a head in the game is 360 pixels tall at most. Crop to the head if
+  it is a small part of the picture, bring it down so the head is 600 to
+  900 pixels tall, and save it as a JPEG. Every look of one person gets the
+  same crop and the same size, so that they still line up.
+- **A person's looks share one framing,** since each is an edit of the same
+  photo. The tool takes the top of the hair and the shut-mouth chin from one
+  look (`SHUT` says which) and uses them for all, so an open mouth drops the
+  jaw and leaves the head where it was. A look that is framed differently
+  is measured and brought to the same size by the width of its head; the
+  tool says which those are when it runs.
+- **Looks a person had already** (Chad's yell, Stephanie's "PAH") fill the
+  gaps in their set: `PEOPLE` names the picture each comes from, in
+  `art-src/adobe`. A new picture of the same look takes its place.
+- **Look at the whole set on one line,** chins level (step 5): a head that
+  is the wrong size or hangs wrong shows at once beside its fourteen
+  neighbours.
 
 **For the levels and the first six games:** `tools/make_cutouts.py` is one
 step for each kind of picture (`STEPS` at the bottom lists them). Run one by
