@@ -3,8 +3,8 @@
 A family present: a Phaser + TypeScript + Vite game about Bill (an Android
 wrap comes later). The owner directs and Claude builds. Read `README.md`
 first, then the doc for whatever is being touched: `docs/minigames.md`,
-`docs/art-prompts.md`, `docs/cutting.md`, `docs/testing.md`, `docs/music.md`,
-`docs/voice.md`, `docs/level-ideas.md`.
+`docs/characters.md`, `docs/art-prompts.md`, `docs/cutting.md`,
+`docs/testing.md`, `docs/music.md`, `docs/voice.md`, `docs/level-ideas.md`.
 
 A fresh checkout is made ready with `bash tools/setup.sh` (the game's
 packages, and `.venv` with what the Python tools need).
@@ -17,7 +17,9 @@ by a chat that is making something else.** Everything below follows from
 that.
 
 - **`main` is the master game:** every finished game, stitched into one by
-  the master list (`src/minis/roster.ts`). A chat never pushes to `main`. It
+  the master list (`src/minis/roster.ts`, which finds each game's folder by
+  itself: adding a game changes no shared file). A chat never pushes to
+  `main`. It
   works on its own branch, and its work goes into `main` by a pull request,
   which is opened only when the owner asks and merged only when the owner
   says.
@@ -28,6 +30,10 @@ that.
   The pictures the owner sends and Adobe's cutouts of them go in
   `art-src/games/<id>/`. A recording of its own is
   `public/sfx/<id>-<name>.mp3`.
+- **The people are shared.** Who is in the game, and which faces each of
+  them has, is in `docs/characters.md`. Use those. A face that is missing is
+  asked of the owner once, for every game, and goes in with the common
+  pictures: that is one of the things to stop and ask about.
 - **Keep to it.** A chat making a game does not edit another game's folder,
   the common pictures and art (`src/assets`, `src/art`, `src/data`), the
   levels, the scenes, the sound, or the tools. What it needs from those it

@@ -11,7 +11,7 @@
 // Either way dist-single/ is left holding that build, with the recordings
 // beside it: build again without --only before testing the whole tape.
 import { execSync } from 'node:child_process';
-import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const args = process.argv.slice(2);
@@ -32,6 +32,9 @@ if (only && !games.includes(only)) {
 const built = only ? new Date().toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'UTC' }) + ' UTC' : '';
 execSync('npm run build:single', { stdio: 'inherit', env: { ...process.env, VITE_ONLY_MINI: only, VITE_BUILT: built } });
 execSync(`node tools/make_artifact.mjs "${out}"`, { stdio: 'inherit' });
+// The page may be 16 MB and no more, and every picture is inside it.
+const mb = statSync(resolve(out)).size / 1e6;
+console.log(`${mb.toFixed(1)} MB of the 16 MB a page may be${mb > 14 ? ': NEARLY FULL. Tell the owner before adding more pictures (docs/minigames.md, "How much room there is")' : ''}`);
 if (only) {
   // its own name, so that it is not taken for the whole game in a list of previews
   const file = resolve(out), name = only.charAt(0).toUpperCase() + only.slice(1);

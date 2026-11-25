@@ -8,12 +8,12 @@
 // (and anything not yet committed), sorted into:
 //
 //   YOURS    inside the folders of games that are new on this branch, their
-//            sources (art-src/games/<id>) and recordings (public/sfx/<id>-...),
-//            and lines added to the master list (src/minis/roster.ts)
+//            sources (art-src/games/<id>) and recordings (public/sfx/<id>-...)
 //   LOOK     docs, tools and other new files: fine, but say why in the pull request
 //   STOP     a change to, or the loss of, anything that was already there and that
 //            other games are made of: another game's folder, the common pictures,
-//            the levels, the scenes, the sound. Only if the owner asked for it.
+//            the levels, the scenes, the sound, the order of the tape
+//            (src/minis/roster.ts). Only if the owner asked for it.
 //
 // It ends with an error if there is anything under STOP, so that it is not missed.
 import { execSync } from 'node:child_process';
@@ -51,11 +51,7 @@ for (const [path, status] of [...changes].sort()) {
   const game = path.match(/^src\/minis\/([^/]+)\//)?.[1] ?? path.match(/^art-src\/games\/([^/]+)\//)?.[1] ?? path.match(/^public\/(?:sfx|music|voice)\/([a-z0-9]+)[-.]/)?.[1];
   const what = status === 'A' ? 'new' : status === 'D' ? 'GONE' : 'changed';
   if (game && mine.includes(game)) yours.push(`${what}  ${path}`);
-  else if (path === 'src/minis/roster.ts') {
-    const taken = lines(git(`diff -U0 ${from} -- ${path}`)).filter((l) => /^-[^-]/.test(l));
-    if (taken.length) stop.push(`changed  ${path}: lines were taken out or altered, not only added (${taken.length})`);
-    else yours.push(`added to  ${path}`);
-  } else if (status === 'A') look.push(`new  ${path}`);
+  else if (status === 'A') look.push(`new  ${path}`);
   else if (SHARED.test(path)) stop.push(`${what}  ${path}`);
   else look.push(`${what}  ${path}`);
 }

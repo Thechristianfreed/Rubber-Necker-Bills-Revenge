@@ -11,7 +11,8 @@ export interface Piece extends PhotoOpts {
 }
 
 /** One quick game, as the master list (roster.ts) has it. Each is a folder in
- *  src/minis, and its `index.ts` gives one of these.
+ *  src/minis, and its `index.ts` gives one of these, called by the folder's name:
+ *  that is all it takes to be on the tape.
  *
  *  A game keeps to its own folder: its class, its paper art, its tables, its
  *  pictures (`assets`), the moments its test photographs (`moments.cjs`) and how its

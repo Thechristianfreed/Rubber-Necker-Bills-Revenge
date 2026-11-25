@@ -1,5 +1,6 @@
 // Start a new quick game: a folder of its own, with a small game in it that
-// already plays, and its name on the master list.
+// already plays. Having a folder is what puts it on the tape (src/minis/roster.ts
+// finds it): no file that anybody else works in is touched.
 //
 //   node tools/new_mini.mjs <id> "<TITLE>"
 //   node tools/new_mini.mjs toaster "THE TOASTER"
@@ -19,8 +20,8 @@
 //   src/minis/<id>/README.md        what it is, the story behind it, its picture prompts
 //   art-src/games/<id>/             the pictures the owner sends, and Adobe's cutouts of them
 //
-// ...and one import and one name added to src/minis/roster.ts. Nothing else is touched.
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+// Nothing else is made, and nothing that was already there is changed.
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 
 const [id, title] = process.argv.slice(2);
 if (!id || !title || !/^[a-z][a-z0-9]*$/.test(id)) {
@@ -203,22 +204,9 @@ cut from it.)
 write(`${dir}/assets/.gitkeep`, '');
 write(`art-src/games/${id}/.gitkeep`, '');
 
-// its name on the master list: one import, and one name in the list (before the fight, which ends the tape)
-const roster = 'src/minis/roster.ts';
-let text = readFileSync(roster, 'utf8');
-const imports = [...text.matchAll(/^import \{ \w+ \} from '\.\/\w+';\n/gm)];
-const last = imports[imports.length - 1];
-text = text.slice(0, last.index + last[0].length) + `import { ${id} } from './${id}';\n` + text.slice(last.index + last[0].length);
-if (!/\n {2}fight,\n\];/.test(text)) {
-  console.error(`could not find the end of the list in ${roster}: add "${id}" to it by hand`);
-  process.exit(1);
-}
-text = text.replace(/\n {2}fight,\n\];/, `\n  ${id},\n  fight,\n];`);
-writeFileSync(roster, text);
-console.log('  added to', roster);
-
 console.log(`
-"${id}" is ready. To see it by itself:
+"${id}" is ready, and on the tape (after the games that were there, before the last one).
+To see it by itself:
 
   node tools/make_preview.mjs <somewhere>/${id}.html --only ${id}
 

@@ -49,16 +49,20 @@ is not counted, and a tape with a skip in it does not set the best.
 ## Adding one
 
 Every quick game is a folder of its own in `src/minis`, and the master list
-(`src/minis/roster.ts`) stitches them into the one tape. A new game is made
-in a chat of its own, on a branch of its own, and comes into the master
-game when the owner says so (`CLAUDE.md` has the rules).
+(`src/minis/roster.ts`) stitches them into the one tape: it finds every
+folder by itself, so adding a game changes no file that anybody else works
+in. A new game is made in a chat of its own, on a branch of its own, and
+comes into the master game when the owner says so (`CLAUDE.md` has the
+rules). The people to put in it, and the faces each of them has, are in
+`characters.md`.
 
 ```bash
 node tools/new_mini.mjs toaster "THE TOASTER"
 ```
 
 That makes `src/minis/toaster/` with a small game in it that already plays
-(tap the star three times), and adds its name to the master list:
+(tap the star three times). It is on the tape from then on, after the games
+that were there and before the last one:
 
 | In the folder | |
 | --- | --- |
@@ -105,6 +109,17 @@ What keeps one game from spoiling another:
 A game does not tidy up after itself: the scene clears away everything it
 added.
 
+### How much room there is
+
+Every picture is inside the page that gets published, and a page may be 16 MB
+and no more. It is at 9.8 MB with six games. The four games made with
+photos have between 0.6 and 1.3 MB of pictures each as files, and a third
+more than that once they are in the page: so there is room for about five
+more games made the way those were. `tools/make_preview.mjs` says how full the page is every time it
+builds one. A game with a great many big pictures should say so to the
+owner early; making room (keeping the pictures beside the page, as the
+sound is) is a job for the whole game, not for one chat.
+
 The first six games were made before games had folders. Their classes are in
 theirs (`src/minis/sand/SandMini.ts`); their paper art (`src/art`), tables
 (`src/data`) and pictures (`src/assets/scrap`, listed in `src/art/photos.ts`)
@@ -113,8 +128,9 @@ mother and the back yard (`src/minis/shared/yard.ts`) are in two games each.
 
 ## Tuning
 
-- Which games are on the tape, and in what order: `ROSTER` in
-  `src/minis/roster.ts`.
+- Which games are on the tape: every folder in `src/minis` with an
+  `index.ts`. In what order: `FIRST` and `LAST` in `src/minis/roster.ts`
+  (the owner's to decide; a new game goes in between until it is named).
 - The workout: the pass mark and how long each pose is given (`PASS`,
   `SECONDS_EACH`; there are as many rounds as there are poses), how long a
   breath takes and how big the green zone is (`INHALE`, `ZONE`, `TOO_LONG`),
