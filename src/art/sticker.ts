@@ -134,6 +134,10 @@ export interface PhotoOpts {
   decorate?: (c: Ctx, w: number, h: number) => void;
 }
 
+/** Which file each photo came from (a picture drawn in code has none): for the catalogue,
+ *  tools/test/catalogue.cjs. A photo says so itself (`dataset.file`, set as it is loaded). */
+export const FROM: Record<string, string> = {};
+
 /** Register a photo cutout (an already-trimmed transparent image) as art,
  *  giving it the same white paper border and shadow as everything else. */
 export function makePhotoArt(scene: Phaser.Scene, key: string, image: HTMLImageElement, opts: PhotoOpts): void {
@@ -154,6 +158,7 @@ export function makePhotoArt(scene: Phaser.Scene, key: string, image: HTMLImageE
   const [canvas, pad] = stickerize(inner, opts.border ?? 2.5, 0);
   if (scene.textures.exists(key)) scene.textures.remove(key);
   scene.textures.addCanvas(key, canvas);
+  if (image.dataset.file) FROM[key] = image.dataset.file;
   const [fx, fy] = opts.anchor ?? [0.5, 0.5];
   ART[key] = { w, h, pad, ax: w * fx, ay: h * fy };
 }
@@ -171,6 +176,7 @@ export function makePhotoTile(scene: Phaser.Scene, key: string, image: HTMLImage
   c.drawImage(image, 0, 0, canvas.width, canvas.height);
   if (scene.textures.exists(key)) scene.textures.remove(key);
   scene.textures.addCanvas(key, canvas);
+  if (image.dataset.file) FROM[key] = image.dataset.file;
   ART[key] = { w: canvas.width / d, h: canvas.height / d, pad: 0, ax: 0, ay: 0, tex: d };
 }
 

@@ -3,6 +3,7 @@ import '@fontsource/bangers/latin-400.css';
 import '@fontsource/permanent-marker/latin-400.css';
 import { loadPhotoArt } from '../art/photos';
 import { loadPictures, picture } from '../art/pictures';
+import { FROM } from '../art/sticker';
 import { buildTextures } from '../art/textures';
 import { sound } from '../audio/sound';
 import { ONLY_MINI } from '../config';
@@ -37,6 +38,7 @@ export class BootScene extends Phaser.Scene {
         }
         c.drawImage(im, 0, 0);
         this.textures.addCanvas(key, canvas);
+        FROM[key] = `src/assets/bill/head-${key.slice(5)}.webp`;
         resolve();
       };
       im.onerror = () => resolve();

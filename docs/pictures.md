@@ -6,9 +6,9 @@ is set in the gym, or hands somebody the sand bucket, without making either
 again.
 
 - **What there is:** `docs/catalogue/README.md`. Every picture by the name a
-  game calls it by, with a sheet of small pictures for each kind. It is made
-  from the game itself (`tools/test/catalogue.cjs`), so it leaves nothing
-  out.
+  game calls it by, with a sheet of small pictures for each kind and the
+  file each one is. It is made from the game itself
+  (`tools/test/catalogue.cjs`), so it leaves nothing out.
 - **Who there is:** `docs/characters.md`. The people, and the faces each of
   them has.
 
@@ -17,6 +17,20 @@ picture that is nearly right is used as it is, or a new one is made in the
 new game's own folder, called `<id>_something`. Anything in the catalogue
 that would have to change for a new game to work is something to ask the
 owner about first.
+
+## Where the files are
+
+Everything that has ever been cut is kept, in three layers. All of it is in
+the repository.
+
+| | Where | What it is |
+| --- | --- | --- |
+| **The finished cutouts** | `src/assets/scrap` (206 files), and Bill's four everyday heads in `src/assets/bill`. A game with a folder of its own keeps its own in `src/minis/<id>/assets`. | What the game loads: each piece by itself, background gone, trimmed to its edges, heads taken off bodies, at the size it is drawn. **These are the ones to use**, and a game uses one by its name, not its file: the catalogue gives both. |
+| **Adobe's cutouts** | `art-src/adobe` (146 files): `...-cutout.png` is a whole picture with its background gone, and `...-headmask.png` (`-facemask`, `-handmask`, `-batmask`) is what Adobe selected in it. | Full size, exactly as Adobe gave them back. For when a finished piece is not enough: a bigger copy for a close-up, or a piece cut a different way. Nothing has to go back to Adobe for that. |
+| **The pictures they were cut from** | `art-src/generated` (what the owner generated) and `art-src/photos` (the family's photos) | The originals. |
+
+`tools/make_cutouts.py` makes the first layer from the other two, and can
+make all of it again (`cutting.md`).
 
 ## Putting one on the page
 

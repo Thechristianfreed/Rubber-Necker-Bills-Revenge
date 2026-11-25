@@ -341,7 +341,10 @@ async function loadGames(scene: Phaser.Scene): Promise<void> {
     const loaded = new Map<string, HTMLImageElement>();
     await Promise.all([...names].map(async (n) => {
       const im = await loadImage(ownUrl(game.id, n));
-      if (im) loaded.set(n, im);
+      if (!im) return;
+      // (its own, if it has one by that name; one of the common ones if not)
+      im.dataset.file = OWN[`../minis/${game.id}/assets/${n.replace(/\.png$/, '.webp')}`] || OWN[`../minis/${game.id}/assets/${n}`] ? `src/minis/${game.id}/assets/${n}` : `src/assets/scrap/${n}`;
+      loaded.set(n, im);
     }));
     fence(game.id, scene.textures.getTextureKeys());
     try {
@@ -369,7 +372,9 @@ export async function loadPhotoArt(scene: Phaser.Scene): Promise<void> {
   const loaded = new Map<string, HTMLImageElement>();
   await Promise.all([...names].map(async (n) => {
     const im = await loadImage(url(n));
-    if (im) loaded.set(n, im);
+    if (!im) return;
+    im.dataset.file = `src/assets/scrap/${n}`;
+    loaded.set(n, im);
   }));
 
   // the cut-paper interface first, so photo pieces with the same key win

@@ -49,11 +49,18 @@ const COLS = 6, TILE_W = 210, PIC_H = 150, LABEL_H = 40, ROWS = 7;
       const src = texture.source[0];
       if (!src || !src.image || key.startsWith('__') || /^[0-9a-f]{8}-[0-9a-f]{4}-/.test(key)) continue;
       const a = window.__art[key];
-      list.push({ key, w: Math.round(a ? a.w : src.width / 2), h: Math.round(a ? a.h : src.height / 2), strip: !!(a && a.tex !== undefined) });
+      list.push({ key, w: Math.round(a ? a.w : src.width / 2), h: Math.round(a ? a.h : src.height / 2), strip: !!(a && a.tex !== undefined), file: (window.__from || {})[key] || '' });
     }
     return list.sort((x, y) => x.key.localeCompare(y.key, 'en', { numeric: true }));
   });
 
+  // the file as it really is: the code calls every cutout "name.png", and what is kept is "name.webp"
+  const root = path.join(__dirname, '../..');
+  for (const p of pictures) {
+    if (!p.file) continue;
+    const webp = p.file.replace(/\.png$/, '.webp');
+    p.file = fs.existsSync(path.join(root, webp)) ? webp : p.file;
+  }
   const sections = GROUPS.map(([slug, title, note]) => ({ slug, title, note, items: [] }));
   const own = new Map(), rest = { slug: 'other', title: 'Everything else', note: 'Not sorted yet: add a rule for these in `tools/test/catalogue.cjs`.', items: [] };
   for (const p of pictures) {
@@ -69,7 +76,8 @@ const COLS = 6, TILE_W = 210, PIC_H = 150, LABEL_H = 40, ROWS = 7;
   fs.rmSync(out, { recursive: true, force: true });
   fs.mkdirSync(out, { recursive: true });
   let md = '# The catalogue\n\nEvery picture the game has, by the name a game calls it by. **Made by `tools/test/catalogue.cjs`: do not edit by hand.** Run it again when pictures are added. How to use what is here: `docs/pictures.md`.\n\n'
-    + 'The size is how big the picture is drawn, in the game\'s own pixels (the page is 540 of them tall). A strip repeats to fill a width.\n\n'
+    + 'The size is how big the picture is drawn, in the game\'s own pixels (the page is 540 of them tall). A strip repeats to fill a width. '
+    + 'The file is the finished cutout the picture is made from; one with no file is cut from paper, in code.\n\n'
     + all.map((s) => `- [${s.title}](#${s.slug}) (${s.items.length})`).join('\n') + '\n';
 
   for (const section of all) {
@@ -108,10 +116,11 @@ const COLS = 6, TILE_W = 210, PIC_H = 150, LABEL_H = 40, ROWS = 7;
       fs.writeFileSync(path.join(out, file), Buffer.from(data.split(',')[1], 'base64'));
       md += `![${section.title}${section.items.length > per ? `, sheet ${n + 1}` : ''}](${file})\n\n`;
     }
-    md += '| Name | Size | |\n| --- | --- | --- |\n' + section.items.map((p) => `| \`${p.key}\` | ${p.w} x ${p.h} | ${p.strip ? 'strip' : ''} |`).join('\n') + '\n';
+    md += '| Name | Size | | File |\n| --- | --- | --- | --- |\n' + section.items.map((p) => `| \`${p.key}\` | ${p.w} x ${p.h} | ${p.strip ? 'strip' : ''} | ${p.file ? `\`${p.file}\`` : 'paper'} |`).join('\n') + '\n';
   }
   fs.writeFileSync(path.join(out, 'README.md'), md);
   const files = fs.readdirSync(out);
+  console.log(`${pictures.filter((p) => p.file).length} are photos, each with its file; ${pictures.filter((p) => !p.file).length} are cut from paper in code`);
   console.log(`${pictures.length} pictures in ${all.length} sections: ${all.map((s) => `${s.slug} ${s.items.length}`).join(', ')}`);
   console.log(`${files.length} files in ${path.relative(process.cwd(), out)}, ${(files.reduce((n, f) => n + fs.statSync(path.join(out, f)).size, 0) / 1e6).toFixed(1)} MB`);
   if (rest.items.length) console.log('not sorted:', rest.items.map((p) => p.key).join(', '));
