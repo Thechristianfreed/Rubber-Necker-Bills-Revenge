@@ -154,7 +154,9 @@ through (it reads the look from each file's name: "Default" is the smile);
 the second says whether everything Adobe answered is there, the right size,
 and selects a believable amount. `--only shocked` is one look that came
 later; `--crop` and `--tall` are for a person whose head is a small part of
-the picture (Bill: `--crop 0,0.5 --tall 1305`). And then:
+the picture (Bill: `--crop 0,0.5 --tall 1305`); `--name "<file>=<look>"`
+says what a file with another name is (one of two both called "Calm", or
+an "Alternate" that is to be a look of that person's own). And then:
 
 ```bash
 .venv/bin/python tools/make_cast.py --keep
@@ -201,7 +203,19 @@ tool; a new look of somebody is only its two files. Nothing else changes:
   as `photo` (rename its three files, and its entry in `PHOTOS`).
 - **Adobe cannot always find a face.** In a soft, washed-out photo it
   selects the hair and nothing else, whatever it is asked for
-  ("body parts not found"). That photo is no use; take another.
+  ("body parts not found"); now and then it answers "Face" for a picture no
+  different from its neighbours, and the selection is empty
+  (`cast_jobs.py check` says ODD AMOUNT). Asking again gets the same. Send a
+  copy with its contrast evened out (CLAHE on the lightness) and ask that
+  one: the selection fits the first picture, whose colours are the ones
+  kept.
+- **Or it leaves the hair and the ears out of one look** of a batch
+  ("Face, Hair, Beard", with the hair not in it), where the rest got them.
+  That look borrows them from another look of the same batch, which is
+  framed the same to the pixel: `BORROW` in the tool.
+- **What a whole batch needs** (a head that is tipped in the portrait, a
+  far eyebrow at the edge of a turned face, hair to trim) is said once for
+  the person, in `SETS`.
 - **Look at the whole set on one line,** chins level (step 5): a head that
   is the wrong size or hangs wrong shows at once beside its fourteen
   neighbours.

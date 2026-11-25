@@ -7,7 +7,7 @@ they are on disk (docs/cutting.md says how they get there), this gets them
 ready for Adobe and checks what comes back. The Adobe calls themselves are
 made by a helper, a person at a time: tools/cast_jobs.md is its brief.
 
-    .venv/bin/python tools/cast_jobs.py prepare <folder> <who> <work folder> [--woman] [--crop top,bottom] [--tall N] [--only look,look]
+    .venv/bin/python tools/cast_jobs.py prepare <folder> <who> <work folder> [--woman] [--crop top,bottom] [--tall N] [--only look,look] [--name "<file's name>=<look>" ...]
 
 makes a copy of each picture to send (cropped to the head if it is a small
 part of the picture, and made N pixels tall: 1194 unless told) in
@@ -16,7 +16,9 @@ works through: for each look, the copy, its exact size in bytes, where Adobe's
 cutout is to be saved (art-src/cast/<who>/<look>-cutout.png) and what is to be
 selected (the head; and for --woman, whose hair hangs below her chin, the face
 alone as well). "Default" and "Base" are that person's smile; "Laughing" is
-laugh. A picture whose name is not a look is listed and left out.
+laugh. A picture whose name is not a look is listed and left out, unless
+--name says what it is ("Branson Calm (2)=smug"; and a look of that person's
+own, outside the fifteen, is named the same way: "Christian Yell Alternate=yell2").
 
     .venv/bin/python tools/cast_jobs.py check <work folder>/<who>.json
 
@@ -57,6 +59,10 @@ def prepare(args):
     tall = int(flag(args, "--tall", "1194"))
     only = flag(args, "--only")
     only = only.split(",") if only else None
+    named = {}
+    while "--name" in args:
+        stem, look = flag(args, "--name").rsplit("=", 1)
+        named[stem.strip().lower()] = look.strip()
     folder, who, work = args
     os.makedirs(os.path.join(work, who), exist_ok=True)
     rows, left = [], []
@@ -65,8 +71,8 @@ def prepare(args):
         if ext.lower() not in (".png", ".jpg", ".jpeg", ".webp", ".jfif"):
             continue
         said = stem.split(" ", 1)[1].strip().lower() if " " in stem else stem.lower()
-        look = ALSO.get(said, said)
-        if look not in LOOKS or (only and look not in only):
+        look = named.get(stem.lower()) or ALSO.get(said, said)
+        if (look not in LOOKS and stem.lower() not in named) or (only and look not in only):
             if look not in LOOKS:
                 left.append(name)
             continue

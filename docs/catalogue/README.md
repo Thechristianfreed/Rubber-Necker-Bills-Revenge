@@ -9,7 +9,7 @@ The size is how big the picture is drawn, in the game's own pixels (the page is 
 - [Cars](#cars) (22)
 - [People: bodies](#bodies) (77)
 - [People: faces](#faces) (32)
-- [People: everybody's faces](#cast) (134)
+- [People: everybody's faces](#cast) (176)
 - [The rubberneckers, and the animals](#gawkers) (51)
 - [Effects](#effects) (25)
 - [Words on bursts](#words) (51)
@@ -324,6 +324,8 @@ One set for each of the family, every look the same size and hung from the same 
 
 ![People: everybody's faces, sheet 4](cast-4.jpg)
 
+![People: everybody's faces, sheet 5](cast-5.jpg)
+
 | Name | Size | | File |
 | --- | --- | --- | --- |
 | `face_bill_angry` | 62 x 81 |  | `src/assets/scrap/face-bill-angry.webp` |
@@ -344,8 +346,21 @@ One set for each of the family, every look the same size and hung from the same 
 | `face_bill_talking` | 62 x 83 |  | `src/assets/scrap/face-bill-talking.webp` |
 | `face_bill_worried` | 62 x 82 |  | `src/assets/scrap/face-bill-worried.webp` |
 | `face_bill_yell` | 63 x 90 |  | `src/assets/scrap/face-bill-yell.webp` |
-| `face_branson_laugh` | 55 x 90 |  | `src/assets/scrap/face-branson-laugh.webp` |
-| `face_branson_smile` | 56 x 81 |  | `src/assets/scrap/face-branson-smile.webp` |
+| `face_branson_angry` | 54 x 81 |  | `src/assets/scrap/face-branson-angry.webp` |
+| `face_branson_asleep` | 54 x 81 |  | `src/assets/scrap/face-branson-asleep.webp` |
+| `face_branson_calm` | 54 x 81 |  | `src/assets/scrap/face-branson-calm.webp` |
+| `face_branson_cry` | 54 x 81 |  | `src/assets/scrap/face-branson-cry.webp` |
+| `face_branson_dazed` | 54 x 82 |  | `src/assets/scrap/face-branson-dazed.webp` |
+| `face_branson_disgusted` | 54 x 81 |  | `src/assets/scrap/face-branson-disgusted.webp` |
+| `face_branson_guilty` | 54 x 81 |  | `src/assets/scrap/face-branson-guilty.webp` |
+| `face_branson_laugh` | 51 x 85 |  | `src/assets/scrap/face-branson-laugh.webp` |
+| `face_branson_ouch` | 54 x 81 |  | `src/assets/scrap/face-branson-ouch.webp` |
+| `face_branson_shocked` | 54 x 83 |  | `src/assets/scrap/face-branson-shocked.webp` |
+| `face_branson_smile` | 54 x 81 |  | `src/assets/scrap/face-branson-smile.webp` |
+| `face_branson_smug` | 54 x 81 |  | `src/assets/scrap/face-branson-smug.webp` |
+| `face_branson_talking` | 54 x 81 |  | `src/assets/scrap/face-branson-talking.webp` |
+| `face_branson_worried` | 54 x 81 |  | `src/assets/scrap/face-branson-worried.webp` |
+| `face_branson_yell` | 54 x 83 |  | `src/assets/scrap/face-branson-yell.webp` |
 | `face_chad_angel` | 52 x 73 |  | `src/assets/scrap/face-chad-angel.webp` |
 | `face_chad_angry` | 52 x 81 |  | `src/assets/scrap/face-chad-angry.webp` |
 | `face_chad_asleep` | 52 x 81 |  | `src/assets/scrap/face-chad-asleep.webp` |
@@ -365,10 +380,25 @@ One set for each of the family, every look the same size and hung from the same 
 | `face_chad_talking` | 52 x 82 |  | `src/assets/scrap/face-chad-talking.webp` |
 | `face_chad_worried` | 52 x 80 |  | `src/assets/scrap/face-chad-worried.webp` |
 | `face_chad_yell` | 52 x 91 |  | `src/assets/scrap/face-chad-yell.webp` |
+| `face_christian_angry` | 52 x 81 |  | `src/assets/scrap/face-christian-angry.webp` |
+| `face_christian_asleep` | 52 x 81 |  | `src/assets/scrap/face-christian-asleep.webp` |
 | `face_christian_calm` | 52 x 81 |  | `src/assets/scrap/face-christian-calm.webp` |
+| `face_christian_cry` | 52 x 82 |  | `src/assets/scrap/face-christian-cry.webp` |
+| `face_christian_dazed` | 52 x 81 |  | `src/assets/scrap/face-christian-dazed.webp` |
+| `face_christian_dazed2` | 52 x 84 |  | `src/assets/scrap/face-christian-dazed2.webp` |
+| `face_christian_disgusted` | 52 x 81 |  | `src/assets/scrap/face-christian-disgusted.webp` |
 | `face_christian_gentle` | 59 x 94 |  | `src/assets/scrap/face-christian-gentle.webp` |
+| `face_christian_guilty` | 52 x 81 |  | `src/assets/scrap/face-christian-guilty.webp` |
 | `face_christian_laugh` | 53 x 89 |  | `src/assets/scrap/face-christian-laugh.webp` |
-| `face_christian_smile` | 52 x 85 |  | `src/assets/scrap/face-christian-smile.webp` |
+| `face_christian_ouch` | 52 x 81 |  | `src/assets/scrap/face-christian-ouch.webp` |
+| `face_christian_shocked` | 52 x 83 |  | `src/assets/scrap/face-christian-shocked.webp` |
+| `face_christian_smile` | 52 x 84 |  | `src/assets/scrap/face-christian-smile.webp` |
+| `face_christian_smug` | 52 x 81 |  | `src/assets/scrap/face-christian-smug.webp` |
+| `face_christian_talking` | 52 x 81 |  | `src/assets/scrap/face-christian-talking.webp` |
+| `face_christian_worried` | 52 x 81 |  | `src/assets/scrap/face-christian-worried.webp` |
+| `face_christian_worried2` | 52 x 84 |  | `src/assets/scrap/face-christian-worried2.webp` |
+| `face_christian_yell` | 52 x 86 |  | `src/assets/scrap/face-christian-yell.webp` |
+| `face_christian_yell2` | 52 x 89 |  | `src/assets/scrap/face-christian-yell2.webp` |
 | `face_curt_laugh` | 57 x 76 |  | `src/assets/scrap/face-curt-laugh.webp` |
 | `face_curt_smile` | 61 x 81 |  | `src/assets/scrap/face-curt-smile.webp` |
 | `face_mammy_angry` | 104 x 107 |  | `src/assets/scrap/face-mammy-angry.webp` |
@@ -441,8 +471,22 @@ One set for each of the family, every look the same size and hung from the same 
 | `face_shane_wary` | 53 x 76 |  | `src/assets/scrap/face-shane-wary.webp` |
 | `face_shane_worried` | 53 x 81 |  | `src/assets/scrap/face-shane-worried.webp` |
 | `face_shane_yell` | 53 x 86 |  | `src/assets/scrap/face-shane-yell.webp` |
-| `face_shorty_pout` | 94 x 98 |  | `src/assets/scrap/face-shorty-pout.webp` |
-| `face_shorty_smile` | 96 x 102 |  | `src/assets/scrap/face-shorty-smile.webp` |
+| `face_shorty_angry` | 98 x 102 |  | `src/assets/scrap/face-shorty-angry.webp` |
+| `face_shorty_asleep` | 98 x 102 |  | `src/assets/scrap/face-shorty-asleep.webp` |
+| `face_shorty_calm` | 98 x 102 |  | `src/assets/scrap/face-shorty-calm.webp` |
+| `face_shorty_cry` | 98 x 102 |  | `src/assets/scrap/face-shorty-cry.webp` |
+| `face_shorty_dazed` | 98 x 102 |  | `src/assets/scrap/face-shorty-dazed.webp` |
+| `face_shorty_disgusted` | 98 x 102 |  | `src/assets/scrap/face-shorty-disgusted.webp` |
+| `face_shorty_guilty` | 98 x 102 |  | `src/assets/scrap/face-shorty-guilty.webp` |
+| `face_shorty_laugh` | 98 x 102 |  | `src/assets/scrap/face-shorty-laugh.webp` |
+| `face_shorty_ouch` | 98 x 102 |  | `src/assets/scrap/face-shorty-ouch.webp` |
+| `face_shorty_pout` | 96 x 100 |  | `src/assets/scrap/face-shorty-pout.webp` |
+| `face_shorty_shocked` | 98 x 102 |  | `src/assets/scrap/face-shorty-shocked.webp` |
+| `face_shorty_smile` | 99 x 106 |  | `src/assets/scrap/face-shorty-smile.webp` |
+| `face_shorty_smug` | 98 x 102 |  | `src/assets/scrap/face-shorty-smug.webp` |
+| `face_shorty_talking` | 98 x 102 |  | `src/assets/scrap/face-shorty-talking.webp` |
+| `face_shorty_worried` | 98 x 102 |  | `src/assets/scrap/face-shorty-worried.webp` |
+| `face_shorty_yell` | 98 x 102 |  | `src/assets/scrap/face-shorty-yell.webp` |
 | `face_stephanie_angry` | 115 x 128 |  | `src/assets/scrap/face-stephanie-angry.webp` |
 | `face_stephanie_asleep` | 116 x 129 |  | `src/assets/scrap/face-stephanie-asleep.webp` |
 | `face_stephanie_calm` | 115 x 128 |  | `src/assets/scrap/face-stephanie-calm.webp` |

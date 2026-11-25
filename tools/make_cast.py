@@ -113,8 +113,9 @@ PEOPLE = {
 # "photo" after: the edit of it that came with the others is the smile then.
 PHOTOS = {
     "bill": {"calm": {"seal": 0.03, "size": 0.87}},
-    "christian": {"calm": {"base": True, "seal": 0.03, "turn": 10}, "smile": {}, "laugh": {"size": 0.95}, "gentle": {"seal": 0.03}},
-    "branson": {"smile": {"base": True, "seal": 0.03, "above": 0.6}, "laugh": {"seal": 0.03, "size": 0.95}},
+    "christian": {"calm": {"base": True, "seal": 0.03, "turn": 10}, "smile": {}, "laugh": {"size": 0.95}, "gentle": {"seal": 0.03},
+                  "yell2": {}, "dazed2": {}, "worried2": {}},
+    "branson": {"laugh": {"seal": 0.03, "size": 0.95}},
     "shorty": {"smile": {"base": True, "below": 0.27}, "pout": {}},
     "mammy": {"photo": {"size": 0.9}},
     "pappy": {"photo": {"seal": 0.03, "size": 0.9}, "silly": {"seal": 0.03, "size": 0.9}},
@@ -126,10 +127,23 @@ PHOTOS = {
 # What every look in a person's batch needs, where the portrait they are all edits of needs it
 # (the same things a photo can say, above). Pappy's head is turned in his, so the far eyebrow
 # is at the very edge of his face in every look, and he holds his head tipped. Nanner's hair
-# runs down over her shoulders and ends in thin tails where her dress begins.
+# runs down over her shoulders and ends in thin tails where her dress begins. Christian's and
+# Branson's edits are of photos in which the head is tipped and turned a little (the same far
+# eyebrow); Shorty's are of one her hair runs out of, as her photo's own face is trimmed.
 SETS = {
     "pappy": {"seal": 0.055, "turn": 10},
     "nanner": {"below": 0.4},
+    "christian": {"seal": 0.05, "turn": 10},
+    "branson": {"seal": 0.06, "turn": -6},
+    "shorty": {"below": 0.27},
+}
+
+# A look in a batch whose selection Adobe left the hair and the ears out of ("Face, Beard" where
+# the rest of the batch got "Face, Hair, Left Ear, Beard"): it takes those from the selection of
+# another look in the same batch, which is framed the same to the pixel.
+BORROW = {
+    "branson": {"smug": "calm", "smile": "calm"},
+    "shorty": {"guilty": "calm"},
 }
 
 # A look whose head is this near the usual place and size in its picture has the same framing.
@@ -171,17 +185,25 @@ def sources(who):
             how = dict(PHOTOS.get(who, {}).get(look, SETS.get(who, {})))
             if look in PHOTOS.get(who, {}) and not how.pop("base", False):
                 how["other"] = True
+            lender = BORROW.get(who, {}).get(look)
+            if lender:
+                how["also"] = os.path.join(CAST, who, lender + "-headmask.png")
             # (a new one takes an old one's place)
             found[look] = (cut, mask, face if os.path.exists(face) and not how.get("turn") else None, True, how)
     return found
 
 
-def head_of(cut, mask, turn=0, jaw=0, seal=0, above=0, below=0, face=None):
+def head_of(cut, mask, turn=0, jaw=0, seal=0, above=0, below=0, face=None, also=None):
     """The head alone: Adobe's cutout where its selection of the head says, the holes it
     leaves at the eyes and mouth filled in, and only the one biggest piece of it. Then, where
     the picture needs it, the jaw drawn out to where the chin really is, and the head set straight."""
     rgba = picture(cut)
     sel = selected(mask)
+    if also:
+        more = selected(also)
+        if more.shape != sel.shape:       # (a picture that came a pixel wider or narrower than the rest)
+            more = cv2.resize(more, (sel.shape[1], sel.shape[0]), interpolation=cv2.INTER_LINEAR)
+        sel = np.maximum(sel, more)
     solid = (sel > 0.5).astype(np.uint8)
     rows = np.where(solid.any(axis=1))[0]
     if seal:
@@ -277,7 +299,7 @@ def cast(who):
     # (hair that is trimmed is trimmed along one line for a whole batch, under that chin: a
     # mouth that drops open must not take the hair down with it)
     heads = {look: head_of(cut, mask, how.get("turn", 0), how.get("jaw", 0), how.get("seal", 0), how.get("above", 0),
-                           how.get("below", 0), found[ref][2] if look in batch else face)
+                           how.get("below", 0), found[ref][2] if look in batch else face, how.get("also"))
              for look, (cut, mask, face, _, how) in found.items()}
     at = {look: measured(head) for look, head in heads.items()}
     top, wide, middle, _ = at[ref]
