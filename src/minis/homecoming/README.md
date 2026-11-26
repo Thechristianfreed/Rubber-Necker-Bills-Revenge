@@ -108,11 +108,17 @@ what the two of them really wore. Bodies are photographed whole, facing
 right where they are seen from the side, with nothing over the head or neck,
 because the head comes off and theirs goes on.
 
+The first prompt of PH1 and PH2 to PH7 stand alone (nothing to attach, and
+none waits on another), so the owner makes those seven as one batch. Two
+cannot go in it: the second prompt of PH1, which is an edit of the picture
+the first one gives, and Pappy's pucker ("Faces", below), which is an edit of
+his portrait.
+
 **PH1. The front door** (two images, made as a chain, so that the door can
 open)
 
 ```text
-The front of a suburban American house at night, photographed exactly face-on from the porch, a few feet from the front door, about 1985. Cream clapboard siding. A dark green panelled front door with a brass knob and a brass lock above it on its left side, in a white frame, shut. To the left of the door a black porch lantern, lit, throwing warm light on the wall; further left a window with the light on behind closed curtains. A doormat that says WELCOME on grey painted porch boards. Nobody in the picture. No other text. Wide 16:9 image.
+The front of a suburban American house at night, about 1985, photographed exactly face-on from the porch, a few feet from the front door. Cream clapboard siding. A dark green panelled front door, shut, in a white frame, with a brass knob and a brass lock above it on its left side; the whole door is in the picture, from its top to the step, and stands a little to the right of the middle. To the left of the door a black porch lantern, lit, throwing warm light on the wall; further left a window with the light on behind closed curtains. A doormat that says WELCOME on grey painted porch boards. Nobody in the picture. No other text. Wide 16:9 image.
 ```
 
 ```text
