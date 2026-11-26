@@ -1,16 +1,19 @@
 import Phaser from 'phaser';
 import { H, MAX_W, TEX, view } from '../../config';
 import { BLEED } from '../../art/finish';
-import { applyArt, img } from '../../art/sticker';
+import { ART, applyArt, img } from '../../art/sticker';
 import { sound } from '../../audio/sound';
 import { bubble } from '../../ui/bubble';
 import { label } from '../../ui/text';
 import { Mini, Point } from '../Mini';
 import { FACE, face } from '../shared/people';
 import { DEN, layDen } from '../shared/places';
-import { HEAD as HOME_HEAD, bodyOf } from '../homecoming/layout';
+import { HEAD as HOME_HEAD, bodyOf as homeBodyOf } from '../homecoming/layout';
 import { CATS } from './art';
-import { AT_SINK, BOARD, BODIES, FEET, HEAD, LINE, RIM, SINK_OFF, SPOTS, V } from './layout';
+import { CUT } from './cut';
+import {
+  AT_SINK, BODIES, COUNTER_TALL, FEET, HEAD, KITCHEN_PHOTO, LINE, RIM, SPOTS, V, bodyOf, boardFoot, isPhoto, scrubRange, sinkOff,
+} from './layout';
 import { SOUNDS } from './sounds';
 
 type Image = Phaser.GameObjects.Image;
@@ -44,6 +47,8 @@ const STROKE = 30;
 /** The cats are drawn this much bigger than their pictures: in his hands, and sitting about. */
 const HELD = 1.15;
 const SITTING = 1.1;
+/** The poses he holds a cat in: his fists go in front of it. */
+const FISTS = ['choke', 'scrub', 'wring', 'hang'];
 
 type Stage = 'home' | 'sink' | 'clean' | 'done';
 type Step = 'intro' | 'grab' | 'choke' | 'dunk' | 'scrub' | 'rinse' | 'wring' | 'hang' | 'kiss' | 'between';
@@ -73,10 +78,10 @@ class Pappy {
 
   private of(pose: string): { key: string; chin: V; tilt: number; head: number } {
     if (pose === 'home') {
-      if (this.scene.textures.exists('homecoming_pappy_stand')) return { key: 'homecoming_pappy_stand', ...bodyOf('pappy_stand'), head: HOME_HEAD };
+      if (this.scene.textures.exists('homecoming_pappy_stand')) return { key: 'homecoming_pappy_stand', ...homeBodyOf('pappy_stand'), head: HOME_HEAD };
       return { key: 'catbath_pappy_stand', chin: BODIES.stand.chin, tilt: 0, head: HEAD };
     }
-    const b = BODIES[pose];
+    const b = bodyOf(pose);
     return { key: `catbath_pappy_${pose}`, chin: b.chin, tilt: b.tilt, head: HEAD };
   }
 
@@ -163,7 +168,11 @@ export class CatbathMini extends Mini {
   strokes = 0;
   quarters = 0;
   /** Where on the washboard it is, which way it was last going, and how far. */
-  private scrubY: number = BOARD.scrub[1];
+  private scrubY = 0;
+  /** How far up and down the board it goes; and whether he is a photo (whose own fists go round
+   *  what he holds), or paper. */
+  private range: V = [0, 0];
+  private photo = false;
   private dir = 0;
   private travel = 0;
   private lastY = 0;
@@ -251,8 +260,15 @@ export class CatbathMini extends Mini {
     this.stage = 'sink';
     this.beat = 'kitchen';
     this.px = cx - 70;
-    this.sx = this.px + SINK_OFF;
-    this.keep(img(s, -BLEED, -BLEED, 'catbath_kitchen').setDepth(1));
+    this.sx = this.px + sinkOff();
+    this.photo = isPhoto('pappy_choke');
+    this.range = scrubRange();
+    this.scrubY = this.range[1];
+    if (isPhoto('kitchen')) {
+      // (the photo of the kitchen, with the edge of its own counter behind his)
+      const a = ART.catbath_kitchen;
+      this.keep(s.add.image(cx - a.w / 2, RIM - CUT.kitchen.edge * KITCHEN_PHOTO.k, 'catbath_kitchen').setOrigin(0, 0).setScale(1 / (a.tex ?? TEX)).setDepth(1));
+    } else this.keep(img(s, -BLEED, -BLEED, 'catbath_kitchen').setDepth(1));
     // the clothesline, across the top of the kitchen
     const d = TEX;
     this.keep(s.add.tileSprite(-BLEED, LINE, (MAX_W + BLEED * 2) * d, 8 * d, 'catbath_rope').setOrigin(0, 0.5).setScale(1 / d).setDepth(3));
@@ -263,13 +279,15 @@ export class CatbathMini extends Mini {
     this.keep(this.pappy.box.setDepth(10));
     this.hands = [0, 1].map(() => this.keep(img(s, 0, 0, 'catbath_hand').setDepth(27)));
     for (const h of this.hands) h.setScale(AT_SINK / TEX).setVisible(false);
-    this.keep(s.add.tileSprite(-BLEED, RIM - 4, (MAX_W + BLEED * 2) * d, 160 * d, 'catbath_counter').setOrigin(0, 0).setScale(1 / d).setDepth(20));
+    const cd = ART.catbath_counter?.tex ?? TEX, tall = isPhoto('counter') ? COUNTER_TALL : 160;
+    this.keep(s.add.tileSprite(-BLEED, RIM - 4, (MAX_W + BLEED * 2) * cd, tall * cd, 'catbath_counter').setOrigin(0, 0).setScale(1 / cd).setDepth(20));
     this.keep(img(s, this.sx, RIM + 8, 'catbath_basin').setDepth(21));
     // (the washboard, and a cat in the sink, are behind the counter: the rim hides what is under the water)
-    this.keep(img(s, this.sx, BOARD.top + BOARD.h, 'catbath_board').setDepth(19));
-    this.keep(img(s, this.sx + 128, RIM + 4, 'catbath_tap').setDepth(23));
+    this.keep(img(s, this.sx, boardFoot(), 'catbath_board').setDepth(19));
+    this.keep(img(s, this.sx + (isPhoto('tap') ? 104 : 128), RIM + 4, 'catbath_tap').setDepth(23));
     this.sprayer = this.keep(img(s, this.sx + 178, RIM + 6, 'catbath_sprayer').setDepth(23));
-    this.keep(img(s, this.sx, RIM + 12, 'catbath_suds').setDepth(25));
+    // (on a photo the heap of suds sits lower in the sink, below his hands)
+    this.keep(img(s, this.sx, RIM + (isPhoto('suds') ? 26 : 12), 'catbath_suds').setDepth(25));
 
     // the three of them, along the counter, still stinking
     this.cats = CATS.map((_, i) => {
@@ -307,7 +325,7 @@ export class CatbathMini extends Mini {
     this.holdAt = from;
     SOUNDS.hiss();
     this.host.word('catbath_hiss', from.x + 20, from.y - 80);
-    const to = p.at(BODIES.choke.grip[0], BODIES.choke.grip[1]);
+    const grip = bodyOf('choke').grip, to = p.at(grip[0], grip[1]);
     this.after(0.3, () => {
       p.set('choke', 'yell');
       s.tweens.add({ targets: this.holdAt, x: to.x, y: to.y, duration: 220, ease: 'Quad.out' });
@@ -367,14 +385,15 @@ export class CatbathMini extends Mini {
       this.host.word('catbath_splash', this.sx + 40, RIM - 150);
       for (let i = 0; i < 26; i++) this.puff('catbath_bubble', this.sx + (Math.random() - 0.5) * 160, RIM - 30, (Math.random() - 0.5) * 900, -300 - Math.random() * 500, 1.4, 700, 45, 0.6 + Math.random() * 1.2);
       for (let i = 0; i < 14; i++) this.puff('catbath_drop', this.sx + (Math.random() - 0.5) * 120, RIM - 20, (Math.random() - 0.5) * 600, -250 - Math.random() * 350, 1.0, 1100, 45, 1.4);
-      applyArt(cat.im, `catbath_cat${cat.i}_wet`);
+      // (soaked: held by the middle on a photo, so that the top of it is up out of the suds)
+      applyArt(cat.im, `catbath_cat${cat.i}_${this.photo ? 'soak' : 'wet'}`);
       cat.im.setScale(HELD / TEX);
       s.cameras.main.shake(100, 0.004);
     });
     // dunked again, for good measure
     this.after(0.5, () => s.tweens.add({ targets: this.holdAt, y: RIM - 30, duration: 140, yoyo: true, repeat: 1, ease: 'Sine.inOut' }));
     this.after(1.2, () => {
-      this.scrubY = BOARD.scrub[1];
+      this.scrubY = this.range[1];
       s.tweens.add({ targets: this.holdAt, y: this.scrubY, duration: 200, ease: 'Quad.out' });
     });
     this.after(1.45, () => {
@@ -385,7 +404,7 @@ export class CatbathMini extends Mini {
       this.travel = 0;
       this.showBar('DIRT LEFT', 1);
       this.words('SCRUB IT ON THE WASHBOARD! UP AND DOWN!');
-      this.arrow = this.keep(img(s, this.sx - 110, (BOARD.scrub[0] + BOARD.scrub[1]) / 2 + 40, 'catbath_arrow').setDepth(60));
+      this.arrow = this.keep(img(s, this.sx - 110, (this.range[0] + this.range[1]) / 2 + 40, 'catbath_arrow').setDepth(60));
       s.tweens.add({ targets: this.arrow, scaleY: { from: 0.85 / TEX, to: 1.05 / TEX }, duration: 300, yoyo: true, repeat: -1 });
       this.botIn = 0.2;
     });
@@ -394,7 +413,7 @@ export class CatbathMini extends Mini {
   /** The cat to here on the washboard (where the finger is). Going back the other way after going
    *  far enough one way is another scrub. */
   private scrubTo(y: number): void {
-    const [top, foot] = BOARD.scrub, to = Phaser.Math.Clamp(y, top, foot), dy = to - this.scrubY;
+    const [top, foot] = this.range, to = Phaser.Math.Clamp(y, top, foot), dy = to - this.scrubY;
     if (Math.abs(dy) < 0.5) return;
     const d = Math.sign(dy);
     if (d !== this.dir) {
@@ -408,7 +427,7 @@ export class CatbathMini extends Mini {
 
   /** A key (or the bot): once to the other end of the board. */
   private scrubOnce(): void {
-    const [top, foot] = BOARD.scrub, mid = (top + foot) / 2;
+    const [top, foot] = this.range, mid = (top + foot) / 2;
     this.dir = this.scrubY > mid ? 1 : -1;
     this.travel = 0;
     this.scrubTo(this.scrubY > mid ? top : foot);
@@ -453,8 +472,9 @@ export class CatbathMini extends Mini {
     this.beat = `wring${this.n}`;
     p.set('wring', 'angry');
     applyArt(cat.im, `catbath_cat${cat.i}_wrung`);
-    cat.im.setScale(1.1 / TEX).setDepth(26).setFlipY(false);
-    const to = p.at(BODIES.wring.grip[0], BODIES.wring.grip[1]);
+    // (it lies along the line through his two fists)
+    const g = bodyOf('wring'), to = p.at(g.grip[0], g.grip[1]);
+    cat.im.setScale(1.1 / TEX).setDepth(26).setFlipY(false).setRotation(g.turn);
     s.tweens.add({ targets: this.holdAt, x: to.x, y: to.y, duration: 220, ease: 'Quad.out' });
     this.quarters = 0;
     this.lastAng = null;
@@ -510,8 +530,8 @@ export class CatbathMini extends Mini {
     p.set('choke', 'smug');
     applyArt(cat.im, `catbath_cat${cat.i}_wet`);
     // (held out over the sink, dripping into it: what hangs below the rim is behind the counter)
-    cat.im.setScale(HELD / TEX).setFlipY(false).setDepth(19.5);
-    const to = p.at(BODIES.choke.grip[0], BODIES.choke.grip[1]);
+    cat.im.setScale(HELD / TEX).setFlipY(false).setDepth(19.5).setRotation(0);
+    const grip = bodyOf('choke').grip, to = p.at(grip[0], grip[1]);
     this.scene.tweens.add({ targets: this.holdAt, x: to.x, y: to.y, duration: 200 });
     SOUNDS.mew();
     this.words('TAP TO HANG IT UP TO DRY!');
@@ -547,7 +567,8 @@ export class CatbathMini extends Mini {
     this.after(0.9, () => {
       // and a kiss for it
       this.beat = `kiss${this.n}`;
-      s.tweens.add({ targets: p.box, y: FEET - 54, angle: -side * 4, duration: 160, yoyo: true, hold: 260, ease: 'Quad.out' });
+      // (a photo of him stops at his thighs: he only stands up so far, or the foot of it shows)
+      s.tweens.add({ targets: p.box, y: FEET - (this.photo ? 22 : 54), angle: -side * 4, duration: 160, yoyo: true, hold: 260, ease: 'Quad.out' });
     });
     this.after(1.08, () => {
       SOUNDS.kiss();
@@ -788,7 +809,9 @@ export class CatbathMini extends Mini {
     }
     if (this.step === 'scrub') {
       this.holdAt.y = this.scrubY;
-      this.pappy!.box.setY(FEET + (this.scrubY - BOARD.scrub[1]) * 0.45);
+      // (on paper he bobs with it; a photo's fists are on it, so he goes all the way up and down with it)
+      const g = this.photo ? FEET + bodyOf('scrub').grip[1] * AT_SINK : this.range[1];
+      this.pappy!.box.setY(FEET + (this.scrubY - g) * (this.photo ? 1 : 0.45));
     } else if (this.stage === 'sink' && this.step !== 'kiss' && this.pappy && !s.tweens.isTweening(this.pappy.box)) this.pappy.box.setY(FEET);
     if (cat && cat.where === 'held') cat.im.setPosition(this.holdAt.x, this.holdAt.y);
     this.placeHands();
@@ -832,6 +855,16 @@ export class CatbathMini extends Mini {
     const show = this.stage === 'sink' && !!cat && cat.where === 'held' && this.step !== 'grab' && this.holdAt.y < RIM - 10;
     for (const h of this.hands) h.setVisible(show);
     if (!show) return;
+    if (this.photo) {
+      // his own fists, cut from the photo of him in this pose, where they are on it
+      const pose = FISTS.includes(p.pose) ? p.pose : 'choke', b = bodyOf(pose);
+      b.hands.forEach(([hx, hy], k) => {
+        const h = this.hands[k], at = p.at(hx, hy);
+        if (h.texture.key !== `catbath_fist_${pose}_${k}`) applyArt(h, `catbath_fist_${pose}_${k}`);
+        h.setScale(AT_SINK / TEX).setPosition(at.x, at.y);
+      });
+      return;
+    }
     const { x, y } = this.holdAt;
     const spots: [V, V] = this.step === 'wring' ? [[-104, 0], [104, 0]] : this.step === 'scrub' || this.step === 'dunk' || this.step === 'rinse' ? [[-26, 26], [26, 26]] : [[-17, 6], [17, 6]];
     spots.forEach(([dx, dy], k) => this.hands[k].setPosition(x + dx, y + dy));

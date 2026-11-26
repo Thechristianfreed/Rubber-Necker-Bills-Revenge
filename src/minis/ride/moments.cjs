@@ -17,7 +17,8 @@ module.exports = (bot) => [
   ['11-forest', "m.stage === 'drive' && m.clock > 17.2"],
   ['12-edge', "m.stage === 'drive' && !!m.caption && m.caption.text.includes('EDGE OF TOWN.')"],
   ['13-door', "m.stage === 'kick' && m.beat === 'door' && m.t > 1.6"],
-  ['14-meter', "m.stage === 'kick' && m.holding && m.air > 0.12"],
+  // (the careless one lets go far too soon the first time: catch it holding before it does)
+  ['14-meter', `m.stage === 'kick' && m.holding && m.air > ${bot ? 0.04 : 0.12}`],
   ...(bot ? [['15-whiff', "m.beat === 'whiff' && m.kicked === 0 && m.pappy.pose === 'pappy_kick'"]] : []),
   ['16-boot', "m.beat === 'boot' && m.kicked === 1 && m.pappy.pose === 'pappy_kick'"],
   ['17-dont-come-back', "said('FIDO! AND') && m.said[0].left < 1.0"],

@@ -11,8 +11,9 @@ import { DEN, layDen } from '../shared/places';
 import { HEAD as HOME_HEAD, bodyOf } from '../homecoming/layout';
 import { FOREST, METER, ZONE } from './art';
 import {
-  ARMS, BODIES, BOTTLE_HAND, DOORWAY, DRIVER, FOOT, GLASS_HAND, LANES, ON_ROAD, V, WHEELS, WINDOWS,
+  ARMS, BODIES, BOTTLE_HAND, DRIVER, Door, EDGE_PHOTO, FOOT, GLASS_HAND, INSIDE_PHOTO, LANES, ON_ROAD, V, VAN, WHEELS, WINDOWS, door, isPhoto,
 } from './layout';
+import { CUT } from './cut';
 import { SOUNDS } from './sounds';
 
 type Image = Phaser.GameObjects.Image;
@@ -33,12 +34,12 @@ const LEAVE_THEM: [Who, string][] = [
 const BED = 'NOW OFF TO BED, YOU TWO.';
 const NIGHT_NIGHT = 'NIGHT NIGHT, MR. QUACKS.';
 const YOU_KNOW = 'YOU KNOW WHAT TO DO...';
-/** What Pappy says as each one goes: Fido first, Mr. Quacks last. */
+/** What Pappy says as each one goes: Fido first, then the other two, then Roger, and Mr. Quacks last. */
 const GOODBYE = [
   "SO LONG, FIDO! AND DON'T COME BACK!",
   "AND DON'T COME BACK!",
   "GO ON, GIT! AND DON'T COME BACK!",
-  "AND DON'T COME BACK, YA HEAR?!",
+  "SEE YA, ROGER! AND DON'T COME BACK!",
   "AND DON'T COME BACK, MR. QUACKS!",
 ];
 /** ...and when he misses. */
@@ -70,12 +71,13 @@ const SWERVE = 0.24;
 const FILL = 1.3;
 const TOO_LONG = 0.5;
 const SWEET = [0.22, 0.86];
-/** In the van: how big Pappy is drawn, and where he stands. */
+/** In the van: how big Pappy is drawn, and how far right of the doorway he stands. */
 const IN_VAN = 1.1;
-const PAPPY_IN_VAN = DOORWAY.r + 100;
+const BESIDE_DOOR = 100;
 
-/** The animals Curt and Stephanie brought home: four dogs (Fido is the first) and Mr. Quacks. */
-const PETS = ['dog0', 'dog1', 'dog2', 'dog3', 'duck'] as const;
+/** The animals Curt and Stephanie brought home: four dogs (Fido is the first; Roger, Branson and
+ *  Shorty's doodle, is one of them, as the owner wished) and Mr. Quacks. */
+const PETS = ['dog0', 'dog1', 'dog2', 'roger', 'duck'] as const;
 type Pet = (typeof PETS)[number];
 
 /** Paper heads, for a page that could not fetch its photos. */
@@ -97,8 +99,14 @@ function poseOf(scene: Phaser.Scene, name: string): { key: string; chin: V; tilt
   }
   // (without the other game's pictures, the nearest of this game's own)
   const own = name === 'homecoming_pappy_stand' ? 'pappy_kiss' : name === 'homecoming_mammy_stand' ? 'mammy_glass' : name;
-  const b = BODIES[own];
-  return { key: `ride_${own}`, chin: b.chin, tilt: b.tilt, head: b.head };
+  const b = BODIES[own], photo = isPhoto(own) ? (CUT.bodies as Record<string, { chin: number[] }>)[own] : undefined;
+  return { key: `ride_${own}`, chin: photo ? (photo.chin as V) : b.chin, tilt: photo ? 0 : b.tilt, head: b.head };
+}
+
+/** Where a spot on one of the photos is, or on the paper that stands in for it. */
+function spotOf(photo: string, paper: V): V {
+  const at = (CUT as unknown as Record<string, number[]>)[photo];
+  return at && isPhoto(photo === 'foot' ? 'pappy_kick' : photo === 'bottle' ? 'pappy_bottle' : 'mammy_glass') ? (at as V) : paper;
 }
 
 /** One of the family: a body in a pose, and their own head hung on it by the chin. */
@@ -222,6 +230,8 @@ export class RideMini extends Mini {
   private driving = false;
 
   // ---- the kicks
+  /** Where the doorway is, and the sill, the floor and the bench (paper, or the photo). */
+  private door?: Door;
   private slider?: Image;
   private queue: Pet[] = [];
   /** The one in the doorway, and which it is. */
@@ -261,7 +271,7 @@ export class RideMini extends Mini {
     this.mammy.box.setDepth(11);
     const spots: [Pet, number, number, boolean][] = [
       ['dog0', W * 0.17, GROUND + 26, true], ['dog1', W * 0.48, GROUND + 6, false],
-      ['dog2', W * 0.31, GROUND + 46, true], ['dog3', W * 0.54, GROUND + 40, false],
+      ['dog2', W * 0.31, GROUND + 46, true], ['roger', W * 0.54, GROUND + 40, false],
     ];
     for (const [pet, x, y, right] of spots) {
       const im = this.keep(img(s, x, y, `ride_${pet}`).setDepth(14 + (y - GROUND) / 100).setFlipX(right));
@@ -271,6 +281,8 @@ export class RideMini extends Mini {
     const arms = this.steph.at(ARMS[0], ARMS[1]);
     this.pets.duck = this.keep(img(s, arms.x, arms.y + 30, 'ride_duck').setDepth(10.6).setScale(PET_SIZE / TEX).setFlipX(true));
     this.duckHeld = true;
+    // (the photo of her has him in her arms already: his own picture waits until she puts him down)
+    this.pets.duck.setVisible(!isPhoto('steph_hold'));
 
     const both = (): Point => ({ x: (this.curt!.mouth.x + this.steph!.mouth.x) / 2, y: this.steph!.mouth.y });
     const kids = (look: string) => { this.curt!.face(look); this.steph!.face(look); };
@@ -370,7 +382,7 @@ export class RideMini extends Mini {
 
   /** The dogs wag (bounce on the spot) and bark. */
   private wag(): void {
-    for (const pet of ['dog0', 'dog1', 'dog2', 'dog3'] as Pet[]) {
+    for (const pet of ['dog0', 'dog1', 'dog2', 'roger'] as Pet[]) {
       const im = this.pets[pet];
       if (im) this.scene.tweens.add({ targets: im, angle: { from: -5, to: 5 }, duration: 90, yoyo: true, repeat: 3, delay: Math.random() * 150, onComplete: () => im.setAngle(0) });
     }
@@ -384,9 +396,10 @@ export class RideMini extends Mini {
 
   /** Stephanie hugs her duck tighter (each time a little more), and he says so. */
   private squeeze(n: number): void {
-    const duck = this.pets.duck!, k = PET_SIZE / TEX;
+    const duck = this.pets.duck!, k = PET_SIZE / TEX, box = this.steph!.box;
     this.steph!.face('smile');
-    this.scene.tweens.add({ targets: duck, scaleX: k * (1.15 + n * 0.08), scaleY: k * (0.72 - n * 0.06), duration: 110, yoyo: true, ease: 'Quad.out' });
+    if (duck.visible) this.scene.tweens.add({ targets: duck, scaleX: k * (1.15 + n * 0.08), scaleY: k * (0.72 - n * 0.06), duration: 110, yoyo: true, ease: 'Quad.out' });
+    else this.scene.tweens.add({ targets: box, scaleX: SIZE * (0.94 - n * 0.02), scaleY: SIZE * (1.04 + n * 0.02), duration: 110, yoyo: true, ease: 'Quad.out' });
     this.scene.tweens.add({ targets: this.steph!.box, angle: { from: -4, to: 4 }, duration: 90, yoyo: true, repeat: 1, onComplete: () => this.steph!.box.setAngle(0) });
     SOUNDS.quack();
     this.host.word('ride_quack', duck.x - 40, duck.y - 70);
@@ -397,7 +410,7 @@ export class RideMini extends Mini {
     const duck = this.pets.duck!, s = this.scene;
     this.duckHeld = false;
     this.steph!.set('steph_stand');
-    duck.setDepth(15.2);
+    duck.setDepth(15.2).setVisible(true);
     s.tweens.add({ targets: duck, x: duck.x + 46, duration: 360, ease: 'Sine.inOut' });
     s.tweens.add({ targets: duck, y: GROUND + 30, duration: 360, ease: 'Bounce.out' });
     SOUNDS.quack();
@@ -473,13 +486,17 @@ export class RideMini extends Mini {
   /** The van from outside: its wheels, Pappy at the wheel, and the animals out of the windows. */
   private buildVan(onRoad: boolean): void {
     const s = this.scene;
-    const beam = img(s, 262, -97, 'ride_beam');
+    // (the photo of the van has its own wheels, and its windows where they are on it)
+    const photo = isPhoto('van'), k = VAN.w / CUT.van.size[0];
+    const windows: V[] = photo ? CUT.van.heads.map((x): V => [x * k, CUT.van.sill * k]) : WINDOWS;
+    const seat: V = photo ? [CUT.van.driver * k, CUT.van.sill * k] : DRIVER;
+    const beam = img(s, photo ? CUT.van.lamp[0] * k : 262, photo ? CUT.van.lamp[1] * k : -97, 'ride_beam');
     const body = img(s, 0, 0, 'ride_van');
-    this.wheels = WHEELS.map(([x, y]) => img(s, x, y, 'ride_wheel'));
-    const driver = img(s, DRIVER[0], DRIVER[1] + 6, faceKey(s, 'pappy', 'smug')).setRotation(0.08);
+    this.wheels = photo ? [] : WHEELS.map(([x, y]) => img(s, x, y, 'ride_wheel'));
+    const driver = img(s, seat[0], seat[1] + 6, faceKey(s, 'pappy', 'smug')).setRotation(0.08);
     driver.setScale(62 / FACE / TEX);
-    const sill = img(s, DRIVER[0], DRIVER[1] + 6, 'ride_sill');
-    this.heads = PETS.map((pet, i) => img(s, WINDOWS[i][0], WINDOWS[i][1] + 8, `ride_${pet}_head`).setFlipX(false));
+    const sill = img(s, seat[0], seat[1] + 6, 'ride_sill').setVisible(!photo);
+    this.heads = PETS.map((pet, i) => img(s, windows[i][0], windows[i][1] + 8, `ride_${pet}_head`).setFlipX(false));
     this.van = this.keep(s.add.container(this.vanX, this.laneY, [beam, body, ...this.wheels, driver, sill, ...this.heads]).setScale(onRoad ? ON_ROAD : 1).setDepth(this.vanDepth()));
   }
 
@@ -606,24 +623,33 @@ export class RideMini extends Mini {
     this.clear();
     this.stage = 'kick';
     this.beat = 'door';
-    // through the doorway, the forest; round it, the inside of the van
-    const d = ART.ride_forest?.tex ?? TEX;
-    this.keep(s.add.rectangle(this.cx, H / 2, MAX_W * 2, H * 2, 0x141432).setDepth(0));
-    this.keep(s.add.tileSprite(-BLEED, DOORWAY.b - FOREST.h + 4, (MAX_W + BLEED * 2) * d, FOREST.h * d, 'ride_forest').setOrigin(0, 0).setScale(1 / d).setDepth(1).setTilePosition(260 * d, 0));
-    this.keep(img(s, DOORWAY.l + 96, 170, 'ride_moon').setDepth(1.5));
-    const owl = this.keep(img(s, DOORWAY.l + 250, 236, 'ride_owl').setDepth(1.6));
+    // through the doorway, the edge of town; round it, the inside of the van
+    const dr = this.door = door();
+    this.keep(s.add.rectangle(this.cx, H / 2, MAX_W * 2, H * 2, dr.photo ? 0x1a100a : 0x141432).setDepth(0));
+    if (s.textures.exists('ride_edge') && ART.ride_edge) {
+      const e = ART.ride_edge, k = EDGE_PHOTO.h / e.h;
+      this.keep(s.add.image(EDGE_PHOTO.moonX - CUT.edge.moon[0] * (e.w / CUT.edge.size[0]) * k, EDGE_PHOTO.y, 'ride_edge').setOrigin(0, 0).setScale(k / (e.tex ?? TEX)).setDepth(1));
+    } else {
+      const d = ART.ride_forest?.tex ?? TEX;
+      this.keep(s.add.tileSprite(-BLEED, dr.b - FOREST.h + 4, (MAX_W + BLEED * 2) * d, FOREST.h * d, 'ride_forest').setOrigin(0, 0).setScale(1 / d).setDepth(1).setTilePosition(260 * d, 0));
+      this.keep(img(s, dr.l + 96, 170, 'ride_moon').setDepth(1.5));
+    }
+    const owl = this.keep(img(s, dr.l + 250, 236, 'ride_owl').setDepth(1.6));
     s.tweens.add({ targets: owl, alpha: { from: 1, to: 0 }, duration: 90, yoyo: true, repeat: -1, repeatDelay: 2300 });
-    this.slider = this.keep(img(s, DOORWAY.l - 4, DOORWAY.t - 4, 'ride_slider').setDepth(4));
-    this.keep(img(s, -BLEED, -BLEED, 'ride_inside').setDepth(5));
+    this.slider = this.keep(img(s, dr.l - 4, dr.t - 4, 'ride_slider').setDepth(4));
+    this.slider.setDisplaySize(dr.r - dr.l + 8, dr.b - dr.t + 8);
+    if (dr.photo) this.keep(img(s, INSIDE_PHOTO.x, INSIDE_PHOTO.y, 'ride_inside').setDepth(5));
+    else this.keep(img(s, -BLEED, -BLEED, 'ride_inside').setDepth(5));
 
     // Pappy, and all of them waiting their turn along the back
-    this.pappy = this.keep(new Person(s, 'pappy', 'pappy_wait', 'smug', PAPPY_IN_VAN, DOORWAY.b, IN_VAN));
+    const px = dr.r + BESIDE_DOOR;
+    this.pappy = this.keep(new Person(s, 'pappy', 'pappy_wait', 'smug', px, dr.floor, IN_VAN));
     this.pappy.box.setDepth(10);
     this.queue = [...PETS];
     this.pets = {};
-    const x0 = PAPPY_IN_VAN + 70, x1 = W - 150, n = PETS.length;
+    const x0 = px + 70, x1 = W - 150, n = PETS.length;
     PETS.forEach((pet, i) => {
-      const im = this.keep(img(s, x0 + ((x1 - x0) * i) / (n - 1), DOORWAY.b + 14 + (i % 2) * 18, `ride_${pet}`).setDepth(8 + (i % 2) * 0.5));
+      const im = this.keep(img(s, x0 + ((x1 - x0) * i) / (n - 1), dr.bench + (dr.photo ? 0 : (i % 2) * 18), `ride_${pet}`).setDepth(8 + (i % 2) * 0.5));
       im.setScale(IN_VAN / TEX);
       this.pets[pet] = im;
     });
@@ -634,7 +660,7 @@ export class RideMini extends Mini {
       [0.5, () => {
         // the side door, rolled back
         SOUNDS.slide();
-        s.tweens.add({ targets: this.slider, x: DOORWAY.l - 4 - (DOORWAY.r - DOORWAY.l) - 60, duration: 520, ease: 'Quad.in' });
+        s.tweens.add({ targets: this.slider, x: dr.l - 4 - (dr.r - dr.l) - 60, duration: 520, ease: 'Quad.in' });
       }],
       [0.9, () => {
         this.pappy!.face('talking');
@@ -681,7 +707,7 @@ export class RideMini extends Mini {
     this.atDoor = im;
     this.triesHere = 0;
     im.setDepth(12);
-    const to = { x: DOORWAY.r - 44, y: DOORWAY.b };
+    const d = this.door!, x = d.r - 44, to = { x, y: d.sillAt(x) };
     s.tweens.add({ targets: im, x: to.x, duration: 520, ease: 'Sine.inOut' });
     s.tweens.add({ targets: im, y: to.y - 70, duration: 260, ease: 'Quad.out', yoyo: true, onComplete: () => im.setY(to.y) });
     if (pet === 'duck') SOUNDS.quack();
@@ -708,7 +734,7 @@ export class RideMini extends Mini {
     const good = this.air >= this.zone0 && this.air <= this.zone0 + ZONE;
     this.triesHere++;
     this.pappy!.set('pappy_kick', 'yell');
-    const foot = this.pappy!.at(FOOT[0], FOOT[1]);
+    const toe = spotOf('foot', FOOT), foot = this.pappy!.at(toe[0], toe[1]);
     if (!good) {
       // too soon or too late: the foot goes where it was a moment ago
       this.misses++;
@@ -740,11 +766,11 @@ export class RideMini extends Mini {
       SOUNDS.quack();
       applyArt(im, 'ride_duck_fly');
       im.setScale(IN_VAN / TEX).setFlipX(false);
-      s.tweens.add({ targets: im, x: DOORWAY.l + 160, y: DOORWAY.t + 70, scale: 0.12 / TEX, duration: 1500, ease: 'Sine.out' });
+      s.tweens.add({ targets: im, x: this.door!.l + 160, y: this.door!.t + 70, scale: 0.12 / TEX, duration: 1500, ease: 'Sine.out' });
       s.tweens.add({ targets: im, scaleY: { from: IN_VAN / TEX, to: (IN_VAN * 0.6) / TEX }, duration: 110, yoyo: true, repeat: 6 });
     } else {
       SOUNDS.yip();
-      s.tweens.add({ targets: im, x: DOORWAY.l + 120 + Math.random() * 140, y: DOORWAY.t + 90 + Math.random() * 90, scale: 0.08 / TEX, angle: -720, duration: 950, ease: 'Quad.out' });
+      s.tweens.add({ targets: im, x: this.door!.l + 120 + Math.random() * 140, y: this.door!.t + 90 + Math.random() * 90, scale: 0.08 / TEX, angle: -720, duration: 950, ease: 'Quad.out' });
     }
     SOUNDS.away();
     this.after(0.14, () => im.setDepth(3));
@@ -769,7 +795,7 @@ export class RideMini extends Mini {
     this.script([
       [1.5, () => {
         SOUNDS.slide(true);
-        s.tweens.add({ targets: this.slider, x: DOORWAY.l - 4, duration: 420, ease: 'Quad.out' });
+        s.tweens.add({ targets: this.slider, x: this.door!.l - 4, duration: 420, ease: 'Quad.out' });
       }],
       [0.7, () => SOUNDS.start()],
       [1.0, () => this.blackout(() => this.startBack())],
@@ -836,12 +862,20 @@ export class RideMini extends Mini {
         this.beat = 'pop';
         this.pappy!.set('pappy_bottle', 'laugh');
         this.mammy!.set('mammy_glass', 'laugh');
-        const hand = this.pappy!.at(BOTTLE_HAND[0], BOTTLE_HAND[1]);
-        const bottle = this.keep(img(s, hand.x, hand.y, 'ride_bottle').setDepth(13.5).setRotation(-0.5));
-        bottle.setScale(SIZE / TEX);
-        const glassAt = this.mammy!.at(GLASS_HAND[0], GLASS_HAND[1]);
-        this.keep(img(s, glassAt.x, glassAt.y, 'ride_glass').setDepth(11.5)).setScale(SIZE / TEX);
-        const neck = { x: hand.x - 34, y: hand.y - 56 };
+        // (the photos of the two of them have the bottle and the glass in their hands already)
+        let neck: Point;
+        if (isPhoto('pappy_bottle')) {
+          const top = spotOf('bottle', BOTTLE_HAND);
+          neck = this.pappy!.at(top[0], top[1]);
+        } else {
+          const hand = this.pappy!.at(BOTTLE_HAND[0], BOTTLE_HAND[1]);
+          this.keep(img(s, hand.x, hand.y, 'ride_bottle').setDepth(13.5).setRotation(-0.5)).setScale(SIZE / TEX);
+          neck = { x: hand.x - 34, y: hand.y - 56 };
+        }
+        if (!isPhoto('mammy_glass')) {
+          const glassAt = this.mammy!.at(GLASS_HAND[0], GLASS_HAND[1]);
+          this.keep(img(s, glassAt.x, glassAt.y, 'ride_glass').setDepth(11.5)).setScale(SIZE / TEX);
+        }
         SOUNDS.pop();
         this.host.word('ride_pop', Math.min(neck.x - 60, view.W - 150), Math.max(130, neck.y - 30));
         this.puff('ride_cork', neck.x, neck.y, -140, -520, 1.4, 700, 40);

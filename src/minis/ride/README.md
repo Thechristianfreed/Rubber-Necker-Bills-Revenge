@@ -102,34 +102,55 @@ of the green is `ZONE` in `art.ts`). Where things are on the page is
 
 ## Pictures
 
-**All of this game's own pictures are cut paper so far**, in `art.ts`, each
-under the name its photo will have. What it borrows is already a photo: the
-den, the front door from inside, Pappy and Mammy standing (all from "Pappy
-comes home" and the workout tape), the street from the paper route, and
-everybody's faces (Pappy's `pucker` for the kiss).
+**Every picture is a photo now**, but the few meant to stay paper. The owner
+made RD1 to RD9 from the prompts below (26 November 2026, in his Drive folder
+"Additional Home Movies Game Assets"), and `cut.py` cut them. They are kept
+as they came in `art-src/games/ride`, with Adobe's answers beside them
+(`-cutout.png`, the background off; `-headmask.png`, the head selected). What
+went to Adobe is each person by themselves, cut off the sheet and made twice
+the size (`PEOPLE` in `cut.py`; `cut.py send <folder>` writes them out
+again), and the sheets of animals and things whole. RD7 and RD8 are places
+and went nowhere: the doorway is cut out of RD7 by its corners (`DOORWAY` in
+`cut.py`), and RD8 is the forest at the end of the drive (down to the road,
+and turned round beside itself so that it repeats with no seam) and, whole,
+what is seen through the door.
 
-The prompts for its own are below. All but RD4b stand by themselves and can
-go in one batch; RD4b is an edit, with a picture attached. When they come back they go in `art-src/games/ride`, named by their
-number (`RD1-kids.webp`), and `cut.py` cuts them.
+**Roger is one of the dogs** (the owner's wish), from the family's own
+photos, which were already in the game: sitting is the common picture
+`roger-sit` as it is, registered under this game's own name; his head out of
+the window, tongue out, is cut by `cut.py` from Adobe's cutout of
+`roger-happy` (read from the common pictures, not changed). He goes fourth:
+"SEE YA, ROGER! AND DON'T COME BACK!" (made up). Fido is the black dog. RD4b,
+a golden retriever to go with the highway's, was not needed and not made.
 
-| Prompt | What it is for | Takes the place of |
-| --- | --- | --- |
-| RD1 | Stephanie (holding the duck, and with her arms down) and Curt | `ride_steph_hold`, `ride_steph_stand`, `ride_curt_stand` |
-| RD2 | Pappy in the van: waiting, winding up, kicking | `ride_pappy_wait`, `ride_pappy_ready`, `ride_pappy_kick` |
-| RD3 | Pappy going in for a kiss, Pappy with the bottle up, Mammy with a glass | `ride_pappy_kiss`, `ride_pappy_bottle`, `ride_mammy_glass` |
-| (already here) | The golden retriever's happy head (`dog`, from the highway) and Roger (`roger_sit`, `roger_portrait`) | a head out of a window as it is; Roger whole, if the owner wants him in it |
-| RD4 | Three more dogs, sitting | the other dogs, and their heads out of the windows cut from the same |
-| RD4b | The golden retriever, whole and sitting: an edit of `art-src/generated/E-dog.png`, which is attached | the golden retriever's body, to go with its head |
-| RD5 | Mr. Quacks, standing and flying | `ride_duck`, `ride_duck_fly`, `ride_duck_head` |
-| RD6 | The van, from the side | `ride_van` |
-| RD7 | Inside the van, the side door open | `ride_inside`, with its doorway cut out (by its place in the picture) so the forest shows through it |
-| RD8 | The edge of town: the side of the road, and the forest, at night | `ride_forest` (the end of the drive, and through the door) |
-| RD9 | Things: the sign, a dustbin, the champagne, a glass | `ride_sign` (lettered by the game), `ride_can`, `ride_bottle`, `ride_glass` |
+Where a photo has taken a stand-in's place, its numbers (where a chin goes,
+the toe of the kicking foot, the neck of the bottle, the van's windows and
+lamp, the sign's green, the doorway and the bench) are written by `cut.py`
+into `cut.ts`, and `layout.ts` and the game hand over whichever is on the
+page. The paper stand-ins are all still in `art.ts`: a page that cannot fetch
+its pictures plays in paper.
 
-Still cut from paper, and meant to be: the meter, the van's wheels (they
-turn), the headlamp's beam, the sliding door from inside, the pothole, the
-moon, the owl's eyes, the bits of rubbish, the cork and the fizz, and the
-words.
+| Prompt | What it is in the game |
+| --- | --- |
+| RD1 | `ride_steph_hold` (Mr. Quacks in her arms is in the picture: his own photo waits until she puts him down), `ride_steph_stand`, `ride_curt_stand`, heads off |
+| RD2 | `ride_pappy_wait`, `ride_pappy_ready`, `ride_pappy_kick`, heads off |
+| RD3 | `ride_pappy_kiss`, `ride_pappy_bottle`, `ride_mammy_glass`, heads off; the bottle and the glass are in their hands in the pictures |
+| RD4 | `ride_dog0` (Fido), `ride_dog1`, `ride_dog2`, and each one's head for a window (an oval round it: `DOG_HEADS`) |
+| RD5 | `ride_duck`, `ride_duck_fly`, `ride_duck_head` |
+| RD6 | `ride_van` (its glass sealed where the background came through). Its own wheels: the paper ones that turn are left off. |
+| RD7 | `ride_inside`, the doorway cut out |
+| RD8 | `ride_forest` (a strip) and `ride_edge` (whole) |
+| RD9 | `ride_sign` (lettered "NOW LEAVING TOWN" by the game, in its green), `ride_can`, and `ride_bottle` and `ride_glass` (which only paper people need) |
+
+How they came: RD2, RD3 and RD5 are photos stitched side by side, and the men
+in RD2 and RD3 are not dressed alike (a track jacket, then a Harrington):
+their heads are Pappy's own either way. RD3's kiss is arms open rather than
+leaning in, and Mammy's glass is a flute.
+
+Still cut from paper, and meant to be: the meter, the headlamp's beam, the
+sliding door from inside (it rolls back over the photo's doorway), the
+pothole, the moon over the town, the owl's eyes, the bits of rubbish, the
+cork and the fizz, and the words.
 
 ### The prompts
 

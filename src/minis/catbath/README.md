@@ -92,31 +92,50 @@ scrub (`STROKE`). Where things are on the page is `layout.ts`.
 
 ## Pictures
 
-**All of this game's own pictures are cut paper so far**, in `art.ts`, each
-under the name its photo will have. What it borrows is already a photo: the
-den, the front door from inside, and Pappy standing (from "Pappy comes home"
-and the workout tape), and Pappy's own faces.
+**Every picture is a photo now**, but the few meant to stay paper. The owner
+made CB1 to CB7 from the prompts below (26 November 2026, in his Drive folder
+"Additional Home Movies Game Assets"), and `cut.py` cut them. They are kept
+as they came in `art-src/games/catbath`, with Adobe's answers beside them.
+What went to Adobe: each of the six of Pappy at the sink by itself, three
+times the size (he is small on his sheet: `PEOPLE` in `cut.py`), for its
+background and its head; the other sheets whole, for their backgrounds; and
+CB3 once more, for the heap of suds, which the background removal had left
+out (`-sudsmask.png`, "the heap of white soap suds"). CB1 and CB2 are places
+and went nowhere.
 
-The prompts for its own are below. All but CB6b and CB6c stand by
-themselves and can go in one batch; those two are edits of what CB6a gives,
-so that all three cats come out in the same five poses. When they come back they go in `art-src/games/catbath`, named by their
-number (`CB1-kitchen.webp`), and `cut.py` cuts them.
+Where a photo has taken a stand-in's place, its numbers are written by
+`cut.py` into `cut.ts`: where each pose's chin goes, where his two fists are
+(read off the pictures: `FISTS` in `cut.py`), where a cat is held between
+them and which way the line through them runs, and where each cat hanging
+from the scruff is held. The paper stand-ins are all still in `art.ts`: a
+page that cannot fetch its pictures plays in paper.
 
-| Prompt | What it is for | Takes the place of |
-| --- | --- | --- |
-| CB1 | The kitchen behind Pappy (the new place) | `catbath_kitchen` |
-| CB2 | The counter in front of him, and the cupboards under it | `catbath_counter` |
-| CB3 | What is at the sink: the washboard, the sprayer, the tap, a heap of suds | `catbath_board`, `catbath_sprayer`, `catbath_tap`, `catbath_suds` |
-| CB4 | Pappy at the sink, from the waist up, in six poses | `catbath_pappy_stand`, `_grab`, `_choke`, `_scrub`, `_wring`, `_hang` |
-| CB5 | The three cats sitting, cross and smelly | `catbath_cat0_sit` to `catbath_cat2_sit` |
-| CB6a | The orange tabby, held up by the neck: hissing, limp, soaked; wrung out; and dried | `catbath_cat0_mad`, `_out`, `_wet`, `_wrung`, `_dry` |
-| CB6b, CB6c | The same five, for the black cat and the grey one: edits of CB6a, with it attached | the same for cat1 and cat2 |
-| CB7 | A clothes peg | `catbath_peg` |
+| Prompt | What it is in the game |
+| --- | --- |
+| CB1 | `catbath_kitchen`: the whole of it, its own counter edge behind his |
+| CB2 | `catbath_counter`: a strip (the picture and the picture turned round, so that it repeats with no seam) |
+| CB3 | `catbath_board`, `catbath_sprayer`, `catbath_tap`, `catbath_suds` |
+| CB4 | `catbath_pappy_stand`, `_grab`, `_choke`, `_scrub`, `_wring`, `_hang`, heads off, held by a spot under the chin; and his two fists in the four that hold a cat (`catbath_fist_choke_0` ...), cut out again to go in front of it |
+| CB5 | `catbath_cat0_sit` to `catbath_cat2_sit` |
+| CB6a, b, c | each cat's `_mad`, `_out`, `_wet` (held at the top of its head), `_soak` (the same picture, held by the middle, at the washboard), `_wrung` and `_dry` |
+| CB7 | `catbath_peg` |
+
+**What changes with the photos.** His hands in the scrubbing picture are at
+his belt, which is the height of the counter: so at the washboard a cat is
+held by its middle, its top half up out of the suds and the rest down in the
+sink, and he goes up and down with it as it is scrubbed. The cat being wrung
+lies along the line through his two fists, which are one above the other.
+On the kiss he only stands up a little, or the foot of his picture (his
+thighs) would show over the counter.
+
+How they came: CB4 is six photos side by side, each with its own framing.
+The fourth of each cat's five came lying limp on its side, not twisted like
+a towel: it is held up by his two fists, and squeezed and turned over as he
+twists. Another go at only that one would make it a twisted towel.
 
 Still cut from paper, and meant to be: the clothesline, its hooks, the sink
-basin, Pappy's hands (they go round whatever he is holding), the claw marks,
-the smell, the flies, the bubbles and the drops, the arrows that say what to
-do, and the words.
+basin, the claw marks, the smell, the flies, the bubbles and the drops, the
+arrows that say what to do, and the words.
 
 ### The prompts
 

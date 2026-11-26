@@ -113,6 +113,14 @@ function pappy(scene: Phaser.Scene): void {
     shape(c, () => ellipse(c, 15, 15, 13, 11), 'manila', 'rgba(214, 96, 70, 0.2)');
     for (const x of [8, 14, 20]) ink(c, () => { c.moveTo(x, 9); c.lineTo(x + 1, 14); }, 1.4, 'rgba(36, 26, 20, 0.5)');
   }, { border: 1.6 });
+  // ...and his fists in each pose that holds a cat, which the photo's take the place of
+  for (const pose of ['choke', 'scrub', 'wring', 'hang']) {
+    for (const k of [0, 1]) {
+      makePaperArt(scene, `catbath_fist_${pose}_${k}`, 18, 18, (c) => {
+        shape(c, () => ellipse(c, 9, 9, 8, 7), 'manila', 'rgba(214, 96, 70, 0.2)');
+      }, { border: 1.2 });
+    }
+  }
   // claw marks, where a cat got him
   makeArt(scene, 'catbath_scratch', 34, 30, (c) => {
     for (const i of [0, 1, 2]) ink(c, () => { c.moveTo(4 + i * 9, 2); c.lineTo(12 + i * 9, 28); }, 2.6, 'rgba(200, 20, 30, 0.85)');
@@ -271,6 +279,8 @@ function cats(scene: Phaser.Scene): void {
     for (const how of ['mad', 'out', 'wet'] as const) {
       makePaperArt(scene, `catbath_cat${i}_${how}`, 150, 190, (c) => { c.translate(75, 66); catHanging(c, k, how); }, { border: 2.2, ax: 75, ay: 66 });
     }
+    // ...and soaked, held by the middle (at the washboard, where the photo of it is held so)
+    makePaperArt(scene, `catbath_cat${i}_soak`, 150, 190, (c) => { c.translate(75, 66); catHanging(c, k, 'wet'); }, { border: 2.2, ax: 75, ay: 100 });
     makePaperArt(scene, `catbath_cat${i}_wrung`, 230, 70, (c) => { c.translate(10, 34); catWrung(c, k, dice(i + 2)); }, { border: 2.2, ax: 110, ay: 34 });
     makePaperArt(scene, `catbath_cat${i}_dry`, 130, 170, (c) => { c.translate(65, 10); catDry(c, k, i * 7 + 1); }, { border: 2.2, ax: 65, ay: 10 });
   });

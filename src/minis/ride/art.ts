@@ -193,14 +193,15 @@ function people(scene: Phaser.Scene): void {
 
 // ---- the animals ----------------------------------------------------------------------------------
 
-/** Each of the dogs Curt and Stephanie brought home. Fido is the first. */
+/** Each of the dogs Curt and Stephanie brought home, as the photos have them: Fido (the black one),
+ *  the scruffy grey terrier, the spotted one, and Roger. */
 interface Dog { fur: Paper; wash?: string; ear: Paper; ears: 'flop' | 'up'; chest?: Paper; spots?: boolean; scruff?: boolean }
-export const DOGS: Dog[] = [
-  { fur: 'brown', wash: 'rgba(255, 220, 160, 0.25)', ear: 'brown', ears: 'flop', chest: 'white' },
-  { fur: 'black', ear: 'black', ears: 'flop' },
-  { fur: 'grey', ear: 'grey', ears: 'up', scruff: true, chest: 'cream' },
-  { fur: 'white', ear: 'black', ears: 'flop', spots: true },
-];
+export const DOGS: Record<string, Dog> = {
+  dog0: { fur: 'black', ear: 'black', ears: 'flop' },
+  dog1: { fur: 'grey', ear: 'grey', ears: 'up', scruff: true, chest: 'cream' },
+  dog2: { fur: 'white', ear: 'black', ears: 'flop', spots: true },
+  roger: { fur: 'cream', wash: 'rgba(255, 240, 220, 0.3)', ear: 'cream', ears: 'flop', scruff: true },
+};
 
 /** A dog's head, its chin at (0, 0), looking left. With `pant`, its tongue is out. */
 function dogHead(c: Ctx, d: Dog, pant: boolean, flap = 0): void {
@@ -261,11 +262,11 @@ function duck(c: Ctx, fly: boolean): void {
 }
 
 function animals(scene: Phaser.Scene): void {
-  DOGS.forEach((d, i) => {
-    makePaperArt(scene, `ride_dog${i}`, 130, 120, (c) => { c.translate(64, 114); dogSitting(c, d); }, { border: 2.3, ax: 64, ay: 114 });
+  for (const [name, d] of Object.entries(DOGS)) {
+    makePaperArt(scene, `ride_${name}`, 130, 120, (c) => { c.translate(64, 114); dogSitting(c, d); }, { border: 2.3, ax: 64, ay: 114 });
     // ...and its head alone, out of a window with its ears in the wind (held by its chin)
-    makePaperArt(scene, `ride_dog${i}_head`, 90, 84, (c) => { c.translate(48, 78); dogHead(c, d, true, 0.9); }, { border: 2.2, ax: 48, ay: 78 });
-  });
+    makePaperArt(scene, `ride_${name}_head`, 90, 84, (c) => { c.translate(48, 78); dogHead(c, d, true, 0.9); }, { border: 2.2, ax: 48, ay: 78 });
+  }
   makePaperArt(scene, 'ride_duck', 84, 80, (c) => { c.translate(42, 76); duck(c, false); }, { border: 2.2, ax: 42, ay: 76 });
   makePaperArt(scene, 'ride_duck_fly', 84, 90, (c) => { c.translate(42, 86); duck(c, true); }, { border: 2.2, ax: 42, ay: 60 });
   makePaperArt(scene, 'ride_duck_head', 60, 56, (c) => {

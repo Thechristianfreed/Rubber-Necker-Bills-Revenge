@@ -12,9 +12,11 @@ The size is how big the picture is drawn, in the game's own pixels (the page is 
 - [People: everybody's faces](#cast) (207)
 - [The rubberneckers, and the animals](#gawkers) (51)
 - [Effects](#effects) (25)
-- [Words on bursts](#words) (57)
+- [Words on bursts](#words) (70)
 - [The interface](#interface) (26)
+- [The quick game "catbath"](#game-catbath) (54)
 - [The quick game "homecoming"](#game-homecoming) (32)
+- [The quick game "ride"](#game-ride) (47)
 
 <a id="places"></a>
 
@@ -657,6 +659,14 @@ Shown with `this.host.word('bonk', x, y)`: the name without "word_".
 | `word_bonk` | 106 x 75 |  | `src/assets/scrap/word-bonk.webp` |
 | `word_bop` | 106 x 75 |  | `src/assets/scrap/word-bop.webp` |
 | `word_busted` | 330 x 224 |  | paper |
+| `word_catbath_clean` | 460 x 313 |  | paper |
+| `word_catbath_hiss` | 120 x 82 |  | paper |
+| `word_catbath_mwah` | 130 x 88 |  | paper |
+| `word_catbath_out` | 170 x 116 |  | paper |
+| `word_catbath_rawr` | 130 x 88 |  | paper |
+| `word_catbath_scrub` | 118 x 80 |  | paper |
+| `word_catbath_splash` | 170 x 116 |  | paper |
+| `word_catbath_twist` | 118 x 80 |  | paper |
 | `word_clang` | 112 x 76 |  | paper |
 | `word_cough` | 126 x 86 |  | paper |
 | `word_crash` | 118 x 80 |  | paper |
@@ -691,6 +701,11 @@ Shown with `this.host.word('bonk', x, y)`: the name without "word_".
 | `word_pff` | 120 x 82 |  | paper |
 | `word_pocketsand` | 470 x 320 |  | paper |
 | `word_pow` | 106 x 75 |  | `src/assets/scrap/word-pow.webp` |
+| `word_ride_boot` | 140 x 95 |  | paper |
+| `word_ride_mwah` | 130 x 88 |  | paper |
+| `word_ride_pop` | 118 x 80 |  | paper |
+| `word_ride_quack` | 124 x 84 |  | paper |
+| `word_ride_yip` | 96 x 65 |  | paper |
 | `word_roadrage` | 330 x 224 |  | paper |
 | `word_round` | 300 x 204 |  | paper |
 | `word_shove` | 150 x 102 |  | paper |
@@ -744,6 +759,73 @@ Buttons, tape, meters and marks.
 | `title_sub` | 290 x 50 |  | paper |
 | `you_are` | 250 x 44 |  | paper |
 
+<a id="game-catbath"></a>
+
+## The quick game "catbath"
+
+Made by `src/minis/catbath`, and kept in its folder.
+
+![The quick game "catbath", sheet 1](game-catbath-1.jpg)
+
+![The quick game "catbath", sheet 2](game-catbath-2.jpg)
+
+| Name | Size | | File |
+| --- | --- | --- | --- |
+| `catbath_arrow` | 60 x 120 |  | paper |
+| `catbath_basin` | 250 x 30 |  | paper |
+| `catbath_board` | 99 x 176 |  | `src/minis/catbath/assets/board.webp` |
+| `catbath_bubble` | 24 x 24 |  | paper |
+| `catbath_cat0_dry` | 75 x 160 |  | `src/minis/catbath/assets/cat0-dry.webp` |
+| `catbath_cat0_mad` | 85 x 150 |  | `src/minis/catbath/assets/cat0-mad.webp` |
+| `catbath_cat0_out` | 56 x 150 |  | `src/minis/catbath/assets/cat0-out.webp` |
+| `catbath_cat0_sit` | 93 x 115 |  | `src/minis/catbath/assets/cat0-sit.webp` |
+| `catbath_cat0_soak` | 46 x 150 |  | `src/minis/catbath/assets/cat0-wet.webp` |
+| `catbath_cat0_wet` | 46 x 150 |  | `src/minis/catbath/assets/cat0-wet.webp` |
+| `catbath_cat0_wrung` | 200 x 63 |  | `src/minis/catbath/assets/cat0-wrung.webp` |
+| `catbath_cat1_dry` | 74 x 160 |  | `src/minis/catbath/assets/cat1-dry.webp` |
+| `catbath_cat1_mad` | 85 x 150 |  | `src/minis/catbath/assets/cat1-mad.webp` |
+| `catbath_cat1_out` | 56 x 150 |  | `src/minis/catbath/assets/cat1-out.webp` |
+| `catbath_cat1_sit` | 74 x 115 |  | `src/minis/catbath/assets/cat1-sit.webp` |
+| `catbath_cat1_soak` | 46 x 150 |  | `src/minis/catbath/assets/cat1-wet.webp` |
+| `catbath_cat1_wet` | 46 x 150 |  | `src/minis/catbath/assets/cat1-wet.webp` |
+| `catbath_cat1_wrung` | 200 x 63 |  | `src/minis/catbath/assets/cat1-wrung.webp` |
+| `catbath_cat2_dry` | 74 x 160 |  | `src/minis/catbath/assets/cat2-dry.webp` |
+| `catbath_cat2_mad` | 86 x 150 |  | `src/minis/catbath/assets/cat2-mad.webp` |
+| `catbath_cat2_out` | 56 x 150 |  | `src/minis/catbath/assets/cat2-out.webp` |
+| `catbath_cat2_sit` | 77 x 115 |  | `src/minis/catbath/assets/cat2-sit.webp` |
+| `catbath_cat2_soak` | 46 x 150 |  | `src/minis/catbath/assets/cat2-wet.webp` |
+| `catbath_cat2_wet` | 46 x 150 |  | `src/minis/catbath/assets/cat2-wet.webp` |
+| `catbath_cat2_wrung` | 200 x 62 |  | `src/minis/catbath/assets/cat2-wrung.webp` |
+| `catbath_counter` | 1012 x 200 | strip | `src/minis/catbath/assets/counter.jpg` |
+| `catbath_drop` | 10 x 14 |  | paper |
+| `catbath_fist_choke_0` | 17 x 17 |  | `src/minis/catbath/assets/pappy-choke-fist0.webp` |
+| `catbath_fist_choke_1` | 17 x 17 |  | `src/minis/catbath/assets/pappy-choke-fist1.webp` |
+| `catbath_fist_hang_0` | 17 x 17 |  | `src/minis/catbath/assets/pappy-hang-fist0.webp` |
+| `catbath_fist_hang_1` | 17 x 17 |  | `src/minis/catbath/assets/pappy-hang-fist1.webp` |
+| `catbath_fist_scrub_0` | 16 x 16 |  | `src/minis/catbath/assets/pappy-scrub-fist0.webp` |
+| `catbath_fist_scrub_1` | 16 x 16 |  | `src/minis/catbath/assets/pappy-scrub-fist1.webp` |
+| `catbath_fist_wring_0` | 17 x 17 |  | `src/minis/catbath/assets/pappy-wring-fist0.webp` |
+| `catbath_fist_wring_1` | 17 x 17 |  | `src/minis/catbath/assets/pappy-wring-fist1.webp` |
+| `catbath_fly` | 16 x 12 |  | paper |
+| `catbath_hand` | 30 x 30 |  | paper |
+| `catbath_head_pappy` | 90 x 104 |  | paper |
+| `catbath_hook` | 20 x 30 |  | paper |
+| `catbath_kitchen` | 1344 x 576 | strip | `src/minis/catbath/assets/kitchen.jpg` |
+| `catbath_pappy_choke` | 100 x 130 |  | `src/minis/catbath/assets/pappy-choke.webp` |
+| `catbath_pappy_grab` | 116 x 128 |  | `src/minis/catbath/assets/pappy-grab.webp` |
+| `catbath_pappy_hang` | 107 x 187 |  | `src/minis/catbath/assets/pappy-hang.webp` |
+| `catbath_pappy_scrub` | 81 x 124 |  | `src/minis/catbath/assets/pappy-scrub.webp` |
+| `catbath_pappy_stand` | 95 x 125 |  | `src/minis/catbath/assets/pappy-stand.webp` |
+| `catbath_pappy_wring` | 104 x 127 |  | `src/minis/catbath/assets/pappy-wring.webp` |
+| `catbath_peg` | 10 x 40 |  | `src/minis/catbath/assets/peg.webp` |
+| `catbath_rope` | 32 x 8 |  | paper |
+| `catbath_scratch` | 34 x 30 |  | paper |
+| `catbath_spin` | 150 x 150 |  | paper |
+| `catbath_sprayer` | 31 x 84 |  | `src/minis/catbath/assets/sprayer.webp` |
+| `catbath_stink` | 30 x 60 |  | paper |
+| `catbath_suds` | 196 x 84 |  | `src/minis/catbath/assets/suds.webp` |
+| `catbath_tap` | 66 x 100 |  | `src/minis/catbath/assets/tap.webp` |
+
 <a id="game-homecoming"></a>
 
 ## The quick game "homecoming"
@@ -786,3 +868,63 @@ Made by `src/minis/homecoming`, and kept in its folder.
 | `homecoming_siding` | 64 x 44 |  | paper |
 | `homecoming_temper` | 300 x 54 |  | paper |
 | `homecoming_window` | 140 x 170 |  | paper |
+
+<a id="game-ride"></a>
+
+## The quick game "ride"
+
+Made by `src/minis/ride`, and kept in its folder.
+
+![The quick game "ride", sheet 1](game-ride-1.jpg)
+
+![The quick game "ride", sheet 2](game-ride-2.jpg)
+
+| Name | Size | | File |
+| --- | --- | --- | --- |
+| `ride_beam` | 320 x 110 |  | paper |
+| `ride_bottle` | 27 x 96 |  | `src/minis/ride/assets/bottle.webp` |
+| `ride_can` | 44 x 62 |  | `src/minis/ride/assets/can.webp` |
+| `ride_cork` | 14 x 14 |  | paper |
+| `ride_curt_stand` | 47 x 132 |  | `src/minis/ride/assets/curt-stand.webp` |
+| `ride_dog0` | 100 x 120 |  | `src/minis/ride/assets/dog0.webp` |
+| `ride_dog0_head` | 76 x 72 |  | `src/minis/ride/assets/dog0-head.webp` |
+| `ride_dog1` | 98 x 120 |  | `src/minis/ride/assets/dog1.webp` |
+| `ride_dog1_head` | 73 x 72 |  | `src/minis/ride/assets/dog1-head.webp` |
+| `ride_dog2` | 92 x 120 |  | `src/minis/ride/assets/dog2.webp` |
+| `ride_dog2_head` | 80 x 72 |  | `src/minis/ride/assets/dog2-head.webp` |
+| `ride_duck` | 82 x 80 |  | `src/minis/ride/assets/duck.webp` |
+| `ride_duck_fly` | 88 x 84 |  | `src/minis/ride/assets/duck-fly.webp` |
+| `ride_duck_head` | 51 x 46 |  | `src/minis/ride/assets/duck-head.webp` |
+| `ride_edge` | 1400 x 600 | strip | `src/minis/ride/assets/edge.jpg` |
+| `ride_fill` | 40 x 8 |  | paper |
+| `ride_fizz` | 10 x 10 |  | paper |
+| `ride_forest` | 2924 x 470 | strip | `src/minis/ride/assets/forest.jpg` |
+| `ride_glass` | 34 x 52 |  | `src/minis/ride/assets/glass.webp` |
+| `ride_head_curt` | 90 x 104 |  | paper |
+| `ride_head_mammy` | 90 x 104 |  | paper |
+| `ride_head_pappy` | 90 x 104 |  | paper |
+| `ride_head_steph` | 90 x 104 |  | paper |
+| `ride_hole` | 110 x 30 |  | paper |
+| `ride_inside` | 1210 x 680 |  | `src/minis/ride/assets/inside.webp` |
+| `ride_mammy_glass` | 109 x 234 |  | `src/minis/ride/assets/mammy-glass.webp` |
+| `ride_meter` | 56 x 268 |  | paper |
+| `ride_moon` | 74 x 74 |  | paper |
+| `ride_owl` | 30 x 12 |  | paper |
+| `ride_pappy_bottle` | 103 x 242 |  | `src/minis/ride/assets/pappy-bottle.webp` |
+| `ride_pappy_kick` | 181 x 207 |  | `src/minis/ride/assets/pappy-kick.webp` |
+| `ride_pappy_kiss` | 106 x 207 |  | `src/minis/ride/assets/pappy-kiss.webp` |
+| `ride_pappy_ready` | 131 x 213 |  | `src/minis/ride/assets/pappy-ready.webp` |
+| `ride_pappy_wait` | 100 x 214 |  | `src/minis/ride/assets/pappy-wait.webp` |
+| `ride_roger` | 56 x 138 |  | `src/assets/scrap/roger-sit.webp` |
+| `ride_roger_head` | 73 x 78 |  | `src/minis/ride/assets/roger-head.webp` |
+| `ride_sign` | 133 x 190 |  | `src/minis/ride/assets/sign.webp` |
+| `ride_sill` | 96 x 12 |  | paper |
+| `ride_slider` | 368 x 368 |  | paper |
+| `ride_steph_hold` | 59 x 141 |  | `src/minis/ride/assets/steph-hold.webp` |
+| `ride_steph_stand` | 49 x 137 |  | `src/minis/ride/assets/steph-stand.webp` |
+| `ride_trash0` | 26 x 18 |  | paper |
+| `ride_trash1` | 16 x 24 |  | paper |
+| `ride_trash2` | 30 x 16 |  | paper |
+| `ride_van` | 560 x 234 |  | `src/minis/ride/assets/van.webp` |
+| `ride_wheel` | 76 x 76 |  | paper |
+| `ride_zone` | 40 x 30 |  | paper |

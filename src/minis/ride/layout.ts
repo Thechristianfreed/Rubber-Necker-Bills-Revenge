@@ -1,4 +1,5 @@
 import { FROM } from '../../art/sticker';
+import { CUT } from './cut';
 
 /** Where things are in "Take 'em for a ride": what the art and the game both have
  *  to agree on. Everything is in the game's own pixels (the page is 540 tall).
@@ -71,3 +72,29 @@ export const ON_ROAD = 0.62;
 
 /** Whether one of this game's pictures is its photo yet (and not the paper it is drawn as until then). */
 export const isPhoto = (name: string): boolean => !!FROM[`ride_${name}`];
+
+// ---- inside the van, paper or photo --------------------------------------------------------------
+
+/** The photo of the inside of the van is drawn this much of its size, from here on the page (its
+ *  doorway is then where the paper one is, a little to the left of the middle of a narrow page). */
+export const INSIDE_PHOTO = { k: 0.9, x: -100, y: -90 };
+/** ...and the photo of the edge of town behind it, so that its moon is in the doorway. */
+export const EDGE_PHOTO = { h: 600, y: -20, moonX: 245 };
+
+/** Inside the van: the doorway (its box), how far down the sill is at any point across it, where
+ *  Pappy stands, and where the ones waiting their turn sit. */
+export interface Door { photo: boolean; l: number; r: number; t: number; b: number; sillAt: (x: number) => number; floor: number; bench: number }
+
+export function door(): Door {
+  if (!isPhoto('inside')) {
+    const d = DOORWAY;
+    return { photo: false, ...d, sillAt: () => d.b, floor: d.b, bench: d.b + 14 };
+  }
+  const { k, x, y } = INSIDE_PHOTO, at = (p: number[]): V => [x + p[0] * k, y + p[1] * k];
+  const [tl, tr, br, bl] = CUT.inside.door.map(at);
+  const sillAt = (px: number) => bl[1] + ((br[1] - bl[1]) * (px - bl[0])) / (br[0] - bl[0]);
+  return {
+    photo: true, l: Math.min(tl[0], bl[0]), r: Math.max(tr[0], br[0]), t: Math.min(tl[1], tr[1]), b: Math.max(bl[1], br[1]),
+    sillAt, floor: 532, bench: y + CUT.inside.bench * k,
+  };
+}

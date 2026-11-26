@@ -1,4 +1,5 @@
 import { FROM } from '../../art/sticker';
+import { CUT } from './cut';
 
 /** Where things are in "Bath time": what the art and the game both have to agree on.
  *  Everything is in the game's own pixels (the page is 540 tall).
@@ -52,3 +53,33 @@ export const SPOTS = [-330, 170, 340];
 
 /** Whether one of this game's pictures is its photo yet (and not the paper it is drawn as until then). */
 export const isPhoto = (name: string): boolean => !!FROM[`catbath_${name}`];
+
+// ---- paper, or the photo that has taken its place ---------------------------------------------
+
+/** The photo of the kitchen is drawn this much of its size, with the edge of the counter in it
+ *  behind the counter he stands at. The counter in front of him is a strip this tall. */
+export const KITCHEN_PHOTO = { k: 0.9 };
+export const COUNTER_TALL = 200;
+
+/** Pappy in a pose at the sink: where his chin goes, how far his head tips, where his two hands are
+ *  and where a cat he holds is held (from the spot he stands on), and which way the line through
+ *  his two fists runs (a cat being wrung lies along it). From the photo, where there is one. */
+export function bodyOf(pose: string): { chin: V; tilt: number; hands: [V, V]; grip: V; turn: number } {
+  if (!isPhoto(`pappy_${pose}`)) return { ...BODIES[pose], turn: 0 };
+  const b = (CUT.bodies as Record<string, { chin: number[]; hands: number[][]; grip: number[]; turn: number }>)[pose];
+  return { chin: b.chin as V, tilt: 0, hands: b.hands as [V, V], grip: b.grip as V, turn: b.turn };
+}
+
+/** Where the sink is, across from where he stands: under his hands when he scrubs, on a photo. */
+export const sinkOff = (): number => (isPhoto('pappy_scrub') ? bodyOf('scrub').grip[0] * AT_SINK : SINK_OFF);
+
+/** How far down the page the foot of the washboard is: on a photo, low enough in the sink that the
+ *  board does not come up over his face. */
+export const boardFoot = (): number => (isPhoto('board') ? RIM + 92 : BOARD.top + BOARD.h);
+
+/** How far up and down the washboard a cat is scrubbed (its neck on paper, its middle on a photo). */
+export function scrubRange(): V {
+  if (!isPhoto('pappy_scrub')) return BOARD.scrub;
+  const y = FEET + bodyOf('scrub').grip[1] * AT_SINK;
+  return [y - 46, y + 14];
+}
