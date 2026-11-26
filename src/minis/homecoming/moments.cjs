@@ -6,7 +6,7 @@
 module.exports = (bot) => [
   ['01-fumble', "m.phase === 'keys' && m.tries === 0 && !m.picking && said('WHICH ONE') && m.t > 0.9"],
   ['02-choose', "m.picking && m.tries === 0 && m.botIn < 0.2"],
-  ['04-try', "!m.picking && m.tries === 1 && m.hand.y < m.lock.y + 3 && m.hand.rotation > 0.05"],
+  ['04-try', "!m.picking && m.tries === 1 && m.hand.y < m.lock.y + 3 && Math.abs(m.hand.rotation - m.handRest) > 0.05"],
   ['05-nope', "m.tries === 1 && said('HUH') && m.sag > 0.9"],
   ...(bot ? [['05-not-again', "m.picking && m.tries === 1 && m.botAt === 2 && m.botIn < 0.62"]] : []),
   ['06-one-left', "m.picking && m.tries === 2 && m.botIn < 0.2"],

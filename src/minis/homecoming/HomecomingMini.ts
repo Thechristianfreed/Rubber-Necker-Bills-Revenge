@@ -38,6 +38,13 @@ const BOT = { good: [0, 1, 2], clumsy: [2, 2, 0, 1] };
 
 /** How fast Pappy goes on his knees. */
 const SPEED = 400;
+/** What is said is on scraps of paper, and when the page shakes nobody can read them. So they are
+ *  really put this far below the page, where a camera of their own looks at them: it sees what
+ *  the scene's camera sees, moved down by this much, and it never shakes. */
+const FAR = 6000;
+/** How far round Pappy's arm is turned where it is a photo, for it to come up from behind his
+ *  shoulder and not out of his collar: it is turned about the tip of the key. */
+const ARM_TURN = -0.34;
 /** The ring, where it is a photo (it came with its tag hanging straight down): how far above where
  *  the keys hang its middle is, and how far round it is turned, to hang the tag out to one side. */
 const RING_UP = 27;
@@ -146,6 +153,10 @@ export class HomecomingMini extends Mini {
   /** How far his shoulders have dropped. */
   private sag = 0;
   private hand!: Image;
+  /** How far round his arm is turned when he is doing nothing with it. */
+  handRest = 0;
+  /** The camera that what is said is seen by. */
+  private still?: Phaser.Cameras.Scene2D.Camera;
   private veil!: Phaser.GameObjects.Rectangle;
   private bunch!: Box;
   private bunchAt: Point = { x: 0, y: 0 };
@@ -202,6 +213,7 @@ export class HomecomingMini extends Mini {
       this.porch.push(thing);
       return thing;
     };
+    this.steady();
     const plan = this.plan = porchPlan(cx), left = plan.left, floor = plan.top + plan.h;
     this.doorX = left + plan.w / 2;
     this.lock = { x: plan.lock[0], y: plan.lock[1] };
@@ -225,9 +237,11 @@ export class HomecomingMini extends Mini {
     this.door = keep(img(s, left + plan.w, floor, 'homecoming_door').setDepth(12));
 
     // Pappy, from behind, and the hand he will try the keys with (out of sight for now)
-    this.backAt = { x: cx - 252, y: isPhoto('pappy_back') ? 222 + ART.homecoming_pappy_back.h : H + 34 };
+    this.backAt = isPhoto('pappy_back') ? { x: cx - 262, y: 222 + ART.homecoming_pappy_back.h } : { x: cx - 252, y: H + 34 };
     this.back = keep(img(s, this.backAt.x, this.backAt.y, 'homecoming_pappy_back').setDepth(20));
-    this.hand = keep(img(s, this.lock.x - 70, H + 240, 'homecoming_hand_key').setDepth(19));
+    // (his arm is behind him: it comes up from behind his shoulder)
+    this.handRest = isPhoto('hand_key') ? ARM_TURN : 0;
+    this.hand = keep(img(s, this.lock.x - 70, H + 240, 'homecoming_hand_key').setDepth(19).setRotation(this.handRest));
 
     // the bunch of keys, big, over everything; and the arrow
     this.veil = keep(s.add.rectangle(cx, H / 2, MAX_W * 2, H * 2, 0x14121a, 0.5).setDepth(40).setAlpha(0));
@@ -309,17 +323,17 @@ export class HomecomingMini extends Mini {
         tw.killTweensOf(this.arrow);
         tw.add({ targets: [this.veil, this.arrow], alpha: 0, duration: 160 });
         tw.add({ targets: this.bunch, x: this.backAt.x + 150, y: 400, scale: 0.3, duration: 200, ease: 'Quad.in', onComplete: () => this.bunch.setVisible(false) });
-        this.hand.setPosition(this.lock.x - 70, H + 240).setRotation(0);
+        this.hand.setPosition(this.lock.x - 70, H + 240).setRotation(this.handRest);
         tw.add({ targets: this.hand, x: this.lock.x, y: this.lock.y, duration: 260, delay: 120, ease: 'Quad.out' });
       }],
       [0.45, () => {
         SOUNDS.rattle();
-        tw.add({ targets: this.hand, rotation: 0.09, duration: 60, yoyo: true, repeat: right ? 1 : 4 });
+        tw.add({ targets: this.hand, rotation: this.handRest - 0.08, duration: 60, yoyo: true, repeat: right ? 1 : 4 });
       }],
       ...(right ? [
         [0.3, () => {
           // round it goes
-          tw.add({ targets: this.hand, rotation: 0.3, duration: 150, ease: 'Quad.out' });
+          tw.add({ targets: this.hand, rotation: this.handRest - 0.14, duration: 150, ease: 'Quad.out' });
           SOUNDS.unlock();
           this.host.word('homecoming_click', this.lock.x + 112, this.lock.y - 62);
         }],
@@ -416,12 +430,12 @@ export class HomecomingMini extends Mini {
 
   /** One of the things she says in the doorway, to one side of her head and then the other. */
   private wifeSays(n: number): void {
-    const s = this.scene, W = view.W;
+    const W = view.W;
     this.hush();
     SOUNDS.nag(0.8);
     const mouth = { x: this.cx + 44, y: 306 - DOOR_FACE * LUNGE * 0.24 };
     const x = n % 2 ? Math.max(126, this.cx - 250) : Math.min(W - 126, this.cx + 318), y = n % 2 ? 92 : 118 + n * 14;
-    this.said.push({ box: bubble(s, x, y, AT_THE_DOOR[n], mouth, 22), left: 0.9 });
+    this.scrap(x, y, AT_THE_DOOR[n], mouth, 22, 0.9);
   }
 
   // ---- the front room -------------------------------------------------------------------------
@@ -700,16 +714,42 @@ export class HomecomingMini extends Mini {
     }
   }
 
+  /** A scrap of paper with something said on it, its tail to whoever says it (`from`), for so many
+   *  seconds. It is made where it belongs on the page and then put FAR below, for the camera
+   *  that does not shake. */
+  private scrap(x: number, y: number, text: string, from: Point, size: number, secs: number): void {
+    const box = bubble(this.scene, x, y, text, from, size);
+    box.y += FAR;
+    this.said.push({ box, left: secs });
+  }
+
+  /** The camera that sees what is said: the scene's own view, FAR below the page. It is taken away
+   *  again when the game is: everything the game put on the page is cleared at the end of it (or
+   *  when it is skipped), and the camera goes with the thing here that is cleared. */
+  private steady(): void {
+    const s = this.scene, main = s.cameras.main;
+    const still = this.still = s.cameras.add(0, 0, main.width, main.height);
+    this.follow();
+    s.add.zone(0, 0, 1, 1).once(Phaser.GameObjects.Events.DESTROY, () => {
+      if (s.cameras?.cameras?.includes(still)) s.cameras.remove(still);
+    });
+  }
+
+  /** ...kept looking where the scene's camera looks (which changes if the window does). */
+  private follow(): void {
+    const main = this.scene.cameras.main;
+    this.still?.setSize(main.width, main.height).setZoom(main.zoom).setScroll(main.scrollX, main.scrollY + FAR);
+  }
+
   /** Something said, on a scrap of paper up and to one side of whoever says it. */
   private say(mouth: Point, text: string, secs: number, dx: number, dy: number, size = 19): void {
-    const box = bubble(this.scene, Phaser.Math.Clamp(mouth.x + dx, 120, view.W - 120), Math.max(126, mouth.y + dy), text, mouth, size);
-    this.said.push({ box, left: secs });
+    this.scrap(Phaser.Math.Clamp(mouth.x + dx, 120, view.W - 120), Math.max(126, mouth.y + dy), text, mouth, size, secs);
   }
 
   /** Pappy, at the door, to himself: from the back of his head. */
   private sayBack(text: string, secs: number): void {
     const from = { x: this.backAt.x + 30, y: this.backAt.y - ART.homecoming_pappy_back.h + 10 };
-    this.said.push({ box: bubble(this.scene, Math.max(150, from.x - 30), 168, text, from, 20), left: secs });
+    this.scrap(Math.max(150, from.x - 30), 168, text, from, 20, secs);
   }
 
   /** Mammy, in the front room: up and to the right of her, out of the way of what is going on behind her. */
@@ -759,6 +799,7 @@ export class HomecomingMini extends Mini {
   update(dt: number): void {
     if (this.phase === 'done') return;
     this.t += dt;
+    this.follow();
     while (this.cues.length && this.cues[0].at <= this.t) this.cues.shift()!.run();
     for (const l of this.later) l.left -= dt;
     const due = this.later.filter((l) => l.left <= 0);

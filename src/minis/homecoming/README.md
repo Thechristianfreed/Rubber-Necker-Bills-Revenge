@@ -81,6 +81,13 @@ mouth, so for each kiss the whole of him tips forward off his knees, feet in
 the air, until his lips are where they are wanted (`aim()` works out how far
 from where the kiss lands and where his chin is: nothing is set by hand).
 
+**What is said does not shake.** The page shakes when the door flies open and
+while Mammy is in his face, and nobody could read a speech bubble that shook
+with it. So the bubbles are seen by a camera of their own that never shakes
+(`steady()`, and `FAR`, at the top of `HomecomingMini.ts`): everything else
+on the page still does. The camera is taken away again when the game is
+over, or skipped.
+
 The two bots: the careful one tries the keys left to right and goes straight
 over. The careless one goes back to a key he has already tried, and stops
 half way across the carpet for a think. Both get in, and both are forgiven.
@@ -121,7 +128,7 @@ drawn about as big as their pictures are.
 | --- | --- | --- |
 | `PH1-porch.jpg` | The front of the house at night, door shut | `door`: the door itself, by its place in the picture (`SHUT_DOOR` in `cut.py`). Nothing goes to Adobe. |
 | `PH1b-porch-open.webp` | The same, door open on the dark hall (an edit of PH1) | `porch.jpg`: the whole of it is the place. The door from PH1 lies over its doorway until the door flies open; after that the open door is the picture's own. |
-| `PH2-pappy-back.jpg` | Pappy from behind, and his hand with a key, each on a card of its own | `pappy-back` (whole: the back of that head is the generated man's own) and `hand-key`, held by the tip of the key. Each was cut off its card before it went to Adobe. |
+| `PH2-pappy-back.jpg` | Pappy from behind, and his hand with a key, each on a card of its own | `pappy-back` (whole: the back of that head is the generated man's own) and `hand-key`, held by the tip of the key. Each was cut off its card before it went to Adobe. In the game the arm is behind him and turned about the tip of the key (`ARM_TURN`), so that it comes up from behind his outer shoulder: as it came, it grew out of his collar. |
 | `PH3-keys.jpg` | A key ring with a tag on a chain, and three keys | `ring`, `key0`, `key1`, `key2`. Each key is held by the hole in its head. The paper in the tag came back see-through (white, on a white sheet) and is put back; "#1 PAPPY" is written on it in the game. |
 | `PH4-mammy-door.jpg` | Mammy from the hips up, arms folded round a rolling pin | `mammy-door`, head off. She is drawn big enough that the foot of the picture is off the page. |
 | `PH5-pappy.jpg` | Pappy three times: hat in hand, on his knees, and leaning in with his arms out behind | `pappy-stand`, `pappy-kneel`, `pappy-smooch`, heads off. The two on their knees are held at the knee, so that one changes for the other without his moving. |

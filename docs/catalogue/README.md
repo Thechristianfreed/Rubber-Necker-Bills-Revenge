@@ -760,7 +760,7 @@ Made by `src/minis/homecoming`, and kept in its folder.
 | `homecoming_door_in` | 189 x 352 |  | `src/minis/homecoming/assets/door-in.webp` |
 | `homecoming_doorway` | 268 x 452 |  | paper |
 | `homecoming_glow` | 360 x 360 |  | paper |
-| `homecoming_hand_key` | 216 x 231 |  | `src/minis/homecoming/assets/hand-key.webp` |
+| `homecoming_hand_key` | 240 x 257 |  | `src/minis/homecoming/assets/hand-key.webp` |
 | `homecoming_key0` | 81 x 182 |  | `src/minis/homecoming/assets/key0.webp` |
 | `homecoming_key1` | 77 x 179 |  | `src/minis/homecoming/assets/key1.webp` |
 | `homecoming_key2` | 87 x 186 |  | `src/minis/homecoming/assets/key2.webp` |

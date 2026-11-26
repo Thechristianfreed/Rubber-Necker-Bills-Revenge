@@ -48,7 +48,7 @@ const PIECES: Piece[] = [
   ...Object.entries(CUT.bodies).map(body),
   // Pappy from behind, held by the foot of the picture; his hand, by the tip of the key
   { key: 'homecoming_pappy_back', file: 'pappy-back.png', w: 470, border: 2.6, anchor: [0.5, 1] },
-  { key: 'homecoming_hand_key', file: 'hand-key.png', w: 216, border: 2.4, anchor: CUT.hand.tip as [number, number] },
+  { key: 'homecoming_hand_key', file: 'hand-key.png', w: 240, border: 2.4, anchor: CUT.hand.tip as [number, number] },
   ring,
   ...CUT.keys.map(key),
   // the front door, shut: as wide as the doorway in the photo of the house, and held by its hinges
