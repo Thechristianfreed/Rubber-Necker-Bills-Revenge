@@ -16,13 +16,17 @@ This is an early playable prototype with two levels and two bonus levels:
 
 And **Home Movies** (the video cassette on the level select): quick games a
 few seconds long, one straight after another. Each is played once, and then
-the tape ends and says how many were cleared. There are six so far: Mom's
+the tape ends and says how many were cleared. There are nine so far: Mom's
 workout tape (copy her pose, then hold to breathe in and let go at the top
 for the PAH), the tour bus (tap whoever is on the phone) and the sleepover
 (bop DJ exactly as many times as asked), payback (Chad, a baseball bat, and
 the brother who had it coming), pocket sand (the same brothers, a sandbox,
-and their mother's answer to it) and the fight after school (which
-Stephanie cannot win, and which does not count). See `docs/minigames.md`.
+and their mother's answer to it), three at Le Papillon, the fancy
+restaurant (the favorite: Bill, a bottle of Pinot, and four boys who each
+have to believe it is him; dinner: order for Bill what Stephanie wants
+second; and the vegetables, crammed down Branson) and the fight after
+school (which Stephanie cannot win, and which does not count). See
+`docs/minigames.md`.
 
 ## Play it
 
@@ -39,7 +43,7 @@ Open the printed address on a phone held sideways, or on a computer.
 | Duck | hold the DUCK button | Down arrow or S |
 | Road Rage special | RAGE button when the ring is full | R or Enter |
 
-Add `?auto` to the address to watch the game play itself (`?auto=clumsy` plays badly), and `&level=street`, `&level=highway`, `&level=locker` or `&level=sleepover` to pick the level. `&level=minis` plays the quick games, and `&mini=workout`, `&mini=phone`, `&mini=bop`, `&mini=bat`, `&mini=sand` or `&mini=fight` keeps to one of them.
+Add `?auto` to the address to watch the game play itself (`?auto=clumsy` plays badly), and `&level=street`, `&level=highway`, `&level=locker` or `&level=sleepover` to pick the level. `&level=minis` plays the quick games, and `&mini=workout`, `&mini=phone`, `&mini=bop`, `&mini=bat`, `&mini=sand`, `&mini=favorite`, `&mini=papillon`, `&mini=veggies` or `&mini=fight` keeps to one of them.
 
 ## Build
 

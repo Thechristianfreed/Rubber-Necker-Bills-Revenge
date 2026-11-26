@@ -45,7 +45,7 @@ What goes on the address:
 | `?auto=clumsy` | it plays itself badly, and finds the other endings |
 | `&level=street` (or `highway`, `locker`, `sleepover`) | straight into that level |
 | `&level=minis` | straight into Home Movies |
-| `&mini=sand` (or `workout`, `phone`, `bop`, `bat`, `fight`) | only that quick game |
+| `&mini=sand` (or `workout`, `phone`, `bop`, `bat`, `favorite`, `papillon`, `veggies`, `fight`) | only that quick game |
 
 The game is 540 tall and between 880 and 1240 wide, depending on the
 screen: try a change at the narrowest as well as at 960 or 1100.
