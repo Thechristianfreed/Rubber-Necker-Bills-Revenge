@@ -120,8 +120,8 @@ PHOTOS = {
     "mammy": {"photo": {"size": 0.9}},
     "pappy": {"photo": {"seal": 0.03, "size": 0.9}, "silly": {"seal": 0.03, "size": 0.9}},
     "nanner": {"photo": {"size": 0.87}},
-    "curt": {"smile": {"base": True, "seal": 0.03}, "laugh": {"seal": 0.03}},
-    "sabra": {"smile": {"base": True, "seal": 0.03, "below": 0.05}, "calm": {"seal": 0.04, "below": 0.3}},
+    "curt": {"photo": {"seal": 0.03, "size": 1.03}, "laugh": {"seal": 0.03, "size": 1.12}},
+    "sabra": {"photo": {"seal": 0.03, "below": 0.05, "size": 0.95}, "calm": {"seal": 0.04, "below": 0.3, "size": 1.2}},
 }
 
 # What every look in a person's batch needs, where the portrait they are all edits of needs it
@@ -130,12 +130,14 @@ PHOTOS = {
 # runs down over her shoulders and ends in thin tails where her dress begins. Christian's and
 # Branson's edits are of photos in which the head is tipped and turned a little (the same far
 # eyebrow); Shorty's are of one her hair runs out of, as her photo's own face is trimmed.
+# Sabra's hair is tied back, and wisps of it hang down past her jaw on both sides.
 SETS = {
     "pappy": {"seal": 0.055, "turn": 10},
     "nanner": {"below": 0.4},
     "christian": {"seal": 0.05, "turn": 10},
     "branson": {"seal": 0.06, "turn": -6},
     "shorty": {"below": 0.27},
+    "sabra": {"below": 0.05},
 }
 
 # A look in a batch whose selection Adobe left the hair and the ears out of ("Face, Beard" where
@@ -144,6 +146,7 @@ SETS = {
 BORROW = {
     "branson": {"smug": "calm", "smile": "calm"},
     "shorty": {"guilty": "calm"},
+    "sabra": {"smile": "angry", "laugh": "angry", "shocked": "angry"},
 }
 
 # A look whose head is this near the usual place and size in its picture has the same framing.

@@ -144,12 +144,12 @@ name of its own from the start, and is asked for like any other:
 | Christian | `christian` | 15 (his calm, smile and laugh are real photos) | | `gentle` (a gentle smile, 2021), and three made from the photo his smile is: `yell2`, `dazed2`, `worried2` (a nervous grin) |
 | Branson | `branson` | 15 (his laugh is a real photo) | | |
 | Shorty | `shorty` | 15 (her smile is the photo itself) | | `pout` |
-| Curt | `curt` | 2: smile, laugh | the other thirteen | |
-| Sabra | `sabra` | 2: calm, smile | the other thirteen | |
+| Curt | `curt` | 15 (his laugh is a real photo of him as he is now; the rest are him at his wedding, years younger, with a moustache) | | `photo` (as he is now, smiling, on the rooftop) |
+| Sabra | `sabra` | 15 (her calm is a real photo, on the train, looking away) | | `photo` (smiling, in the restaurant) |
 
-Curt's and Sabra's faces are real photos, used as they are (the next section
-but one lists every photo and what became of it). Their sets fill up as the
-looks nobody was photographed with are generated. When a person's
+Everybody on the list has a set now. A face that is a real photo, used as it
+is, is listed in the next section but one, with every photo and what became
+of it. When a person's
 generated set comes, its "Default" is their smile, and the face cut from the
 real photo is kept as their `photo`.
 
@@ -215,6 +215,14 @@ for):
   was his smug. His dazed came as a small picture blown up, and is soft.
   Shorty's hair runs out of her photo, and so out of every edit: all are
   trimmed under the chin along one line, as her smile was.
+- **Sabra's and Curt's came on 26 November,** each a portrait ("Default")
+  and thirteen edits of it. Sabra's portrait was made from her restaurant
+  photo; Curt's from his wedding photo, the owner's choice, so his set is
+  Curt years younger and with a moustache, and his one real-photo look (his
+  laugh, from now) is another man beside the rest. A laugh made from his
+  "Default" would match; so would a calm made from Sabra's, whose calm is a
+  photo of her looking away on a train. Sabra's hair is tied back in her
+  portrait and wisps of it hang past her jaw: they are trimmed at the chin.
 - **Pappy's portrait has his head turned and tipped,** as it is in the
   Christmas photo it was made from. Every look of his is set straight by the
   same amount (`SETS` in `tools/make_cast.py`), which is also where his far
@@ -370,12 +378,12 @@ evenly lit, the biggest copy there is, nobody else in it.
 | **Mammy** | Stephanie's mother | all fifteen: she has fourteen (ouch is to come) |
 | **Pappy** | Stephanie's father | all fifteen: he has them |
 | **Nanner** | Stephanie's sister | all fifteen: she has them |
-| **Curt** | Stephanie's brother | all fifteen |
+| **Curt** | Stephanie's brother | all fifteen: he has them |
 | **Sherry** | Bill's sister | all fifteen |
 | **Christian** | Stephanie and Bill's son, and the owner. He is at the light switch in The Hot Carl, cut from paper. | all fifteen: he has them |
 | **Branson** | Stephanie and Bill's son, Christian's brother | all fifteen: he has them |
 | **Shorty** | Branson's wife | all fifteen: she has them |
-| **Sabra** | Not said yet | all fifteen, as for anybody but the three below, unless the owner says otherwise |
+| **Sabra** | Not said yet | all fifteen: she has them |
 | **Rick DeGour** | Bill's coworker | six |
 | **Cindy** | Bill's sister | six |
 | **Betty** | Bill's mother | six |
@@ -396,8 +404,8 @@ to the one person:
 | **Christian** | `christian-1` (indoors, grey T-shirt, calm: as he is now, big and sharp), `christian-2` (a green T-shirt, a broad smile), `christian-3` (on a boat, a big laugh), `christian-4` (2021, a mustard jacket, a gentle smile: Adobe cannot find the face in it, it is so washed out), `christian-5` (in profile: no use for a face) | Done: every look is an edit of `christian-1` (he is alone in it, so no base was needed). He has more in Google Photos, which Claude cannot reach: the owner copies any that are wanted into the Drive folder. |
 | **Branson** | Seven, all screenshots (a little soft) and every one a smile or a laugh. `branson-1` (on a street, a patterned shirt: the biggest), `branson-2` (a maroon T-shirt, laughing), `branson-3` (in a dinner jacket: square to the camera but small), `branson-4` (younger, with somebody else) | Done: every look is an edit of `branson-1`. |
 | **Shorty** | `shorty-1` (outdoors, a denim jacket, smiling: big and sharp, but her hair runs off the left and the bottom of the picture, and somebody else is at its edge), a studio portrait (head turned well away, lighter hair) and a small cut-out of her pulling a face (`shorty-3`) | Done: every look is an edit of `shorty-1` itself (no base was made, so her hair is trimmed where the picture ends). |
-| **Sabra** | Four. Close up in a restaurant, a wide smile (`sabra-3`); on a train, looking at her phone (`sabra-4`); looking back over her shoulder, small and soft (`sabra-1`); in profile (`sabra-2`) | `sabra-3`, by way of a base (it is dim, and her hair runs out of it) |
-| **Curt** | Five, all with Kim. On a rooftop, square to the camera and evenly lit (`curt-1`: the owner's "good lighting"); a close selfie, a broad grin, sunglasses on his head (`curt-2`: "accurate"); in a sun hat; and two from years ago | `curt-1`, by way of a base |
+| **Sabra** | Four. Close up in a restaurant, a wide smile (`sabra-3`); on a train, looking at her phone (`sabra-4`); looking back over her shoulder, small and soft (`sabra-1`); in profile (`sabra-2`) | Done: the owner made her portrait from `sabra-3`. |
+| **Curt** | Five, all with Kim. On a rooftop, square to the camera and evenly lit (`curt-1`: the owner's "good lighting"); a close selfie, a broad grin, sunglasses on his head (`curt-2`: "accurate"); in a sun hat; and two from years ago | Done: the owner made his portrait from the wedding photo (years younger, with a moustache), not from `curt-1`. |
 | **Sheeba** | Four pictures in the Drive folder "Sheeba", of a white German shepherd: sitting by a lake, lying on a couch, asleep on a rug, standing in a studio. There is no photo of Sheeba herself: these are found pictures of dogs close to her (the owner's word; one has a photographer's mark on it). | Not for cutting out: she is generated from a description of them. |
 | **Roger** | Five. Sitting on a step with his tongue out (`roger-1`: sharp and big), sitting by a Christmas tree (`roger-2`), lying on an ottoman (`roger-3`, cropped out of a phone screenshot), and two that had been cut out or touched up already (`roger-4`, `roger-5`) | All five cut whole, as they are. |
 | **The Grump** | Four, all small. At his dish, in profile (`grump-1`), in somebody's arms, looking at the camera (`grump-2`), curled up asleep on his back (`grump-3`), held upright (`grump-4`: soft) | All four cut whole, as they are. |
@@ -420,8 +428,8 @@ each of them). Every look is then an edit of the base, not of the photo:
 that is how Chad's and Shane's were done, and why each of their sets
 matches. The base is that person's smile. (Mammy's, Pappy's and Nanner's are
 made: each is "Default" in that person's folder of the Full Expression
-Repo. Curt's and Sabra's are to come. Shorty's looks were made from her
-photo as it is.)
+Repo, as Curt's and Sabra's are. Shorty's looks were made from her photo as
+it is.)
 
 One of each person's faces will be the photo itself (a smile, usually), so
 there are fourteen to make of fifteen, and five of six. Those who get the
@@ -539,17 +547,17 @@ sets: Chad's yell, cry and calm, Shane's startled, cry and doe eyes.)
 
 | Photo | What it shows | What became of it |
 | --- | --- | --- |
-| "good lighting" (`curt-1`) | Smiling, on a rooftop | His base: **smile** |
+| "good lighting" (`curt-1`) | Smiling, on a rooftop | **photo** (his own: Curt as he is now) |
 | "accurate" (`curt-2`) | A broad open grin, sunglasses up on his head | **laugh** |
 | "hat" | A grin under a sun hat | Not cut: another smile, and the hat |
-| "wedding" | Years younger, a moustache | Not used: another age, and small |
+| "wedding" | Years younger, a moustache, in a suit with a rose | **His base:** the owner made his portrait from it, and every look of his but the laugh is an edit of that |
 | "Curt and Kim" | Shaved head, a closed-mouth smile | Not used: 90 pixels |
 
 **Sabra** (4)
 
 | Photo | What it shows | What became of it |
 | --- | --- | --- |
-| `sabra-3` (…5824) | A wide smile, close up, in a restaurant | Her base: **smile** |
+| `sabra-3` (…5824) | A wide smile, close up, in a restaurant | Her base: her portrait and every look but calm are made from it, and its own face is her **photo** |
 | `sabra-4` (…5726) | On a train, looking at her phone, mouth shut | **calm** |
 | `sabra-1` (…4296) | Smiling back over her shoulder | Not cut: another smile, small and soft |
 | `sabra-2` (…6146) | In profile, in a café | Not used: a profile |
@@ -624,13 +632,13 @@ photo so that it matches the rest:
 | Chad | | calm, yell, cry (his are from the earlier pictures: the same photo, framed closer) |
 | Shane | | cry (his is from the earlier pictures) |
 | Mammy | ouch | the thirteen that came small, if there are full-size copies |
+| Curt | | laugh (his is a photo of him as he is now; the rest are him years younger) |
+| Sabra | | calm (hers is a photo of her looking away) |
 
 (The faces that are a person's own, like the doe eyes, are not on this
 list: nobody else is getting those for now.)
 | Sherry | all fifteen, less the one the photo is, once there is a photo | |
 | Branson | | dazed (his came small, and is soft) |
-| Curt | the base, and calm, talking, smug, angry, yell, shocked, guilty, worried, cry, ouch, dazed, disgusted, asleep | |
-| Sabra | the base, and talking, laugh, smug, angry, yell, shocked, guilty, worried, cry, ouch, dazed, disgusted, asleep | |
 | Rick DeGour, Cindy, Betty | calm, smile, laugh, angry, shocked, cry, less the one the photo is | |
 | Stephanie, Chad, Shane, Mammy, Pappy, Nanner, Curt, Sherry, Christian, Branson | the back of the head: waiting (see "The looks") | |
 

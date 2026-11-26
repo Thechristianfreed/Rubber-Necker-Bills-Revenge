@@ -40,6 +40,8 @@ OWN = {
     "pappy": {"photo": "a real photo: a closed-mouth smile", "silly": "tongue out, in his sunglasses"},
     "nanner": {"photo": "the real photo her set was made from"},
     "shorty": {"pout": "a pout"},
+    "curt": {"photo": "a real photo: as he is now, smiling"},
+    "sabra": {"photo": "a real photo: smiling, in the restaurant"},
     "christian": {"gentle": "a gentle smile (2021)", "yell2": "another yell (the green T-shirt)", "dazed2": "dazed again (the green T-shirt)",
                   "worried2": "a nervous grin (the green T-shirt)"},
     "bill": {"inhale": "the breath in", "hold": "holding his breath", "sideeye": "side-eye (another photo)", "glare": "glaring down (another photo)"},

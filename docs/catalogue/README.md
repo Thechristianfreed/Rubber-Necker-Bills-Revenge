@@ -9,7 +9,7 @@ The size is how big the picture is drawn, in the game's own pixels (the page is 
 - [Cars](#cars) (22)
 - [People: bodies](#bodies) (77)
 - [People: faces](#faces) (32)
-- [People: everybody's faces](#cast) (176)
+- [People: everybody's faces](#cast) (204)
 - [The rubberneckers, and the animals](#gawkers) (51)
 - [Effects](#effects) (25)
 - [Words on bursts](#words) (51)
@@ -399,8 +399,22 @@ One set for each of the family, every look the same size and hung from the same 
 | `face_christian_worried2` | 52 x 84 |  | `src/assets/scrap/face-christian-worried2.webp` |
 | `face_christian_yell` | 52 x 86 |  | `src/assets/scrap/face-christian-yell.webp` |
 | `face_christian_yell2` | 52 x 89 |  | `src/assets/scrap/face-christian-yell2.webp` |
-| `face_curt_laugh` | 57 x 76 |  | `src/assets/scrap/face-curt-laugh.webp` |
-| `face_curt_smile` | 61 x 81 |  | `src/assets/scrap/face-curt-smile.webp` |
+| `face_curt_angry` | 55 x 81 |  | `src/assets/scrap/face-curt-angry.webp` |
+| `face_curt_asleep` | 55 x 82 |  | `src/assets/scrap/face-curt-asleep.webp` |
+| `face_curt_calm` | 55 x 81 |  | `src/assets/scrap/face-curt-calm.webp` |
+| `face_curt_cry` | 55 x 84 |  | `src/assets/scrap/face-curt-cry.webp` |
+| `face_curt_dazed` | 55 x 83 |  | `src/assets/scrap/face-curt-dazed.webp` |
+| `face_curt_disgusted` | 55 x 85 |  | `src/assets/scrap/face-curt-disgusted.webp` |
+| `face_curt_guilty` | 55 x 82 |  | `src/assets/scrap/face-curt-guilty.webp` |
+| `face_curt_laugh` | 61 x 81 |  | `src/assets/scrap/face-curt-laugh.webp` |
+| `face_curt_ouch` | 55 x 82 |  | `src/assets/scrap/face-curt-ouch.webp` |
+| `face_curt_photo` | 60 x 80 |  | `src/assets/scrap/face-curt-photo.webp` |
+| `face_curt_shocked` | 55 x 87 |  | `src/assets/scrap/face-curt-shocked.webp` |
+| `face_curt_smile` | 55 x 82 |  | `src/assets/scrap/face-curt-smile.webp` |
+| `face_curt_smug` | 55 x 81 |  | `src/assets/scrap/face-curt-smug.webp` |
+| `face_curt_talking` | 55 x 83 |  | `src/assets/scrap/face-curt-talking.webp` |
+| `face_curt_worried` | 55 x 81 |  | `src/assets/scrap/face-curt-worried.webp` |
+| `face_curt_yell` | 55 x 88 |  | `src/assets/scrap/face-curt-yell.webp` |
 | `face_mammy_angry` | 104 x 107 |  | `src/assets/scrap/face-mammy-angry.webp` |
 | `face_mammy_asleep` | 104 x 108 |  | `src/assets/scrap/face-mammy-asleep.webp` |
 | `face_mammy_calm` | 104 x 107 |  | `src/assets/scrap/face-mammy-calm.webp` |
@@ -449,8 +463,22 @@ One set for each of the family, every look the same size and hung from the same 
 | `face_pappy_talking` | 62 x 83 |  | `src/assets/scrap/face-pappy-talking.webp` |
 | `face_pappy_worried` | 62 x 81 |  | `src/assets/scrap/face-pappy-worried.webp` |
 | `face_pappy_yell` | 63 x 86 |  | `src/assets/scrap/face-pappy-yell.webp` |
-| `face_sabra_calm` | 61 x 76 |  | `src/assets/scrap/face-sabra-calm.webp` |
-| `face_sabra_smile` | 66 x 84 |  | `src/assets/scrap/face-sabra-smile.webp` |
+| `face_sabra_angry` | 65 x 83 |  | `src/assets/scrap/face-sabra-angry.webp` |
+| `face_sabra_asleep` | 65 x 83 |  | `src/assets/scrap/face-sabra-asleep.webp` |
+| `face_sabra_calm` | 82 x 101 |  | `src/assets/scrap/face-sabra-calm.webp` |
+| `face_sabra_cry` | 65 x 83 |  | `src/assets/scrap/face-sabra-cry.webp` |
+| `face_sabra_dazed` | 65 x 83 |  | `src/assets/scrap/face-sabra-dazed.webp` |
+| `face_sabra_disgusted` | 66 x 83 |  | `src/assets/scrap/face-sabra-disgusted.webp` |
+| `face_sabra_guilty` | 65 x 83 |  | `src/assets/scrap/face-sabra-guilty.webp` |
+| `face_sabra_laugh` | 65 x 83 |  | `src/assets/scrap/face-sabra-laugh.webp` |
+| `face_sabra_ouch` | 66 x 83 |  | `src/assets/scrap/face-sabra-ouch.webp` |
+| `face_sabra_photo` | 70 x 90 |  | `src/assets/scrap/face-sabra-photo.webp` |
+| `face_sabra_shocked` | 65 x 85 |  | `src/assets/scrap/face-sabra-shocked.webp` |
+| `face_sabra_smile` | 65 x 83 |  | `src/assets/scrap/face-sabra-smile.webp` |
+| `face_sabra_smug` | 65 x 83 |  | `src/assets/scrap/face-sabra-smug.webp` |
+| `face_sabra_talking` | 65 x 83 |  | `src/assets/scrap/face-sabra-talking.webp` |
+| `face_sabra_worried` | 65 x 83 |  | `src/assets/scrap/face-sabra-worried.webp` |
+| `face_sabra_yell` | 66 x 85 |  | `src/assets/scrap/face-sabra-yell.webp` |
 | `face_shane_angry` | 53 x 81 |  | `src/assets/scrap/face-shane-angry.webp` |
 | `face_shane_asleep` | 53 x 81 |  | `src/assets/scrap/face-shane-asleep.webp` |
 | `face_shane_beam` | 50 x 79 |  | `src/assets/scrap/face-shane-beam.webp` |
