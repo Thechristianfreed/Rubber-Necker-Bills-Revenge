@@ -4,7 +4,7 @@ import { BLEED } from '../../art/finish';
 import { ART, applyArt, img } from '../../art/sticker';
 import { bubble } from '../../ui/bubble';
 import { Point } from '../Mini';
-import { Look, head, headsTall, setLook } from './people';
+import { Look, head, setLook } from './people';
 
 /** Le Papillon, the fancy restaurant, and who is in it: what the quick games
  *  set there have in common (the ordering, the vegetables, the anniversary).
@@ -127,7 +127,7 @@ export class Diner {
   }
 
   get top(): Point {
-    return this.at((this.tall / this.size) * Math.min(1, 2 - headsTall(this.who, this.look)) + 2);
+    return this.at(this.tall / this.size + 2);
   }
 
   get x(): number {

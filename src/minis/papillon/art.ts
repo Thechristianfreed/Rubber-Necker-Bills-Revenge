@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { Paper, cutText, fillPaper, glued, makePaperArt, makeWord, paper, strokePaper } from '../../art/paper';
+import { Paper, burstPath, cutText, fillPaper, glued, makePaperArt, makeWord, paper, strokePaper } from '../../art/paper';
 import { Ctx, circle, ellipse, makeArt, poly, rr } from '../../art/sticker';
 
 /** The paper stand-ins for Le Papillon: the restaurant itself, its table and its
@@ -468,9 +468,10 @@ function buildPlace(scene: Phaser.Scene): void {
     c.strokeStyle = paper(c, 'yellow');
     c.lineWidth = 2;
     c.strokeRect(22, 10, 88, 124);
-    butterfly(c, 66, 52, 44, 'yellow');
-    cutText(c, 'MENU', 66, 98, 24, 'yellow');
-    for (const side of [-1, 1]) glued(c, () => { ellipse(c, 66 + side * 52, 108, 13, 17); fillPaper(c, 'manila'); });
+    // (what matters is in the top of it: the foot of a menu is behind the table)
+    butterfly(c, 66, 36, 40, 'yellow');
+    cutText(c, 'MENU', 66, 72, 22, 'yellow');
+    for (const side of [-1, 1]) glued(c, () => { ellipse(c, 66 + side * 52, 66, 13, 17); fillPaper(c, 'manila'); });
   }, { border: 2, ax: 66, ay: 72 });
 
   // the waiter
@@ -486,7 +487,228 @@ function buildPlace(scene: Phaser.Scene): void {
   makePaperArt(scene, 'papillon_butterfly', 56, 46, (c) => butterfly(c, 28, 26, 50, 'yellow', 'red'), { border: 1.4 });
 }
 
+// ---- the ordering: what is on the menu ---------------------------------------------------
+
+/** Every dish on the menu, by course: its short name (its picture is `papillon_dish_<name>`)
+ *  and what the menu calls it. Four to a course. */
+export const MENU: { course: string; ask: string; dishes: [string, string][] }[] = [
+  { course: 'TO START', ask: 'TO START?', dishes: [['soup', 'FRENCH ONION SOUP'], ['escargots', 'ESCARGOTS'], ['shrimp', 'SHRIMP COCKTAIL'], ['salad', 'HOUSE SALAD']] },
+  { course: 'THE MAIN COURSE', ask: 'AND THE MAIN COURSE?', dishes: [['steak', 'STEAK'], ['salmon', 'SALMON'], ['chicken', 'ROAST CHICKEN'], ['lobster', 'LOBSTER']] },
+  { course: 'DESSERT', ask: 'AND FOR DESSERT?', dishes: [['cake', 'CHOCOLATE CAKE'], ['tart', 'APPLE TART'], ['sundae', 'ICE CREAM SUNDAE'], ['cheesecake', 'CHEESECAKE']] },
+];
+
+export const DISH = { w: 100, h: 78 };
+
+const DISHES: Record<string, (c: Ctx) => void> = {
+  soup: (c) => {
+    // a brown crock, the cheese over the top of it, and steam
+    for (const side of [-1, 1]) glued(c, () => { ellipse(c, 50 + side * 27, 40, 8, 5); fillPaper(c, 'brown'); });
+    glued(c, () => { rr(c, 26, 28, 48, 32, 12); fillPaper(c, 'brown'); });
+    glued(c, () => { ellipse(c, 50, 30, 25, 8); fillPaper(c, 'yellow'); });
+    for (const [x, y] of [[40, 29], [52, 32], [60, 28]]) { ellipse(c, x, y, 4, 2); wash(c, 'rgba(150, 80, 20, 0.5)'); }
+    c.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+    c.lineWidth = 2.4;
+    for (const x of [42, 56]) { c.beginPath(); c.moveTo(x, 18); c.quadraticCurveTo(x - 6, 12, x, 7); c.quadraticCurveTo(x + 5, 3, x + 1, -1); c.stroke(); }
+  },
+  escargots: (c) => {
+    // three shells, and something green
+    for (const [x, y] of [[30, 48], [50, 42], [70, 48]]) {
+      glued(c, () => { ellipse(c, x - 9, y + 6, 10, 4); fillPaper(c, 'manila'); });
+      glued(c, () => { circle(c, x, y, 11); fillPaper(c, 'brown'); });
+      c.strokeStyle = 'rgba(255, 230, 190, 0.8)';
+      c.lineWidth = 1.8;
+      c.beginPath(); c.arc(x, y, 6.5, 0.6, 5.4); c.stroke();
+      c.beginPath(); c.arc(x + 1, y, 2.6, 2, 7.2); c.stroke();
+    }
+    for (const [x, y] of [[40, 58], [61, 57], [50, 60]]) { circle(c, x, y, 2.6); fillPaper(c, 'green'); }
+  },
+  shrimp: (c) => {
+    // a glass of sauce with shrimp hooked round the rim
+    strokePaper(c, [50, 44, 50, 60], 'white', 4);
+    glued(c, () => { ellipse(c, 50, 61, 14, 4); fillPaper(c, 'white'); });
+    glued(c, () => { poly(c, [26, 22, 74, 22, 56, 46, 44, 46]); fillPaper(c, 'white'); });
+    poly(c, [26, 22, 74, 22, 56, 46, 44, 46]);
+    wash(c, 'rgba(150, 200, 230, 0.4)');
+    glued(c, () => { ellipse(c, 50, 23, 21, 5); fillPaper(c, 'red'); });
+    c.lineCap = 'round';
+    for (const x of [30, 50, 70]) {
+      c.beginPath();
+      c.arc(x, 20, 10, Math.PI * 0.95, Math.PI * 2.25);
+      c.strokeStyle = paper(c, 'red');
+      c.lineWidth = 7.5;
+      c.stroke();
+      c.strokeStyle = 'rgba(255, 235, 215, 0.55)';
+      c.stroke();
+    }
+  },
+  salad: (c) => {
+    glued(c, () => { for (const [x, y, r] of [[32, 46, 14], [50, 36, 17], [68, 46, 14], [42, 50, 12], [59, 50, 12]]) { circle(c, x, y, r); fillPaper(c, 'green'); } });
+    for (const [x, y, r] of [[40, 38, 9], [62, 40, 8]]) { circle(c, x, y, r); wash(c, 'rgba(190, 240, 120, 0.4)'); }
+    for (const [x, y] of [[36, 48], [56, 34], [66, 50]]) glued(c, () => { circle(c, x, y, 5); fillPaper(c, 'red'); });
+    for (const [x, y] of [[48, 48], [46, 30]]) glued(c, () => { circle(c, x, y, 3.4); fillPaper(c, 'yellow'); });
+  },
+  steak: (c) => {
+    glued(c, () => {
+      c.beginPath();
+      c.moveTo(22, 46);
+      c.bezierCurveTo(20, 24, 58, 20, 78, 34);
+      c.bezierCurveTo(88, 44, 70, 60, 46, 58);
+      c.bezierCurveTo(32, 58, 23, 54, 22, 46);
+      fillPaper(c, 'brown');
+      wash(c, 'rgba(40, 10, 0, 0.35)');
+    });
+    c.strokeStyle = 'rgba(20, 5, 0, 0.55)';
+    c.lineWidth = 2.6;
+    for (const x of [34, 46, 58, 70]) { c.beginPath(); c.moveTo(x - 6, 50); c.lineTo(x + 4, 32); c.stroke(); }
+    glued(c, () => { rr(c, 44, 30, 14, 10, 2); fillPaper(c, 'yellow'); });
+    strokePaper(c, [72, 56, 84, 48], 'green', 3);
+  },
+  salmon: (c) => {
+    glued(c, () => { rr(c, 22, 32, 52, 24, 9); fillPaper(c, 'red'); wash(c, 'rgba(255, 190, 150, 0.55)'); });
+    c.strokeStyle = 'rgba(255, 240, 225, 0.75)';
+    c.lineWidth = 2;
+    for (const x of [34, 44, 54, 64]) { c.beginPath(); c.moveTo(x, 34); c.quadraticCurveTo(x - 5, 44, x, 54); c.stroke(); }
+    glued(c, () => { c.beginPath(); c.arc(74, 52, 11, Math.PI, 0); c.closePath(); fillPaper(c, 'yellow'); });
+    for (const y of [24, 28]) strokePaper(c, [30, y + 4, 66, y], 'green', 3);
+  },
+  chicken: (c) => {
+    for (const side of [-1, 1]) {
+      glued(c, () => strokePaper(c, [50 + side * 16, 40, 50 + side * 30, 22], 'manila', 9));
+      circle(c, 50 + side * 31, 20, 4.5);
+      fillPaper(c, 'white');
+    }
+    glued(c, () => { ellipse(c, 50, 44, 28, 17); fillPaper(c, 'manila'); wash(c, 'rgba(170, 90, 10, 0.5)'); });
+    ellipse(c, 44, 38, 13, 6);
+    wash(c, 'rgba(255, 220, 150, 0.4)');
+    for (const [x, y] of [[26, 58], [74, 58], [50, 61]]) { circle(c, x, y, 3); fillPaper(c, 'green'); }
+  },
+  lobster: (c) => {
+    c.lineCap = 'round';
+    for (const side of [-1, 1]) {
+      glued(c, () => strokePaper(c, [50 + side * 8, 34, 50 + side * 24, 26], 'red', 5));
+      glued(c, () => { ellipse(c, 50 + side * 30, 20, 9, 13, side * 0.5); fillPaper(c, 'red'); });
+      poly(c, [50 + side * 30, 8, 50 + side * 33, 20, 50 + side * 27, 20]);
+      wash(c, '#fffaf0');
+      strokePaper(c, [50 + side * 3, 24, 50 + side * 14, 6], 'red', 1.6);
+    }
+    for (const [y, rx] of [[58, 8], [52, 10], [46, 11]]) glued(c, () => { ellipse(c, 50, y, rx, 5); fillPaper(c, 'red'); });
+    glued(c, () => { ellipse(c, 50, 34, 11, 13); fillPaper(c, 'red'); });
+    for (const side of [-1, 1]) { circle(c, 50 + side * 4, 24, 1.8); wash(c, DARK); }
+  },
+  cake: (c) => {
+    // a slice: three layers and a cherry
+    glued(c, () => { poly(c, [28, 30, 72, 22, 72, 58, 28, 58]); fillPaper(c, 'brown'); wash(c, 'rgba(40, 14, 0, 0.3)'); });
+    for (const y of [38, 48]) strokePaper(c, [28, y + 1, 72, y - 3], 'cream', 3);
+    glued(c, () => { poly(c, [28, 30, 72, 22, 72, 28, 28, 36]); fillPaper(c, 'brown'); wash(c, 'rgba(20, 6, 0, 0.5)'); });
+    glued(c, () => { circle(c, 54, 20, 6); fillPaper(c, 'red'); });
+  },
+  tart: (c) => {
+    glued(c, () => { poly(c, [22, 56, 78, 56, 50, 22]); fillPaper(c, 'manila'); });
+    poly(c, [22, 56, 78, 56, 50, 22]);
+    wash(c, 'rgba(230, 150, 30, 0.35)');
+    c.save();
+    poly(c, [26, 54, 74, 54, 50, 26]);
+    c.clip();
+    for (let i = -3; i < 6; i++) {
+      strokePaper(c, [20 + i * 12, 60, 44 + i * 12, 20], 'brown', 2.2);
+      strokePaper(c, [80 - i * 12, 60, 56 - i * 12, 20], 'brown', 2.2);
+    }
+    c.restore();
+    glued(c, () => strokePaper(c, [22, 57, 78, 57], 'brown', 5));
+  },
+  sundae: (c) => {
+    strokePaper(c, [50, 46, 50, 60], 'white', 4);
+    glued(c, () => { ellipse(c, 50, 61, 13, 4); fillPaper(c, 'white'); });
+    glued(c, () => { poly(c, [32, 24, 68, 24, 56, 48, 44, 48]); fillPaper(c, 'white'); });
+    poly(c, [32, 24, 68, 24, 56, 48, 44, 48]);
+    wash(c, 'rgba(150, 200, 230, 0.4)');
+    glued(c, () => { for (const [x, y] of [[40, 20], [60, 20], [50, 10]]) { circle(c, x, y, 11); fillPaper(c, 'cream'); } });
+    c.beginPath();
+    c.moveTo(40, 8); c.quadraticCurveTo(50, -4, 60, 8); c.quadraticCurveTo(62, 18, 56, 14); c.quadraticCurveTo(52, 22, 48, 13); c.quadraticCurveTo(42, 20, 40, 8);
+    fillPaper(c, 'brown');
+    glued(c, () => { circle(c, 50, 1, 5); fillPaper(c, 'red'); });
+  },
+  cheesecake: (c) => {
+    glued(c, () => { poly(c, [24, 34, 76, 26, 76, 58, 24, 58]); fillPaper(c, 'cream'); });
+    strokePaper(c, [24, 56, 76, 56], 'manila', 6);
+    glued(c, () => { poly(c, [24, 34, 76, 26, 76, 32, 24, 40]); fillPaper(c, 'red'); });
+    for (const x of [36, 56]) { c.beginPath(); c.moveTo(x, 37); c.quadraticCurveTo(x + 2, 48, x + 4, 36); fillPaper(c, 'red'); }
+  },
+};
+
+/** What is only the ordering game's: the dishes, what Stephanie is thinking, and the words. */
+function buildGame(scene: Phaser.Scene): void {
+  for (const [name, draw] of Object.entries(DISHES)) {
+    makePaperArt(scene, `papillon_dish_${name}`, DISH.w, DISH.h, (c) => {
+      plate(c, 50, 62, 94);
+      draw(c);
+    }, { border: 1.8, ax: 50, ay: 44 });
+  }
+  // what the chef sends out first: very little, on a very big plate
+  makePaperArt(scene, 'papillon_amuse', 110, 40, (c) => {
+    plate(c, 55, 24, 106);
+    glued(c, () => { rr(c, 50, 14, 10, 7, 2); fillPaper(c, 'manila'); });
+    circle(c, 55, 12, 2.6);
+    fillPaper(c, 'green');
+  }, { border: 1.6, ax: 55, ay: 26 });
+
+  // a thought, with room in it for two dishes or three
+  for (const [key, wide] of [['papillon_thought', 250], ['papillon_thought_wide', 350]] as [string, number][]) {
+    makePaperArt(scene, key, wide, 150, (c) => {
+      glued(c, () => {
+        const n = Math.round(wide / 62);
+        for (let i = 0; i <= n; i++) {
+          const x = 34 + ((wide - 68) * i) / n;
+          for (const y of [40, 96]) { circle(c, x, y + (i % 2) * 5, 36); fillPaper(c, 'white'); }
+        }
+        c.beginPath();
+        c.rect(30, 30, wide - 60, 76);
+        fillPaper(c, 'white');
+      });
+    }, { border: 2.4 });
+  }
+  makePaperArt(scene, 'papillon_puff', 30, 30, (c) => { glued(c, () => { circle(c, 15, 15, 13); fillPaper(c, 'white'); }); }, { border: 2 });
+  // which she wants most, and which after that
+  const ranks: [string, string, Paper, Paper][] = [['papillon_rank1', '1', 'yellow', 'red'], ['papillon_rank2', '2', 'sky', 'blue'], ['papillon_rank3', '3', 'manila', 'brown']];
+  for (const [key, n, sheet, letters] of ranks) {
+    makePaperArt(scene, key, 44, 44, (c) => {
+      glued(c, () => { circle(c, 22, 22, 20); fillPaper(c, sheet); });
+      c.strokeStyle = 'rgba(0, 0, 0, 0.2)';
+      c.lineWidth = 1.5;
+      c.beginPath(); c.arc(22, 22, 15.5, 0, Math.PI * 2); c.stroke();
+      cutText(c, n, 22, 24, 28, letters);
+    }, { border: 1.6 });
+  }
+  // a card off the menu, to press
+  for (const [key, sheet] of [['papillon_card', 'cream'], ['papillon_card_no', 'grey']] as [string, Paper][]) {
+    makePaperArt(scene, key, 340, 44, (c) => {
+      glued(c, () => { rr(c, 0, 0, 340, 44, 7); fillPaper(c, sheet); if (sheet === 'grey') wash(c, 'rgba(255, 255, 255, 0.45)'); });
+      c.strokeStyle = paper(c, 'yellow');
+      c.lineWidth = 2;
+      rr(c, 4, 4, 332, 36, 5);
+      c.stroke();
+    }, { border: 2 });
+  }
+
+  makePaperArt(scene, 'word_papillon_coincidence', 430, 140, (c) => {
+    burstPath(c, 215, 70, 213, 68, 19, 81);
+    fillPaper(c, 'red');
+    c.translate(215, 70);
+    c.rotate(-0.04);
+    cutText(c, 'WHAT A CRAZY', 0, -22, 36, 'white');
+    cutText(c, 'COINCIDENCE!', 0, 20, 46, 'yellow');
+  }, { border: 2.5 });
+  makePaperArt(scene, 'word_papillon_bonappetit', 400, 130, (c) => {
+    burstPath(c, 200, 65, 198, 63, 17, 82);
+    fillPaper(c, 'blue');
+    c.translate(200, 65);
+    c.rotate(-0.04);
+    cutText(c, 'BON APPETIT!', 0, 3, 58, 'yellow');
+  }, { border: 2.5 });
+  makeWord(scene, 'word_papillon_badumtss', 'BA-DUM TSS!', 'yellow', 'red', 190, 31, 83);
+}
+
 export function buildArt(scene: Phaser.Scene): void {
   buildPlace(scene);
-  makeWord(scene, 'word_papillon_placeholder', 'OUI!', 'yellow', 'red', 150, 44, 71);
+  buildGame(scene);
 }
