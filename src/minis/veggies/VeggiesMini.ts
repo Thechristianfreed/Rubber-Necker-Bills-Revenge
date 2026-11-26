@@ -1,11 +1,12 @@
 import Phaser from 'phaser';
 import { TEX, view } from '../../config';
-import { ART, applyArt, img } from '../../art/sticker';
+import { ART, FROM, applyArt, img } from '../../art/sticker';
 import { sound } from '../../audio/sound';
 import { label, written } from '../../ui/text';
 import { Mini, Point } from '../Mini';
 import { Diner, LAYER, PAPILLON, Talk, Waiter, layPapillon, onTable, setTable } from '../shared/papillon';
 import { BIG, CUT, VEG, headKey } from './art';
+import { FIT } from './cut';
 import { burp, clack, gasp, gulp, plop, ptooey, squelch, strain } from './sounds';
 
 type Image = Phaser.GameObjects.Image;
@@ -33,6 +34,11 @@ const JAMMED = 0.1;
 /** How fast he works it back out when nobody is shoving, and after how long. */
 const SLIPS = 0.14;
 const SLIPS_AFTER = 0.3;
+
+/** Whether a picture is a photo now (and not the paper it takes the place of). */
+const photo = (key: string): boolean => !!FROM[key];
+/** How far short of its far end an arm is taken to stop: the round of an elbow, on the one that has one. */
+const ARM_END: Record<string, number> = { veggies_arm_steph: 13 };
 
 /** How wide his mouth has to open for a vegetable: how far the top of his head tips back,
  *  and how far his jaw drops. */
@@ -276,7 +282,8 @@ export class VeggiesMini extends Mini {
     // Branson: a small boy with a napkin in his collar, and a great deal of head
     img(s, hx + 12, CHIN - 60, 'papillon_chair').setDepth(LAYER.chair);
     this.body = img(s, hx + 12, CHIN + 2, 'veggies_body').setDepth(LAYER.diner + 1);
-    for (const side of [-1, 1]) this.kidArms.push(img(s, hx + 12 + side * 52, CHIN + 30, 'veggies_kidarm').setDepth(LAYER.diner + 2));
+    const joints = photo('veggies_body') ? FIT.body.shoulders : [[-52, 28], [52, 28]];
+    for (const [x, y] of joints) this.kidArms.push(img(s, hx + 12 + x, CHIN + 2 + y, 'veggies_kidarm').setDepth(LAYER.diner + 2));
     this.neck = img(s, hx + 12, CHIN + 14, 'veggies_neck').setDepth(LAYER.diner + 2).setVisible(false);
     this.lump = img(s, hx + 12, CHIN, 'veggies_lump').setDepth(LAYER.diner + 2.5).setVisible(false);
     this.head = new Head(s, hx, CHIN, 'angry');
@@ -415,7 +422,8 @@ export class VeggiesMini extends Mini {
     this.p = 1;
     this.want = { theta: 0, phi: 0 };
     this.snap = 34;
-    this.head.set('dazed');
+    // (his mouth shut on it, and his cheeks full of it, until it has gone down)
+    this.head.set('stuffed');
     this.hint.setText('');
     this.bill.set('smug');
     this.steph.set('smug');
@@ -429,6 +437,7 @@ export class VeggiesMini extends Mini {
     this.after(0.52, () => {
       // ...and it lands
       this.bodyPop = 1;
+      this.head.set('dazed');
       plop();
     });
     this.after(0.85, () => {
@@ -655,7 +664,8 @@ export class VeggiesMini extends Mini {
   /** Lay an arm from one spot to another: it is as long as that takes. */
   private reach(arm: Image, from: Point, to: Point): void {
     const key = arm.texture.key, dx = to.x - from.x, dy = to.y - from.y;
-    arm.setPosition(from.x, from.y).setRotation(Math.atan2(dy, dx)).setScale(Math.hypot(dx, dy) / (ART[key].w - 12) / TEX, 1 / TEX);
+    const a = ART[key], long = a.w - a.ax - (photo(key) ? ARM_END[key] ?? 6 : 6);
+    arm.setPosition(from.x, from.y).setRotation(Math.atan2(dy, dx)).setScale(Math.hypot(dx, dy) / long / TEX, 1 / TEX);
   }
 
   /** Put everything where it is. */
@@ -711,7 +721,9 @@ export class VeggiesMini extends Mini {
       const d = grip + this.back[i], side = pushing ? (i ? 15 : -15) : 0;
       const at = { x: h.x - ux * d - uy * side, y: h.y - uy * d + ux * side };
       fist.setPosition(at.x, at.y).setRotation(this.axis);
-      this.reach(arm, this.shoulder(this.bill, 1, i === 1), { x: at.x - ux * 14, y: at.y - uy * 14 });
+      // (to his wrist: in the photo the fist has its own cuff, which the sleeve stops under)
+      const cuff = photo('veggies_fist') ? 24 : 14;
+      this.reach(arm, this.shoulder(this.bill, 1, i === 1), { x: at.x - ux * cuff, y: at.y - uy * cuff });
     }
 
     // his mother's hand: on his nose, off it, and then holding the top of his head back
@@ -726,9 +738,16 @@ export class VeggiesMini extends Mini {
       const elbow = hold ? { x: (from.x + at.x) / 2 + 30, y: Math.min(from.y, at.y) + 40 } : { x: from.x - 36, y: at.y - 14 };
       const key = hold ? 'veggies_palm' : 'veggies_pinch';
       if (this.hand.texture.key !== key) applyArt(this.hand, key);
-      this.hand.setPosition(at.x, at.y).setRotation(hold ? this.theta - 0.5 : 0);
       this.reach(this.upper, from, elbow);
-      this.reach(this.forearm, elbow, { x: at.x + (hold ? 0 : 14), y: at.y + (hold ? 6 : 0) });
+      if (photo(key)) {
+        // a photo of a hand has a wrist: it is turned so that the wrist is on the way to her elbow, and her forearm stops there
+        const w = FIT.hands[hold ? 'palm' : 'pinch'].wrist, way = Math.atan2(elbow.y - at.y, elbow.x - at.x), far = Math.hypot(w[0], w[1]);
+        this.hand.setPosition(at.x, at.y).setRotation(way - Math.atan2(w[1], w[0]));
+        this.reach(this.forearm, elbow, { x: at.x + Math.cos(way) * far, y: at.y + Math.sin(way) * far });
+      } else {
+        this.hand.setPosition(at.x, at.y).setRotation(hold ? this.theta - 0.5 : 0);
+        this.reach(this.forearm, elbow, { x: at.x + (hold ? 0 : 14), y: at.y + (hold ? 6 : 0) });
+      }
     }
 
     // the rest of him: his arms, his neck, and what goes down it

@@ -101,17 +101,54 @@ throat is not drawn at all.
 
 ## Pictures
 
-Everything of this game's own is cut from paper so far (`art.ts`). The
-restaurant, the table, the waiter, his tray and his parents' seats are the
+All of this game's own pictures are photos now (26 November 2026): the owner
+made them from the prompts below, they came from his Drive ("Additional Home
+Movies Game Assets") and one in the chat, and they are kept in
+`art-src/games/veggies/` as they came, each beside Adobe's cutout of it.
+`cut.py` cuts them into `assets/` and writes `cut.ts`, which says how big
+each piece is drawn and where it is held; `index.ts` registers that list, and
+each photo takes the place of the paper piece with the same name. The paper
+(`art.ts`) is still there underneath, and shows if a photo cannot be loaded.
+
+The restaurant, the table, the waiter, his tray and his parents' seats are the
 ordering game's (`papillon_...`), used as they are; their prompts are in that
 game's README. Bill's and Stephanie's heads, and Branson's, are from
 everybody's set.
 
-To be generated (Nano Banana, one prompt to a message, the full-size picture
-sent back with its number: `docs/art-prompts.md` has how). Each is a clean
-photo on a plain background: the game adds the white edge and the shadow.
-When they come back they go in `art-src/games/veggies/`, with Adobe's
-cutouts, and `cut.py` cuts them into `assets/`.
+| Picture | Kept as | What is cut from it | In the game as |
+| --- | --- | --- | --- |
+| VG1, his body | `VG1-body.jpg`, `-cutout.webp`, `-headmask.png` | His body: the head off (Adobe's selection of hair, face and ears), and both arms off at the shoulder, with a round end left on each shoulder for the game's own arms to turn on. Below the shoulders, what is kept is what lies between the two edges of his waistcoat. | `veggies_body`, held at the chin |
+| VG2, his arm | `VG2-arm.jpg`, `-cutout.webp` | The arm, cut round at the shoulder (it came with some of his shirt). One arm does for both. | `veggies_kidarm`, held at the shoulder |
+| VG3, the vegetables | `VG3-vegetables.jpg`, `-cutout.webp` | Four pieces, left to right: carrot, corn, broccoli, a leaf of spinach. Each of the three is turned level (13 or 14 degrees: they were photographed tip down) and held by the end that goes in first. | `veggies_carrot`, `veggies_corn`, `veggies_broccoli`, `veggies_leaf` |
+| VG4, Bill's arm | `VG4-bill-arm.jpg`, `-cutout.webp` | Two pieces: the sleeve, round at the shoulder, to the end of the cuff (it stretches); and the fist, with a round of cuff behind it (it does not). | `veggies_arm_bill`, `veggies_fist` |
+| VG5, Stephanie's arm and hands | `VG5-steph-arm.jpg`, `-cutout.webp` | The arm cut in two at the elbow, each half round there and turned right round (it came pointing left; every arm in the game is held by its near end and points right). The hand on the end of that arm is not used. The pinching hand and the flat hand, as they came. | `veggies_arm_steph`, `veggies_forearm`, `veggies_pinch`, `veggies_palm` |
+| VG6, the noodles | `VG6-noodles.jpg`, `-cutout.webp`, `-bowlmask.png` | The bowl, from the picture itself inside Adobe's selection of "the bowl of noodles". | `veggies_noodles` |
+| VG7, the false teeth | `VG7-teeth.webp`, `-cutout.webp` | Half of each row, the front tooth first, and the tongue. | `veggies_teeth_top`, `veggies_teeth_bot`, `veggies_tongue` |
+| VG8, his cheeks stuffed | `art-src/generated/face-branson-stuffed.webp`; Adobe's two answers in `art-src/cast/branson/stuffed-*` | A face, cut by `tools/make_cast.py` with his other fifteen: `face_branson_stuffed`, a look of his own in everybody's set. | `veggies_branson_stuffed` (the big copy), from the moment his mouth shuts on a vegetable until it lands |
+
+What went wrong, and what was done about it:
+
+- **The bowl of noodles came back without its bowl.** Background removal
+  kept the noodles and the blue rim and took the white bowl for background
+  (white, on white). The bowl is cut from the picture itself with Adobe's
+  selection of "the bowl of noodles" instead (`VG6-noodles-bowlmask.png`).
+- **His body came with its arms** (behind his back, as asked, but the
+  sleeves show at his sides), and the game gives him two arms of its own. They
+  are cut off below the shoulder.
+- **The carrot is a real carrot:** long and thin, with a bush of green on
+  the end. It is drawn longer than the paper one was (190, where that was
+  150) and his mouth opens less for it (`VEG` in `cut.py`, which `art.ts`
+  reads from `cut.ts`).
+- **Photos of hands have wrists.** Each of his mother's hands is turned so
+  that its wrist is on the way to her elbow, and her forearm stops there
+  (`FIT.hands` in `cut.ts` says where each wrist is).
+- **His teeth are seen from the side, and the false teeth were photographed
+  from the front.** Half a set is used for each row, and it is drawn wider
+  than it is tall, so that it is a row of teeth going back into his mouth.
+- **His neck, and the lump that goes down it, are still paper.** There is no
+  neck to speak of in the photo of his body to take one from.
+
+The prompts, as they were sent:
 
 ### VG1. Branson's body
 
@@ -163,16 +200,15 @@ Three photographs of the same woman's bare right arm and hand, side by side with
 A photograph of a white china bowl with a blue rim, heaped high with plain buttered egg noodles, a square pat of yellow butter melting on top, on a plain flat light-grey studio background. Seen from the side and a little from above, so that the heap of noodles shows over the rim. Nothing else in the picture. Soft even light, no shadows on the background. No text, no borders.
 ```
 
-### VG7. Inside his mouth (if wanted)
+### VG7. Inside his mouth
 
-His teeth and tongue are small and cut from paper, and may as well stay
-that way. If a photo is wanted, false teeth are the joke:
+False teeth are the joke:
 
 ```text
 Three things photographed from the front on one plain flat light-grey studio background, in a row with wide clear gaps between them. First: the upper half of a set of novelty false teeth, a row of big white upper front teeth in a strip of pink gum, the teeth pointing down. Second: the lower half of the same set, a row of big white lower front teeth in pink gum, the teeth pointing up. Third: a pink rubber joke tongue lying flat, its tip towards the left of the picture. Soft even light, no shadows on the background. No text, no borders. Wide 16:9 image.
 ```
 
-### VG8. A face of his own: stuffed (if wanted)
+### VG8. A face of his own: stuffed
 
 Not one of the fifteen: a look for this story, as Shane's doe eyes are for
 the sandbox. It would be the moment his mouth shuts on a vegetable (he is
@@ -183,9 +219,11 @@ like the rest of his set, so that it matches them:
 Edit this photo. Keep the man, his hair, his beard, the lighting, the framing and the background exactly the same. Change only his expression: his cheeks puffed out as full as they will go, as if his mouth is crammed with far too much food, his lips pressed shut round it, his eyes wide and watering. Keep his head upright and facing the camera.
 ```
 
-It goes through Adobe and `tools/make_cast.py` like any face (`cutting.md`,
-"For everybody's faces"), as a look of Branson's own called `stuffed`, and
-then gets a line in `CUT`.
+It is made, and in. It went through Adobe and `tools/make_cast.py` like any
+face (`cutting.md`, "For everybody's faces"), as a look of Branson's own
+called `stuffed`: framed exactly as his others are, so the tool gave it the
+set's size and chin. Where his head is cut to open his mouth is its line in
+`CUT` in `art.ts` (0.668 of the way down).
 
 ## Sound
 

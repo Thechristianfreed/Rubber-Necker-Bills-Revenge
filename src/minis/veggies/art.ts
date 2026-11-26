@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { Paper, fillPaper, glued, makePaperArt, makeWord, strokePaper } from '../../art/paper';
 import { Ctx, circle, ellipse, poly, rr } from '../../art/sticker';
 import { CAST } from '../../data/cast';
+import { VEG_FIT } from './cut';
 
 /** The paper stand-ins for the vegetables: what is on the page until there is a
  *  photo (a photo registered under the same key in index.ts takes its place).
@@ -19,6 +20,8 @@ export const BIG = 200;
  *  open already). Read off the photos with a grid ruled over them; a paper head is drawn to match. */
 export const CUT: Record<string, number> = {
   angry: 0.672, worried: 0.675, shocked: 0.695, cry: 0.682, dazed: 0.672, disgusted: 0.685, smug: 0.675, smile: 0.675,
+  // (his own, for this: his cheeks full and his lips shut on it)
+  stuffed: 0.668,
 };
 export const LOOKS = Object.keys(CUT);
 
@@ -36,12 +39,13 @@ export function headBox(look: string): { w: number; h: number; ax: number; ay: n
 }
 
 /** The vegetables, in the order they come: each is drawn lying down, the end that goes in
- *  first to the right, and is held by that end. How long and how thick; how many shoves it
- *  takes; how long he can hold his breath before it; how long his mouth is open for. */
+ *  first to the right, and is held by that end. How long and how thick (as the photo of it
+ *  is: cut.py says, and the paper one is drawn to match); how many shoves it takes; how long
+ *  he can hold his breath before it; how long his mouth is open for. */
 export const VEG = [
-  { key: 'veggies_carrot', len: 150, thick: 46, shoves: 5, hold: 1.15, open: 0.85 },
-  { key: 'veggies_corn', len: 152, thick: 66, shoves: 7, hold: 1.0, open: 0.75 },
-  { key: 'veggies_broccoli', len: 176, thick: 126, shoves: 9, hold: 0.9, open: 0.7 },
+  { key: 'veggies_carrot', ...VEG_FIT.veggies_carrot, shoves: 5, hold: 1.15, open: 0.85 },
+  { key: 'veggies_corn', ...VEG_FIT.veggies_corn, shoves: 7, hold: 1.0, open: 0.75 },
+  { key: 'veggies_broccoli', ...VEG_FIT.veggies_broccoli, shoves: 9, hold: 0.9, open: 0.7 },
 ];
 
 const DARK = '#241a14';
@@ -307,9 +311,12 @@ export function buildArt(scene: Phaser.Scene): void {
   makePaperArt(scene, 'veggies_lump', 58, 40, (c) => { glued(c, () => { ellipse(c, 29, 20, 28, 19); fillPaper(c, 'manila'); }); }, { border: 2 });
 
   // the vegetables
-  makePaperArt(scene, 'veggies_carrot', 150, 48, carrot, { border: 2.4, ax: 150, ay: 24 });
-  makePaperArt(scene, 'veggies_corn', 152, 66, corn, { border: 2.4, ax: 152, ay: 33 });
-  makePaperArt(scene, 'veggies_broccoli', 176, 126, broccoli, { border: 2.4, ax: 176, ay: 63 });
+  // (each drawn to the size of the photo that takes its place)
+  const drawn: [string, number, number, (c: Ctx) => void][] = [['veggies_carrot', 150, 48, carrot], ['veggies_corn', 152, 66, corn], ['veggies_broccoli', 176, 126, broccoli]];
+  for (const [key, w, h, draw] of drawn) {
+    const f = VEG_FIT[key];
+    makePaperArt(scene, key, f.len, f.tall, (c) => { c.scale(f.len / w, f.tall / h); draw(c); }, { border: 2.4, ax: f.len, ay: f.tall / 2 });
+  }
   makePaperArt(scene, 'veggies_leaf', 24, 16, (c) => { glued(c, () => { ellipse(c, 12, 8, 11, 6, 0.3); fillPaper(c, 'green'); }); }, { border: 1.2 });
 
   // his parents' arms and hands

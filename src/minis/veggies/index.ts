@@ -1,15 +1,17 @@
 import { CAST } from '../../data/cast';
 import { MiniGame, Piece } from '../kit';
 import { BIG, LOOKS, buildArt, headKey } from './art';
+import { CUT as CUT_OUT } from './cut';
 import { VeggiesMini } from './VeggiesMini';
 
 /** The photos of this game: each takes the place of the paper stand-in with the same
  *  key. The files are in ./assets (cut by ./cut.py); one that is not there is looked for
  *  among the common pictures. Every key starts with "veggies_".
  *
- *  So far they are all Branson's own faces, from everybody's set, at the size he is
- *  seen here: close up. */
+ *  Branson's own faces, from everybody's set, at the size he is seen here (close up);
+ *  and everything cut.py cuts from the owner's pictures (./cut.ts is its list). */
 const PIECES: Piece[] = [
+  ...CUT_OUT,
   ...LOOKS.filter((look) => CAST.branson?.[look]).map((look): Piece => {
     const f = CAST.branson[look];
     return { key: headKey(look), file: f.file, h: BIG * f.tall, border: 3, anchor: f.chin };
