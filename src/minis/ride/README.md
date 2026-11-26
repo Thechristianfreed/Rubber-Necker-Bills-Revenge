@@ -49,6 +49,8 @@ the edge of town ("NOW LEAVING TOWN", "COME BACK SOON!"); what is in the road
 (dustbins, cones and potholes); and that it is night. All of the lines are
 at the top of `RideMini.ts`.
 
+**By itself:** https://claude.ai/artifact/7wco3WuX9fazQFSt7yjVdM (built with `node tools/make_preview.mjs <out>/ride.html --only ride`, and published from the same file each time, which keeps the address).
+
 ## How it plays
 
 It is a story that waits for the player (`timed = false`): there is no

@@ -42,6 +42,8 @@ harvest-gold wallpaper and avocado fridge; the dish towel in Pappy's belt;
 and that the cats come out of it dry, twice the size, every hair on end,
 and glaring.
 
+**By itself:** https://claude.ai/artifact/JHncMNQPcW4cKtwDDkNwFx (built with `node tools/make_preview.mjs <out>/catbath.html --only catbath`, and published from the same file each time, which keeps the address).
+
 ## How it plays
 
 It is a story that waits for the player (`timed = false`): there is no

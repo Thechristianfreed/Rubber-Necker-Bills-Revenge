@@ -91,6 +91,8 @@ Where the previews are (add a game's here when it gets one):
 | The whole game | https://claude.ai/artifact/GwrBX3NsV3Jue3LDMUhb1c |
 | Pocket sand by itself | https://claude.ai/artifact/11orTeMeACo1UbsrVrHxcQ |
 | Pappy comes home by itself | https://claude.ai/artifact/1sZax1AfUnwYJJCTfL2Luz |
+| Take 'em for a ride by itself | https://claude.ai/artifact/7wco3WuX9fazQFSt7yjVdM |
+| Bath time by itself | https://claude.ai/artifact/JHncMNQPcW4cKtwDDkNwFx |
 
 A chat other than the one that made a preview can publish to it by passing
 its address as `url`.
