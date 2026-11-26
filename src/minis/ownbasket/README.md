@@ -210,6 +210,42 @@ Three things photographed side by side with wide clear gaps between them, on one
 
 The court itself is the fight's gym, as it is.
 
+### Still to make: OB4 to OB7
+
+Four pictures that would let the game use what was sent as it is, where it
+now works round it (sent to the owner as one batch on 26 November 2026).
+None needs another picture attached: Stephanie's head is replaced, so only
+her uniform has to match. The other girl's pictures are right as they are,
+and a new one of her would not have the same face.
+
+OB4, Stephanie with her arms up (for the jump shot and the cheer: both arms
+whole, and clear of her head, so that neither has to be borrowed or mended):
+
+```text
+Two full-length photographs of the same girl of about twelve side by side with a very wide clear gap between them, on one plain flat light-grey studio background. A 1970s middle school girls' basketball uniform: a red sleeveless jersey with white trim at the neck and armholes and the number 01 on the chest in white block numerals, red shorts with a white stripe down each side, white knee socks with two red bands at the top, white canvas high-top trainers, her hair tied up in a tight bun so her neck and shoulders are clear. Her body is turned a little towards the right of the picture. There is no ball in either. First: at the top of a jump shot, feet off the ground with her toes pointing down, both arms stretched straight up as high as they will go, one on each side of her head, hands above her head with the wrists flicked forward. Second: jumping for joy, feet off the ground, both arms thrown straight up and out in a wide V, fists clenched. In both, there is a clear gap of bare background between each arm and her head, no part of either arm or hand passes in front of or behind her face, head, hair or neck, and both arms can be seen whole from shoulder to fingertips. Her whole body is in frame from fingertips to feet, with room above her hands. Soft even light, no shadows on the background. No text other than the number, no borders. Wide 16:9 image.
+```
+
+OB5, Stephanie running (two strides with her head at one height and a foot
+on the floor in each, so that neither has to be lifted to keep her level):
+
+```text
+Two full-length photographs of the same girl of about twelve side by side with a very wide clear gap between them, on one plain flat light-grey studio background. A 1970s middle school girls' basketball uniform: a red sleeveless jersey with white trim at the neck and armholes and the number 01 on the chest in white block numerals, red shorts with a white stripe down each side, white knee socks with two red bands at the top, white canvas high-top trainers, her hair tied up in a tight bun so her neck and shoulders are clear. She is running towards the right of the picture, upright, bouncing a ball that is not in the picture: her right hand is held low and flat out in front of her, and there is no ball. First: one stride, her right foot flat on the ground under her and her left leg lifted behind. Second: the next stride, her left foot flat on the ground under her and her right leg lifted behind. In both she is the same size, standing just as tall, with her head at exactly the same height and one foot on the ground. Her whole body is in frame from head to feet in both. Soft even light, no shadows on the background. No text other than the number, no borders. Wide 16:9 image.
+```
+
+OB6, the basket (with its post close behind the board, so that all of it is
+on the page):
+
+```text
+A school gymnasium basketball goal seen exactly from the side, in profile, photographed alone on one plain flat light-grey background. A single straight vertical grey steel post stands on a small flat steel plate on the floor. Near the top of the post a short horizontal steel bracket holds a white backboard, seen edge on, close in front of the post. An orange rim with a white net sticks out to the right of the backboard. It is compact: the post is almost directly behind the backboard, and the middle of the rim is only about a third as far out from the post as the rim is high above the floor. There is no long diagonal arm and no wheeled or weighted base. All of it is in frame, from the plate on the floor to the top of the backboard. Soft even light, no shadows on the background. No text, no borders. Tall 9:16 image.
+```
+
+OB7, the scoreboard (with a middle panel as big as the other two, for a
+clock that reads 0:30):
+
+```text
+An old electric gymnasium scoreboard of the 1970s, photographed straight on and alone on one plain flat light-grey background. A wide black metal box with the word HOME in white capital letters at the top left and the word VISITORS in white capital letters at the top right. Below the words are three dark panels in a row, all exactly the same size and evenly spaced: one under HOME, one in the middle, one under VISITORS. Each panel is wide enough for two large numerals. All three panels are switched off and completely dark, with no numbers showing. No other words or numbers anywhere on it. Soft even light, no shadows on the background. No borders. Wide 16:9 image.
+```
+
 ## Sound
 
 Its own are made of notes and noise in `sfx.ts`. How loud each came out,
