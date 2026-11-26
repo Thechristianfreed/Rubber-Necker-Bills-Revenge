@@ -14,7 +14,7 @@ The size is how big the picture is drawn, in the game's own pixels (the page is 
 - [Effects](#effects) (25)
 - [Words on bursts](#words) (57)
 - [The interface](#interface) (26)
-- [The quick game "golf"](#game-golf) (67)
+- [The quick game "golf"](#game-golf) (68)
 
 <a id="places"></a>
 
@@ -765,6 +765,7 @@ Made by `src/minis/golf`, and kept in its folder.
 | `golf_bollard` | 17 x 92 |  | `src/minis/golf/assets/bollard.webp` |
 | `golf_bottle` | 12 x 36 |  | `src/minis/golf/assets/bottle.webp` |
 | `golf_btn_swing` | 176 x 86 |  | paper |
+| `golf_card` | 616 x 450 |  | `src/minis/golf/assets/card.jpg` |
 | `golf_chad_address` | 69 x 115 |  | `src/minis/golf/assets/chad-address.webp` |
 | `golf_chad_address_iron` | 69 x 114 |  | `src/minis/golf/assets/chad-address-iron.webp` |
 | `golf_chad_back` | 69 x 146 |  | `src/minis/golf/assets/chad-back.webp` |

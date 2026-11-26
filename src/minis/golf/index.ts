@@ -41,6 +41,8 @@ const PIECES: Piece[] = [
   // Windows R Us
   { key: 'golf_store', file: 'store.png', h: 350, border: 2.5, anchor: FOOT, decorate: lettered('store', letterShop) },
   { key: 'golf_window_new', file: 'window-new.png', h: 150, border: 2.5 },
+  // the title card for the second day (the owner's own picture: there is no paper one, only the words)
+  { key: 'golf_card', file: 'card.jpg', h: 450, border: 4 },
 ];
 
 /** The whole places (the first tee, the trail, the lot outside the shop): each is one photo,

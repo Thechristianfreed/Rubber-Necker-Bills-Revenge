@@ -25,6 +25,8 @@ What came from the owner, and what Adobe was asked for each:
              dropped them. It did not: those masks are kept and not used.)
   GF3, GF5,  The first tee, the trail and the lot outside the shop: whole places,
   GF10       which go in as they are, made smaller.
+  CARD       The title card for the second day, "Leave It To Chad", which the owner
+             made: it goes in as it is, made smaller.
 """
 import os
 import sys
@@ -74,11 +76,15 @@ def keep():
 
 # ---- people ---------------------------------------------------------------------------------
 
-def figure(name):
+def figure(name, side=False):
     """Somebody with their head taken off. Returns the piece cut down to them, the spot on the
     ground they stand on (as a fraction of the piece: under the middle of their trunk, at the
     bottom of their feet), and from that spot, in the picture's pixels: where the chin was, how
-    far it is from chin to ground, and where the hand that is furthest forward is."""
+    far it is from chin to ground, and where the hand that is furthest forward is.
+
+    Somebody seen from the `side` is given a head that looks straight out of the page, which
+    belongs over the middle of the head that came off: their own chin is well out in front of
+    that (ten of the game's pixels), and a head hung there is ahead of its body."""
     cut = adobe(name)
     head = mc.selection(f"{name}-headmask.png")
     body = mc.without_heads(cut, [head])
@@ -88,6 +94,8 @@ def figure(name):
         club = (mc.selection(f"{name}-clubmask.png") > 0.5) & (head < 0.5)
         body[..., 3] = np.where(club, cut[..., 3], body[..., 3])
     (cx, cy), _ = mc.chin_of(head)
+    if side:
+        cx = float(np.where(head > 0.5)[1].mean())
     ys, xs = np.where((body[..., 3] > 0.3) & ~club)
     feet = float(ys.max())
     tall = feet - cy
@@ -102,7 +110,7 @@ def figure(name):
 
 
 # sheet, how far from ground to chin for whoever on it is standing straightest, and each figure on it:
-# what it is called, and how far its head tips
+# what it is called, and how far its head tips (the people on the trail, GF8, are seen from the side)
 PEOPLE = [
     ("GF1-chad-golf", KID, [("chad_address", 0.06), ("chad_back", 0.1), ("chad_follow", -0.04)]),
     ("GF1b-chad-iron", KID, [("chad_address_iron", 0.06), ("chad_back_iron", 0.1), ("chad_follow_iron", -0.04)]),
@@ -121,7 +129,7 @@ def people():
     for sheet, height, poses in PEOPLE:
         if not any(os.path.exists(os.path.join(mc.SRC, f"{sheet}-1-cutout{ext}")) for ext in (".png", ".webp")):
             continue                    # not made yet
-        found = [(pose, tilt, figure(f"{sheet}-{k + 1}")) for k, (pose, tilt) in enumerate(poses)]
+        found = [(pose, tilt, figure(f"{sheet}-{k + 1}", side=sheet.startswith("GF8"))) for k, (pose, tilt) in enumerate(poses)]
         # everybody on a sheet is the same size: whoever stands tallest is as tall as that kind of person is
         scale = height / max(f["tall"] for _, _, f in found)
         # (Chad with the iron is the same picture as Chad with the driver, and is made the same size)
@@ -230,9 +238,19 @@ def places():
     return made
 
 
+def card():
+    """The title card for the second day, as the owner made it: 450 of the game's pixels tall."""
+    im = Image.open(os.path.join(mc.GEN, "CARD-leave-it-to-chad.webp")).convert("RGB")
+    im = im.resize((round(im.width * 900 / im.height), 900), Image.LANCZOS)
+    out = os.path.join(mc.OUT, "card.jpg")
+    im.save(out, quality=86, optimize=True)
+    print("card.jpg", im.width, "x", im.height, os.path.getsize(out), "bytes")
+
+
 def cut():
     os.makedirs(mc.OUT, exist_ok=True)
     bodies, signs, grounds = people(), things(), places()
+    card()
     table = os.path.join(HERE, "cuts.ts")
     pair = lambda v: f"[{v[0]:.1f}, {v[1]:.1f}]"
     with open(table, "w") as f:
@@ -240,7 +258,8 @@ def cut():
                 " *  The bodies: for each pose its picture, how big it is drawn (game pixels to one of\n"
                 " *  the picture's), the spot on the ground it stands on (as a fraction of the picture),\n"
                 " *  and from that spot, in game pixels: where the chin goes, how far the head tips, and\n"
-                " *  where the hand that is furthest forward is.\n"
+                " *  where the hand that is furthest forward is. (For somebody seen from the side, the\n"
+                " *  chin is under the middle of their head, which is where a head that faces us hangs.)\n"
                 " *  The signs: the blank part of each, to be lettered (left, top, right, bottom, as\n"
                 " *  fractions of its picture).\n"
                 " *  The places: each one's picture, how tall it is made and how wide that makes it.\n"

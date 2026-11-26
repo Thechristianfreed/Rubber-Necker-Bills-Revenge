@@ -444,19 +444,24 @@ export class GolfMini extends Mini {
 
   // ---- the next day -----------------------------------------------------------------------------
 
-  /** A title card, as on an old television programme about two brothers. */
+  /** A title card, as on an old television programme about two brothers: the owner's picture of
+   *  it, "Leave It To Chad" written in wet cement, or the same words in marker pen if it cannot be had. */
   private card(): void {
-    const s = this.scene;
+    const s = this.scene, photo = s.textures.exists('golf_card');
     this.cut('card');
     s.add.rectangle(this.cx, H / 2, MAX_W * 2, H * 2, 0x16131c).setDepth(1);
-    if (s.textures.exists('tv_lines')) s.add.tileSprite(this.cx, H / 2, MAX_W + BLEED * 2, H + BLEED * 2, 'tv_lines').setDepth(2).setAlpha(0.5);
-    const title = marker(s, this.cx, 214, 'Leave It To Chad', 68).setDepth(3).setRotation(-0.04).setScale(0.8);
-    s.tweens.add({ targets: title, scale: 1, duration: 260, ease: 'Back.out' });
-    const tape = img(s, this.cx, 330, 'tape_l').setDepth(3).setRotation(0.015);
-    const day = written(s, this.cx, 330, 'THE NEXT DAY', 26).setDepth(4).setRotation(0.015);
+    const title = photo
+      ? img(s, this.cx, 262, 'golf_card').setDepth(3).setRotation(-0.012)
+      : marker(s, this.cx, 214, 'Leave It To Chad', 68).setDepth(3).setRotation(-0.04);
+    const full = title.scale;
+    title.setScale(full * 0.86);
+    s.tweens.add({ targets: title, scale: full, duration: 260, ease: 'Back.out' });
+    const at = photo ? 510 : 330;
+    const tape = img(s, this.cx, at, 'tape_l').setDepth(4).setRotation(0.015);
+    const day = written(s, this.cx, at, 'THE NEXT DAY', 26).setDepth(5).setRotation(0.015);
     tape.setScale(tape.scale * Math.max(0.5, (day.width + 50) / ART.tape_l.w), tape.scale * 1.15);
     jingle();
-    this.script([[2.3, () => this.trailScene()]]);
+    this.script([[2.6, () => this.trailScene()]]);
   }
 
   /** The entrance to the Iron Horse Trail, and a table with a sign on it. */

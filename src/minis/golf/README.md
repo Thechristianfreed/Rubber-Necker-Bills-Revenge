@@ -57,7 +57,9 @@ clock for it. The trail has a clock of its own, drawn where the scene's is.
    and somebody indoors: "MY WINDOW!!".
 4. **Back at the tee.** Bill with his hands to his head; Chad: "DID I WIN?"
 
-**The next day.** A title card, "Leave It To Chad", and the trail.
+**The next day.** A title card, "Leave It To Chad" (the owner's picture of
+it: the words written in wet cement, as the programme's own title is), and the
+trail.
 
 5. Shane: "GEE, CHAD. WE HAVE TO PAY FOR THAT WINDOW." Chad: "GEE, SHANE.
    HOW?" Shane: "WE SELL WATER. A DOLLAR A BOTTLE."
@@ -85,8 +87,9 @@ to be said:
   WINDOW!!", "DID I WIN?", the three lines at the stand, "THAT'S A WINDOW!",
   "ONE WINDOW, PLEASE." and "NOT ENOUGH. SAME TIME TOMORROW, CHAD." (they are
   all in `GolfMini.ts`: search for `say(`).
-- **The title card "Leave It To Chad",** and the two "GEE"s, which are how
-  Shane is made the Wally to Chad's Beaver.
+- **The two "GEE"s,** which with the title card are how Shane is made the
+  Wally to Chad's Beaver. (The card itself is the owner's: he made the
+  picture of it, and it went in as it came.)
 - **That the house is a stranger's.** Nobody is seen in it: their mother does
   not come to the door, so it reads as a house beside the course.
 - **That it can be lost** on the second day, and the numbers: a dollar a
@@ -106,7 +109,8 @@ a row who are not.
 ## Pictures
 
 Sixteen pictures came from the owner on 26 November 2026, made from the
-prompts below, and all of them are in the game. They are kept as they came in
+prompts below, and a title card of his own making; all of them are in the
+game. They are kept as they came in
 `art-src/games/golf` (`GF1-chad-golf.webp` and so on), with Adobe's cutouts and
 selections of them beside them; `cut.py` makes the pieces in `assets` from
 those, and writes `cuts.ts`: where each chin is, where each blank sign is to be
@@ -125,6 +129,7 @@ lettered, how wide each place is.
 | Six people, two moments of a stride each | GF8a to GF8f | `golf_p0_walk1` to `golf_p5_run2` |
 | The shop, and one new window | GF9 | `golf_store` (its sign lettered by the game), `golf_window_new` |
 | The lot outside the shop | GF10 | `golf_place_lot` |
+| The title card for the second day | `CARD-leave-it-to-chad`, the owner's own picture (not from a prompt here) | `golf_card`: shown whole, as a photo taped to the page, with "THE NEXT DAY" under it |
 
 **Still cut from paper, and meant to be** (`art.ts`): the buttons, the wind
 dial, the meter, the mark on the ball, the words, the hole in the window and
@@ -149,6 +154,9 @@ Two things to know about the people: Chad's club passes behind his head at
 the top of the swing, so with his head off it is in two pieces, and both are
 kept; and the people on the trail are seen exactly from the side, with heads
 that look straight out of the page, as the rubberneckers' do from their cars.
+Such a head hangs over the middle of the head that came off, not at its chin:
+seen from the side a chin is ten pixels out in front, and the heads were all
+ahead of their bodies until that was put right (`side` in `cut.py`).
 
 What it uses that was already there, as it is:
 
