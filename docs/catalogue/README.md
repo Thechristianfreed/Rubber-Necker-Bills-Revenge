@@ -14,7 +14,7 @@ The size is how big the picture is drawn, in the game's own pixels (the page is 
 - [Effects](#effects) (25)
 - [Words on bursts](#words) (57)
 - [The interface](#interface) (26)
-- [The quick game "golf"](#game-golf) (61)
+- [The quick game "golf"](#game-golf) (67)
 
 <a id="places"></a>
 
@@ -756,63 +756,69 @@ Made by `src/minis/golf`, and kept in its folder.
 | Name | Size | | File |
 | --- | --- | --- | --- |
 | `golf_aim` | 36 x 36 |  | paper |
-| `golf_bag` | 70 x 170 |  | paper |
-| `golf_ball` | 12 x 12 |  | paper |
-| `golf_ball_big` | 132 x 132 |  | paper |
-| `golf_bill_ohno` | 210 x 284 |  | paper |
-| `golf_bill_stand` | 210 x 284 |  | paper |
+| `golf_bag` | 58 x 150 |  | `src/minis/golf/assets/bag.webp` |
+| `golf_ball` | 12 x 12 |  | `src/minis/golf/assets/ball.webp` |
+| `golf_ball_big` | 132 x 133 |  | `src/minis/golf/assets/ball.webp` |
+| `golf_bill_ohno` | 111 x 224 |  | `src/minis/golf/assets/bill-ohno.webp` |
+| `golf_bill_stand` | 110 x 202 |  | `src/minis/golf/assets/bill-stand.webp` |
 | `golf_boards` | 96 x 100 |  | paper |
-| `golf_bollard` | 24 x 100 |  | paper |
-| `golf_bottle` | 14 x 36 |  | paper |
+| `golf_bollard` | 17 x 92 |  | `src/minis/golf/assets/bollard.webp` |
+| `golf_bottle` | 12 x 36 |  | `src/minis/golf/assets/bottle.webp` |
 | `golf_btn_swing` | 176 x 86 |  | paper |
-| `golf_chad_address` | 150 x 150 |  | paper |
-| `golf_chad_back` | 150 x 150 |  | paper |
-| `golf_chad_follow` | 150 x 150 |  | paper |
-| `golf_club_driver` | 84 x 28 |  | paper |
-| `golf_club_iron` | 84 x 28 |  | paper |
+| `golf_chad_address` | 69 x 115 |  | `src/minis/golf/assets/chad-address.webp` |
+| `golf_chad_address_iron` | 69 x 114 |  | `src/minis/golf/assets/chad-address-iron.webp` |
+| `golf_chad_back` | 69 x 146 |  | `src/minis/golf/assets/chad-back.webp` |
+| `golf_chad_back_iron` | 69 x 144 |  | `src/minis/golf/assets/chad-back-iron.webp` |
+| `golf_chad_follow` | 79 x 125 |  | `src/minis/golf/assets/chad-follow.webp` |
+| `golf_chad_follow_iron` | 78 x 125 |  | `src/minis/golf/assets/chad-follow-iron.webp` |
+| `golf_club_driver` | 84 x 14 |  | `src/minis/golf/assets/club-driver.webp` |
+| `golf_club_iron` | 84 x 14 |  | `src/minis/golf/assets/club-iron.webp` |
 | `golf_coin` | 14 x 14 |  | paper |
-| `golf_cooler` | 84 x 70 |  | paper |
+| `golf_cooler` | 70 x 86 |  | `src/minis/golf/assets/cooler.webp` |
 | `golf_dirt` | 128 x 64 |  | paper |
 | `golf_fairway` | 128 x 64 |  | paper |
 | `golf_fill` | 40 x 8 |  | paper |
 | `golf_flag` | 42 x 72 |  | paper |
-| `golf_gate` | 230 x 128 |  | paper |
+| `golf_gate` | 181 x 112 |  | `src/minis/golf/assets/gate.webp` |
 | `golf_green` | 150 x 26 |  | paper |
 | `golf_head_bill` | 84 x 86 |  | paper |
 | `golf_head_chad` | 84 x 86 |  | paper |
 | `golf_head_shane` | 84 x 86 |  | paper |
 | `golf_hills` | 512 x 150 |  | paper |
 | `golf_houses` | 240 x 84 |  | paper |
-| `golf_jar` | 44 x 56 |  | paper |
+| `golf_jar` | 32 x 54 |  | `src/minis/golf/assets/jar.webp` |
 | `golf_meter` | 56 x 268 |  | paper |
-| `golf_p0_walk1` | 260 x 284 |  | paper |
-| `golf_p0_walk2` | 260 x 284 |  | paper |
-| `golf_p1_walk1` | 260 x 284 |  | paper |
-| `golf_p1_walk2` | 260 x 284 |  | paper |
-| `golf_p2_walk1` | 260 x 284 |  | paper |
-| `golf_p2_walk2` | 260 x 284 |  | paper |
-| `golf_p3_run1` | 260 x 284 |  | paper |
-| `golf_p3_run2` | 260 x 284 |  | paper |
-| `golf_p4_run1` | 260 x 284 |  | paper |
-| `golf_p4_run2` | 260 x 284 |  | paper |
-| `golf_p5_run1` | 260 x 284 |  | paper |
-| `golf_p5_run2` | 260 x 284 |  | paper |
+| `golf_p0_walk1` | 128 x 206 |  | `src/minis/golf/assets/p0-walk1.webp` |
+| `golf_p0_walk2` | 52 x 209 |  | `src/minis/golf/assets/p0-walk2.webp` |
+| `golf_p1_walk1` | 126 x 204 |  | `src/minis/golf/assets/p1-walk1.webp` |
+| `golf_p1_walk2` | 54 x 207 |  | `src/minis/golf/assets/p1-walk2.webp` |
+| `golf_p2_walk1` | 124 x 206 |  | `src/minis/golf/assets/p2-walk1.webp` |
+| `golf_p2_walk2` | 54 x 209 |  | `src/minis/golf/assets/p2-walk2.webp` |
+| `golf_p3_run1` | 177 x 194 |  | `src/minis/golf/assets/p3-run1.webp` |
+| `golf_p3_run2` | 119 x 202 |  | `src/minis/golf/assets/p3-run2.webp` |
+| `golf_p4_run1` | 171 x 193 |  | `src/minis/golf/assets/p4-run1.webp` |
+| `golf_p4_run2` | 101 x 202 |  | `src/minis/golf/assets/p4-run2.webp` |
+| `golf_p5_run1` | 184 x 196 |  | `src/minis/golf/assets/p5-run1.webp` |
+| `golf_p5_run2` | 129 x 204 |  | `src/minis/golf/assets/p5-run2.webp` |
 | `golf_path` | 128 x 80 |  | paper |
 | `golf_pavement` | 128 x 64 |  | paper |
+| `golf_place_lot` | 1539 x 660 | strip | `src/minis/golf/assets/lot.jpg` |
+| `golf_place_tee` | 1539 x 660 | strip | `src/minis/golf/assets/tee.jpg` |
+| `golf_place_trail` | 1539 x 660 | strip | `src/minis/golf/assets/trail.jpg` |
 | `golf_shard` | 18 x 22 |  | paper |
-| `golf_sign` | 90 x 100 |  | paper |
+| `golf_sign` | 78 x 104 |  | `src/minis/golf/assets/sign.webp` |
 | `golf_sky` | 64 x 64 |  | paper |
 | `golf_smash` | 100 x 132 |  | paper |
 | `golf_stoppaint` | 150 x 40 |  | paper |
-| `golf_stopsign` | 48 x 120 |  | paper |
-| `golf_store` | 620 x 340 |  | paper |
-| `golf_table` | 210 x 120 |  | paper |
+| `golf_stopsign` | 50 x 168 |  | `src/minis/golf/assets/stopsign.webp` |
+| `golf_store` | 463 x 350 |  | `src/minis/golf/assets/store.webp` |
+| `golf_table` | 136 x 130 |  | `src/minis/golf/assets/table.webp` |
 | `golf_tee` | 6 x 14 |  | paper |
 | `golf_teebox` | 460 x 56 |  | paper |
-| `golf_trailsign` | 200 x 150 |  | paper |
+| `golf_trailsign` | 176 x 150 |  | `src/minis/golf/assets/trailsign.webp` |
 | `golf_trees` | 256 x 300 |  | paper |
 | `golf_want` | 56 x 56 |  | paper |
 | `golf_wind` | 112 x 112 |  | paper |
 | `golf_wind_arrow` | 80 x 30 |  | paper |
-| `golf_window_new` | 116 x 146 |  | paper |
+| `golf_window_new` | 98 x 150 |  | `src/minis/golf/assets/window-new.webp` |
 | `golf_zone` | 40 x 30 |  | paper |

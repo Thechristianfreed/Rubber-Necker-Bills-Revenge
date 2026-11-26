@@ -105,17 +105,60 @@ a row who are not.
 
 ## Pictures
 
-Nothing of this game's own is a photo yet: everything called `golf_...` is cut
-paper (`art.ts`), drawn where the photo will go. What it uses that was already
-there, as it is:
+Sixteen pictures came from the owner on 26 November 2026, made from the
+prompts below, and all of them are in the game. They are kept as they came in
+`art-src/games/golf` (`GF1-chad-golf.webp` and so on), with Adobe's cutouts and
+selections of them beside them; `cut.py` makes the pieces in `assets` from
+those, and writes `cuts.ts`: where each chin is, where each blank sign is to be
+lettered, how wide each place is.
+
+| | From | In the game as |
+| --- | --- | --- |
+| Chad with the driver | GF1 | `golf_chad_address`, `golf_chad_back`, `golf_chad_follow` |
+| Chad with the 7 iron | GF1b, an edit of GF1 | the same three with `_iron` on the end: which set he is in is the club that was picked |
+| Bill | GF2 | `golf_bill_stand`, `golf_bill_ohno` |
+| The first tee | GF3 | `golf_place_tee`: the whole place, held by its right-hand edge, where the houses are |
+| The golf bag, the sign, the two clubs, the ball | GF4 | `golf_bag`, `golf_sign` (lettered "HOLE 1 PAR 4" by the game), `golf_club_driver` and `golf_club_iron` (over their buttons), `golf_ball_big` and `golf_ball` |
+| The trail | GF5 | `golf_place_trail` |
+| The post, the gate, the park's sign, the stop sign | GF6 | `golf_bollard`, `golf_gate`, `golf_trailsign` (lettered "IRON HORSE REGIONAL TRAIL"; the feet of its posts are cut short), `golf_stopsign` |
+| The table, the cooler, the bottle, the jar | GF7 | `golf_table` (its poster lettered "ICE COLD WATER $1"), `golf_cooler`, `golf_bottle`, `golf_jar` |
+| Six people, two moments of a stride each | GF8a to GF8f | `golf_p0_walk1` to `golf_p5_run2` |
+| The shop, and one new window | GF9 | `golf_store` (its sign lettered by the game), `golf_window_new` |
+| The lot outside the shop | GF10 | `golf_place_lot` |
+
+**Still cut from paper, and meant to be** (`art.ts`): the buttons, the wind
+dial, the meter, the mark on the ball, the words, the hole in the window and
+the glass that flies out of it, the bubble over a thirsty head, the coin, the
+tee peg, and "STOP" painted on the path. Every photo also has a paper stand-in
+under the same name, which is what is seen if the pictures cannot be fetched;
+then the three places are laid in paper strips, and Chad's club is a piece of
+its own in his hands.
+
+**How they went through Adobe** (`docs/cutting.md`): every figure was sent by
+itself, cut out of its sheet at the sheet's own size, for the background to be
+taken off and the head selected ("the boy", "the man", "the woman", with Hair,
+Face, Left Ear, Right Ear); "the golf club" was selected as well on Chad's and
+on Bill's. The four sheets of things were sent whole, for the background
+only. Nothing failed and nothing had to be asked twice: the glass jar and the
+chain-link gate came out whole. GF1b was cut out by the same boxes as GF1, so
+that the two sets are the same size and he does not jump when the club is
+changed. Adobe's cutouts are kept as WebP (`cut.py --keep`), a fifth of the
+size.
+
+Two things to know about the people: Chad's club passes behind his head at
+the top of the swing, so with his head off it is in two pieces, and both are
+kept; and the people on the trail are seen exactly from the side, with heads
+that look straight out of the page, as the rubberneckers' do from their cars.
+
+What it uses that was already there, as it is:
 
 | | |
 | --- | --- |
 | The back yard, the tree, and the back of the house | `layYard`, `raiseHouse` (`shared/yard.ts`). The window that breaks is the one in the photo of the house: `WINDOW` in `GolfMini.ts` says where its glass is. |
 | The brothers on the second day | Their bodies from the back yard (`shane_good`, `shane_laugh`, `shane_throw`, `chad_stand`, `chad_wail`), with faces from everybody's set. |
-| Everybody's faces | Chad: smile, calm, yell, guilty, talking, worried, laugh, cry. Shane: calm, talking, smile, laugh, worried. Bill: smile, talking, yell, shocked, worried. All of them were there already: no new face is needed. |
-| The people on the trail | The twelve rubberneckers' heads from the highway (`head0` to `head11`). Gawking is how they look when they have a drink; dazed, with the tongue out, is thirsty. |
-| Odds and ends | The sky from the back yard, `yard_bush`, the bluebirds, `tear` (for sweat), `sparkle`, `puff`, the yellow and cream button plates from the fight, and strips of tape. |
+| Everybody's faces | Chad: smile, calm, yell, guilty, talking, worried, laugh, cry. Shane: calm, talking, smile, laugh, worried. Bill: smile, talking, yell, shocked, worried. All of them were there already: no new face was needed. |
+| The people on the trail | The twelve rubberneckers' heads from the highway (`head0` to `head11`). Gawking is how they look when they have a drink; dazed, with the tongue out, is thirsty. Which head wears which body is `WEARS` in `poses.ts`. |
+| Odds and ends | The bluebirds, `tear` (for sweat), `sparkle`, `puff`, the yellow and cream button plates from the fight, and strips of tape. In paper only: the sky from the back yard, `yard_tree` and `yard_bush`. |
 
 `figures.ts` hangs a face on a body, for the bodies that are this game's own
 and for the brothers' own alike; `poses.ts` has every paper doll joint by
@@ -123,28 +166,29 @@ joint, and says where each one's chin is.
 
 ### Prompts
 
-For the owner to generate (Nano Banana in the Gemini app, as in
-`docs/art-prompts.md`: clean photos on a plain background, one prompt to a
-message, the full-size picture sent back labelled with its number). The game
-adds the white border and the shadow itself. The year (about 1990) and the
-clothes are guesses, as they were for the back yard: change them to what was
-really worn.
-
-When a picture comes back it is kept in `art-src/games/golf` under its number
-(`GF1-chad-golf.webp`), cut by `cut.py`, and registered in `PIECES` in
-`index.ts` under the key its paper stand-in has now.
+As they were sent (Nano Banana, in a batch: clean photos on a plain
+background, each one standing by itself so that nothing had to be attached,
+but for GF1b, which is an edit). The game adds the white border and the shadow
+itself. The year (about 1990) and the clothes are guesses, as they were for
+the back yard: a picture made again with what was really worn goes in under
+the same number, and `cut.py` cuts it the same way.
 
 #### GF1. Chad, with a golf club (one sheet)
 
-The prompt stands by itself, so that it can go in a batch; where a picture
-can be attached, one of his sheets from Payback (`art-src/generated/PB1...`)
-makes it the same boy. He faces the camera, as golfers do on television, with
-the fairway off to the right of the picture. The club is in the picture (the
-game's paper club is only for the stand-ins), so with this sheet he holds the
-same club whichever was picked; a second sheet with an iron would give both.
+He faces the camera, as golfers do on television, with the fairway off to the
+right of the picture. The club is in the picture (the game's paper club is
+only for the stand-ins).
 
 ```text
 Three full-length photographs of the same small boy, about five years old, side by side with wide clear gaps between them, all on one continuous plain flat light-grey studio background with no dividing lines or panels. He wears a light blue T-shirt, navy shorts, white socks and white trainers, in the style of about 1990, and has short hair. In all three he faces the camera and is holding a child's golf club, a driver with a big wooden head, far too big for him. First: standing over an imaginary ball, feet apart, both hands together on the grip in front of his waist, the club head resting on the ground a little to the right of his feet. Second: at the top of his backswing: both hands lifted up beside his right shoulder, on the left of the picture, the club going up and over behind his head. Third: just after the swing: his weight on the foot nearer the right of the picture, both hands finishing high beside his other shoulder, the club wrapped round behind his neck. His whole body and the whole club are in frame in every one, and nothing covers his face or neck: his hands and the club stay clear of his head. Soft even light, no shadows on the background. No text, no borders. Wide 16:9 image.
+```
+
+#### GF1b. The same, with the 7 iron (an edit of GF1)
+
+GF1 was attached: this is the one prompt that needs a picture.
+
+```text
+Edit this picture. Keep the boy, his clothes, all three poses, the background and the lighting exactly the same. Change one thing only: in all three photographs the golf club he is holding is now a 7 iron, a child's steel iron with a small flat silver metal head, instead of the driver with the big wooden head. The grip, his hands and where the club points stay exactly as they are, the whole club is in frame in every one, and nothing covers his face or neck. No text, no borders. Wide 16:9 image.
 ```
 
 #### GF2. Bill, at the tee (one sheet)
@@ -174,11 +218,10 @@ Five things photographed straight on, side by side with wide clear gaps between 
 
 #### GF5. The entrance to the Iron Horse Trail
 
-The prompt stands by itself; where pictures can be attached, the three
-Street View ones (`REF1` to `REF3`) show the place. Those look down the
+The owner's three Street View pictures (`REF1` to `REF3`) look down the
 trail; the game is seen from the side, with people going past from left to
-right and right to left, so the path has to run across the picture. What
-stands at the entrance (GF6) is left out of this one, and put in by the game.
+right and right to left, so the path runs across the picture. What stands at
+the entrance (GF6) is left out of this one, and put in by the game.
 
 ```text
 A photograph of the Iron Horse Regional Trail where it leaves Hartford Road in Danville, California, on a sunny autumn day about 1990, seen from the side. An old paved path of dark grey tarmac runs dead level across the whole width of the picture, seen exactly side-on with no perspective slant, a third of the way up from the bottom. In front of it, filling the bottom of the picture, and behind it, is bare brown ground thick with dry fallen leaves. Behind the far verge a weathered grey-brown wooden board fence runs level across the whole width, with ivy growing along its foot. Behind and above the fence, tall leafy trees (ash, oak, eucalyptus) fill the whole top half of the picture and meet overhead, with only small patches of blue sky showing through, and dappled sunlight falling on the path and the leaves. Nobody in it: no people, no bicycles, no signs, no gates, no posts. No text. Very wide 21:9 image.
@@ -201,15 +244,15 @@ The poster is blank: the game writes it ("ICE COLD WATER $1").
 Four things photographed straight on, side by side with wide clear gaps between them, on one plain flat light-grey background. First: a small square folding card table with thin metal legs, seen from the front, with a blank sheet of white poster paper taped along its front edge and hanging down. Second: a red picnic cooler with a white lid, about 1990, its lid propped open, full of ice with the tops of plastic bottles of water sticking out. Third: one small clear plastic bottle of water with a blue label and a white cap, standing upright. Fourth: a large glass jar with a few dollar bills and coins in it. Soft even light, no shadows on the background. No text on anything. Wide 16:9 image.
 ```
 
-#### GF8. The people on the trail (six sheets, last of all)
+#### GF8. The people on the trail (six sheets)
 
 Their heads come off and the rubberneckers' go on, so these can be anybody,
 but their arms and legs are bare, so each is the colour of the heads that
 wear it (which head wears which is `WEARS` in `poses.ts`: only the man with
-the afro wears the last). The paper ones will do for a good while: this is
-the lowest of these. Each sheet is one person in two moments of a stride,
+the afro wears the last). Each sheet is one person in two moments of a stride,
 legs apart and legs together, which is what went wrong with the brothers'
-first running sheets (both were the same stride).
+first running sheets (both were the same stride). All six came back right
+the first time.
 
 GF8a (walks, outfit 0):
 
@@ -254,6 +297,12 @@ and the R the wrong way round.
 
 ```text
 Two things side by side with a wide clear gap between them, on one plain flat light-grey background. First: the front of a small shop in a suburban strip mall about 1990, photographed exactly face-on and cut off square at both sides: a red brick wall, one wide plate-glass shop window with three new house windows of different sizes standing on display behind the glass, a glass door on the right, and above them a long plain white signboard with nothing written on it. Second: one brand new white double-hung house window in its frame, the glass clean and shining, standing upright by itself. Soft even light, no shadows on the background. No text on anything. Wide 16:9 image.
+```
+
+#### GF10. The lot outside the shop
+
+```text
+A photograph of an empty suburban shopping-centre parking lot in California on a sunny afternoon about 1990, looking straight across it. A wide plain concrete sidewalk fills the bottom quarter of the picture, running dead level across the whole width, seen exactly side-on with no perspective slant. Behind it is an empty tarmac parking lot with white painted parking lines, and beyond that a low line of trees and dry golden hills. Clear blue sky with a few small white clouds fills the top half. Nothing else in it: no cars, no people, no shops, no signs, no lamp posts. Even light, no long shadows. No text. Very wide 21:9 image.
 ```
 
 ## Sound

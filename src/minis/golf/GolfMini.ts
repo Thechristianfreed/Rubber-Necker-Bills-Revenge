@@ -10,6 +10,7 @@ import { label, marker, written } from '../../ui/text';
 import { Mini, Point } from '../Mini';
 import { DOORSTEP, FLOOR as YARD_FLOOR, layYard, raiseHouse } from '../shared/yard';
 import { METER, ZONE } from './art';
+import { GOLF_BODIES } from './cuts';
 import { Figure } from './figures';
 import { OUTFITS, TRAIL, WEARS } from './poses';
 import { jingle, noSale, ping, sale, smash } from './sounds';
@@ -26,6 +27,12 @@ const TEE = 436;
 /** The two clubs in the bag, and how far down the page the buttons for them are. */
 const CLUBS = [{ name: 'DRIVER', key: 'golf_club_driver' }, { name: '7 IRON', key: 'golf_club_iron' }];
 const PLATES = 506;
+/** Where the top of each whole-place photo goes on the page (each is 660 tall): the tee's so that
+ *  its markers are just behind where they stand, the trail's so that its path is under the feet of
+ *  whoever is on it, the lot's so that its sidewalk starts at the foot of the shop. */
+const TEE_PHOTO = -87;
+const TRAIL_PHOTO = -38;
+const LOT_PHOTO = -66;
 /** The swing meter fills in this long, as a breath does on Mom's workout tape, and the same
  *  half a second past full is too long. The sweet spot is half the size of the green there
  *  (ZONE, in art.ts), and is somewhere different every time: anywhere between these. */
@@ -227,6 +234,17 @@ export class GolfMini extends Mini {
     this.scene.add.tileSprite(-BLEED, y, (MAX_W + BLEED * 2) * d, tall * d, key).setOrigin(0, 0).setScale(1 / d).setDepth(depth);
   }
 
+  /** A whole place that is one photo (`golf_place_tee`, `golf_place_trail`, `golf_place_lot`): laid behind everything,
+   *  with its top at `top` on the page, and its middle in the middle of the page or its right-hand
+   *  edge at the edge of it. False if the photo is not there, and the place has to be cut from paper. */
+  private place(key: string, top: number, hold: 'middle' | 'right'): boolean {
+    const s = this.scene;
+    if (!s.textures.exists(key)) return false;
+    const wide = ART[key].w, x = hold === 'right' ? view.W + BLEED - wide : view.W / 2 - wide / 2;
+    s.add.image(x, top, key).setOrigin(0, 0).setScale(1 / (ART[key].tex ?? TEX)).setDepth(1);
+    return true;
+  }
+
   /** The sky: the photo of it from the back yard, over plain blue paper. */
   private sky(): void {
     this.strip('golf_sky', -BLEED, H + BLEED * 2, 0.5);
@@ -238,17 +256,22 @@ export class GolfMini extends Mini {
   /** The first tee, with the two of them on it: before the shot, or just after it. */
   private teeScene(after: boolean): void {
     const s = this.scene, W = view.W, chadX = this.chadX, billX = chadX - 190;
-    this.sky();
-    this.strip('golf_hills', 232, ART.golf_hills.h, 2);
-    this.strip('golf_fairway', 352, H - 352 + BLEED, 3);
-    const houses = img(s, W * 0.645, 360, 'golf_houses').setDepth(3.2);
-    houses.setScale(houses.scale * 0.76);
-    img(s, W * 0.775, 384, 'golf_green').setDepth(3.3);
-    img(s, W * 0.775 + 8, 382, 'golf_flag').setDepth(3.4);
-    img(s, 34, TEE - 14, 'yard_tree').setDepth(4);
+    // The photo of the first tee is held by its right-hand edge, which is where the houses are;
+    // its tee markers come just behind the two of them.
+    if (!this.place('golf_place_tee', TEE_PHOTO, 'right')) {
+      // ...or all of it cut from paper
+      this.sky();
+      this.strip('golf_hills', 232, ART.golf_hills.h, 2);
+      this.strip('golf_fairway', 352, H - 352 + BLEED, 3);
+      const houses = img(s, W * 0.645, 360, 'golf_houses').setDepth(3.2);
+      houses.setScale(houses.scale * 0.76);
+      img(s, W * 0.775, 384, 'golf_green').setDepth(3.3);
+      img(s, W * 0.775 + 8, 382, 'golf_flag').setDepth(3.4);
+      img(s, 34, TEE - 14, 'yard_tree').setDepth(4);
+      img(s, chadX - 40, TEE + 22, 'golf_teebox').setDepth(6);
+    }
     const sign = img(s, chadX + 132, TEE - 22, 'golf_sign').setDepth(5);
     sign.setScale(sign.scale * 0.9);
-    img(s, chadX - 40, TEE + 22, 'golf_teebox').setDepth(6);
     img(s, billX - 84, TEE + 6, 'golf_bag').setDepth(9);
     this.bill = new Figure(s, 'bill', after ? 'ohno' : 'stand', after ? 'shocked' : 'smile');
     this.bill.box.setPosition(billX, TEE + 4).setDepth(10);
@@ -271,6 +294,7 @@ export class GolfMini extends Mini {
       const plate = add(img(s, x, PLATES, i === this.club ? 'fight_btn' : 'fight_btn_sad').setDepth(90));
       plate.setScale((plate.scaleX * 148) / ART.fight_btn.w, plate.scaleY * 0.86);
       add(written(s, x, PLATES, club.name, 21).setDepth(91));
+      add(img(s, x - 38, PLATES - 33, club.key).setDepth(91));
       return { x, plate };
     });
     // the wind: which way, and how hard
@@ -439,27 +463,33 @@ export class GolfMini extends Mini {
   private trailScene(): void {
     const s = this.scene, W = view.W, cx = this.cx;
     this.cut('trail');
-    this.sky();
-    this.strip('golf_trees', -24, ART.golf_trees.h, 2);
-    this.strip('golf_boards', 276, ART.golf_boards.h, 3);
-    this.strip('golf_dirt', 372, 26, 4);
-    this.strip('golf_path', 396, ART.golf_path.h, 4);
-    this.strip('golf_dirt', 476, H - 476 + BLEED, 4);
-    img(s, W - 108, 440, 'golf_stoppaint').setDepth(4.5);
-    for (const x of [W * 0.46, W - 30]) img(s, x, 394, 'yard_bush').setDepth(5);
-    img(s, 44, 398, 'golf_stopsign').setDepth(6);
-    img(s, Math.max(176, W * 0.2), 398, 'golf_trailsign').setDepth(6);
-    img(s, W - 140, 400, 'golf_gate').setDepth(6);
-    for (const x of [W - 266, W - 206]) img(s, x, 442, 'golf_bollard').setDepth(8);
-    // the stand: a card table, a cooler, and a jar for the money
+    // the photo of the trail (its far verge is a little lower down the page than the paper one's)
+    const photo = this.place('golf_place_trail', TRAIL_PHOTO, 'middle'), back = photo ? 412 : 398;
+    if (!photo) {
+      this.sky();
+      this.strip('golf_trees', -24, ART.golf_trees.h, 2);
+      this.strip('golf_boards', 276, ART.golf_boards.h, 3);
+      this.strip('golf_dirt', 372, 26, 4);
+      this.strip('golf_path', 396, ART.golf_path.h, 4);
+      this.strip('golf_dirt', 476, H - 476 + BLEED, 4);
+      for (const x of [W * 0.46, W - 30]) img(s, x, 394, 'yard_bush').setDepth(5);
+    }
+    img(s, W - 108, photo ? 448 : 440, 'golf_stoppaint').setDepth(4.5);
+    img(s, 44, back, 'golf_stopsign').setDepth(6);
+    img(s, Math.max(176, W * 0.2), back, 'golf_trailsign').setDepth(6);
+    img(s, W - 140, back + 2, 'golf_gate').setDepth(6);
+    for (const x of [W - 266, W - 206]) img(s, x, PATH - 4, 'golf_bollard').setDepth(8);
+    // the stand: a card table, a cooler, and a jar for the money (the photo of the table is a
+    // real one's shape, narrower and taller than the paper one)
+    const real = !!FROM.golf_table, top = STAND - (real ? ART.golf_table.h * 0.93 : 83), apart = real ? 126 : 152;
     img(s, cx, STAND, 'golf_table').setDepth(40);
-    this.jar = img(s, cx - 66, STAND - 83, 'golf_jar').setDepth(41);
-    this.cooler = { x: cx + 56, y: STAND - 112 };
-    img(s, this.cooler.x, STAND - 82, 'golf_cooler').setDepth(41);
+    this.jar = img(s, cx - (real ? 38 : 66), top, 'golf_jar').setDepth(41);
+    this.cooler = { x: cx + (real ? 26 : 56), y: top - 30 };
+    img(s, this.cooler.x, top + 1, 'golf_cooler').setDepth(41);
     this.shane = new Figure(s, 'shane', 'good', 'calm');
-    this.shane.box.setPosition(cx - 152, STAND - 2).setDepth(39);
+    this.shane.box.setPosition(cx - apart, STAND - 2).setDepth(39);
     this.chad = new Figure(s, 'chad', 'stand', 'worried');
-    this.chad.box.setPosition(cx + 152, STAND - 2).setDepth(39);
+    this.chad.box.setPosition(cx + apart, STAND - 2).setDepth(39);
     this.fund = 0;
     this.phase = 'story';
     this.script([
@@ -507,8 +537,10 @@ export class GolfMini extends Mini {
     // (never three in a row who have brought their own)
     const thirsty = this.dry >= 2 || Math.random() < (runs ? 0.85 : 0.55);
     this.dry = thirsty ? 0 : this.dry + 1;
-    const way = Math.random() < 0.5 ? 1 : -1, near = Math.random() < 0.5, size = near ? 0.92 : 0.86;
+    const way = Math.random() < 0.5 ? 1 : -1, near = Math.random() < 0.5;
     const body = img(s, 0, 0, `golf_p${outfit}_${runs ? 'run' : 'walk'}1`);
+    // (the photos of people are a little shorter than the paper dolls of them)
+    const size = (near ? 0.92 : 0.86) * (FROM[body.texture.key] ? 1.08 : 1);
     const head = img(s, 0, 0, `head${n}${thirsty ? '_dazed' : ''}`);
     const p: Person = {
       box: s.add.container(0, 0, [body, head]).setDepth(near ? 21 : 20), body, head, n, outfit, runs, foot: 0, step: 0, way,
@@ -522,17 +554,28 @@ export class GolfMini extends Mini {
     this.stride(p);
   }
 
+  /** Where somebody's neck and front hand are in the picture they are on, from the spot they stand
+   *  on, and how far their head tips: from the photo of that stride, or from the paper doll of it. */
+  private joints(p: Person): { neck: Point; hand: Point; tilt: number } {
+    const stride = `${p.runs ? 'run' : 'walk'}${p.foot + 1}`, cut = GOLF_BODIES[`p${p.outfit}_${stride}`];
+    if (cut && FROM[`golf_p${p.outfit}_${stride}`]) {
+      return { neck: { x: cut.chin[0], y: cut.chin[1] + 5 }, hand: { x: cut.hand[0] - 2, y: cut.hand[1] - 10 }, tilt: cut.tilt };
+    }
+    const doll = TRAIL[stride];
+    return { neck: { x: doll.head[0], y: doll.head[1] + 26 }, hand: { x: doll.hands[1][0] + 3, y: doll.hands[1][1] - 8 }, tilt: doll.tilt };
+  }
+
   /** Which of their two pictures somebody is on, and where that puts their head and their hand. */
   private stride(p: Person): void {
-    const pose = TRAIL[`${p.runs ? 'run' : 'walk'}${p.foot + 1}`];
     applyArt(p.body, `golf_p${p.outfit}_${p.runs ? 'run' : 'walk'}${p.foot + 1}`);
-    p.head.setPosition(pose.head[0], pose.head[1] + 26).setRotation(pose.tilt);
-    p.drink?.setPosition(pose.hands[1][0] + 3, pose.hands[1][1] - 8);
+    const at = this.joints(p);
+    p.head.setPosition(at.neck.x, at.neck.y).setRotation(at.tilt);
+    p.drink?.setPosition(at.hand.x, at.hand.y);
   }
 
   private handOf(p: Person): Point {
-    const hand = TRAIL[`${p.runs ? 'run' : 'walk'}${p.foot + 1}`].hands[1];
-    return { x: p.x + p.way * hand[0] * p.size, y: p.y + hand[1] * p.size };
+    const hand = this.joints(p).hand;
+    return { x: p.x + p.way * hand.x * p.size, y: p.y + hand.y * p.size };
   }
 
   private topOf(p: Person): Point {
@@ -623,17 +666,21 @@ export class GolfMini extends Mini {
   private storeScene(): void {
     const s = this.scene, W = view.W, cx = this.cx, tw = s.tweens;
     this.cut('store');
-    this.sky();
-    this.strip('golf_hills', 250, ART.golf_hills.h, 2);
-    this.strip('golf_fairway', 388, 60, 2.5);
-    this.strip('golf_pavement', 432, H - 432 + BLEED, 3);
-    img(s, cx + 40, 438, 'golf_store').setDepth(5);
+    if (!this.place('golf_place_lot', LOT_PHOTO, 'middle')) {
+      this.sky();
+      this.strip('golf_hills', 250, ART.golf_hills.h, 2);
+      this.strip('golf_fairway', 388, 60, 2.5);
+      this.strip('golf_pavement', 432, H - 432 + BLEED, 3);
+    }
+    // (the photo of the shop is narrower than the paper one, and its window is in the middle of it)
+    const real = !!FROM.golf_store, shop = cx + (real ? 0 : 40), mid = shop - (real ? 44 : 166);
+    img(s, shop, 440, 'golf_store').setDepth(5);
     this.shane = new Figure(s, 'shane', 'good', 'smile');
     this.shane.box.setPosition(-70, 486).setDepth(13);
     this.chad = new Figure(s, 'chad', 'stand', 'smile');
     this.chad.box.setPosition(-190, 490).setDepth(12);
     // in they come, with the jar
-    for (const [box, x] of [[this.shane.box, cx - 20], [this.chad.box, cx - 232]] as [Box, number][]) {
+    for (const [box, x] of [[this.shane.box, mid + 106], [this.chad.box, mid - 106]] as [Box, number][]) {
       tw.add({ targets: box, x, duration: 760, ease: 'Quad.out' });
       tw.add({ targets: box, y: box.y - 9, duration: 95, yoyo: true, repeat: 3 });
     }
@@ -643,7 +690,7 @@ export class GolfMini extends Mini {
         this.hush();
         this.shane.set('laugh', 'laugh');
         this.chad.face('laugh');
-        const pane = img(s, cx - 126, 336, 'golf_window_new').setDepth(20);
+        const pane = img(s, mid, 336, 'golf_window_new').setDepth(20);
         const full = pane.scale;
         pane.setScale(full * 0.1);
         tw.add({ targets: pane, scale: full, duration: 220, ease: 'Back.out' });

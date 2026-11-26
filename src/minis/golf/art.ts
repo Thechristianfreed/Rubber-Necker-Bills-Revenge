@@ -74,6 +74,65 @@ function paperHead(c: Ctx, hair: Paper, beard: boolean): void {
   c.stroke();
 }
 
+// ---- lettering: what is written on each sign, to fit a space (the paper sign's, or the blank
+// part of a photo of one: index.ts) -------------------------------------------------------------
+
+/** The sign by the tee. */
+export function letterHole(c: Ctx, x: number, y: number, w: number, h: number): void {
+  cutText(c, 'HOLE 1', x + w / 2, y + h * 0.36, Math.min(h * 0.44, w * 0.27), 'red');
+  cutText(c, 'PAR 4', x + w / 2, y + h * 0.76, Math.min(h * 0.3, w * 0.19), 'black');
+}
+
+/** The park district's sign at the entrance to the trail: brown, with yellow letters. */
+export function letterTrail(c: Ctx, x: number, y: number, w: number, h: number): void {
+  cutText(c, 'IRON HORSE', x + w / 2, y + h * 0.37, Math.min(h * 0.58, w * 0.19), 'yellow');
+  cutText(c, 'REGIONAL TRAIL', x + w / 2, y + h * 0.8, Math.min(h * 0.3, w * 0.1), 'cream');
+}
+
+/** The poster on the front of the table, in a small boy's marker pen: on a sheet that is wider
+ *  than it is tall, or (the photo's) one that hangs down. */
+export function letterPoster(c: Ctx, x: number, y: number, w: number, h: number): void {
+  const mid = x + w / 2;
+  if (h > w) {
+    cutText(c, 'ICE', mid, y + h * 0.13, w * 0.25, 'blue', MARKER);
+    cutText(c, 'COLD', mid, y + h * 0.3, w * 0.25, 'blue', MARKER);
+    cutText(c, 'WATER', mid, y + h * 0.5, w * 0.27, 'blue', MARKER);
+    cutText(c, '$1', mid, y + h * 0.78, w * 0.46, 'red', MARKER);
+    return;
+  }
+  const k = Math.min(w / 124, h / 64);
+  cutText(c, 'ICE COLD', mid, y + h / 2 - 20 * k, 15 * k, 'blue', MARKER);
+  cutText(c, 'WATER', mid, y + h / 2 - 2 * k, 22 * k, 'blue', MARKER);
+  cutText(c, '$1', mid, y + h / 2 + 20 * k, 24 * k, 'red', MARKER);
+}
+
+/** The shop's sign: every letter a different colour, and the R the wrong way round. */
+export function letterShop(c: Ctx, x: number, y: number, w: number, h: number): void {
+  const colours: Paper[] = ['red', 'blue', 'green', 'brown'];
+  const wide = (word: string, size: number) => [...word].reduce((sum, ch) => sum + textWidth(ch, size) + size * 0.06, 0);
+  const all = (size: number) => wide('WINDOWS', size) + size * 1.55 + wide('US', size);
+  let size = h * 0.7;
+  if (all(size) > w * 0.92) size *= (w * 0.92) / all(size);
+  const mid = y + h * 0.54;
+  const spell = (word: string, from: number, first: number) => {
+    let at = from;
+    [...word].forEach((ch, i) => {
+      const cw = textWidth(ch, size);
+      cutText(c, ch, at + cw / 2, mid, size, colours[(first + i) % colours.length]);
+      at += cw + size * 0.06;
+    });
+    return at;
+  };
+  const star = spell('WINDOWS', x + (w - all(size)) / 2, 0) + size * 0.775;
+  glued(c, () => { burstPath(c, star, mid - size * 0.03, size * 0.65, size * 0.65, 11, 23); fillPaper(c, 'yellow'); });
+  c.save();
+  c.translate(star, mid);
+  c.scale(-1, 1);
+  cutText(c, 'R', 0, 0, size * 0.8, 'blue');
+  c.restore();
+  spell('US', star + size * 0.775, 3);
+}
+
 export function buildArt(scene: Phaser.Scene): void {
   // ---- the first tee -------------------------------------------------------------------------
   tile(scene, 'golf_sky', 64, 64, (c) => rect(c, 0, 0, 64, 64, 'sky'));
@@ -128,8 +187,7 @@ export function buildArt(scene: Phaser.Scene): void {
   makePaperArt(scene, 'golf_sign', 90, 100, (c) => {
     strokePaper(c, [45, 100, 45, 40], 'brown', 8);
     glued(c, () => { rr(c, 4, 4, 82, 52, 6); fillPaper(c, 'manila'); });
-    cutText(c, 'HOLE 1', 45, 21, 21, 'red');
-    cutText(c, 'PAR 4', 45, 42, 15, 'black');
+    letterHole(c, 4, 4, 82, 52);
   }, { border: 1.8, ax: 45, ay: 100 });
   makePaperArt(scene, 'golf_bag', 70, 170, (c) => {
     for (const [x0, x1, y1] of [[30, 20, 12], [36, 38, 6], [42, 56, 14]]) {
@@ -352,8 +410,7 @@ export function buildArt(scene: Phaser.Scene): void {
   makePaperArt(scene, 'golf_trailsign', 200, 150, (c) => {
     for (const x of [30, 170]) glued(c, () => { strokePaper(c, [x, 148, x, 26], 'brown', 11); });
     glued(c, () => { rr(c, 8, 32, 184, 76, 6); fillPaper(c, 'brown'); wash(c, 'rgba(30, 16, 4, 0.3)'); });
-    cutText(c, 'IRON HORSE', 100, 58, 31, 'yellow');
-    cutText(c, 'REGIONAL TRAIL', 100, 88, 17, 'cream');
+    letterTrail(c, 8, 32, 184, 76);
     glued(c, () => { rr(c, 56, 114, 88, 22, 4); fillPaper(c, 'brown'); wash(c, 'rgba(30, 16, 4, 0.3)'); });
     cutText(c, 'DANVILLE', 100, 126, 13, 'cream');
   }, { border: 2.2, ax: 100, ay: 150 });
@@ -380,9 +437,7 @@ export function buildArt(scene: Phaser.Scene): void {
     for (const pts of [[26, 120, 36, 46], [184, 120, 174, 46], [30, 92, 180, 92]]) strokePaper(c, pts, 'grey', 4);
     glued(c, () => { rr(c, 6, 36, 198, 14, 4); fillPaper(c, 'brown'); wash(c, 'rgba(255, 230, 190, 0.3)'); });
     glued(c, () => { poly(c, [44, 52, 166, 50, 168, 114, 42, 116]); fillPaper(c, 'white'); });
-    cutText(c, 'ICE COLD', 105, 64, 15, 'blue', MARKER);
-    cutText(c, 'WATER', 105, 81, 21, 'blue', MARKER);
-    cutText(c, '$1', 105, 102, 23, 'red', MARKER);
+    letterPoster(c, 43, 51, 124, 64);
   }, { border: 2.2, ax: 105, ay: 120 });
   makePaperArt(scene, 'golf_cooler', 84, 70, (c) => {
     for (const x of [22, 40, 58]) bottle(c, x, 40, 0.8);
@@ -435,28 +490,8 @@ export function buildArt(scene: Phaser.Scene): void {
       c.beginPath(); c.moveTo(0, y); c.lineTo(620, y); c.stroke();
       for (let x = row % 2 ? 18 : 0; x < 620; x += 36) { c.beginPath(); c.moveTo(x, y - 14); c.lineTo(x, y); c.stroke(); }
     }
-    // the sign: every letter a different colour, and the R the wrong way round
     glued(c, () => { rr(c, 34, 4, 552, 92, 12); fillPaper(c, 'white'); });
-    const colours: Paper[] = ['red', 'blue', 'green', 'brown'], size = 62;
-    const spell = (word: string, from: number, first: number) => {
-      let x = from;
-      [...word].forEach((ch, i) => {
-        const w = textWidth(ch, size);
-        cutText(c, ch, x + w / 2, 52, size, colours[(first + i) % colours.length]);
-        x += w + 4;
-      });
-      return x;
-    };
-    const wide = (word: string) => [...word].reduce((sum, ch) => sum + textWidth(ch, size) + 4, 0);
-    let x = 310 - (wide('WINDOWS') + 96 + wide('US')) / 2;
-    x = spell('WINDOWS', x, 0) + 48;
-    glued(c, () => { burstPath(c, x, 50, 40, 40, 11, 23); fillPaper(c, 'yellow'); });
-    c.save();
-    c.translate(x, 52);
-    c.scale(-1, 1);
-    cutText(c, 'R', 0, 0, 50, 'blue');
-    c.restore();
-    spell('US', x + 48, 3);
+    letterShop(c, 34, 4, 552, 92);
     // the shop window, with what they sell in it
     glued(c, () => { rect(c, 44, 124, 340, 178, 'white'); });
     rect(c, 54, 134, 320, 158, 'sky');

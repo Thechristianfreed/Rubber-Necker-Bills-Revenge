@@ -1,10 +1,11 @@
 import Phaser from 'phaser';
 import { TEX } from '../../config';
 import { CHAD, SHANE } from '../../art/bat';
-import { applyArt, img } from '../../art/sticker';
+import { FROM, applyArt, img } from '../../art/sticker';
 import { Point } from '../Mini';
 import { FACE, face } from '../shared/people';
 import { chinOf } from '../shared/yard';
+import { GOLF_BODIES } from './cuts';
 import { BIG_CHIN, BILL_GOLF, CHAD_GOLF, KID_CHIN, Swing, dollChin } from './poses';
 
 type Image = Phaser.GameObjects.Image;
@@ -22,17 +23,22 @@ interface Chin { x: number; y: number; tilt: number }
 
 /** Somebody in this game: a body in a pose, and one of that person's faces hung on it
  *  by the chin (shared/people.ts). The body is either one made for this game
- *  (`golf_chad_back`: a paper doll for now, a photo later) or one the brothers already
- *  have from the back yard (`chad_stand`, `shane_good`), used as it is.
+ *  (`golf_chad_back`: a photo of the pose with the head taken off, or the paper doll that
+ *  stands in for it if the photo cannot be had) or one the brothers already have from
+ *  the back yard (`chad_stand`, `shane_good`), used as it is.
+ *
+ *  Chad's photos have the club in them: there is a set with the driver and a set with the
+ *  7 iron (`golf_chad_back_iron`). The paper doll is handed a paper club instead.
  *
  *  Everybody is drawn facing right; `turn(-1)` faces them left. */
 export class Figure {
   readonly box: Phaser.GameObjects.Container;
   private readonly body: Image;
   private readonly head: Image;
-  /** The club in his hands, where the body is a paper doll (a photo will have its own). */
+  /** The club in his hands, where the body is a paper doll (a photo has its own). */
   private club?: Image;
   private clubKey = 'golf_club_driver';
+  private iron = false;
   private way = 1;
   pose = '';
   look = '';
@@ -48,9 +54,11 @@ export class Figure {
     return this.who === 'bill' ? BILL_FACE : KID_FACE;
   }
 
-  /** The picture of a pose: this game's own if it has one, otherwise the one from the back yard. */
+  /** The picture of a pose: this game's own if it has one (with the iron in it, if that is
+   *  the club he has), otherwise the one from the back yard. */
   private bodyKey(pose: string): string {
     const own = `golf_${this.who}_${pose}`;
+    if (this.iron && this.scene.textures.exists(`${own}_iron`)) return `${own}_iron`;
     return this.scene.textures.exists(own) ? own : `${this.who}_${pose}`;
   }
 
@@ -61,6 +69,9 @@ export class Figure {
   }
 
   private chin(pose: string): Chin {
+    // (where the photo of the pose has it, if it is the photo that is on the page)
+    const key = this.bodyKey(pose), cut = FROM[key] ? GOLF_BODIES[key.slice(5)] : undefined;
+    if (cut) return { x: cut.chin[0], y: cut.chin[1], tilt: cut.tilt };
     if (this.who === 'bill') return dollChin(BILL_GOLF[pose], BIG_CHIN);
     if (this.who === 'chad' && CHAD_GOLF[pose]) return dollChin(CHAD_GOLF[pose], KID_CHIN);
     return chinOf(this.who, pose, this.who === 'chad' ? CHAD : SHANE);
@@ -74,7 +85,7 @@ export class Figure {
     const at = this.chin(pose);
     applyArt(this.head, this.faceKey(look));
     this.head.setScale(this.tall / FACE / TEX).setPosition(at.x, at.y).setRotation(at.tilt);
-    const swing: Swing | undefined = this.who === 'chad' ? CHAD_GOLF[pose] : undefined;
+    const swing: Swing | undefined = this.who === 'chad' && !FROM[this.bodyKey(pose)] ? CHAD_GOLF[pose] : undefined;
     if (this.club) {
       this.club.setVisible(!!swing);
       if (swing) {
@@ -93,6 +104,7 @@ export class Figure {
   /** Put a club in his hands: the driver, or the 7 iron. */
   hold(key: string): void {
     this.clubKey = key;
+    this.iron = key === 'golf_club_iron';
     if (!this.club) {
       this.club = img(this.scene, 0, 0, key);
       this.box.addAt(this.club, 0);
