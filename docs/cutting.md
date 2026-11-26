@@ -11,15 +11,46 @@ the owner's picture        art-src/generated/<ID>-<what>.webp   (or art-src/phot
   -> src/art/photos.ts      registered under the same key as the paper stand-in
 ```
 
+That is how it goes for the levels and the first six quick games, whose
+pictures are all in the common folders. A quick game with a folder of its
+own keeps everything of its own instead, and nothing of it is in those:
+
+```text
+the owner's picture         art-src/games/<id>/<ID>-<what>.webp
+  -> Adobe                   art-src/games/<id>/<ID>-<what>-cutout.png, -headmask.png
+  -> src/minis/<id>/cut.py   src/minis/<id>/assets/<piece>.webp
+  -> src/minis/<id>/index.ts registered in its PIECES, under a key that starts "<id>_"
+```
+
+Everybody's faces (the fifteen looks each of the family has) are a third
+kind, cut by a tool of their own so that they all come out alike:
+
+```text
+the owner's picture         his Google Drive, a folder for each person: "Chad Guilty.png"
+  -> a copy to send          cropped to the head and made smaller (it is not kept)
+  -> Adobe                   art-src/cast/<who>/<look>-cutout.webp, <look>-headmask.png
+  -> tools/make_cast.py      src/assets/scrap/face-<who>-<look>.webp, and the table src/data/cast.ts
+  -> src/art/photos.ts       registered as face_<who>_<look>, for every game
+```
+
 Everything in `art-src` is kept, so any piece can be cut again without going
 back to Adobe. `python tools/make_cutouts.py` with nothing after it re-cuts
-every piece from those files, and should change nothing.
+every common piece from those files, and should change nothing.
 
 ## 1. Keep the picture
 
 - Pictures arrive as files only when the owner sends them in a message of
   their own. One sent while Claude is in the middle of something can be seen
   but is not on disk: ask for it again.
+- **Or they come from the owner's Google Drive,** which is how a big batch
+  arrives (fifty faces at 6 MB each). The Drive connector's
+  `download_file_content` puts the file on disk, byte for byte, and its
+  answer says where (`[Image: source: /root/.claude/.../tool-results/...]`):
+  copy it from there. `search_files` with `parentId = '<folder id>'` lists a
+  folder, about five files to a page. Each download also shows the picture,
+  which fills a conversation fast: hand a batch to helpers (one for each
+  person), have them copy the files and say what each is, and look at the
+  whole batch afterwards on a contact sheet (`tools/test/sheet.py`).
 - Name it by its number in `art-prompts.md` and what it is:
   `art-src/generated/SB3-chad-sandbox.webp`. Family photos go in
   `art-src/photos` (`chad-7.jpg`). Crop anybody else out of a photo before it
@@ -86,8 +117,120 @@ as black and white; `selection()` in `make_cutouts.py` reads both.
 
 ## 4. Make the pieces
 
-`tools/make_cutouts.py` is one step for each kind of picture (`STEPS` at the
-bottom lists them). Run one by name:
+**For a game with a folder of its own:** its `cut.py`, which
+`tools/new_mini.mjs` wrote. It borrows every helper in
+`tools/make_cutouts.py` (as `mc.load`, `mc.pieces`, `mc.save`,
+`mc.head_only`, `mc.without_heads`, `mc.chin_of` and the rest), pointed at
+the game's own folders, so it cannot read or write another game's pictures:
+
+```bash
+.venv/bin/python src/minis/<id>/cut.py
+```
+
+A table the game needs (where a chin is, how far a head tips) is written by
+that file into the game's own folder too.
+
+**For everybody's faces:** `tools/make_cast.py`. Each look of each person
+is one picture, and is put through Adobe twice: the background off, and the
+head selected (`bodyParts` Hair, Face, Left Ear, Right Ear, and Beard for a
+man; for somebody whose hair hangs below her chin, the Face alone as well,
+as `-facemask.png`, which is what finds her chin). Adobe's two answers go
+in `art-src/cast/<who>/` as `<look>-cutout.png` and `<look>-headmask.png`.
+
+A batch of them (a person's fifteen, as they come from the owner's Drive) is
+got ready and checked by `tools/cast_jobs.py`, and sent by a helper for each
+person, whose brief is `tools/cast_jobs.md`:
+
+```bash
+.venv/bin/python tools/cast_jobs.py prepare <the folder the pictures are in> <who> <a work folder> [--woman]
+```
+
+```bash
+.venv/bin/python tools/cast_jobs.py check <the work folder>/<who>.json
+```
+
+The first makes the smaller copies to send and the list the helper works
+through (it reads the look from each file's name: "Default" is the smile);
+the second says whether everything Adobe answered is there, the right size,
+and selects a believable amount. `--only shocked` is one look that came
+later; `--crop` and `--tall` are for a person whose head is a small part of
+the picture (Bill: `--crop 0,0.5 --tall 1305`); `--name "<file>=<look>"`
+says what a file with another name is (one of two both called "Calm", or
+an "Alternate" that is to be a look of that person's own). And then:
+
+```bash
+.venv/bin/python tools/make_cast.py --keep
+```
+
+```bash
+.venv/bin/python tools/make_cast.py
+```
+
+The first turns the cutouts from PNG into WebP, a tenth of the size, which
+is how they are kept. The second cuts every head and writes
+`src/data/cast.ts`. A new person is a new name in `PEOPLE` at the top of the
+tool; a new look of somebody is only its two files. Nothing else changes:
+`src/art/photos.ts` registers whatever the table has.
+
+- **Send Adobe a smaller copy.** A generated picture is 1800 by 2400 and
+  6 MB; a head in the game is 360 pixels tall at most. Crop to the head if
+  it is a small part of the picture, bring it down so the head is 600 to
+  900 pixels tall, and save it as a JPEG. Every look of one person gets the
+  same crop and the same size, so that they still line up.
+- **A person's looks share one framing,** since each is an edit of the same
+  photo. The tool takes the top of the hair and the shut-mouth chin from one
+  look (`SHUT` says which) and uses them for all, so an open mouth drops the
+  jaw and leaves the head where it was. A look that is framed differently
+  is measured and brought to the same size by the width of its head; the
+  tool says which those are when it runs.
+- **Every face a person had already is in their set too:** `PEOPLE` names
+  the picture each comes from, in `art-src/adobe`. Under the name of one of
+  the fifteen (Chad's yell, Stephanie's "PAH") it fills that gap. When a
+  new picture of that look comes with the others, the new one is the look
+  and the old one is given a name of its own in `PEOPLE`, so that it is not
+  lost (Shane's first shocked face is his `startled` now). Under a name of
+  its own (Shane's `doe`) it is a face only that person has. One that is
+  from another photo altogether says so (`"other"`), and is hung by its own
+  chin; one whose head leans says how far to turn it (`"turn"`).
+- **A real photo can be a look as it is,** where it shows one well enough
+  (the rule is in `characters.md`). It goes in `art-src/cast/<who>` like
+  the others and is named in `PHOTOS` in the tool, which is also where it is
+  set straight (`turn`), made to match the others in size (`size`), has an
+  eyebrow that opens Adobe's selection to the outside closed up (`seal`),
+  or gets back hair that the selection left out (`above`). The photo a
+  person's edits are made from is their `smile` until the edits come; then
+  the edit called "Default" is the smile, and the photo's own face is kept
+  as `photo` (rename its three files, and its entry in `PHOTOS`).
+- **Adobe cannot always find a face.** In a soft, washed-out photo it
+  selects the hair and nothing else, whatever it is asked for
+  ("body parts not found"); now and then it answers "Face" for a picture no
+  different from its neighbours, and the selection is empty
+  (`cast_jobs.py check` says ODD AMOUNT). Asking again gets the same. Send a
+  copy with its contrast evened out (CLAHE on the lightness) and ask that
+  one: the selection fits the first picture, whose colours are the ones
+  kept.
+- **Or it leaves the hair and the ears out of one look** of a batch
+  ("Face, Hair, Beard", with the hair not in it), where the rest got them.
+  That look borrows them from another look of the same batch, which is
+  framed the same to the pixel: `BORROW` in the tool.
+- **What a whole batch needs** (a head that is tipped in the portrait, a
+  far eyebrow at the edge of a turned face, hair to trim) is said once for
+  the person, in `SETS`.
+- **A shoulder in a head** is what Shorty's had: long hair that lies over
+  a shoulder brings the jacket under it into Adobe's selection of the hair,
+  and a whole band of denim showed through. Hers is trimmed at the chin
+  (`below: 0.02`). The trim is one line for the whole batch, under the
+  shut-mouth chin, and it never cuts the face: a jaw that drops below the
+  line, in a yell, stays whole. This is done when the owner asks for it and
+  not otherwise: he has said Nanner's and Mammy's long hair is right as it
+  is, though a little of a collar can be found at its ends.
+- **Look at the whole set on one line,** chins level (step 5): a head that
+  is the wrong size or hangs wrong shows at once beside its fourteen
+  neighbours.
+
+**For the levels and the first six games:** `tools/make_cutouts.py` is one
+step for each kind of picture (`STEPS` at the bottom lists them). Run one by
+name:
 
 ```bash
 .venv/bin/python tools/make_cutouts.py sand
@@ -169,6 +312,11 @@ shows at once in a screenshot and not at all in the numbers.
   it into its separate things, left to right, so they need clear gaps
   between them: ask for those in the prompt.
 
+**With animals:** `image_remove_background` alone. It keeps the animal and
+leaves the arm it is held in and the dish it is eating from. Selecting "the
+opossum" or "the dog" by name took in the whole picture as often as not.
+(`animals()` in `tools/make_cutouts.py`.)
+
 **With the pictures themselves:**
 
 - **A face at the very edge of a photo:** the crop is held inside the
@@ -181,7 +329,7 @@ shows at once in a screenshot and not at all in the numbers.
   `SAND_PAIRS` says how far apart to put their chins.
 - **A generated body's own head is small,** and seen from below it is
   smaller still. The photo head hung on their mother from below is made a
-  little bigger than the one that came off (`HEAD_UP` in `SandMini.ts`); it
+  little bigger than the one that came off (`HEAD_UP` in `src/minis/sand/SandMini.ts`); it
   is a scrapbook, and a big head is right.
 - **A pose that covers the head or neck** cannot have its head changed. The
   prompts ask for poses that do not; a picture that does anyway goes back to
@@ -189,9 +337,9 @@ shows at once in a screenshot and not at all in the numbers.
 
 **With the files:**
 
-- **The page has a size limit** (16 MB with every picture inside it), which
-  is why pieces are WebP. A PNG that has come from somewhere else is turned
-  into one by `tools/shrink_assets.py`.
+- **Pieces are WebP,** a fraction of the size of a PNG: every picture is
+  fetched before the title comes up. A PNG that has come from somewhere else
+  is turned into one by `tools/shrink_assets.py`.
 - **A tool must not read its pictures back out of `src/assets`:** what is
   there has lost a little. Each step works from `art-src`.
 - **Uploads stay in the owner's Adobe storage**, in a folder called

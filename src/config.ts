@@ -71,6 +71,13 @@ export const SCORE = {
   passStars: [0.6, 0.8, 0.95],
 };
 
+/** Set when the page is built to show one quick game by itself (the preview of a game that
+ *  is still being made: see tools/make_preview.mjs): that game's short name. The title goes
+ *  straight to it, and it is the only game on the tape. Empty for the whole game. */
+export const ONLY_MINI: string = (import.meta.env.VITE_ONLY_MINI as string | undefined) ?? '';
+/** ...and when that page was built, to show on its title: how the owner sees they have the new one. */
+export const BUILT: string = (import.meta.env.VITE_BUILT as string | undefined) ?? '';
+
 export const DEPTH = {
   sky: 0, far: 5, road: 10, farCars: 20, necks: 30, heads: 32, median: 36, noodle: 37.6,
   billBack: 40, billCar: 44, fx: 60, fore: 70, hud: 100, overlay: 200,

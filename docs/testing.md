@@ -12,12 +12,22 @@ find that browser.
 
 ## The page to test
 
-Test the built page, which is what gets published and has the recordings
-beside it:
+Test the page as it is published, with its pictures and recordings beside
+it:
 
 ```bash
-npm run build && npm run build:single
+node tools/make_preview.mjs <somewhere>/rubber-necker.html
 ```
+
+That builds `dist-single` (`npm run build:single`), takes the pictures out
+of the page into `dist-single/pictures`, and writes the page to publish.
+`dist-single/index.html` is the same page, for testing. (With
+`--only <game>` it builds a page that plays one quick game by itself, and
+`dist-single` is left holding that: on it, `&level=minis` is that one game.
+Build again without `--only` before testing the whole tape.)
+
+`npm run build:single` by itself leaves every picture inside the page, which
+also works, but is not what gets published.
 
 ```bash
 cd dist-single && python3 -m http.server 5180
@@ -49,6 +59,8 @@ What a script can reach on the page:
   `play`, `stamp`, `over`), `playing` (which game), `score`, `counted`,
   `marks`, and `mini`, the game itself, with everything in it (private or
   not: `mini.phase`, `mini.chad.pose`, `mini.said`).
+- `window.__people`: what puts a head on the page (`head`, `setLook`,
+  `face`, `LOOKS`, `PEOPLE`: `src/minis/shared/people.ts`).
 - `window.__sound`: the sound, with its outputs (`master`, `sfx`, `music`,
   `voiceOut`) and everything that makes a noise (`aww()`, `sand()`).
 
@@ -61,12 +73,13 @@ above; `<outPrefix>` is where the pictures go, and the start of their names.
 
 | | |
 | --- | --- |
-| `mini_show.cjs <base url> <outPrefix> <mini> [bot] [width]` | One quick game, photographed at each of its moments at twice the size, for showing. The moments are listed in `moments.cjs`: a new game gets a list there. |
+| `mini_show.cjs <base url> <outPrefix> <mini> [bot] [width]` | One quick game, photographed at each of its moments at twice the size, for showing. The moments are listed in the game's own folder (`src/minis/<mini>/moments.cjs`). |
 | `mini_strip.cjs <base url> <outDir> <mini> [bot] [width] [step]` | The whole of one quick game, a frame every `step` seconds. For a game with no list yet, and for finding where something goes wrong. |
 | `mini_by_hand.cjs <base url> <outPrefix> <mini> <width> "<condition>"...` | One quick game with nobody at the controls. |
 | `bat_lose.cjs <base url> <out.png>` | Payback's losing ending, which neither bot reaches. |
 | `tape_whole.cjs <base url> <out.png> [bot] [width]` | The whole tape: which games came up, how it ended, and every error and every file that failed to load. Run it before publishing. |
 | `skip_test.cjs <base url> <outPrefix>` | The SKIP tag, by real taps, through to the end of the tape. |
+| `textures.cjs <base url> <out.json>` and `textures.cjs --diff <before> <after>` | A fingerprint of every picture the game has made, to take before a change and again after: proof that no picture that was already there has been touched. |
 
 **The levels**
 
@@ -99,6 +112,9 @@ above; `<outPrefix>` is where the pictures go, and the start of their names.
 | --- | --- |
 | `sheet.py <folder> <out prefix> [columns] [per sheet] [tile width]` | A contact sheet of every PNG in a folder. |
 | `grid.py <picture> <out.png> <x0> <y0> <x1> <y1> <step>` | A piece of a picture with a ruled grid over it (see `cutting.md`). |
+| `catalogue.cjs <base url>` | Makes `docs/catalogue` again: every picture in the game by name, on sheets (see `pictures.md`). |
+| `faces.cjs <base url> <outPrefix> [who ...]` | Everybody's faces, in the game: a page for each person with every look they have, put there by the calls a quick game uses. |
+| `every_face.py <out prefix> [who ...]` | A sheet for each person of every face they have, big and labelled, for the owner: the fifteen, then the ones that are only theirs, each with the name a game calls it by. With nobody named, one more sheet with everybody on it: who has which look, and where the gaps are. |
 
 The Python ones are run with the Python that `tools/setup.sh` makes:
 `.venv/bin/python tools/test/sheet.py ...`. The two that listen to the
@@ -117,6 +133,19 @@ node tools/test/mini_show.cjs http://localhost:5180/ shots/sand-clumsy sand clum
 ```bash
 .venv/bin/python tools/test/sheet.py shots shots/sheet 3 9 640
 ```
+
+To be sure nothing that was already there has changed, take the fingerprints
+of every picture on the main line's build and on yours, and compare:
+
+```bash
+node tools/test/textures.cjs http://localhost:5180/ shots/after.json
+```
+
+```bash
+node tools/test/textures.cjs --diff shots/before.json shots/after.json
+```
+
+A new game should show its own pictures as "new" and nothing else at all.
 
 Then look at the sheets. A script that says "no errors" has only said that
 nothing threw: a head hung in the wrong place, a word over a face, a hand

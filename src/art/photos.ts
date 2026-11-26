@@ -1,8 +1,9 @@
 import Phaser from 'phaser';
 import { INK, TEX } from '../config';
-import { ART, Ctx, PhotoOpts, makeArt, makePhotoArt, makePhotoTile, star } from './sticker';
+import { ART, Ctx, fence, makeArt, makePhotoArt, makePhotoTile, star } from './sticker';
 import { ARM_TINTS, VEHICLES, VehicleSpec, makeNeck, setHeadStyles } from './textures';
 import { PAPERS, addPaper } from './paper';
+import { loadPictures, picture } from './pictures';
 import { buildPaperUi } from './ui';
 import { HALL, buildHallArt } from './hallway';
 import { BILL_HEAD, TV, buildMiniArt } from './minis';
@@ -12,21 +13,32 @@ import { buildSandArt } from './sand';
 import { BAT_FACES } from '../data/bat';
 import { BAT_BODIES, BAT_DOOR, BAT_YARD } from '../data/batbodies';
 import { SAND } from '../data/sand';
+import { CAST } from '../data/cast';
 import { buildSleepoverArt } from './sleepover';
 import { buildStreetArt } from './street';
 import { FIGHT_BODIES } from '../data/fight';
 import { WORKOUT_BODIES } from '../data/workout';
+import { Piece } from '../minis/kit';
+import { ROSTER } from '../minis/roster';
 
 /** Photo cutouts that replace drawn art. Each piece takes over the texture key
  *  of the drawing it replaces, so nothing else in the game has to change.
  *  The files come from tools/make_cutouts.py. */
 
 const FILES = import.meta.glob('../assets/scrap/*.{png,jpg,webp}', { eager: true, query: '?url', import: 'default' }) as Record<string, string>;
+/** ...and the pictures each quick game keeps in its own folder (src/minis/<id>/assets). */
+const OWN = import.meta.glob('../minis/*/assets/*.{png,jpg,webp}', { eager: true, query: '?url', import: 'default' }) as Record<string, string>;
 
 /** Where a picture is. Cutouts are called "name.png" throughout, but they are
  *  kept as WebP, which is a fraction of the size (tools/shrink_assets.py). */
 function url(name: string): string | undefined {
   return FILES[`../assets/scrap/${name.replace(/\.png$/, '.webp')}`] ?? FILES[`../assets/scrap/${name}`];
+}
+
+/** Where a quick game's picture is: in its own folder if it has it there, among the common ones if not. */
+function ownUrl(id: string, name: string): string | undefined {
+  const at = `../minis/${id}/assets/`;
+  return OWN[at + name.replace(/\.png$/, '.webp')] ?? OWN[at + name] ?? url(name);
 }
 
 const DISPLAY = 'Bangers, Impact, "Arial Narrow Bold", sans-serif';
@@ -44,11 +56,6 @@ function lettering(lines: [string, number][], cx: number, cy: number, gap: numbe
       y += gap;
     }
   };
-}
-
-interface Piece extends PhotoOpts {
-  key: string;
-  file: string;
 }
 
 type XY = [number, number];
@@ -87,6 +94,8 @@ const MOM_FACE = 60;
 export const SAND_ABOVE = 640;
 export const SAND_BELOW = 720;
 export { MOM_FACE };
+/** How tall everybody's faces are made, from the top of the hair to the chin (the same as FACE in src/minis/shared/people.ts, which is what sizes them for a game). */
+const CAST_FACE = 80;
 
 /** The tree the birdhouse sits in: how tall it is drawn, and where the
  *  birdhouse is in the photo, measured from the foot of the trunk as fractions
@@ -201,6 +210,11 @@ const PIECES: Piece[] = [
     const face = BAT_FACES[who]?.[KID_LOOKS[who].looks[look].photo];
     return face?.big ? [{ key: `${who}bighead_${look}`, file: face.big, h: KID_CLOSE * face.tall, border: 4, anchor: face.chin }] : [];
   })),
+  // everybody's faces, one set for each of the family (tools/make_cast.py): every look the same
+  // size and hung from the same chin, so any of them goes on any body (src/minis/shared/people.ts)
+  ...Object.entries(CAST).flatMap(([who, looks]) => Object.entries(looks).map(([look, f]): Piece => (
+    { key: `face_${who}_${look}`, file: f.file, h: CAST_FACE * f.tall, border: 2.4, anchor: f.chin }
+  ))),
   { key: 'mom_scold', file: SAND.scold.file, h: MOM_FACE * SAND.scold.tall, border: 2, anchor: SAND.scold.chin },
   { key: 'mom_big_scold', file: SAND.scold.file, h: MOM_FACE * SAND.scold.tall * 2.6, border: 4, anchor: SAND.scold.chin },
   // the day of the pocket sand: the sandbox and the toys; the two of them hugging; their mother's
@@ -251,6 +265,17 @@ const PIECES: Piece[] = [
   { key: 'bird_up', file: 'bird-up.png', scale: 0.08, border: 1.2, anchor: [0.371, 0.774] },
   { key: 'bird_down', file: 'bird-down.png', scale: 0.08, border: 1.2, anchor: [0.251, 0.253] },
   { key: 'phone', file: 'phone.png', h: 26, border: 1.4 },
+  // the family's animals, from the family's photos (tools/make_cutouts.py, animals): Roger the dog,
+  // sitting twice and lying down, and The Grump the opossum, at his dish, held, and asleep on his back
+  { key: 'roger_happy', file: 'roger-happy.png', h: 104, border: 2, anchor: [0.595, 0.985] },
+  { key: 'roger_sit', file: 'roger-sit.png', h: 104, border: 2, anchor: [0.478, 0.985] },
+  { key: 'roger_lie', file: 'roger-lie.png', h: 78, border: 2, anchor: [0.4, 0.97] },
+  { key: 'roger_sleepy', file: 'roger-sleepy.png', h: 78, border: 2, anchor: [0.5, 0.97] },
+  { key: 'roger_portrait', file: 'roger-portrait.png', h: 78, border: 2, anchor: [0.5, 0.97] },
+  { key: 'grump_eat', file: 'grump-eat.png', w: 64, border: 1.6, anchor: [0.72, 0.97] },
+  { key: 'grump_held', file: 'grump-held.png', w: 60, border: 1.6, anchor: [0.3, 0.6] },
+  { key: 'grump_asleep', file: 'grump-asleep.png', w: 46, border: 1.6, anchor: [0.5, 0.95] },
+  { key: 'grump_up', file: 'grump-up.png', h: 60, border: 1.6, anchor: [0.5, 0.97] },
 ];
 
 /** Photo vehicles, with where the open windows are (as fractions of the image). */
@@ -301,8 +326,9 @@ function tone(rgb: [number, number, number] | null): string {
   return '#' + rgb.map((v) => Math.round(v + (255 - v) * 0.12).toString(16).padStart(2, '0')).join('');
 }
 
-function loadImage(src: string | undefined): Promise<HTMLImageElement | null> {
+function loadImage(address: string | undefined): Promise<HTMLImageElement | null> {
   return new Promise((resolve) => {
+    const src = picture(address);
     if (!src) return resolve(null);
     const im = new Image();
     im.onload = () => resolve(im);
@@ -324,8 +350,38 @@ function punchHole(scene: Phaser.Scene, key: string, mask: HTMLImageElement): vo
   texture.refresh();
 }
 
+/** The quick games that keep their own pictures (a folder each in src/minis): each draws
+ *  its paper stand-ins, and then its photos take their places. Each is fenced in while it
+ *  does: it can make pictures by its own name, and cannot draw over anybody else's. */
+async function loadGames(scene: Phaser.Scene): Promise<void> {
+  for (const game of ROSTER) {
+    if (!game.art && !game.pieces && !game.files && !game.photos) continue;
+    const names = new Set<string>([...(game.pieces ?? []).map((p) => p.file), ...(game.files ?? [])]);
+    const loaded = new Map<string, HTMLImageElement>();
+    await Promise.all([...names].map(async (n) => {
+      const im = await loadImage(ownUrl(game.id, n));
+      if (!im) return;
+      // (its own, if it has one by that name; one of the common ones if not)
+      im.dataset.file = OWN[`../minis/${game.id}/assets/${n.replace(/\.png$/, '.webp')}`] || OWN[`../minis/${game.id}/assets/${n}`] ? `src/minis/${game.id}/assets/${n}` : `src/assets/scrap/${n}`;
+      loaded.set(n, im);
+    }));
+    fence(game.id, scene.textures.getTextureKeys());
+    try {
+      game.art?.(scene);
+      for (const p of game.pieces ?? []) {
+        const im = loaded.get(p.file);
+        if (im) makePhotoArt(scene, p.key, im, p);
+      }
+      game.photos?.(scene, loaded);
+    } finally {
+      fence(null);
+    }
+  }
+}
+
 /** Load every photo cutout and swap it in over its drawn stand-in. */
 export async function loadPhotoArt(scene: Phaser.Scene): Promise<void> {
+  await loadPictures();
   const sheets = PAPERS;
   const names = new Set<string>([
     ...PIECES.map((p) => p.file), ...PHOTO_VEHICLES.map((v) => v.file), 'postcard.jpg', 'rail.png', 'asphalt.jpg', 'houses.jpg', 'fence.png', 'concrete.jpg', 'hallway.jpg',
@@ -335,7 +391,9 @@ export async function loadPhotoArt(scene: Phaser.Scene): Promise<void> {
   const loaded = new Map<string, HTMLImageElement>();
   await Promise.all([...names].map(async (n) => {
     const im = await loadImage(url(n));
-    if (im) loaded.set(n, im);
+    if (!im) return;
+    im.dataset.file = `src/assets/scrap/${n}`;
+    loaded.set(n, im);
   }));
 
   // the cut-paper interface first, so photo pieces with the same key win
@@ -449,4 +507,6 @@ export async function loadPhotoArt(scene: Phaser.Scene): Promise<void> {
       c.stroke();
     }, { border: 2.5, ax: 210, ay: 174 });
   }
+
+  await loadGames(scene);
 }

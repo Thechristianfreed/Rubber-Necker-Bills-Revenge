@@ -40,7 +40,8 @@ const KEEP_SECONDS = 135;
 
 type Wave = OscillatorType;
 
-interface ToneOpts {
+/** A note: what kind of wave, from what pitch to what pitch, for how long, how loud. */
+export interface ToneOpts {
   type?: Wave;
   f0: number;
   f1?: number;
@@ -52,7 +53,8 @@ interface ToneOpts {
   out?: AudioNode;
 }
 
-interface NoiseOpts {
+/** A hiss or a thump: noise through a filter that sweeps from one pitch to another. */
+export interface NoiseOpts {
   dur: number;
   vol?: number;
   filter?: BiquadFilterType;
@@ -230,7 +232,9 @@ class Sound {
 
   // ---- synthesised sound ----------------------------------------------------------
 
-  private tone(o: ToneOpts): void {
+  /** A note, and (below) a noise: what every made-up sound here is built from. A quick game
+   *  with a folder of its own builds its sounds out of these, in its own files. */
+  tone(o: ToneOpts): void {
     const ctx = this.ctx;
     if (!ctx) return;
     const t = ctx.currentTime + (o.at ?? 0);
@@ -258,7 +262,7 @@ class Sound {
     osc.stop(t + o.dur + 0.05);
   }
 
-  private noise(o: NoiseOpts): void {
+  noise(o: NoiseOpts): void {
     const ctx = this.ctx;
     if (!ctx) return;
     const t = ctx.currentTime + (o.at ?? 0);
@@ -536,6 +540,40 @@ class Sound {
     m.cancelScheduledValues(at);
     m.setTargetAtTime(MUSIC_VOLUME * this.musicLevel * DUCK, at, 0.04);
     m.setTargetAtTime(MUSIC_VOLUME * this.musicLevel, at + clip.duration, 0.2);
+    return clip.duration;
+  }
+
+  /** A recording that belongs to one quick game: a file in public/sfx, called
+   *  `<id>-something.mp3`. `loadClip` fetches it (ask early: in the game's build());
+   *  `playClip` plays it, and says how long it lasts (nothing, if it is not there yet). */
+  private clips = new Map<string, Bank>();
+
+  loadClip(file: string): void {
+    let bank = this.clips.get(file);
+    if (!bank) {
+      bank = { url: `sfx/${file}` };
+      this.clips.set(file, bank);
+      bank.file = fetch(new URL(bank.url, document.baseURI)).then((r) => (r.ok ? r.arrayBuffer() : null)).catch(() => null);
+    }
+    // (turned into sound once sound is allowed: if that is not yet, the first try to play it asks again)
+    const wanted = bank;
+    void wanted.file!.then(async (bytes) => {
+      if (!bytes || !this.ctx || wanted.sound) return;
+      wanted.sound = (await this.ctx.decodeAudioData(bytes.slice(0)).catch(() => null)) ?? undefined;
+    });
+  }
+
+  playClip(file: string, vol = 1): number {
+    const ctx = this.ctx, clip = this.clips.get(file)?.sound;
+    if (!ctx || !clip) {
+      this.loadClip(file);
+      return 0;
+    }
+    const src = ctx.createBufferSource(), g = ctx.createGain();
+    src.buffer = clip;
+    g.gain.value = vol;
+    src.connect(g).connect(this.sfx);
+    src.start();
     return clip.duration;
   }
 

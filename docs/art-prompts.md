@@ -303,7 +303,7 @@ positions in a swing. Stephanie's ankle is on the fist in each. The sheet is
 `art-src/generated/AS5-rival-arms.webp`, its cutout
 `art-src/adobe/AS5-rival-arms-cutout.png`, and `fight()` makes `arm0` to
 `arm3` from it, low to high. How far above level the arm is in each is
-written in `ARMS` at the top of `src/minis/FightMini.ts`: measure again if
+written in `ARMS` at the top of `src/minis/fight/FightMini.ts`: measure again if
 the sheet is ever replaced.
 
 Attach the sheet of her transformed:

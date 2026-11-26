@@ -1,30 +1,14 @@
 import Phaser from 'phaser';
-import { DEPTH, H, MAX_W, view } from '../config';
+import { DEPTH, H, MAX_W, ONLY_MINI, view } from '../config';
 import { cutText, fillPaper, makePaperArt } from '../art/paper';
 import { ART, applyArt, img } from '../art/sticker';
 import { sound } from '../audio/sound';
 import { loadBest, saveBest } from '../data/progress';
-import { BatMini } from '../minis/BatMini';
-import { SandMini } from '../minis/SandMini';
-import { BopMini } from '../minis/BopMini';
-import { FightMini } from '../minis/FightMini';
 import { Mini, MiniHost } from '../minis/Mini';
-import { PhoneMini } from '../minis/PhoneMini';
-import { WorkoutMini } from '../minis/WorkoutMini';
+import { ROSTER } from '../minis/roster';
 import { label, written } from '../ui/text';
 
 type Image = Phaser.GameObjects.Image;
-
-/** Every quick game there is. To add one, write a class beside the others in
- *  src/minis and put it in this list. */
-const ROSTER: { id: string; make: (host: MiniHost) => Mini }[] = [
-  { id: 'workout', make: (h) => new WorkoutMini(h) },
-  { id: 'phone', make: (h) => new PhoneMini(h) },
-  { id: 'bop', make: (h) => new BopMini(h) },
-  { id: 'bat', make: (h) => new BatMini(h) },
-  { id: 'sand', make: (h) => new SandMini(h) },
-  { id: 'fight', make: (h) => new FightMini(h) },
-];
 
 const BAR_W = 250;
 /** What the best run is saved under. (Not 'minis': that holds scores from when the games went round and round.) */
@@ -77,7 +61,8 @@ export class MiniScene extends Phaser.Scene {
     const q = new URLSearchParams(location.search);
     const auto = q.get('auto');
     this.auto = auto === null ? '' : auto === 'clumsy' ? 'clumsy' : 'good';
-    this.only = q.get('mini') ?? '';
+    // (a page built to show one game plays that one, unless the address says otherwise)
+    this.only = q.get('mini') ?? ONLY_MINI;
     // every game once, in order (or just the one asked for)
     this.queue = ROSTER.map((_, i) => i).filter((i) => !this.only || ROSTER[i].id === this.only);
     if (this.queue.length === 0) this.queue = ROSTER.map((_, i) => i);
@@ -131,7 +116,8 @@ export class MiniScene extends Phaser.Scene {
       } else if (this.state === 'play') {
         this.mini?.press(at);
       } else if (this.state === 'over' && this.canRestart) {
-        if (at.x > view.W / 2) this.scene.start('levels');
+        // (a page that shows one game has no list of levels to go back to)
+        if (at.x > view.W / 2 && !ONLY_MINI) this.scene.start('levels');
         else this.scene.restart();
       }
     });
@@ -310,7 +296,7 @@ export class MiniScene extends Phaser.Scene {
       tape.setScale(tape.scale * 1.05, tape.scale * 1.1);
       return this.add.container(x, py + 112, [tape, t]).setDepth(d + 1).setAlpha(0);
     };
-    const notes = [note(px - 118, 'PLAY AGAIN'), note(px + 118, 'LEVELS')];
+    const notes = ONLY_MINI ? [note(px, 'PLAY AGAIN')] : [note(px - 118, 'PLAY AGAIN'), note(px + 118, 'LEVELS')];
     this.time.delayedCall(900, () => {
       this.canRestart = true;
       notes.forEach((n) => n.setAlpha(1));
