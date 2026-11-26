@@ -61,6 +61,7 @@ everything else (depths 1 to 8), and says where its floor is.
 | The school hallway | `layHallway(scene)` | `HALLWAY.floor` (387) | the bully's locker |
 | The coast road | `layRoad(scene)`: tarmac from `ROAD.top` (206) down | anywhere on the road | the highway |
 | The basement at the sleepover | `layRecRoom(scene)`: cut paper so far | `REC_ROOM.floor` (418) | The Hot Carl |
+| Le Papillon, the fancy restaurant | `layPapillon(scene)`, then `setTable(scene, x)` (or `setTable(scene, x, true)` for the long one). From `src/minis/shared/papillon.ts`, which also seats people at it (`new Diner(scene, 'bill', x, 'calm')`), stands things on the table (`onTable`), and has the waiter (`new Waiter(scene, x)`). Cut paper so far. | `PAPILLON.table` (392) is the far edge of the table top; `PAPILLON.feet` (512) is where the waiter stands | Dinner at Le Papillon |
 
 The street of houses from the paper route (`houses`, `fence`, `sidewalk`,
 `kerb`, `lawn`) scrolls past in its level and has no call of its own yet.
@@ -79,6 +80,11 @@ again:
 - **In the gym:** `hoop`, `bleachers`, `bake_table`, `cupcake`, `plank`.
 - **From the locker:** `jar`, `shake`, `book`, and the mess (`splat0` to
   `splat3`, `blob`).
+- **In the restaurant** (the ordering game's: `papillon_...`): `papillon_plate`,
+  `papillon_glass`, `papillon_glass_red`, `papillon_candle`, `papillon_rose`,
+  `papillon_cloche`, `papillon_tray`, `papillon_menu` (held up in two hands),
+  `papillon_chair`, the twelve dishes on its menu (`papillon_dish_steak` and
+  the rest), and a butterfly off the wallpaper (`papillon_butterfly`).
 - **From the road and the street:** `mailbox0`, `mailbox1` (and each `_hit`),
   `tree`, `birdhouse`, `palm`, `cone`, `billboard0`, `sign0`, `bat`,
   `phone`, `armphone` (a hand holding a phone up).
@@ -105,6 +111,11 @@ says who has which faces.
   `src/minis/shared/yard.ts` puts the head on, and `kid.set(pose, look)`
   changes both.
 - **Their mother at the back door:** `standMom(scene)`.
+- **Anybody, sitting at the restaurant's table:** `new Diner(scene, 'chad',
+  x, 'smile')` from `src/minis/shared/papillon.ts`: a body dressed for
+  dinner (there is one for Bill, Stephanie, Christian, Branson, Shane and
+  Chad), a head from their set, and the chair. `diner.set('laugh')` changes
+  the look, `diner.lean(0.1)` tips them from the seat.
 - **Anybody else, or a new pose:** a body made for the new game, with its
   chin written down by the game's `cut.py`, and one of the person's faces
   put at that chin. `yard.ts` is the pattern to follow.

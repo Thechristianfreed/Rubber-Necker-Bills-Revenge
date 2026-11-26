@@ -366,6 +366,7 @@ Shane's "sweet" is his beam), which is why one file can have two names.
 | **Trouble**, the other girl in the fight | Seven whole figures, her own face on each: walking up, pointing, charging, flicking, flinching, hulked out, arms folded (`rival_*`), and an arm that swings | No. She is generated, and in one game. |
 | **The rubberneckers** | Twelve heads, each gawking and each dazed (`head0` to `head11`) | No |
 | **The mailman** | A whole figure, twice: with a letter, and shaking his fist | No |
+| **The waiter** at Le Papillon | Cut paper only, twice: standing with a cloth over his arm, and holding a hand out for a tray (`papillon_waiter`, `papillon_waiter_serve`). The prompt for photos is PP5 in `src/minis/papillon/README.md`. | No faces: he is generated whole, like Trouble. He is in all three games set at the restaurant. |
 | **The boys at the sleepover:** DJ, Neil, Forrest, Christian, and Alex's dad | Cut paper only. The prompts for photos are written (HC1 to HC6 in `art-prompts.md`) and none is made. | Only when that level gets its photos |
 | **The bully, the teacher** | Named in the story of the locker; never seen | No |
 

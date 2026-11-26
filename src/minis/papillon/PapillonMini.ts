@@ -483,7 +483,7 @@ function rimshot(): void {
   sound.noise({ dur: 0.06, vol: 0.5, f0: 900, f1: 400, q: 0.8 });
   sound.tone({ type: 'sine', f0: 150, f1: 90, dur: 0.14, vol: 0.75, at: 0.16 });
   sound.noise({ dur: 0.06, vol: 0.5, f0: 700, f1: 300, q: 0.8, at: 0.16 });
-  sound.noise({ dur: 0.7, vol: 1.6, filter: 'highpass', f0: 5200, f1: 7000, at: 0.36 });
+  sound.noise({ dur: 0.7, vol: 0.5, filter: 'highpass', f0: 5200, f1: 7000, at: 0.36 });
   sound.tone({ type: 'square', f0: 3100, dur: 0.3, vol: 0.05, at: 0.36 });
 }
 
