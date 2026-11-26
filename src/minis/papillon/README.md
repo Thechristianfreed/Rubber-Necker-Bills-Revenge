@@ -191,7 +191,12 @@ off) and makes four small ones of its own out of `sound.tone()` and
 | The rimshot (ba-dum, tss) | 0.17 on the drums |
 | The waiter clearing his throat ("AHEM.", if Bill takes too long) | 0.17 |
 | The thought popping up | 0.13 |
-| The waiter's footsteps | see below |
+| The waiter's footsteps | about 0.06, on purpose: they are under everything else |
+
+(The footsteps were measured at 0.11 when they were set nearly twice as
+loud, and turned down from there; the meter read low on the later runs,
+with other work going on, so that last number is worked out and not read
+off.)
 
 Nobody has heard any of it yet: whether each is the right sound is for the
 owner to say, in the preview.

@@ -12,8 +12,11 @@ The size is how big the picture is drawn, in the game's own pixels (the page is 
 - [People: everybody's faces](#cast) (206)
 - [The rubberneckers, and the animals](#gawkers) (51)
 - [Effects](#effects) (25)
-- [Words on bursts](#words) (51)
+- [Words on bursts](#words) (61)
 - [The interface](#interface) (26)
+- [The quick game "favorite"](#game-favorite) (8)
+- [The quick game "papillon"](#game-papillon) (51)
+- [The quick game "veggies"](#game-veggies) (26)
 
 <a id="places"></a>
 
@@ -663,6 +666,8 @@ Shown with `this.host.word('bonk', x, y)`: the name without "word_".
 | `word_dodged` | 108 x 73 |  | paper |
 | `word_extra` | 340 x 231 |  | paper |
 | `word_fatality` | 520 x 190 |  | paper |
+| `word_favorite_anniversary` | 310 x 164 |  | paper |
+| `word_favorite_hic` | 104 x 71 |  | paper |
 | `word_fight` | 360 x 245 |  | paper |
 | `word_flawless` | 560 x 92 |  | paper |
 | `word_gethim` | 320 x 218 |  | paper |
@@ -679,6 +684,9 @@ Shown with `this.host.word('bonk', x, y)`: the name without "word_".
 | `word_nope` | 104 x 71 |  | paper |
 | `word_ow` | 86 x 58 |  | paper |
 | `word_pah` | 300 x 204 |  | paper |
+| `word_papillon_badumtss` | 190 x 129 |  | paper |
+| `word_papillon_bonappetit` | 400 x 130 |  | paper |
+| `word_papillon_coincidence` | 430 x 140 |  | paper |
 | `word_perfect` | 124 x 84 |  | `src/assets/scrap/word-perfect.webp` |
 | `word_pff` | 120 x 82 |  | paper |
 | `word_pocketsand` | 470 x 320 |  | paper |
@@ -693,6 +701,11 @@ Shown with `this.host.word('bonk', x, y)`: the name without "word_".
 | `word_thwack` | 106 x 73 |  | `src/assets/scrap/word-thwack.webp` |
 | `word_tickles` | 136 x 92 |  | paper |
 | `word_toomany` | 140 x 95 |  | paper |
+| `word_veggies_burp` | 128 x 87 |  | paper |
+| `word_veggies_cleanplate` | 340 x 231 |  | paper |
+| `word_veggies_gulp` | 150 x 102 |  | paper |
+| `word_veggies_nope` | 132 x 90 |  | paper |
+| `word_veggies_ptooey` | 200 x 136 |  | paper |
 | `word_whack` | 106 x 74 |  | `src/assets/scrap/word-whack.webp` |
 | `word_whiff` | 140 x 95 |  | paper |
 | `word_yeowch` | 160 x 109 |  | paper |
@@ -735,3 +748,123 @@ Buttons, tape, meters and marks.
 | `title_card` | 440 x 232 |  | paper |
 | `title_sub` | 290 x 50 |  | paper |
 | `you_are` | 250 x 44 |  | paper |
+
+<a id="game-favorite"></a>
+
+## The quick game "favorite"
+
+Made by `src/minis/favorite`, and kept in its folder.
+
+![The quick game "favorite"](game-favorite.jpg)
+
+| Name | Size | | File |
+| --- | --- | --- | --- |
+| `favorite_bottle` | 46 x 170 |  | `src/minis/favorite/assets/bottle.webp` |
+| `favorite_bottle_empty` | 46 x 170 |  | `src/minis/favorite/assets/bottle-empty.webp` |
+| `favorite_cup` | 70 x 130 |  | paper |
+| `favorite_heart` | 46 x 42 |  | paper |
+| `favorite_heart_empty` | 46 x 42 |  | paper |
+| `favorite_no1` | 40 x 40 |  | paper |
+| `favorite_point` | 126 x 60 |  | paper |
+| `favorite_shh` | 60 x 130 |  | paper |
+
+<a id="game-papillon"></a>
+
+## The quick game "papillon"
+
+Made by `src/minis/papillon`, and kept in its folder.
+
+![The quick game "papillon", sheet 1](game-papillon-1.jpg)
+
+![The quick game "papillon", sheet 2](game-papillon-2.jpg)
+
+| Name | Size | | File |
+| --- | --- | --- | --- |
+| `papillon_amuse` | 110 x 40 |  | paper |
+| `papillon_butterfly` | 56 x 46 |  | paper |
+| `papillon_candle` | 40 x 104 |  | paper |
+| `papillon_card` | 340 x 44 |  | paper |
+| `papillon_card_no` | 340 x 44 |  | paper |
+| `papillon_chair` | 150 x 230 |  | paper |
+| `papillon_cloche` | 110 x 78 |  | paper |
+| `papillon_dish_cake` | 100 x 78 |  | paper |
+| `papillon_dish_cheesecake` | 100 x 78 |  | paper |
+| `papillon_dish_chicken` | 100 x 78 |  | paper |
+| `papillon_dish_escargots` | 100 x 78 |  | paper |
+| `papillon_dish_lobster` | 100 x 78 |  | paper |
+| `papillon_dish_salad` | 100 x 78 |  | paper |
+| `papillon_dish_salmon` | 100 x 78 |  | paper |
+| `papillon_dish_shrimp` | 100 x 78 |  | paper |
+| `papillon_dish_soup` | 100 x 78 |  | paper |
+| `papillon_dish_steak` | 100 x 78 |  | paper |
+| `papillon_dish_sundae` | 100 x 78 |  | paper |
+| `papillon_dish_tart` | 100 x 78 |  | paper |
+| `papillon_floor` | 120 x 120 |  | paper |
+| `papillon_frame0` | 86 x 104 |  | paper |
+| `papillon_frame1` | 86 x 104 |  | paper |
+| `papillon_frame2` | 86 x 104 |  | paper |
+| `papillon_frame3` | 86 x 104 |  | paper |
+| `papillon_glass` | 36 x 70 |  | paper |
+| `papillon_glass_red` | 36 x 70 |  | paper |
+| `papillon_glow` | 220 x 220 |  | paper |
+| `papillon_menu` | 132 x 150 |  | paper |
+| `papillon_panel` | 150 x 190 |  | paper |
+| `papillon_plate` | 96 x 28 |  | paper |
+| `papillon_puff` | 30 x 30 |  | paper |
+| `papillon_rank1` | 44 x 44 |  | paper |
+| `papillon_rank2` | 44 x 44 |  | paper |
+| `papillon_rank3` | 44 x 44 |  | paper |
+| `papillon_rose` | 40 x 96 |  | paper |
+| `papillon_sconce` | 60 x 96 |  | paper |
+| `papillon_sign` | 330 x 110 |  | paper |
+| `papillon_sit_bill` | 190 x 210 |  | paper |
+| `papillon_sit_branson` | 190 x 210 |  | paper |
+| `papillon_sit_chad` | 190 x 210 |  | paper |
+| `papillon_sit_christian` | 190 x 210 |  | paper |
+| `papillon_sit_shane` | 190 x 210 |  | paper |
+| `papillon_sit_stephanie` | 190 x 210 |  | paper |
+| `papillon_table` | 620 x 200 |  | paper |
+| `papillon_table_long` | 1060 x 200 |  | paper |
+| `papillon_thought` | 250 x 150 |  | paper |
+| `papillon_thought_wide` | 350 x 150 |  | paper |
+| `papillon_tray` | 120 x 20 |  | paper |
+| `papillon_waiter` | 220 x 340 |  | paper |
+| `papillon_waiter_serve` | 220 x 340 |  | paper |
+| `papillon_wall` | 180 x 320 |  | paper |
+
+<a id="game-veggies"></a>
+
+## The quick game "veggies"
+
+Made by `src/minis/veggies`, and kept in its folder.
+
+![The quick game "veggies"](game-veggies.jpg)
+
+| Name | Size | | File |
+| --- | --- | --- | --- |
+| `veggies_arm_bill` | 200 x 30 |  | paper |
+| `veggies_arm_steph` | 200 x 24 |  | paper |
+| `veggies_body` | 130 x 124 |  | paper |
+| `veggies_branson_angry` | 134 x 202 |  | `src/assets/scrap/face-branson-angry.webp` |
+| `veggies_branson_cry` | 134 x 202 |  | `src/assets/scrap/face-branson-cry.webp` |
+| `veggies_branson_dazed` | 136 x 204 |  | `src/assets/scrap/face-branson-dazed.webp` |
+| `veggies_branson_disgusted` | 134 x 202 |  | `src/assets/scrap/face-branson-disgusted.webp` |
+| `veggies_branson_shocked` | 134 x 207 |  | `src/assets/scrap/face-branson-shocked.webp` |
+| `veggies_branson_smile` | 136 x 202 |  | `src/assets/scrap/face-branson-smile.webp` |
+| `veggies_branson_smug` | 135 x 202 |  | `src/assets/scrap/face-branson-smug.webp` |
+| `veggies_branson_worried` | 134 x 202 |  | `src/assets/scrap/face-branson-worried.webp` |
+| `veggies_broccoli` | 176 x 126 |  | paper |
+| `veggies_carrot` | 150 x 48 |  | paper |
+| `veggies_corn` | 152 x 66 |  | paper |
+| `veggies_fist` | 44 x 40 |  | paper |
+| `veggies_forearm` | 200 x 21 |  | paper |
+| `veggies_kidarm` | 62 x 22 |  | paper |
+| `veggies_leaf` | 24 x 16 |  | paper |
+| `veggies_lump` | 58 x 40 |  | paper |
+| `veggies_neck` | 36 x 60 |  | paper |
+| `veggies_noodles` | 140 x 96 |  | paper |
+| `veggies_palm` | 46 x 48 |  | paper |
+| `veggies_pinch` | 50 x 44 |  | paper |
+| `veggies_teeth_bot` | 66 x 14 |  | paper |
+| `veggies_teeth_top` | 66 x 14 |  | paper |
+| `veggies_tongue` | 74 x 24 |  | paper |
