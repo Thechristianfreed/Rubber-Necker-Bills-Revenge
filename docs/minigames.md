@@ -15,6 +15,7 @@ and a cross for a miss. Then the tape ends, and says how many were cleared.
 | The sleepover (`bop`) | Bop DJ exactly the number of times asked, then stop. | The count is exact when the clock runs out, or has been for a moment |
 | Payback (`bat`) | All week Shane shoves his brother Chad about (a calendar turns a page for each shove, and a "FED UP" thermometer fills). On Friday Chad finds the baseball bat, and Shane runs for it. Chad gains on him by himself: tap to swing when he is close enough for the bat to reach. Shane's "!" is the moment. Too soon and Chad spins round on the end of the bat; too late and Shane has noticed and is away again. It ends at the back door, with their mother in it. If Chad got him, Shane howls, she asks what he did, and Chad says what he really said that day: "I didn't do nuffing Mom. I didn't do NUFFING! All I did was hit em in the head wiff dis bat. I didn't do NUFFING Mom!" (That is the family's own wording: leave it be.) | 3 bonks on the head before Shane reaches the back door (11 seconds) |
 | Pocket sand (`sand`) | The same back yard, and the sandbox. A story in three choices, with no clock: it waits for the player. As Chad: the shovel or the bucket (Shane shoves him and throws sand either way, and their mother comes out: "Knock it off!"). As Shane: "Hug his brother Chad" (a hug with both arms, then one arm round his shoulders to say "I love you Chad"; an audience goes "Dawww", nobody moves, and then, straight from that, sand in Chad's face) or "Establish dominance" (he just throws it). Their mother comes out again, goes in, he does it again, and she comes out for the last time: "How would you like it if someone was bullying you?!" As their mother: "Let Chad handle it" (a close-up of Chad, the screen shaking: "It is Chad's turn to handle it!"; Shane punches him in the head; the choice comes back crossed out) or "Give Shane a mother's love": Shane's view up at her, from her shoes to her wagging finger ("blah blah blah", on a trombone), hers down at him, all of him and then just his big sparkling eyes, her hand taking a handful of sand, and POCKET SAND, in his eyes. | Always, in the end: "YOU DID IT!" |
+| FORE! (`golf`) | Two days. On the first, Bill takes Chad, who is five, to play golf, and the player is Chad on the first tee, with everything a golf video game gives: a driver or a 7 iron, a wind dial, a mark to put on the ball, and a swing meter (hold to fill it, let go in the green, as with the breathing on the workout tape, but with a green half the size that is never in the same place twice). None of it matters: it says "NICE SHOT!" or "SHANKED", and the ball goes through the window of a house beside the course (the back of the house from the brothers' back yard) either way. The next day ("Leave It To Chad") Shane, who is the responsible one, has the two of them selling bottled water at the entrance to the Iron Horse Trail in Danville: tap the thirsty ones as they walk and run past. No clock at the tee; the trail has its own. | $10 in the jar (ten bottles) in 22 seconds, which buys a new window at Windows R Us |
 | After school (`fight`) | Stephanie is called out, and the other girl starts it: a shove, before anybody has said "fight", that takes a piece off Stephanie's health bar. Stephanie stands her ground. Three buttons: Spirit Fingers, High Kick, Pom-Pom Flurry. For a few seconds her hits land. Then the other girl powers up, at length; the hits stop counting, the buttons turn into "Apologize", "Compliment her jacket" and "Beg for mercy"; Stephanie is picked up by one ankle, the screen stops for the words SUPER MOVE, and she is brought down on the floor, one side and then the other, seven times, before being thrown into the bake sale. An arcade announcer has the last word: "Flawless victory. Fatality." | Never. It cannot be won, and it is left out of the score: its mark on the tape is a star, and the end page says "lost, as always". |
 
 Letting go of the breath too early is a "pfff"; holding on half a second
@@ -35,7 +36,9 @@ that is said carries over from one part of the fight into the next.
 
 A game that is a story, and waits for the player to choose, says so with
 `readonly timed = false`: it has no clock, and goes on until it calls
-`this.host.finish()`. The two set in the brothers' back yard (the bat and
+`this.host.finish()`. (One that waits in one part and is against the clock
+in another does the same, and keeps a clock of its own for that part, drawn
+where the scene's would be: `drawBar()` in `src/minis/golf/GolfMini.ts`.) The two set in the brothers' back yard (the bat and
 the sandbox) share the yard, the house, their mother and the boys
 themselves: `src/minis/shared/yard.ts`.
 
@@ -87,6 +90,7 @@ Where the previews are (add a game's here when it gets one):
 | --- | --- |
 | The whole game | https://claude.ai/artifact/GwrBX3NsV3Jue3LDMUhb1c |
 | Pocket sand by itself | https://claude.ai/artifact/11orTeMeACo1UbsrVrHxcQ |
+| FORE! by itself | https://claude.ai/artifact/XfLc785r7FpbcAUwfptoq4 |
 
 A chat other than the one that made a preview can publish to it by passing
 its address as `url`.

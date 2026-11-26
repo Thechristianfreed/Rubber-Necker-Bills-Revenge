@@ -12,8 +12,9 @@ The size is how big the picture is drawn, in the game's own pixels (the page is 
 - [People: everybody's faces](#cast) (206)
 - [The rubberneckers, and the animals](#gawkers) (51)
 - [Effects](#effects) (25)
-- [Words on bursts](#words) (51)
+- [Words on bursts](#words) (57)
 - [The interface](#interface) (26)
+- [The quick game "golf"](#game-golf) (61)
 
 <a id="places"></a>
 
@@ -666,6 +667,12 @@ Shown with `this.host.word('bonk', x, y)`: the name without "word_".
 | `word_fight` | 360 x 245 |  | paper |
 | `word_flawless` | 560 x 92 |  | paper |
 | `word_gethim` | 320 x 218 |  | paper |
+| `word_golf_crash` | 330 x 224 |  | paper |
+| `word_golf_niceshot` | 330 x 224 |  | paper |
+| `word_golf_nothanks` | 136 x 92 |  | paper |
+| `word_golf_paid` | 360 x 245 |  | paper |
+| `word_golf_shanked` | 300 x 204 |  | paper |
+| `word_golf_sold` | 104 x 71 |  | paper |
 | `word_goodboy` | 118 x 80 |  | paper |
 | `word_grandslam` | 350 x 238 |  | paper |
 | `word_homerun` | 330 x 224 |  | paper |
@@ -735,3 +742,77 @@ Buttons, tape, meters and marks.
 | `title_card` | 440 x 232 |  | paper |
 | `title_sub` | 290 x 50 |  | paper |
 | `you_are` | 250 x 44 |  | paper |
+
+<a id="game-golf"></a>
+
+## The quick game "golf"
+
+Made by `src/minis/golf`, and kept in its folder.
+
+![The quick game "golf", sheet 1](game-golf-1.jpg)
+
+![The quick game "golf", sheet 2](game-golf-2.jpg)
+
+| Name | Size | | File |
+| --- | --- | --- | --- |
+| `golf_aim` | 36 x 36 |  | paper |
+| `golf_bag` | 70 x 170 |  | paper |
+| `golf_ball` | 12 x 12 |  | paper |
+| `golf_ball_big` | 132 x 132 |  | paper |
+| `golf_bill_ohno` | 210 x 284 |  | paper |
+| `golf_bill_stand` | 210 x 284 |  | paper |
+| `golf_boards` | 96 x 100 |  | paper |
+| `golf_bollard` | 24 x 100 |  | paper |
+| `golf_bottle` | 14 x 36 |  | paper |
+| `golf_btn_swing` | 176 x 86 |  | paper |
+| `golf_chad_address` | 150 x 150 |  | paper |
+| `golf_chad_back` | 150 x 150 |  | paper |
+| `golf_chad_follow` | 150 x 150 |  | paper |
+| `golf_club_driver` | 84 x 28 |  | paper |
+| `golf_club_iron` | 84 x 28 |  | paper |
+| `golf_coin` | 14 x 14 |  | paper |
+| `golf_cooler` | 84 x 70 |  | paper |
+| `golf_dirt` | 128 x 64 |  | paper |
+| `golf_fairway` | 128 x 64 |  | paper |
+| `golf_fill` | 40 x 8 |  | paper |
+| `golf_flag` | 42 x 72 |  | paper |
+| `golf_gate` | 230 x 128 |  | paper |
+| `golf_green` | 150 x 26 |  | paper |
+| `golf_head_bill` | 84 x 86 |  | paper |
+| `golf_head_chad` | 84 x 86 |  | paper |
+| `golf_head_shane` | 84 x 86 |  | paper |
+| `golf_hills` | 512 x 150 |  | paper |
+| `golf_houses` | 240 x 84 |  | paper |
+| `golf_jar` | 44 x 56 |  | paper |
+| `golf_meter` | 56 x 268 |  | paper |
+| `golf_p0_walk1` | 260 x 284 |  | paper |
+| `golf_p0_walk2` | 260 x 284 |  | paper |
+| `golf_p1_walk1` | 260 x 284 |  | paper |
+| `golf_p1_walk2` | 260 x 284 |  | paper |
+| `golf_p2_walk1` | 260 x 284 |  | paper |
+| `golf_p2_walk2` | 260 x 284 |  | paper |
+| `golf_p3_run1` | 260 x 284 |  | paper |
+| `golf_p3_run2` | 260 x 284 |  | paper |
+| `golf_p4_run1` | 260 x 284 |  | paper |
+| `golf_p4_run2` | 260 x 284 |  | paper |
+| `golf_p5_run1` | 260 x 284 |  | paper |
+| `golf_p5_run2` | 260 x 284 |  | paper |
+| `golf_path` | 128 x 80 |  | paper |
+| `golf_pavement` | 128 x 64 |  | paper |
+| `golf_shard` | 18 x 22 |  | paper |
+| `golf_sign` | 90 x 100 |  | paper |
+| `golf_sky` | 64 x 64 |  | paper |
+| `golf_smash` | 100 x 132 |  | paper |
+| `golf_stoppaint` | 150 x 40 |  | paper |
+| `golf_stopsign` | 48 x 120 |  | paper |
+| `golf_store` | 620 x 340 |  | paper |
+| `golf_table` | 210 x 120 |  | paper |
+| `golf_tee` | 6 x 14 |  | paper |
+| `golf_teebox` | 460 x 56 |  | paper |
+| `golf_trailsign` | 200 x 150 |  | paper |
+| `golf_trees` | 256 x 300 |  | paper |
+| `golf_want` | 56 x 56 |  | paper |
+| `golf_wind` | 112 x 112 |  | paper |
+| `golf_wind_arrow` | 80 x 30 |  | paper |
+| `golf_window_new` | 116 x 146 |  | paper |
+| `golf_zone` | 40 x 30 |  | paper |
