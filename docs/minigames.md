@@ -94,6 +94,9 @@ Where the previews are (add a game's here when it gets one):
 | --- | --- |
 | The whole game | https://claude.ai/artifact/GwrBX3NsV3Jue3LDMUhb1c |
 | Pocket sand by itself | https://claude.ai/artifact/11orTeMeACo1UbsrVrHxcQ |
+| Dinner at Le Papillon by itself | https://claude.ai/artifact/NkWcsZrrX3n1196JDTjt21 |
+| Eat your vegetables by itself | https://claude.ai/artifact/WKFGzxeN3DwEhKjHiCoBYv |
+| The favorite by itself | https://claude.ai/artifact/WG1ssURPrNA3eWU9XQ3P3K |
 
 A chat other than the one that made a preview can publish to it by passing
 its address as `url`.
