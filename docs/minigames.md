@@ -126,7 +126,8 @@ Plenty. A published page may be 16 MB, and the pictures used to be inside it,
 which left room for only a few more games. They are now kept beside the
 page, in files of about 6 MB (`tools/pack_pictures.mjs`,
 `src/art/pictures.ts`): the page itself is under 2 MB, and an artifact may
-have 256 MB of files beside it. With six games the pictures come to 8 MB.
+have 256 MB of files beside it. With nine games, and everybody's faces, the
+pictures come to 19 MB.
 
 Pictures are still worth keeping small (they are all fetched before the
 title comes up), so they stay WebP, at the size they are drawn.

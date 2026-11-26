@@ -9,14 +9,14 @@ The size is how big the picture is drawn, in the game's own pixels (the page is 
 - [Cars](#cars) (22)
 - [People: bodies](#bodies) (77)
 - [People: faces](#faces) (32)
-- [People: everybody's faces](#cast) (206)
+- [People: everybody's faces](#cast) (207)
 - [The rubberneckers, and the animals](#gawkers) (51)
 - [Effects](#effects) (25)
 - [Words on bursts](#words) (61)
 - [The interface](#interface) (26)
 - [The quick game "favorite"](#game-favorite) (8)
-- [The quick game "papillon"](#game-papillon) (51)
-- [The quick game "veggies"](#game-veggies) (26)
+- [The quick game "papillon"](#game-papillon) (52)
+- [The quick game "veggies"](#game-veggies) (27)
 
 <a id="places"></a>
 
@@ -362,6 +362,7 @@ One set for each of the family, every look the same size and hung from the same 
 | `face_branson_shocked` | 54 x 83 |  | `src/assets/scrap/face-branson-shocked.webp` |
 | `face_branson_smile` | 54 x 81 |  | `src/assets/scrap/face-branson-smile.webp` |
 | `face_branson_smug` | 54 x 81 |  | `src/assets/scrap/face-branson-smug.webp` |
+| `face_branson_stuffed` | 56 x 81 |  | `src/assets/scrap/face-branson-stuffed.webp` |
 | `face_branson_talking` | 54 x 81 |  | `src/assets/scrap/face-branson-talking.webp` |
 | `face_branson_worried` | 54 x 81 |  | `src/assets/scrap/face-branson-worried.webp` |
 | `face_branson_yell` | 54 x 83 |  | `src/assets/scrap/face-branson-yell.webp` |
@@ -761,12 +762,12 @@ Made by `src/minis/favorite`, and kept in its folder.
 | --- | --- | --- | --- |
 | `favorite_bottle` | 46 x 170 |  | `src/minis/favorite/assets/bottle.webp` |
 | `favorite_bottle_empty` | 46 x 170 |  | `src/minis/favorite/assets/bottle-empty.webp` |
-| `favorite_cup` | 70 x 130 |  | paper |
-| `favorite_heart` | 46 x 42 |  | paper |
-| `favorite_heart_empty` | 46 x 42 |  | paper |
+| `favorite_cup` | 61 x 131 |  | `src/minis/favorite/assets/hand-cup.webp` |
+| `favorite_heart` | 46 x 41 |  | `src/minis/favorite/assets/heart.webp` |
+| `favorite_heart_empty` | 46 x 41 |  | `src/minis/favorite/assets/heart-empty.webp` |
 | `favorite_no1` | 40 x 40 |  | paper |
-| `favorite_point` | 126 x 60 |  | paper |
-| `favorite_shh` | 60 x 130 |  | paper |
+| `favorite_point` | 113 x 77 |  | `src/minis/favorite/assets/hand-point.webp` |
+| `favorite_shh` | 53 x 132 |  | `src/minis/favorite/assets/hand-shh.webp` |
 
 <a id="game-papillon"></a>
 
@@ -780,56 +781,57 @@ Made by `src/minis/papillon`, and kept in its folder.
 
 | Name | Size | | File |
 | --- | --- | --- | --- |
-| `papillon_amuse` | 110 x 40 |  | paper |
+| `papillon_amuse` | 108 x 34 |  | `src/minis/papillon/assets/amuse.webp` |
 | `papillon_butterfly` | 56 x 46 |  | paper |
-| `papillon_candle` | 40 x 104 |  | paper |
+| `papillon_candle` | 28 x 104 |  | `src/minis/papillon/assets/candle.webp` |
 | `papillon_card` | 340 x 44 |  | paper |
 | `papillon_card_no` | 340 x 44 |  | paper |
-| `papillon_chair` | 150 x 230 |  | paper |
-| `papillon_cloche` | 110 x 78 |  | paper |
-| `papillon_dish_cake` | 100 x 78 |  | paper |
-| `papillon_dish_cheesecake` | 100 x 78 |  | paper |
-| `papillon_dish_chicken` | 100 x 78 |  | paper |
-| `papillon_dish_escargots` | 100 x 78 |  | paper |
-| `papillon_dish_lobster` | 100 x 78 |  | paper |
-| `papillon_dish_salad` | 100 x 78 |  | paper |
-| `papillon_dish_salmon` | 100 x 78 |  | paper |
-| `papillon_dish_shrimp` | 100 x 78 |  | paper |
-| `papillon_dish_soup` | 100 x 78 |  | paper |
-| `papillon_dish_steak` | 100 x 78 |  | paper |
-| `papillon_dish_sundae` | 100 x 78 |  | paper |
-| `papillon_dish_tart` | 100 x 78 |  | paper |
+| `papillon_chair` | 184 x 394 |  | `src/minis/papillon/assets/chair.webp` |
+| `papillon_cloche` | 96 x 64 |  | `src/minis/papillon/assets/cloche.webp` |
+| `papillon_dish_cake` | 100 x 89 |  | `src/minis/papillon/assets/dish-cake.webp` |
+| `papillon_dish_cheesecake` | 100 x 72 |  | `src/minis/papillon/assets/dish-cheesecake.webp` |
+| `papillon_dish_chicken` | 100 x 74 |  | `src/minis/papillon/assets/dish-chicken.webp` |
+| `papillon_dish_escargots` | 100 x 73 |  | `src/minis/papillon/assets/dish-escargots.webp` |
+| `papillon_dish_lobster` | 100 x 71 |  | `src/minis/papillon/assets/dish-lobster.webp` |
+| `papillon_dish_salad` | 100 x 72 |  | `src/minis/papillon/assets/dish-salad.webp` |
+| `papillon_dish_salmon` | 100 x 72 |  | `src/minis/papillon/assets/dish-salmon.webp` |
+| `papillon_dish_shrimp` | 100 x 96 |  | `src/minis/papillon/assets/dish-shrimp.webp` |
+| `papillon_dish_soup` | 100 x 80 |  | `src/minis/papillon/assets/dish-soup.webp` |
+| `papillon_dish_steak` | 100 x 72 |  | `src/minis/papillon/assets/dish-steak.webp` |
+| `papillon_dish_sundae` | 76 x 96 |  | `src/minis/papillon/assets/dish-sundae.webp` |
+| `papillon_dish_tart` | 100 x 70 |  | `src/minis/papillon/assets/dish-tart.webp` |
 | `papillon_floor` | 120 x 120 |  | paper |
 | `papillon_frame0` | 86 x 104 |  | paper |
 | `papillon_frame1` | 86 x 104 |  | paper |
 | `papillon_frame2` | 86 x 104 |  | paper |
 | `papillon_frame3` | 86 x 104 |  | paper |
-| `papillon_glass` | 36 x 70 |  | paper |
-| `papillon_glass_red` | 36 x 70 |  | paper |
+| `papillon_glass` | 27 x 68 |  | `src/minis/papillon/assets/glass.webp` |
+| `papillon_glass_red` | 28 x 68 |  | `src/minis/papillon/assets/glass-red.webp` |
 | `papillon_glow` | 220 x 220 |  | paper |
-| `papillon_menu` | 132 x 150 |  | paper |
+| `papillon_menu` | 175 x 153 |  | `src/minis/papillon/assets/menu.webp` |
 | `papillon_panel` | 150 x 190 |  | paper |
-| `papillon_plate` | 96 x 28 |  | paper |
+| `papillon_plate` | 92 x 29 |  | `src/minis/papillon/assets/plate.webp` |
 | `papillon_puff` | 30 x 30 |  | paper |
 | `papillon_rank1` | 44 x 44 |  | paper |
 | `papillon_rank2` | 44 x 44 |  | paper |
 | `papillon_rank3` | 44 x 44 |  | paper |
-| `papillon_rose` | 40 x 96 |  | paper |
+| `papillon_room` | 1344 x 662 | strip | `src/minis/papillon/assets/room.jpg` |
+| `papillon_rose` | 48 x 96 |  | `src/minis/papillon/assets/rose.webp` |
 | `papillon_sconce` | 60 x 96 |  | paper |
-| `papillon_sign` | 330 x 110 |  | paper |
-| `papillon_sit_bill` | 190 x 210 |  | paper |
-| `papillon_sit_branson` | 190 x 210 |  | paper |
-| `papillon_sit_chad` | 190 x 210 |  | paper |
-| `papillon_sit_christian` | 190 x 210 |  | paper |
-| `papillon_sit_shane` | 190 x 210 |  | paper |
-| `papillon_sit_stephanie` | 190 x 210 |  | paper |
-| `papillon_table` | 620 x 200 |  | paper |
-| `papillon_table_long` | 1060 x 200 |  | paper |
+| `papillon_sign` | 310 x 120 |  | `src/minis/papillon/assets/sign.webp` |
+| `papillon_sit_bill` | 187 x 221 |  | `src/minis/papillon/assets/sit-bill.webp` |
+| `papillon_sit_branson` | 191 x 221 |  | `src/minis/papillon/assets/sit-branson.webp` |
+| `papillon_sit_chad` | 192 x 220 |  | `src/minis/papillon/assets/sit-chad.webp` |
+| `papillon_sit_christian` | 189 x 220 |  | `src/minis/papillon/assets/sit-christian.webp` |
+| `papillon_sit_shane` | 192 x 220 |  | `src/minis/papillon/assets/sit-shane.webp` |
+| `papillon_sit_stephanie` | 161 x 217 |  | `src/minis/papillon/assets/sit-stephanie.webp` |
+| `papillon_table` | 720 x 417 |  | `src/minis/papillon/assets/table.webp` |
+| `papillon_table_long` | 1200 x 292 |  | `src/minis/papillon/assets/table-long.webp` |
 | `papillon_thought` | 250 x 150 |  | paper |
 | `papillon_thought_wide` | 350 x 150 |  | paper |
-| `papillon_tray` | 120 x 20 |  | paper |
-| `papillon_waiter` | 220 x 340 |  | paper |
-| `papillon_waiter_serve` | 220 x 340 |  | paper |
+| `papillon_tray` | 120 x 38 |  | `src/minis/papillon/assets/tray.webp` |
+| `papillon_waiter` | 104 x 312 |  | `src/minis/papillon/assets/waiter.webp` |
+| `papillon_waiter_serve` | 143 x 312 |  | `src/minis/papillon/assets/waiter-serve.webp` |
 | `papillon_wall` | 180 x 320 |  | paper |
 
 <a id="game-veggies"></a>
@@ -842,9 +844,9 @@ Made by `src/minis/veggies`, and kept in its folder.
 
 | Name | Size | | File |
 | --- | --- | --- | --- |
-| `veggies_arm_bill` | 200 x 30 |  | paper |
-| `veggies_arm_steph` | 200 x 24 |  | paper |
-| `veggies_body` | 130 x 124 |  | paper |
+| `veggies_arm_bill` | 194 x 63 |  | `src/minis/veggies/assets/arm-bill.webp` |
+| `veggies_arm_steph` | 79 x 48 |  | `src/minis/veggies/assets/arm-steph.webp` |
+| `veggies_body` | 130 x 165 |  | `src/minis/veggies/assets/body.webp` |
 | `veggies_branson_angry` | 134 x 202 |  | `src/assets/scrap/face-branson-angry.webp` |
 | `veggies_branson_cry` | 134 x 202 |  | `src/assets/scrap/face-branson-cry.webp` |
 | `veggies_branson_dazed` | 136 x 204 |  | `src/assets/scrap/face-branson-dazed.webp` |
@@ -852,19 +854,20 @@ Made by `src/minis/veggies`, and kept in its folder.
 | `veggies_branson_shocked` | 134 x 207 |  | `src/assets/scrap/face-branson-shocked.webp` |
 | `veggies_branson_smile` | 136 x 202 |  | `src/assets/scrap/face-branson-smile.webp` |
 | `veggies_branson_smug` | 135 x 202 |  | `src/assets/scrap/face-branson-smug.webp` |
+| `veggies_branson_stuffed` | 141 x 202 |  | `src/assets/scrap/face-branson-stuffed.webp` |
 | `veggies_branson_worried` | 134 x 202 |  | `src/assets/scrap/face-branson-worried.webp` |
-| `veggies_broccoli` | 176 x 126 |  | paper |
-| `veggies_carrot` | 150 x 48 |  | paper |
-| `veggies_corn` | 152 x 66 |  | paper |
-| `veggies_fist` | 44 x 40 |  | paper |
-| `veggies_forearm` | 200 x 21 |  | paper |
-| `veggies_kidarm` | 62 x 22 |  | paper |
-| `veggies_leaf` | 24 x 16 |  | paper |
+| `veggies_broccoli` | 176 x 151 |  | `src/minis/veggies/assets/broccoli.webp` |
+| `veggies_carrot` | 190 x 61 |  | `src/minis/veggies/assets/carrot.webp` |
+| `veggies_corn` | 170 x 56 |  | `src/minis/veggies/assets/corn.webp` |
+| `veggies_fist` | 60 x 35 |  | `src/minis/veggies/assets/fist.webp` |
+| `veggies_forearm` | 84 x 28 |  | `src/minis/veggies/assets/forearm.webp` |
+| `veggies_kidarm` | 89 x 22 |  | `src/minis/veggies/assets/kidarm.webp` |
+| `veggies_leaf` | 28 x 15 |  | `src/minis/veggies/assets/leaf.webp` |
 | `veggies_lump` | 58 x 40 |  | paper |
 | `veggies_neck` | 36 x 60 |  | paper |
-| `veggies_noodles` | 140 x 96 |  | paper |
-| `veggies_palm` | 46 x 48 |  | paper |
-| `veggies_pinch` | 50 x 44 |  | paper |
-| `veggies_teeth_bot` | 66 x 14 |  | paper |
-| `veggies_teeth_top` | 66 x 14 |  | paper |
-| `veggies_tongue` | 74 x 24 |  | paper |
+| `veggies_noodles` | 140 x 96 |  | `src/minis/veggies/assets/noodles.webp` |
+| `veggies_palm` | 33 x 72 |  | `src/minis/veggies/assets/palm.webp` |
+| `veggies_pinch` | 61 x 50 |  | `src/minis/veggies/assets/pinch.webp` |
+| `veggies_teeth_bot` | 66 x 36 |  | `src/minis/veggies/assets/teeth-bot.webp` |
+| `veggies_teeth_top` | 66 x 34 |  | `src/minis/veggies/assets/teeth-top.webp` |
+| `veggies_tongue` | 76 x 34 |  | `src/minis/veggies/assets/tongue.webp` |

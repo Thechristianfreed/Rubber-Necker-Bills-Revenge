@@ -61,7 +61,7 @@ everything else (depths 1 to 8), and says where its floor is.
 | The school hallway | `layHallway(scene)` | `HALLWAY.floor` (387) | the bully's locker |
 | The coast road | `layRoad(scene)`: tarmac from `ROAD.top` (206) down | anywhere on the road | the highway |
 | The basement at the sleepover | `layRecRoom(scene)`: cut paper so far | `REC_ROOM.floor` (418) | The Hot Carl |
-| Le Papillon, the fancy restaurant | `layPapillon(scene)`, then `setTable(scene, x)` (or `setTable(scene, x, true)` for the long one). From `src/minis/shared/papillon.ts`, which also seats people at it (`new Diner(scene, 'bill', x, 'calm')`), stands things on the table (`onTable`), and has the waiter (`new Waiter(scene, x)`). Cut paper so far. | `PAPILLON.table` (392) is the far edge of the table top; `PAPILLON.feet` (512) is where the waiter stands | Dinner at Le Papillon |
+| Le Papillon, the fancy restaurant | `layPapillon(scene)`, then `setTable(scene, x)` (or `setTable(scene, x, true)` for the long one). From `src/minis/shared/papillon.ts`, which also seats people at it (`new Diner(scene, 'bill', x, 'calm')`), stands things on the table (`onTable`), and has the waiter (`new Waiter(scene, x)`). | `PAPILLON.table` (392) is the far edge of the table top; `PAPILLON.feet` (512) is where the waiter stands | Dinner at Le Papillon |
 
 The street of houses from the paper route (`houses`, `fence`, `sidewalk`,
 `kerb`, `lawn`) scrolls past in its level and has no call of its own yet.
