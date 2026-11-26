@@ -1,9 +1,10 @@
 import Phaser from 'phaser';
 import { MAX_W, TEX, view } from '../../config';
 import { BLEED } from '../../art/finish';
-import { ART, applyArt, img } from '../../art/sticker';
+import { ART, FROM, applyArt, img } from '../../art/sticker';
 import { bubble } from '../../ui/bubble';
 import { Point } from '../Mini';
+import { ROOM_FIT, WAITER_FIT } from '../papillon/cut';
 import { Look, head, setLook } from './people';
 
 /** Le Papillon, the fancy restaurant, and who is in it: what the quick games
@@ -47,22 +48,31 @@ function strip(scene: Scene, key: string, y: number, tall: number, depth: number
   scene.add.tileSprite(-BLEED, y, (MAX_W + BLEED * 2) * d, tall * d, key).setOrigin(0, 0).setScale(1 / d).setDepth(depth);
 }
 
-/** The room: wallpaper, panelling, carpet, its name on a board, lamps, and butterflies under
- *  glass. `bare` leaves the board and the frames off (for a game that wants the wall clear). */
+/** The room: wallpaper, panelling, carpet, lamps, butterflies under glass, and its name on a
+ *  board. `bare` leaves the board off (for a game that wants the wall clear).
+ *
+ *  It is one photo of the whole room, with its own lamps and frames in it, put in the middle
+ *  of the page; or, if the photo is not there, the same made of paper (and then `bare` leaves
+ *  the paper frames off as well). */
 export function layPapillon(scene: Scene, bare = false): void {
   const W = view.W, P = PAPILLON;
-  strip(scene, 'papillon_wall', -BLEED, P.rail + BLEED, 1);
-  strip(scene, 'papillon_panel', P.rail, ART.papillon_panel.h, 2);
-  strip(scene, 'papillon_floor', P.floor, 120, 3);
-  for (const x of [W * 0.2, W * 0.8]) {
-    scene.add.image(x, 150, 'papillon_glow').setScale(1.5 / TEX).setDepth(4).setBlendMode(Phaser.BlendModes.ADD);
-    img(scene, x, 156, 'papillon_sconce').setDepth(5);
+  if (scene.textures.exists('papillon_room')) {
+    scene.add.image(W / 2, ROOM_FIT.top, 'papillon_room').setOrigin(0.5, 0).setScale(1 / (ART.papillon_room.tex ?? TEX)).setDepth(1);
+  } else {
+    strip(scene, 'papillon_wall', -BLEED, P.rail + BLEED, 1);
+    strip(scene, 'papillon_panel', P.rail, ART.papillon_panel.h, 2);
+    strip(scene, 'papillon_floor', P.floor, 120, 3);
+    for (const x of [W * 0.2, W * 0.8]) {
+      scene.add.image(x, 150, 'papillon_glow').setScale(1.5 / TEX).setDepth(4).setBlendMode(Phaser.BlendModes.ADD);
+      img(scene, x, 156, 'papillon_sconce').setDepth(5);
+    }
+    if (!bare) {
+      // (up out of the way of whoever is sitting under them)
+      const frames = W > 1040 ? [0.06, 0.335, 0.665, 0.94] : [0.065, 0.935];
+      frames.forEach((k, i) => img(scene, W * k, 112 + (i % 2) * 6, `papillon_frame${i % 4}`).setDepth(5).setRotation(i % 2 ? 0.025 : -0.025));
+    }
   }
-  if (bare) return;
-  img(scene, W / 2, 34, 'papillon_sign').setDepth(5);
-  // (up out of the way of whoever is sitting under them)
-  const frames = W > 1040 ? [0.06, 0.335, 0.665, 0.94] : [0.065, 0.935];
-  frames.forEach((k, i) => img(scene, W * k, 112 + (i % 2) * 6, `papillon_frame${i % 4}`).setDepth(5).setRotation(i % 2 ? 0.025 : -0.025));
+  if (!bare) img(scene, W / 2, 34, 'papillon_sign').setDepth(5);
 }
 
 /** The table, its middle at `x`: for two or three, or (`long`) for the whole family. */
@@ -135,8 +145,9 @@ export class Diner {
   }
 }
 
-/** Where things are on the waiter, from the floor under him, as he is drawn (facing right). */
-const WAITER = { hand: { x: 86, y: -212 }, mouth: { x: 4, y: -268 }, top: { x: 2, y: -306 } };
+/** Where things are on the waiter, from the floor under him, facing right: as he is drawn on
+ *  paper. (In the photos he is somebody else, with his hand somewhere else: cut.py says where.) */
+const PAPER_WAITER = { hand: { x: 86, y: -212 }, mouth: { x: 4, y: -268 }, top: { x: 2, y: -306 } };
 
 /** The waiter. He faces right until he is turned; `serve` puts a hand out flat, for a tray. */
 export class Waiter {
@@ -159,20 +170,23 @@ export class Waiter {
     this.im.setScale(way / TEX, 1 / TEX);
   }
 
-  private at(p: Point): Point {
-    return { x: this.im.x + p.x * this.way, y: this.im.y + p.y };
+  /** Where one of his spots is on the page: from the photo he is drawn from, or the paper. */
+  private at(spot: 'hand' | 'mouth' | 'top'): Point {
+    const photo = FROM.papillon_waiter ? { ...WAITER_FIT.serve, ...(this.serving ? {} : WAITER_FIT.stand) } : PAPER_WAITER;
+    return { x: this.im.x + photo[spot].x * this.way, y: this.im.y + photo[spot].y };
   }
 
+  /** The spot on his hand that a tray sits on (when he has it out: `serve`). */
   get hand(): Point {
-    return this.at(WAITER.hand);
+    return this.at('hand');
   }
 
   get mouth(): Point {
-    return this.at(WAITER.mouth);
+    return this.at('mouth');
   }
 
   get top(): Point {
-    return this.at(WAITER.top);
+    return this.at('top');
   }
 
   get x(): number {

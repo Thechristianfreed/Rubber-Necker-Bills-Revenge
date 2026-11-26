@@ -84,16 +84,54 @@ name, which is its picture, and what the card says).
   `smug` when he gets it right, `guilty` when he does not, and his
   `sideeye` at Christian. Stephanie's glare is her `hold`.
 - **The waiter** is nobody: a generated person, in this restaurant only,
-  like the other girl in the fight. He is cut paper until PP5 is made.
+  like the other girl in the fight. He is a photo now (PP5), with his own
+  face; the paper one is behind him, in case the photo does not load.
 
 ## Pictures
 
-Everything is cut paper so far, drawn in `art.ts`. Each of these replaces
-the paper piece with the same name, once it is made, cut by `cut.py` and
-listed in `PIECES` in `index.ts`. Nothing has been generated yet.
+All thirteen are made (26 November 2026: the owner generated them as one
+batch, and put them in his Drive, "Additional Home Movies Game Assets") and
+all thirteen are in the game. Each photo takes the place of the paper piece
+with the same name, which is still drawn in `art.ts` and is what shows if a
+photo does not load.
 
-As always: clean photos on a plain background, no border and no shadow
-(the game adds those), and the full-size picture sent back with its number.
+- **Kept** in `art-src/games/papillon/`: each picture as it came
+  (`PP3a-tableware.jpg`), Adobe's cutout of it (`...-cutout.webp`), and for
+  the two sheets of people a selection of each head (`-headmask.png`,
+  `-headmask2.png`, `-headmask3.png`, left to right).
+- **Cut** by `cut.py` into `assets/`, 34 pieces. It also writes `cut.ts`:
+  how big each is drawn and where it is held, where the room goes, where
+  the name goes on the sign, and where the waiter's mouth, head and hand
+  are. `index.ts` registers what is in that table. Nothing in either is
+  written by hand: to change how a piece sits, change the number at the top
+  of its part of `cut.py` and run it again.
+
+```bash
+.venv/bin/python src/minis/papillon/cut.py
+```
+
+| Picture | What it is in the game | How it was cut, and what to know |
+| --- | --- | --- |
+| PP1a, the room | `papillon_room`: the whole backdrop, laid by `layPapillon` in the middle of the page | Not cut out. It is drawn at 0.9, with the rail of its panelling at 292 and its carpet from 478. To cover the page and 48 more all round it needed a little more above and below: the top rows and the carpet are put on again, turned over (`assets/room.jpg`). Its own lamps and frames are in it, so the paper ones are not laid over it. |
+| PP1b, the sign | `papillon_sign` | Background off. The chains were long: only the last link is kept. "Le Papillon" is lettered on the blank board by the game, in gold, between its two butterflies (`index.ts`). |
+| PP2a, the table for three | `papillon_table` | Background off (a white cloth on grey came out clean). **It came round.** Its top is an ellipse, narrow at the far edge where things are stood, so it is drawn 720 across where the paper one was 620, and held 10 below its far edge: a glass at either end of the row is then still on it. |
+| PP2b, the long table | `papillon_table_long` | Background off. Its top narrows towards the back too, and the anniversary has a plate at each end: drawn 1200 across for the paper's 1060, held 6 below its far edge. |
+| PP3a, the tableware | `papillon_plate`, `_glass`, `_glass_red`, `_candle`, `_rose`, `_cloche`, `_tray`, `_amuse` | Background off, then split left to right: all eight were there. The dome came on a tray of its own and is taken off it along its rim (the game stands it on the waiter's tray). Each is the paper's size, held under its foot (or, a flat thing, by its middle). |
+| PP3b, the menu | `papillon_menu` | Background off. In the game a menu's foot is behind the table, and the hands in the photo are on its lower half, where they would not have shown: a band is taken out of the cover above the butterfly and the leather run together, so the butterfly and the fingers are in the part that shows. |
+| PP4, the chair | `papillon_chair` | Background off. Held at the top of its back, which is drawn 150 across as the paper one was; the seat and legs are there, behind whoever is sitting. |
+| PP5, the waiter | `papillon_waiter`, `papillon_waiter_serve` | Background off, split in two. 312 tall, held by the floor under him on the line down the middle of him. His hand is out at shoulder height, higher and nearer than the paper waiter's (71 across and 245 up from the floor under him, where the paper's was 86 and 212): `Waiter` in `shared/papillon.ts` reads where his hand, mouth and head are from `cut.ts` when he is the photo. |
+| PP6a and PP6b, sitting | `papillon_sit_bill`, `_stephanie`, `_christian`; `_shane`, `_chad`, `_branson` | Background off; each head selected by itself (by what they are wearing) and taken off; held at the chin. The second sheet came framed smaller and is drawn that much bigger (0.512 for 0.44), so all six are a size: shoulders about 160 across. The pictures stop about 175 below the chin and a body has to go 212 (they lean): the last row of each is drawn on down, which is always behind the table. |
+| PP7a, PP7b, PP7c, the menu | `papillon_dish_soup` and the other eleven | Background off, split left to right, four to a sheet. They were photographed from further above than the paper ones were drawn, so a dish is taller: each is fitted to a box 100 by 96 and held by its middle. The sundae, in its tall glass, comes out 76 across. |
+
+What went wrong: nothing had to be made again. Things to know if any of it
+is: Adobe's uploads are in the owner's storage as `rubber-necker/PP...jpg`;
+a table must be photographed from in front (a round one works, but only
+because it is drawn bigger); and a sheet of people is best framed like
+PP6a, with the whole chest in the picture.
+
+The prompts, as they were sent. As always: clean photos on a plain
+background, no border and no shadow (the game adds those), and the
+full-size picture sent back with its number.
 
 Every prompt here stands by itself: nothing has to be attached, and none
 waits on another's result, so all of them can go to the generator as one
