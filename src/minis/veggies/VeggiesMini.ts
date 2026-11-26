@@ -6,7 +6,7 @@ import { label, written } from '../../ui/text';
 import { Mini, Point } from '../Mini';
 import { Diner, LAYER, PAPILLON, Talk, Waiter, layPapillon, onTable, setTable } from '../shared/papillon';
 import { BIG, CUT, VEG, headKey } from './art';
-import { burp, clack, gasp, gulp, ptooey, squelch, strain } from './sounds';
+import { burp, clack, gasp, gulp, plop, ptooey, squelch, strain } from './sounds';
 
 type Image = Phaser.GameObjects.Image;
 type Box = Phaser.GameObjects.Container;
@@ -429,7 +429,7 @@ export class VeggiesMini extends Mini {
     this.after(0.52, () => {
       // ...and it lands
       this.bodyPop = 1;
-      sound.tock();
+      plop();
     });
     this.after(0.85, () => {
       if (this.count >= VEG.length) this.win();
@@ -486,11 +486,13 @@ export class VeggiesMini extends Mini {
     this.hint.setText('');
     this.host.word('veggies_cleanplate', W / 2, 462, true);
     sound.win();
-    for (let i = 0; i < 5; i++) {
-      const b = img(s, W / 2 + (i - 2) * 150 + (Math.random() - 0.5) * 60, 430, 'papillon_butterfly').setDepth(31).setRotation((Math.random() - 0.5) * 0.6);
-      s.tweens.add({ targets: b, y: 60 + Math.random() * 120, x: b.x + (Math.random() - 0.5) * 160, duration: 1500 + Math.random() * 500, delay: i * 90, ease: 'Sine.out' });
+    // butterflies, off the wallpaper: up the gaps between the three of them, not over their faces
+    const gap = this.steph.x - hx;
+    [hx - 172, hx + 152, hx - gap - 96, hx + gap + 90].forEach((x, i) => {
+      const b = img(s, x + (Math.random() - 0.5) * 20, 430, 'papillon_butterfly').setDepth(31).setRotation((Math.random() - 0.5) * 0.6);
+      s.tweens.add({ targets: b, y: 60 + Math.random() * 110, x: b.x + (Math.random() - 0.5) * 36, duration: 1500 + Math.random() * 500, delay: i * 90, ease: 'Sine.out' });
       s.tweens.add({ targets: b, scaleX: b.scaleX * 0.25, duration: 110, yoyo: true, repeat: -1 });
-    }
+    });
     this.after(0.55, () => {
       // and a little of it comes back
       this.want = { theta: 0.2, phi: 0.16 };
@@ -799,7 +801,7 @@ export class VeggiesMini extends Mini {
       if (clumsy && this.missed <= this.count) return;
       if (this.botIn <= 0) this.tap();
     } else if (this.phase === 'cram' && this.botIn <= 0) {
-      this.botIn = clumsy ? 0.5 : 0.12;
+      this.botIn = clumsy ? 0.62 : 0.12;
       this.tap();
     }
   }

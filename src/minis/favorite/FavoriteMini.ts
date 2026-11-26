@@ -15,9 +15,9 @@ const SEATS = ['shane', 'chad', 'bill', 'stephanie', 'christian', 'branson'];
 /** How special each boy feels to begin with (in the order they sit). */
 const START = [0.62, 0.5, 0.56, 0.68];
 /** How fast that runs down by itself, a second: at the start of the evening, and how much more by the end of it. */
-const FADES = 0.06, FADES_MORE = 0.095;
+const FADES = 0.066, FADES_MORE = 0.108;
 /** ...and how much goes when he hears his father tell one of the others. (It never takes the last of it.) */
-const HEARD = 0.045, HEARD_LEAVES = 0.05;
+const HEARD = 0.05, HEARD_LEAVES = 0.05;
 /** Nothing runs down for this long after he has been told. */
 const GLOW = 0.6;
 /** Under this he is in trouble (and it says so over his head); under this, in tears. */
@@ -54,6 +54,31 @@ interface Boy {
   /** A second head, for when Bill is seeing two of everybody. */
   ghost: Image;
 }
+
+/** What it sounds like. (How loud each comes out is in the README: measured, with tools/test/listen.cjs.) */
+const NOISES = {
+  /** Two notes, up: somebody has been told. */
+  told(): void {
+    sound.tone({ type: 'triangle', f0: 392, dur: 0.09, vol: 0.55 });
+    sound.tone({ type: 'triangle', f0: 587, dur: 0.15, vol: 0.55, at: 0.09 });
+  },
+  shh(): void {
+    sound.noise({ dur: 0.42, vol: 0.85, f0: 5200, f1: 3400, q: 0.7 });
+  },
+  /** Three swallows. */
+  glug(): void {
+    for (let i = 0; i < 3; i++) sound.tone({ type: 'sine', f0: 330 - i * 36, f1: 150, dur: 0.11, vol: 0.75, at: i * 0.14 });
+  },
+  hic(): void {
+    sound.tone({ type: 'square', f0: 420, f1: 1040, dur: 0.07, vol: 0.42 });
+    sound.tone({ type: 'sine', f0: 720, f1: 300, dur: 0.09, vol: 0.7, at: 0.1 });
+  },
+  /** Somebody's heart is nearly empty. */
+  low(): void {
+    sound.tone({ type: 'square', f0: 660, dur: 0.06, vol: 0.5 });
+    sound.tone({ type: 'square', f0: 660, dur: 0.06, vol: 0.5, at: 0.09 });
+  },
+};
 
 /** Keep only what is below `from` of a picture (0 is its top, 1 its bottom): the rest is cut away. */
 function drain(im: Image, key: string, from: number): void {
@@ -234,10 +259,9 @@ export class FavoriteMini extends Mini {
     this.talk.say(this.bill, line, shh ? 1.7 : 1.2, side * 104, 114 - this.bill.mouth.y, shh ? 19 : 22);
     if (shh) {
       this.amused = 0.9;
-      sound.noise({ dur: 0.42, vol: 0.5, f0: 5200, f1: 3400, q: 0.7 });
+      NOISES.shh();
     } else {
-      sound.tone({ type: 'triangle', f0: 392, dur: 0.09, vol: 0.3 });
-      sound.tone({ type: 'triangle', f0: 587, dur: 0.15, vol: 0.3, at: 0.09 });
+      NOISES.told();
     }
   }
 
@@ -255,7 +279,7 @@ export class FavoriteMini extends Mini {
     this.talk.hush();
     tw.add({
       targets: this, sip: 1, duration: 220, ease: 'Quad.out',
-      onComplete: () => { for (let i = 0; i < 3; i++) sound.tone({ type: 'sine', f0: 330 - i * 36, f1: 150, dur: 0.11, vol: 0.5, at: i * 0.14 }); },
+      onComplete: () => NOISES.glug(),
     });
     s.time.delayedCall(660, () => tw.add({
       targets: this, sip: 0, duration: 220, ease: 'Quad.in',
@@ -267,8 +291,7 @@ export class FavoriteMini extends Mini {
         this.amused = 0.8;
         const top = this.bill.top;
         this.host.word('favorite_hic', top.x + 56, top.y + 6);
-        sound.tone({ type: 'square', f0: 420, f1: 1040, dur: 0.07, vol: 0.2 });
-        sound.tone({ type: 'sine', f0: 720, f1: 300, dur: 0.09, vol: 0.34, at: 0.1 });
+        NOISES.hic();
         s.cameras.main.shake(120, 0.004);
       },
     }));
@@ -357,7 +380,7 @@ export class FavoriteMini extends Mini {
       if (!glowing) b.level -= fades * dt;
       if (b.level <= 0) return this.lose(i);
       const low = b.level < LOW;
-      if (low && !b.low) sound.tick();
+      if (low && !b.low) NOISES.low();
       b.low = low;
     }
     if (this.t >= SECONDS - WIN_SHOWS) return this.win();
