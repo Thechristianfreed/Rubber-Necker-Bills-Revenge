@@ -108,8 +108,8 @@ den, the front door from inside, Pappy and Mammy standing (all from "Pappy
 comes home" and the workout tape), the street from the paper route, and
 everybody's faces (Pappy's `pucker` for the kiss).
 
-The prompts for its own are below. Each stands by itself and can go in one
-batch. When they come back they go in `art-src/games/ride`, named by their
+The prompts for its own are below. All but RD4b stand by themselves and can
+go in one batch; RD4b is an edit, with a picture attached. When they come back they go in `art-src/games/ride`, named by their
 number (`RD1-kids.webp`), and `cut.py` cuts them.
 
 | Prompt | What it is for | Takes the place of |
@@ -117,7 +117,9 @@ number (`RD1-kids.webp`), and `cut.py` cuts them.
 | RD1 | Stephanie (holding the duck, and with her arms down) and Curt | `ride_steph_hold`, `ride_steph_stand`, `ride_curt_stand` |
 | RD2 | Pappy in the van: waiting, winding up, kicking | `ride_pappy_wait`, `ride_pappy_ready`, `ride_pappy_kick` |
 | RD3 | Pappy going in for a kiss, Pappy with the bottle up, Mammy with a glass | `ride_pappy_kiss`, `ride_pappy_bottle`, `ride_mammy_glass` |
-| RD4 | The four dogs, sitting | `ride_dog0` to `ride_dog3`, and their heads out of the windows (`ride_dog0_head` ...) cut from the same |
+| (already here) | The golden retriever's happy head (`dog`, from the highway) and Roger (`roger_sit`, `roger_portrait`) | a head out of a window as it is; Roger whole, if the owner wants him in it |
+| RD4 | Three more dogs, sitting | the other dogs, and their heads out of the windows cut from the same |
+| RD4b | The golden retriever, whole and sitting: an edit of `art-src/generated/E-dog.png`, which is attached | the golden retriever's body, to go with its head |
 | RD5 | Mr. Quacks, standing and flying | `ride_duck`, `ride_duck_fly`, `ride_duck_head` |
 | RD6 | The van, from the side | `ride_van` |
 | RD7 | Inside the van, the side door open | `ride_inside`, with its doorway cut out (by its place in the picture) so the forest shows through it |
@@ -149,10 +151,25 @@ Three full-length photographs of the same older man, side by side with wide clea
 Three full-length photographs side by side with wide clear gaps between them, on one plain flat light-grey studio background. First: an older man in a red zip-up jacket over a white shirt, grey trousers and white trainers, turned to the right of the picture and leaning in with his arms open, about to kiss somebody on the cheek. Second: the same man facing the camera, holding a bottle of champagne up high in his right hand, the bottle tipped over, his left hand down by his side. Third: a grandmother in a quilted leopard-print knee-length housecoat with a white collar and red fluffy slippers, facing the camera, holding a champagne glass up in her right hand, her left hand on her hip. Their whole bodies are in frame from head to feet, their hair is clear of their necks, and nothing covers their heads or necks. Soft even light, no shadows on the background. No text, no borders. Wide 16:9 image.
 ```
 
-**RD4. The dogs** (four on one sheet)
+**The dogs there are already.** Two of the four can come from pictures the
+game has. The golden retriever made for the highway (`E`, a stand-in for
+Lady) has a happy head, tongue out and ears blowing back (`dog`), which is a
+head out of a van window as it is; RD4b makes the rest of the same dog.
+Roger, Branson and Shorty's doodle, is cut from the family's own photos: one
+of him sitting (`roger_sit`), and his head and chest (`roger_portrait`) for
+the window. Whether Roger is one of the dogs that gets the boot is the
+owner's to say; RD4 has three new dogs, so that there are four without him.
+
+**RD4. Three more dogs** (three on one sheet)
 
 ```text
-Four photographs of four different scruffy mongrel dogs, side by side with wide clear gaps between them, on one plain flat light-grey studio background. Each sits up on its haunches with its body turned to the left of the picture and its head turned towards the camera, mouth open and tongue out, happy. First: a brown-and-white spaniel mix with floppy ears. Second: a black Labrador mix. Third: a small scruffy grey terrier with pricked ears and a beard. Fourth: a white dog with black spots and black floppy ears. Each whole dog is in frame, about the same size, nothing touching another. Soft even light, no shadows on the background. No text, no borders. Wide 16:9 image.
+Three photographs of three different scruffy mongrel dogs, side by side with wide clear gaps between them, on one plain flat light-grey studio background. Each sits up on its haunches with its body turned to the left of the picture and its head turned towards the camera, mouth open and tongue out, happy. First: a black Labrador mix. Second: a small scruffy grey terrier with pricked ears and a beard. Third: a white dog with black spots and black floppy ears. Each whole dog is in frame, about the same size, nothing touching another. Soft even light, no shadows on the background. No text, no borders. Wide 16:9 image.
+```
+
+**RD4b. The golden retriever, whole** (an edit: attach `art-src/generated/E-dog.png`)
+
+```text
+Edit this picture. Keep the left-hand dog exactly as it is: the same golden retriever, the same face, fur and colour, the same open mouth with its tongue out, and the same light. Now show the whole of this dog, sitting up on its haunches, its body turned towards the left of the picture and its head turned just as it is. Take away the right-hand dog. The whole dog is in frame, on the same plain flat light-grey background, with no shadows on it. No text, no borders. Wide 16:9 image.
 ```
 
 **RD5. Mr. Quacks** (two on one sheet)

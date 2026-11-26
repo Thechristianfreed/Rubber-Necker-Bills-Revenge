@@ -97,8 +97,9 @@ under the name its photo will have. What it borrows is already a photo: the
 den, the front door from inside, and Pappy standing (from "Pappy comes home"
 and the workout tape), and Pappy's own faces.
 
-The prompts for its own are below. Each stands by itself and can go in one
-batch. When they come back they go in `art-src/games/catbath`, named by their
+The prompts for its own are below. All but CB6b and CB6c stand by
+themselves and can go in one batch; those two are edits of what CB6a gives,
+so that all three cats come out in the same five poses. When they come back they go in `art-src/games/catbath`, named by their
 number (`CB1-kitchen.webp`), and `cut.py` cuts them.
 
 | Prompt | What it is for | Takes the place of |
@@ -108,7 +109,8 @@ number (`CB1-kitchen.webp`), and `cut.py` cuts them.
 | CB3 | What is at the sink: the washboard, the sprayer, the tap, a heap of suds | `catbath_board`, `catbath_sprayer`, `catbath_tap`, `catbath_suds` |
 | CB4 | Pappy at the sink, from the waist up, in six poses | `catbath_pappy_stand`, `_grab`, `_choke`, `_scrub`, `_wring`, `_hang` |
 | CB5 | The three cats sitting, cross and smelly | `catbath_cat0_sit` to `catbath_cat2_sit` |
-| CB6a, b, c | Each cat, held up by the neck: hissing, limp, soaked; wrung out; and dried | `catbath_cat0_mad`, `_out`, `_wet`, `_wrung`, `_dry`, and the same for cat1 and cat2 |
+| CB6a | The orange tabby, held up by the neck: hissing, limp, soaked; wrung out; and dried | `catbath_cat0_mad`, `_out`, `_wet`, `_wrung`, `_dry` |
+| CB6b, CB6c | The same five, for the black cat and the grey one: edits of CB6a, with it attached | the same for cat1 and cat2 |
 | CB7 | A clothes peg | `catbath_peg` |
 
 Still cut from paper, and meant to be: the clothesline, its hooks, the sink
@@ -148,10 +150,22 @@ Six photographs of the same older man from the waist up, side by side with wide 
 Three photographs of three different cats, side by side with wide clear gaps between them, on one plain flat light-grey studio background. Each sits facing the camera, ears back, scowling, scruffy and unwashed. First: an orange tabby. Second: a black cat with yellow eyes. Third: a grey cat with a white face, chest and paws. Each whole cat is in frame, about the same size. Soft even light, no shadows on the background. No text, no borders. Wide 16:9 image.
 ```
 
-**CB6a. The orange tabby, at bath time** (five on one sheet; CB6b and CB6c are the same with "black cat with yellow eyes" and "grey cat with a white face, chest and paws")
+**CB6a. The orange tabby, at bath time** (five on one sheet)
 
 ```text
 Five photographs of the same orange tabby cat, side by side with wide clear gaps between them, on one plain flat light-grey studio background, comic, like a cartoon. First: held up in the air by the scruff of its neck (whatever is holding it is not in the picture), facing the camera, its fur standing on end, claws out and legs flailing, hissing with its mouth wide open. Second: hanging the same way, completely limp, eyes shut, tongue poking out. Third: hanging the same way, soaking wet, fur plastered flat, dripping, ears drooping, miserable. Fourth: the cat twisted up like a wrung-out towel, very long, lying sideways, its head at the left end and its tail at the right, water dripping. Fifth: hanging the same way, bone dry and puffed up into a huge ball of frizzy fur, every hair on end, glaring at the camera. The whole cat is in frame in each. Soft even light, no shadows on the background. No text, no borders. Wide 16:9 image.
+```
+
+**CB6b. The black cat, at bath time** (an edit: attach what CB6a gave)
+
+```text
+Edit this picture. Keep all five photographs exactly as they are: the same five poses, the same framing, the same background and the same light. Change one thing only: in all five the cat is now a black cat with yellow eyes, instead of an orange tabby. No text, no borders. Wide 16:9 image.
+```
+
+**CB6c. The grey cat, at bath time** (an edit: attach what CB6a gave)
+
+```text
+Edit this picture. Keep all five photographs exactly as they are: the same five poses, the same framing, the same background and the same light. Change one thing only: in all five the cat is now a grey cat with a white face, white chest and white paws, instead of an orange tabby. No text, no borders. Wide 16:9 image.
 ```
 
 **CB7. A clothes peg**
