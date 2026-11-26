@@ -14,7 +14,8 @@ What it makes:
   her-<pose>.png        the other girl, who keeps her own head
   hoop.png, net.png     the basket from the side, and its rim and net as a piece of their own
   ball.png, board.png   the ball, and the scoreboard
-  ../bodies.ts          where everything is: chins, hands, the rim, the scoreboard's panels
+  home.png, away.png    the two pennants
+  ../bodies.ts          where everything is: chins, hands, the rim, the scoreboard's lights
 """
 import os
 import sys
@@ -34,9 +35,13 @@ mc.OUT = os.path.join(HERE, "assets")                      # where the pieces go
 # The sheets, and who is doing what on each, from left to right; and then whose heads say how
 # big that sheet's people are (a mouth wide open makes a face bigger, and an arm in front of
 # a head makes it smaller: those are left out). A pose the game has two names for (standing,
-# and bouncing the ball where she stands) is the one picture.
-STEPH = [("OB1a-steph-moves", ["stand", "run1", "run2", "aim"], ["stand", "run1", "run2"]),
-         ("OB1b-steph-shots", ["shoot", "guard", "steal", "cheer"], ["guard", "steal"])]
+# and bouncing the ball where she stands) is the one picture. A name that begins with "_"
+# is somebody who is on the sheet and is not cut from it any more: a later picture took
+# her place (OB4 for the two with her arms up, OB5 for the two of her running).
+STEPH = [("OB1a-steph-moves", ["stand", "_run1", "_run2", "aim"], ["stand", "_run1", "_run2"]),
+         ("OB1b-steph-shots", ["_shoot", "guard", "steal", "_cheer"], ["guard", "steal"]),
+         ("OB4-steph-arms-up", ["shoot", "cheer"], ["cheer"]),
+         ("OB5-steph-running", ["run1", "run2"], ["run1", "run2"])]
 HER = [("OB2a-her-moves", ["dribble", "run1", "run2", "shoot"], ["dribble", "run1", "run2"]),
        ("OB2b-her-feelings", ["guard", "steal", "shrug", "cheer"], ["guard", "steal"])]
 ALSO = {"steph": {"dribble": "stand"}, "her": {"stand": "dribble"}}
@@ -62,23 +67,27 @@ HANDS = {
 # the small one are behind the big one. In these poses her arms are a piece of their own, laid
 # over her head: each moved out to its side until it is clear of her face (this far from her
 # chin, in the game's pixels), and made this much longer, so that her hands still get above it.
-# In the jump shot her near arm crosses in front of her face and cannot be had whole: the far
-# one is used for both, turned round for the other side.
-ARMS_UP = {"shoot": (1.5, True), "cheer": (1.4, False)}
+ARMS_UP = {"shoot": 1.4, "cheer": 1.3}
 FACE_HALF = 19
 # Two pictures of somebody running: her head is kept level between them (the one in which she
 # is lower is lifted off the floor: she is in mid-stride), so that it does not bob as she goes.
 STRIDES = [("run1", "run2")]
 
 # The basket: how far above the floor its rim is, and how far out over the court from where the
-# game stands it, in the game's pixels (as the paper one's is: HOOP.rim in art.ts). The photo's
-# post is a good deal further back from its rim than that, and is off the edge of the page.
+# game stands it, in the game's pixels (as the paper one's is: HOOP.rim in art.ts); and how far
+# across its rim is drawn, which is what sets the size of the whole of it. Its post is then cut
+# to whatever length puts the rim at that height.
 RIM_UP = 250
 RIM_OUT = 84
-# The scoreboard: how wide it is drawn; and the middle of each of its three panels, with how
-# wide each is, as fractions of the picture (measured off it: `tools/test/grid.py`).
+RIM_WIDE = 50
+# The scoreboard: how wide it is drawn. Its numbers are lights, two to a panel: where the top
+# left of each of the six is in the picture, how big one is, how thick its strokes are and how
+# far its top leans to the right of its bottom (all in the cutout's own pixels, measured off it:
+# the same for every one of them, and checked by laying the lit strokes over the unlit ones).
 BOARD_W = 270
-PANELS = [(0.210, 0.637, 0.270), (0.498, 0.637, 0.125), (0.788, 0.637, 0.273)]
+LIGHTS = dict(at=[185, 422, 814, 1051, 1443, 1680], top=348, wide=173, tall=300, thick=30, lean=18)
+# The pennants: how wide each is drawn.
+PENNANT_W = 170
 BALL = 30
 
 
@@ -137,7 +146,7 @@ def shrunk(piece, k):
     return cv2.resize(piece, (max(1, round(piece.shape[1] * k)), max(1, round(piece.shape[0] * k))), interpolation=cv2.INTER_AREA)
 
 
-def arms_up(figure, head, chin, scale, longer, both_the_far_one):
+def arms_up(figure, head, chin, scale, longer):
     """Stephanie's two arms, from the level of her chin up, as a picture the size of the
     sheet: each moved out sideways until it is clear of where her face will be, and
     stretched upwards from where it was cut. They are laid over her head in the game. (They are cut from
@@ -148,18 +157,21 @@ def arms_up(figure, head, chin, scale, longer, both_the_far_one):
     above = figure.copy()
     above[..., 3] *= 1 - np.clip(cv2.GaussianBlur(cv2.dilate(head.astype(np.uint8), np.ones((3, 3), np.uint8)).astype(np.float32), (0, 0), 0.8) * 1.5, 0, 1)
     above[line:] = 0
-    count, lab, st, _ = cv2.connectedComponentsWithStats((above[..., 3] > 0.3).astype(np.uint8), 8)
+    # (...and less anything as dark as her hair: where an arm lies against her head, a lock of it comes too)
+    above[mc.hsv(above)[..., 2] < 0.45] = 0
+    # (Taking her head away leaves a thread of it round where it was, which can join one arm
+    # to the other over the top: anything that thin is rubbed out before the arms are looked for.)
+    stout = cv2.morphologyEx((above[..., 3] > 0.3).astype(np.uint8), cv2.MORPH_OPEN, np.ones((9, 9), np.uint8))
+    count, lab, st, _ = cv2.connectedComponentsWithStats(stout, 8)
     # (an arm is something that comes up from the shoulder line: the two biggest that do)
-    rooted = [i for i in range(1, count) if st[i][1] + st[i][3] >= line - 2]
+    rooted = [i for i in range(1, count) if st[i][1] + st[i][3] >= line - 6]
     two = sorted(sorted(rooted, key=lambda i: -st[i][4])[:2], key=lambda i: st[i][0])
     assert len(two) == 2, "she has not two arms up"
     clear = FACE_HALF / scale
     out = np.zeros_like(figure)
     for side, i in zip((-1, 1), two):
-        if both_the_far_one and side < 0:
-            continue
         arm = above.copy()
-        arm[cv2.dilate((lab == i).astype(np.uint8), np.ones((5, 5), np.uint8)) == 0] = 0
+        arm[cv2.dilate((lab == i).astype(np.uint8), np.ones((11, 11), np.uint8)) == 0] = 0
         # a round end where it was cut off, so that it reads as a piece glued on
         ys, xs = np.where(arm[..., 3] > 0.3)
         low = ys > line - 10
@@ -174,12 +186,6 @@ def arms_up(figure, head, chin, scale, longer, both_the_far_one):
         turn = np.float32([[1, 0, shift], [0, longer, line * (1 - longer)]])
         moved = cv2.warpAffine(arm, turn, (arm.shape[1], arm.shape[0]), flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT, borderValue=0)
         out = np.where(moved[..., 3:4] > out[..., 3:4], moved, out)
-    if both_the_far_one:
-        # the other arm: the same one, as a mirror shows it, the same distance the other side of her chin
-        cols = np.clip(np.round(2 * chin[0] - np.arange(out.shape[1])).astype(int), 0, out.shape[1] - 1)
-        mirrored = out[:, cols]
-        mirrored[:, (2 * chin[0] - np.arange(out.shape[1]) < 0) | (2 * chin[0] - np.arange(out.shape[1]) > out.shape[1] - 1)] = 0
-        out = np.where(mirrored[..., 3:4] > out[..., 3:4], mirrored, out)
     return out
 
 
@@ -212,7 +218,8 @@ def people(who, sheets, heads_are, way):
             row = dict(sheet=sheet, size=size, body=body, figure=mine, head=head, chin=chin, spot=spot, face=tall)
             if pose in HANDS[who]:
                 row["hand"] = hand_of(body[..., 3], chin, spot, HANDS[who][pose], way)
-            rows[pose] = row
+            if not pose.startswith("_"):
+                rows[pose] = row
     for a, b in STRIDES:
         if a in rows and b in rows:
             # (measured in heads, since the two may be on sheets of different sizes)
@@ -241,7 +248,7 @@ def write_people(who, rows, scale_of):
         if "hand" in r:
             more += f", hand: {at(r['hand'])}"
         if who == "steph" and pose in ARMS_UP:
-            arms = arms_up(r["figure"], r["head"], r["chin"], scale, *ARMS_UP[pose])
+            arms = arms_up(r["figure"], r["head"], r["chin"], scale, ARMS_UP[pose])
             ax0, ax1, ay0, ay1 = boxed(arms[..., 3])
             mc.save(f"{who}-{pose}-arms.png", shrunk(arms[ay0:ay1, ax0:ax1], scale * DETAIL))
             more += f", arms: {{ file: '{who}-{pose}-arms.png', spot: [{(sx - ax0) / (ax1 - ax0):.3f}, {(sy - ay0) / (ay1 - ay0):.3f}] }}"
@@ -259,45 +266,82 @@ def write_people(who, rows, scale_of):
     return lines
 
 
-def things():
-    """The basket, the ball and the scoreboard: one cutout, three things, left to right."""
-    hoop, ball, board = (p[2] for p in sorted(mc.pieces(mc.load("OB3-things-cutout.png"), 20000), key=lambda p: p[0]))
-    out = {}
+def one(name):
+    """The one thing in a cutout: the biggest piece of it, trimmed."""
+    return max(mc.pieces(mc.load(name), 20000), key=lambda p: p[2].shape[0] * p[2].shape[1])[2]
 
-    # The basket. Its rim is the only orange in it: that says where the rim is, and how big to
-    # draw the whole thing. The rim and the net are a piece of their own, for the ball to go
-    # down behind, and are taken out of the rest.
+
+def basket():
+    """The basket, from the side. Its rim is the only orange in it: that says where the rim
+    is, and how big to draw the whole thing. Its post is then cut (or pieced out) to the
+    length that puts the rim as far above the floor as the game has it: a post is the same
+    all the way down, so rows of it can be taken out or put in and not be missed. The rim
+    and the net are a piece of their own, for the ball to go down behind, and are taken
+    out of the rest."""
+    hoop = one("OB6-hoop-cutout.png")
     hsv = mc.hsv(hoop)
     orange = (hoop[..., 3] > 0.5) & (hsv[..., 0] > 5) & (hsv[..., 0] < 28) & (hsv[..., 1] > 0.55) & (hsv[..., 2] > 0.45)
     count, lab, st, _ = cv2.connectedComponentsWithStats(orange.astype(np.uint8), 8)
-    rim = lab == 1 + int(np.argmax(st[1:, 4]))
-    ys, xs = np.where(rim)
+    ys, xs = np.where(lab == 1 + int(np.argmax(st[1:, 4])))
     # (the ring itself is the wide part of it; what joins it to the board is narrower and lower)
     ring = xs[ys < ys.min() + 14]
     left, right, top = float(ring.min()), float(xs.max()), float(ys.min())
     middle, level = (left + right) / 2, top + 8
-    foot = float(np.where(hoop[..., 3] > 0.3)[0].max())
-    scale = RIM_UP / (foot - level)
+    scale = RIM_WIDE / (right - left)
+
+    # the post by itself: the rows in which there is nothing but one narrow upright
+    solid = hoop[..., 3] > 0.3
+    wide = np.array([np.ptp(np.where(row)[0]) + 1 if row.any() else 0 for row in solid])
+    post = np.median(wide[int(len(wide) * 0.6):int(len(wide) * 0.9)])
+    plain = np.where((wide > 0) & (wide < post * 1.25) & (np.arange(len(wide)) > ys.max() + 40))[0]
+    foot = float(np.where(solid.any(axis=1))[0].max())
+    more = int(round(level + RIM_UP / scale - foot))             # rows the post is short by (or, if less than nothing, too long by)
+    cut_at = int(plain[len(plain) // 2])
+    if more < 0:
+        assert -more < len(plain) - 40, "there is not that much post to take out"
+        hoop = np.concatenate([hoop[:cut_at + more // 2], hoop[cut_at - more + more // 2:]], axis=0)
+    elif more > 0:
+        length = hoop[plain[20]:plain[-20]]
+        there = np.concatenate([length, length[::-1]] * (1 + more // (2 * len(length))), axis=0)[:more]
+        hoop = np.concatenate([hoop[:cut_at], there, hoop[cut_at:]], axis=0)
+
     net = hoop.copy()
     net[:, :int(xs.min())] = 0
     net[:int(top) - 3] = 0
+    net[int(ys.max()) + int(1.2 * (right - left)):] = 0          # (the net is no longer than its rim is wide, or near it)
     rest = hoop.copy()
-    rest[int(top) - 3:, int(xs.min()):] = 0
+    rest[int(top) - 3:int(ys.max()) + int(1.2 * (right - left)), int(xs.min()):] = 0
     mc.save("hoop.png", shrunk(rest, scale * DETAIL))
     nx0, nx1, ny0, ny1 = boxed(net[..., 3], 2)
     mc.save("net.png", shrunk(net[ny0:ny1, nx0:nx1], scale * DETAIL))
     h, w = hoop.shape[:2]
-    out["hoop"] = (f"{{ file: 'hoop.png', scale: {1 / DETAIL:.4f}, foot: [{(middle - RIM_OUT / scale) / w:.4f}, {(level + RIM_UP / scale) / h:.4f}], wide: {(right - left) * scale:.1f} }}")
-    out["net"] = (f"{{ file: 'net.png', scale: {1 / DETAIL:.4f}, rim: [{(middle - nx0) / (nx1 - nx0):.4f}, {(level - ny0) / (ny1 - ny0):.4f}] }}")
+    return {
+        "hoop": f"{{ file: 'hoop.png', scale: {1 / DETAIL:.4f}, foot: [{(middle - RIM_OUT / scale) / w:.4f}, {(level + RIM_UP / scale) / h:.4f}], wide: {RIM_WIDE} }}",
+        "net": f"{{ file: 'net.png', scale: {1 / DETAIL:.4f}, rim: [{(middle - nx0) / (nx1 - nx0):.4f}, {(level - ny0) / (ny1 - ny0):.4f}] }}",
+    }
 
+
+def things():
+    """The basket, the ball, the scoreboard and the pennants."""
+    out = basket()
+
+    # the ball is the middle one of the three things on the first sheet of them
+    ball = sorted(mc.pieces(mc.load("OB3-things-cutout.png"), 20000), key=lambda p: p[0])[1][2]
     mc.save("ball.png", shrunk(ball, BALL * DETAIL / ball.shape[1]))
     out["ball"] = "{ file: 'ball.png' }"
 
+    board = one("OB7-scoreboard-cutout.png")
     bh, bw = board.shape[:2]
-    where = ", ".join(f"[{x:.3f}, {y:.3f}]" for x, y, _ in PANELS)
-    sizes = ", ".join(f"{w:.3f}" for _, _, w in PANELS)
     mc.save("board.png", shrunk(board, BOARD_W * DETAIL / bw))
-    out["board"] = f"{{ file: 'board.png', w: {BOARD_W}, tall: {BOARD_W * bh / bw:.1f}, panels: [{where}], wide: [{sizes}] }}"
+    at = ", ".join(f"{x / bw:.4f}" for x in LIGHTS["at"])
+    out["board"] = (f"{{ file: 'board.png', w: {BOARD_W}, tall: {BOARD_W * bh / bw:.1f}, lights: {{ at: [{at}], top: {LIGHTS['top'] / bh:.4f},"
+                    f" wide: {LIGHTS['wide'] / bw:.4f}, tall: {LIGHTS['tall'] / bh:.4f}, thick: {LIGHTS['thick'] / bw:.4f}, lean: {LIGHTS['lean'] / bw:.4f} }} }}")
+
+    # the pennants: HOME is the upper one
+    home, away = (p[2] for p in sorted(mc.pieces(mc.load("OB8-pennants-cutout.png"), 20000), key=lambda p: p[1]))
+    for name, pennant in (("home", home), ("away", away)):
+        mc.save(f"{name}.png", shrunk(pennant, PENNANT_W * DETAIL / pennant.shape[1]))
+        out[name] = f"{{ file: '{name}.png', w: {PENNANT_W} }}"
     return out
 
 
@@ -341,14 +385,20 @@ def cut():
                 "/** The things: the basket from the side (`foot` is the spot the game stands it on, as a\n"
                 " *  fraction of the picture: the middle of its rim is where the paper one's is from there;\n"
                 " *  `wide` is how far across the rim is, in the game's pixels); its rim and net again, as the\n"
-                " *  piece the ball goes down behind (`rim` is the middle of the rim in it); the ball; and the\n"
-                " *  scoreboard, with the middle of each of its three panels and how wide each is (as\n"
-                " *  fractions of the picture). */\n"
+                " *  piece the ball goes down behind (`rim` is the middle of the rim in it); the ball; the\n"
+                " *  scoreboard, and its lights: six numbers, two to a panel, each made of seven strokes.\n"
+                " *  `at` is the left of each, `top` the top of all of them, `wide` and `tall` the size of one,\n"
+                " *  `thick` how thick a stroke is and `lean` how far the top of one is to the right of its\n"
+                " *  bottom (all as fractions of the picture: across for across, down for down). And the two\n"
+                " *  pennants. */\n"
+                "export interface Lights { at: number[]; top: number; wide: number; tall: number; thick: number; lean: number }\n"
                 "export interface Things {\n"
                 "  hoop?: { file: string; scale: number; foot: [number, number]; wide: number };\n"
                 "  net?: { file: string; scale: number; rim: [number, number] };\n"
                 "  ball?: { file: string };\n"
-                "  board?: { file: string; w: number; tall: number; panels: [number, number][]; wide: number[] };\n"
+                "  board?: { file: string; w: number; tall: number; lights: Lights };\n"
+                "  home?: { file: string; w: number };\n"
+                "  away?: { file: string; w: number };\n"
                 "}\n\n"
                 "export const THINGS: Things = {\n")
         for name, row in made.items():

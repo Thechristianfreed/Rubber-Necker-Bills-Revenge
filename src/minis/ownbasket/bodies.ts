@@ -25,13 +25,13 @@ export const BODIES: Record<string, Record<string, Body>> = {
   steph: {
     stand: { file: 'steph-stand.png', scale: 0.3333, spot: [0.447, 0.996], chin: [7.6, -114.0], tilt: 0.00, hand: [25.3, -66.7] },
     dribble: { file: 'steph-stand.png', scale: 0.3333, spot: [0.447, 0.996], chin: [7.6, -114.0], tilt: 0.00, hand: [25.3, -66.7] },
-    run1: { file: 'steph-run1.png', scale: 0.3333, spot: [0.416, 1.047], chin: [11.0, -111.8], tilt: 0.00 },
-    run2: { file: 'steph-run2.png', scale: 0.3333, spot: [0.514, 0.996], chin: [12.1, -111.8], tilt: 0.00 },
     aim: { file: 'steph-aim.png', scale: 0.3333, spot: [0.291, 0.996], chin: [9.8, -107.2], tilt: 0.05, hand: [38.4, -93.7] },
-    shoot: { file: 'steph-shoot.png', scale: 0.3333, spot: [0.506, 0.996], chin: [3.7, -121.1], tilt: 0.00, hand: [3.7, -171.2], arms: { file: 'steph-shoot-arms.png', spot: [0.458, 3.323] } },
     guard: { file: 'steph-guard.png', scale: 0.3333, spot: [0.450, 0.995], chin: [11.8, -96.7], tilt: 0.00 },
     steal: { file: 'steph-steal.png', scale: 0.3333, spot: [0.369, 0.995], chin: [17.4, -97.3], tilt: 0.16 },
-    cheer: { file: 'steph-cheer.png', scale: 0.3333, spot: [0.567, 0.995], chin: [1.1, -117.1], tilt: 0.00, arms: { file: 'steph-cheer-arms.png', spot: [0.455, 2.971] } },
+    shoot: { file: 'steph-shoot.png', scale: 0.3333, spot: [0.491, 0.996], chin: [1.3, -123.0], tilt: 0.00, hand: [3.8, -179.7], arms: { file: 'steph-shoot-arms.png', spot: [0.422, 3.108] } },
+    cheer: { file: 'steph-cheer.png', scale: 0.3333, spot: [0.513, 0.996], chin: [0.4, -120.9], tilt: 0.00, arms: { file: 'steph-cheer-arms.png', spot: [0.480, 3.151] } },
+    run1: { file: 'steph-run1.png', scale: 0.3333, spot: [0.532, 0.996], chin: [9.0, -110.8], tilt: 0.00 },
+    run2: { file: 'steph-run2.png', scale: 0.3333, spot: [0.482, 1.004], chin: [9.1, -110.8], tilt: 0.00 },
   },
   her: {
     dribble: { file: 'her-dribble.png', scale: 0.3333, spot: [0.636, 0.996], chin: [-12.3, -120.5], tilt: 0.00, tall: 25.3, hand: [-42.5, -80.7] },
@@ -49,19 +49,27 @@ export const BODIES: Record<string, Record<string, Body>> = {
 /** The things: the basket from the side (`foot` is the spot the game stands it on, as a
  *  fraction of the picture: the middle of its rim is where the paper one's is from there;
  *  `wide` is how far across the rim is, in the game's pixels); its rim and net again, as the
- *  piece the ball goes down behind (`rim` is the middle of the rim in it); the ball; and the
- *  scoreboard, with the middle of each of its three panels and how wide each is (as
- *  fractions of the picture). */
+ *  piece the ball goes down behind (`rim` is the middle of the rim in it); the ball; the
+ *  scoreboard, and its lights: six numbers, two to a panel, each made of seven strokes.
+ *  `at` is the left of each, `top` the top of all of them, `wide` and `tall` the size of one,
+ *  `thick` how thick a stroke is and `lean` how far the top of one is to the right of its
+ *  bottom (all as fractions of the picture: across for across, down for down). And the two
+ *  pennants. */
+export interface Lights { at: number[]; top: number; wide: number; tall: number; thick: number; lean: number }
 export interface Things {
   hoop?: { file: string; scale: number; foot: [number, number]; wide: number };
   net?: { file: string; scale: number; rim: [number, number] };
   ball?: { file: string };
-  board?: { file: string; w: number; tall: number; panels: [number, number][]; wide: number[] };
+  board?: { file: string; w: number; tall: number; lights: Lights };
+  home?: { file: string; w: number };
+  away?: { file: string; w: number };
 }
 
 export const THINGS: Things = {
-  hoop: { file: 'hoop.png', scale: 0.3333, foot: [0.5696, 0.9975], wide: 56.6 },
-  net: { file: 'net.png', scale: 0.3333, rim: [0.5047, 0.0734] },
+  hoop: { file: 'hoop.png', scale: 0.3333, foot: [0.1409, 0.9986], wide: 50 },
+  net: { file: 'net.png', scale: 0.3333, rim: [0.6232, 0.0352] },
   ball: { file: 'ball.png' },
-  board: { file: 'board.png', w: 270, tall: 118.4, panels: [[0.210, 0.637], [0.498, 0.637], [0.788, 0.637]], wide: [0.270, 0.125, 0.273] },
+  board: { file: 'board.png', w: 270, tall: 105.8, lights: { at: [0.0900, 0.2053, 0.3959, 0.5112, 0.7018, 0.8171], top: 0.4318, wide: 0.0841, tall: 0.3722, thick: 0.0146, lean: 0.0088 } },
+  home: { file: 'home.png', w: 170 },
+  away: { file: 'away.png', w: 170 },
 };

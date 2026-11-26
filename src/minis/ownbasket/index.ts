@@ -18,6 +18,8 @@ const PIECES: Piece[] = [
   ...(THINGS.net ? [{ key: 'ownbasket_net', file: THINGS.net.file, scale: THINGS.net.scale, anchor: THINGS.net.rim, border: 0 }] : []),
   ...(THINGS.ball ? [{ key: 'ownbasket_ball', file: THINGS.ball.file, w: BALL, border: 1.6 }] : []),
   ...(THINGS.board ? [{ key: 'ownbasket_board', file: THINGS.board.file, w: THINGS.board.w, border: 2.4 }] : []),
+  ...(THINGS.home ? [{ key: 'ownbasket_home', file: THINGS.home.file, w: THINGS.home.w, border: 2 }] : []),
+  ...(THINGS.away ? [{ key: 'ownbasket_away', file: THINGS.away.file, w: THINGS.away.w, border: 2 }] : []),
 ];
 
 /** Stephanie's only basket: one against one in the school gym, and every shot of hers goes in her own. */

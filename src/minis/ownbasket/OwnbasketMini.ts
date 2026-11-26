@@ -8,7 +8,7 @@ import { Mini, Point } from '../Mini';
 import { head, setLook } from '../shared/people';
 import { GYM, layGym } from '../shared/places';
 import { BALL, HEAD_R, HER, HOOP, Mood, RIM_W, STEPH } from './art';
-import { BODIES, Body, THINGS } from './bodies';
+import { BODIES, Body, Lights, THINGS } from './bodies';
 import * as sfx from './sfx';
 
 type Image = Phaser.GameObjects.Image;
@@ -51,6 +51,12 @@ const HER_WINDUP = 0.5;
  *  seen from the couch; and how tall Stephanie's head is at that size, hair to chin. */
 const SIZE = 1.2;
 const STEPH_HEAD = 64;
+
+/** Which of a number's seven strokes are lit for each figure, 0 to 9: a is the top one, then
+ *  round to the right (b, c), the bottom (d), up the left (e, f), and g across the middle. */
+const STROKES = ['abcdef', 'bc', 'abged', 'abgcd', 'fgbc', 'afgcd', 'afgedc', 'abc', 'abcdefg', 'abcdfg'];
+/** What the scoreboard's lights are lit in: the scores, the clock, and a score that has just changed. */
+const LIT = { score: 0xffb52e, clock: 0xff5a3c, fresh: 0xfff3b0 };
 
 const SHE_SAYS = ['I SCORED!!', 'NOTHING BUT NET!', "I'M ON FIRE!", 'DID YOU SEE THAT?!'];
 const HER_ANSWER = ["THAT'S YOUR OWN BASKET!", 'UM... THANKS?', "KEEP 'EM COMING!", "YOU'RE OUR BEST PLAYER!"];
@@ -162,10 +168,18 @@ export class OwnbasketMini extends Mini {
   /** How far across a rim is, and where the bottom of the scoreboard is: the photos' are not the paper ones'. */
   private rimWide = RIM_W;
   private boardFoot = 132;
-  private board!: Image;
-  private homeText!: Text;
-  private awayText!: Text;
-  private clockText!: Text;
+  /** The scoreboard, with its numbers on it (so that they go with it when it is hit). On the photo
+   *  of one the numbers are lights, lit stroke by stroke over the unlit ones; on the paper one they
+   *  are lettering. `strokes` is each stroke of a number, from its top left corner; `showing` is
+   *  what the lights last showed; `fresh` is how much longer a score that has just changed stays bright. */
+  private board!: Phaser.GameObjects.Container;
+  private lights?: Phaser.GameObjects.Graphics;
+  private strokes: Record<string, Point[]> = {};
+  private showing = '';
+  private fresh = 0;
+  private homeText?: Text;
+  private awayText?: Text;
+  private clockText?: Text;
   private back!: Image;
   private fwd!: Image;
   private act!: Image;
@@ -191,22 +205,21 @@ export class OwnbasketMini extends Mini {
     layGym(s);
     img(s, cx, FLOOR - 16, 'bleachers').setDepth(4);
 
-    // The scoreboard. The photo of one has three panels for its lights (the middle one is small: it
-    // gets the seconds, and no more); the paper one has a window for each number.
-    const panels = FROM.ownbasket_board ? THINGS.board : undefined;
-    if (panels) {
-      const top = 40, lit = (i: number, size: number, colour: string) => label(s, cx + (panels.panels[i][0] - 0.5) * panels.w, top + panels.panels[i][1] * panels.tall + 1, '0', size, colour, 0).setDepth(3.5);
-      this.board = img(s, cx, top + panels.tall / 2, 'ownbasket_board').setDepth(3);
-      this.homeText = lit(0, 40, '#ffb52e');
-      this.clockText = lit(1, 26, '#ff5a3c');
-      this.awayText = lit(2, 40, '#ffb52e');
-      this.boardFoot = top + panels.tall - 6;
+    // The scoreboard. The photo of one has lights: six numbers, two to a panel (the score, the
+    // seconds left, the score). The paper one has a window for each number, and lettering in it.
+    const photo = FROM.ownbasket_board ? THINGS.board : undefined;
+    if (photo) {
+      const top = 38;
+      this.lights = s.add.graphics();
+      this.strokes = this.strokesOf(photo.lights, photo.w, photo.tall);
+      this.board = s.add.container(cx, top + photo.tall / 2, [img(s, 0, 0, 'ownbasket_board'), this.lights]).setDepth(3);
+      this.boardFoot = top + photo.tall - 6;
     } else {
-      this.board = img(s, cx, 86, 'ownbasket_board').setDepth(3);
-      const lit = (x: number, colour: string) => label(s, x, 98, '0', 31, colour, 0).setDepth(3.5);
-      this.homeText = lit(cx - 102, '#f6c430');
-      this.clockText = lit(cx + 2, '#ff6a4c');
-      this.awayText = lit(cx + 102, '#f6c430');
+      const lit = (x: number, colour: string) => label(s, x, 12, '0', 31, colour, 0);
+      this.homeText = lit(-102, '#f6c430');
+      this.clockText = lit(2, '#ff6a4c');
+      this.awayText = lit(102, '#f6c430');
+      this.board = s.add.container(cx, 86, [img(s, 0, 0, 'ownbasket_board'), this.homeText, this.clockText, this.awayText]).setDepth(3);
     }
 
     // a basket at each end, and whose it is
@@ -222,8 +235,9 @@ export class OwnbasketMini extends Mini {
     const [nx, ny] = originOf('ownbasket_net');
     this.nets[1].setFlipX(true).setOrigin(1 - nx, ny);
     if (FROM.ownbasket_hoop && THINGS.hoop) this.rimWide = THINGS.hoop.wide;
-    img(s, 80, 72, 'ownbasket_home').setDepth(3).setRotation(-0.03);
-    img(s, W - 80, 72, 'ownbasket_away').setDepth(3).setRotation(0.03);
+    // (a pennant on the wall beside each, just inside its board)
+    img(s, 168, 78, 'ownbasket_home').setDepth(3).setRotation(-0.02);
+    img(s, W - 168, 78, 'ownbasket_away').setDepth(3).setRotation(0.02);
 
     // the two of them, and the ball
     this.shade = img(s, 0, FLOOR + 5, 'shadow').setDepth(8);
@@ -503,7 +517,7 @@ export class OwnbasketMini extends Mini {
     sound.cash();
     this.swing(this.nets[0]);
     this.host.word('ownbasket_swish', this.own + 96, RIM - 44, true);
-    this.bump(this.awayText);
+    this.onTheBoard();
     this.enter('scored');
     const n = this.baskets - 1;
     // (the first time, there is a burst that says so instead)
@@ -539,9 +553,52 @@ export class OwnbasketMini extends Mini {
     });
   }
 
-  /** A number on the scoreboard changes: it jumps. */
-  private bump(text: Text): void {
-    this.scene.tweens.add({ targets: text, scale: 1.7, duration: 110, yoyo: true, ease: 'Quad.out' });
+  /** The visitors' score has changed: its lights are bright for a moment (or, on the paper board, the number jumps). */
+  private onTheBoard(): void {
+    this.fresh = 0.5;
+    if (this.awayText) this.scene.tweens.add({ targets: this.awayText, scale: 1.7, duration: 110, yoyo: true, ease: 'Quad.out' });
+  }
+
+  /** The seven strokes of one of the scoreboard's numbers, each as a six-sided shape, measured from
+   *  the number's top left corner in the game's pixels: three across (top, middle, bottom) and four
+   *  down, with a little gap where they meet, and the whole of it leaning to the right as the
+   *  unlit ones in the photo do. */
+  private strokesOf(l: Lights, w: number, tall: number): Record<string, Point[]> {
+    const wide = l.wide * w, high = l.tall * tall, h = (l.thick * w) / 2, gap = h * 0.28, lean = l.lean * w;
+    const across = (y: number): number[][] => [[h + gap, y], [2 * h + gap, y - h], [wide - 2 * h - gap, y - h], [wide - h - gap, y], [wide - 2 * h - gap, y + h], [2 * h + gap, y + h]];
+    const down = (x: number, top: number, foot: number): number[][] => [[x, top], [x + h, top + h], [x + h, foot - h], [x, foot], [x - h, foot - h], [x - h, top + h]];
+    const flat: Record<string, number[][]> = {
+      a: across(h), g: across(high / 2), d: across(high - h),
+      f: down(h, h + gap, high / 2 - gap), b: down(wide - h, h + gap, high / 2 - gap),
+      e: down(h, high / 2 + gap, high - h - gap), c: down(wide - h, high / 2 + gap, high - h - gap),
+    };
+    const out: Record<string, Point[]> = {};
+    for (const [name, pts] of Object.entries(flat)) out[name] = pts.map(([x, y]) => ({ x: x + lean * (1 - y / high), y }));
+    return out;
+  }
+
+  /** Light the scoreboard: the home score, the seconds left, the visitors' score. Two figures each,
+   *  the first of them dark for a number under ten. */
+  private light(home: number, seconds: number | null, away: number, bright: boolean): void {
+    const g = this.lights, photo = THINGS.board;
+    const now = `${home} ${seconds} ${away} ${bright}`;
+    if (!g || !photo || now === this.showing) return;
+    this.showing = now;
+    g.clear();
+    const l = photo.lights, top = -photo.tall / 2 + l.top * photo.tall;
+    const figure = (cell: number, n: number, colour: number) => {
+      const left = -photo.w / 2 + l.at[cell] * photo.w;
+      g.fillStyle(colour, 1);
+      for (const stroke of STROKES[n]) g.fillPoints(this.strokes[stroke].map((p) => new Phaser.Math.Vector2(left + p.x, top + p.y)), true);
+    };
+    const number = (cell: number, n: number, colour: number) => {
+      const shown = Math.min(99, Math.max(0, Math.floor(n)));
+      if (shown >= 10) figure(cell, Math.floor(shown / 10), colour);
+      figure(cell + 1, shown % 10, colour);
+    };
+    number(0, home, LIT.score);
+    if (seconds !== null) number(2, seconds, LIT.clock);
+    number(4, away, bright ? LIT.fresh : LIT.score);
   }
 
   // ---- the other girl has it ---------------------------------------------------------------------
@@ -586,7 +643,7 @@ export class OwnbasketMini extends Mini {
     sfx.swish();
     this.swing(this.nets[0]);
     this.host.word('ownbasket_swish', this.own + 96, RIM - 44);
-    this.bump(this.awayText);
+    this.onTheBoard();
     this.phase = 'loose';
     this.herPose = 'cheer';
     this.mood = 'laugh';
@@ -704,7 +761,7 @@ export class OwnbasketMini extends Mini {
     this.said = this.said.filter((b) => (b.who === who ? (b.box.destroy(), false) : true));
     const top = this.top(who), out = who === 'steph' ? -1 : 1;
     // (clear of the scoreboard, and of her own arms when they are up over her head)
-    const up = who === 'steph' ? (this.arms.visible ? 58 : 30) : 64;
+    const up = who === 'steph' ? (this.arms.visible ? 72 : 30) : 64;
     const x = Phaser.Math.Clamp(top.x + out * 26, 130, view.W - 130), y = Math.max(this.boardFoot + 30, top.y - up);
     const box = bubble(this.scene, x, y, text, this.mouth(who));
     this.said.push({ who, box, dx: x - top.x, dy: y - top.y, left: secs });
@@ -756,6 +813,7 @@ export class OwnbasketMini extends Mini {
     if (this.phase === 'done') return;
     this.t += dt;
     this.busy -= dt;
+    this.fresh -= dt;
     while (this.cues.length && this.cues[0].at <= this.t) this.cues.shift()!.run();
     this.jump = this.height('steph', dt);
     this.hop = this.height('her', dt);
@@ -915,10 +973,12 @@ export class OwnbasketMini extends Mini {
     this.fwd.setScale(k * (this.steer() > 0 ? 0.92 : 1));
 
     // the scoreboard
-    const left = Math.ceil(Math.max(0, this.clock));
-    this.homeText.setText(`${this.home}`);
-    this.awayText.setText(`${this.away}`);
-    this.clockText.setText(FROM.ownbasket_board ? `${left}` : `0:${String(left).padStart(2, '0')}`).setVisible(!this.over || Math.floor(this.t * 3) % 2 === 0);
+    // (when the game is over, the clock blinks at nothing)
+    const left = Math.ceil(Math.max(0, this.clock)), on = !this.over || Math.floor(this.t * 3) % 2 === 0;
+    this.light(this.home, on ? left : null, this.away, this.fresh > 0);
+    this.homeText?.setText(`${this.home}`);
+    this.awayText?.setText(`${this.away}`);
+    this.clockText?.setText(`0:${String(left).padStart(2, '0')}`).setVisible(on);
   }
 
   /** Where somebody's chin is in a pose, from the spot she stands on, and how far her head

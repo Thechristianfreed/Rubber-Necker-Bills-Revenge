@@ -106,13 +106,13 @@ Nothing of anybody else's is changed.
 
 ## Pictures
 
-The two girls, the ball, the baskets and the scoreboard are photos now (the
-owner made all five sheets on 26 November 2026, from the prompts below). The
-buttons, the slip the score is read from, the question mark and the words
-are cut paper (`art.ts`), and stay so. The two pennants are paper until
-their photo comes: the owner has asked for them to be photos (OB8, below). The paper dolls and the
-other girl's four paper faces are still there behind the photos, and show if
-the pictures cannot be fetched.
+The two girls, the ball, the baskets, the scoreboard and the pennants are
+photos (the owner made all ten sheets on 26 November 2026, from the prompts
+below: five, and then five more that put right what the first five could not
+do). The buttons, the slip the score is read from, the question mark and the
+words are cut paper (`art.ts`), and stay so. The paper dolls, the other
+girl's four paper faces and the paper baskets, scoreboard and pennants are
+still there behind the photos, and show if the pictures cannot be fetched.
 
 Stephanie's number is 01 (the owner's word). The uniforms are red and white
 for her school and green for the visitors, and the other girl is number 7:
@@ -127,19 +127,28 @@ All of it is in `art-src/games/ownbasket`: the owner's picture (`.webp`),
 Adobe's cutout of it (`-cutout.png`) and Adobe's selection of the heads or
 faces on it (`-headmask.png`, `-facemask.png`). `cut.py` makes the pieces in
 `assets` from those, and writes `bodies.ts`, the table of where everything
-is in them (chins, hands, the rim, the scoreboard's panels).
+is in them (chins, hands, the rim, the scoreboard's lights).
 
 ```bash
 .venv/bin/python src/minis/ownbasket/cut.py
 ```
 
-| Sheet | Who is on it, left to right | Pieces |
+| Sheet | What is on it, left to right | Pieces cut from it now |
 | --- | --- | --- |
-| `OB1a-steph-moves` | Stephanie: standing with a hand out for the ball, running, running, crouched to shoot | `steph-stand` (which is also her bouncing the ball where she stands), `steph-run1`, `steph-run2`, `steph-aim` |
-| `OB1b-steph-shots` | Stephanie: the jump shot, on defense, lunging for the ball, jumping for joy | `steph-shoot`, `steph-guard`, `steph-steal`, `steph-cheer`, and `steph-shoot-arms`, `steph-cheer-arms` |
+| `OB1a-steph-moves` | Stephanie: standing with a hand out for the ball, running, running, crouched to shoot | `steph-stand` (which is also her bouncing the ball where she stands), `steph-aim`. (The two of her running are OB5's now.) |
+| `OB1b-steph-shots` | Stephanie: the jump shot, on defense, lunging for the ball, jumping for joy | `steph-guard`, `steph-steal`. (The two with her arms up are OB4's now.) |
 | `OB2a-her-moves` | The other girl: bouncing the ball, running, running, the jump shot | `her-dribble` (also her standing), `her-run1`, `her-run2`, `her-shoot` |
 | `OB2b-her-feelings` | The other girl: on defense (scowling), lunging, baffled, jumping for joy | `her-guard`, `her-steal`, `her-shrug`, `her-cheer` |
-| `OB3-things` | The basket from the side, the ball, the scoreboard | `hoop`, `net`, `ball`, `board` |
+| `OB3-things` | The first basket, the ball, the first scoreboard | `ball`. (The basket is OB6's now and the scoreboard OB7's.) |
+| `OB4-steph-arms-up` | Stephanie: the jump shot, jumping for joy, both arms whole and clear of her head | `steph-shoot`, `steph-cheer`, and her arms again for each: `steph-shoot-arms`, `steph-cheer-arms` |
+| `OB5-steph-running` | Stephanie: two strides, a foot on the floor in each | `steph-run1`, `steph-run2` |
+| `OB6-hoop` | The basket from the side, on a straight post | `hoop`, `net` |
+| `OB7-scoreboard` | The scoreboard, three panels of the one size | `board` |
+| `OB8-pennants` | HOME over VISITORS, in felt | `home`, `away` |
+
+Nothing is thrown away: the first pictures of what was made again are still
+in `art-src/games/ownbasket`, and a name in `cut.py` that begins with `_` is
+somebody on a sheet who is not cut from it any more.
 
 What was decided in the cutting, and why:
 
@@ -150,28 +159,36 @@ What was decided in the cutting, and why:
   arms held up beside the small one are behind the big one. In the jump shot
   and the cheer her arms, from the chin up, are a piece of their own that is
   laid over her head: each moved out sideways until it is clear of her face,
-  and made half as long again, so that her hands still get above it
-  (`ARMS_UP` in `cut.py`).
-- **In the jump shot her near arm crosses in front of her face,** and Adobe's
-  selection of her head takes a bite out of it. The far arm is used for
-  both, turned round for the other side.
-- **Her head stays level as she runs.** One of the two running pictures is
-  lower than the other; it is lifted off the floor by the difference (she is
-  in mid-stride in it), so that her head does not bob. The same for the
-  other girl.
+  and made about a third as long again, so that her hands still get above
+  it (`ARMS_UP` in `cut.py`). (In the first picture of the jump shot her near
+  arm crossed her face and could not be had whole, and the far one was used
+  for both sides. OB4 was made so that both are her own.)
+- **Her head stays level as she runs.** If one of the two running pictures is
+  lower than the other it is lifted off the floor by the difference. OB5 was
+  made with a foot on the floor in both and her head at one height, so for
+  her it is a pixel. The other girl's first running picture has both feet
+  off the floor, and is lifted a little more.
 - **The other girl keeps her own head,** and what she thinks is on it: she
   scowls on defense, is baffled with her hands out, laughs when she jumps
   for joy. So the game shows how she feels by which picture it shows. Her
   faces were selected only to know where her head is, for what she says to
   come from. She is drawn a little bigger than Stephanie's body is, since
   her head is a real one and small (`HER_TALL`).
-- **The basket's post is further back from its rim than there is room for,**
-  and is off the edge of the page: what shows is the arm, the board, the rim
-  and the net. The rim is where the paper one's was. The rim and net are a
-  piece of their own, in front of the ball, so that it goes down behind
-  them.
-- **The scoreboard's middle panel is a small one,** and gets the seconds
-  left and no more; the scores are in the two big ones.
+- **The basket is sized by its rim** (`RIM_WIDE`), which is where the paper
+  one's was, and its post is cut to the length that puts the rim at the
+  right height: a post is the same all the way down, so rows of it can be
+  taken out and not be missed. (The first basket's post was so far back from
+  its rim that it was off the edge of the page.) The rim and net are a piece
+  of their own, in front of the ball, so that it goes down behind them.
+- **The scoreboard's numbers are lights.** The photo has six unlit numbers on
+  it, two to a panel, each of seven strokes. The game lights the strokes of
+  each figure over the unlit ones (`STROKES` in `OwnbasketMini.ts`): the
+  home score, the seconds left, the visitors' score. Where each number is
+  was measured off the cutout (`LIGHTS` in `cut.py`) and checked by drawing
+  the lit strokes over the unlit ones. (The first scoreboard's middle panel
+  was too small for a clock.)
+- **The pennants** are on the wall just inside each board, each with its
+  notch towards the middle of the court.
 
 ### OB1. Stephanie, in her basketball uniform (two sheets: made)
 
@@ -211,14 +228,14 @@ Three things photographed side by side with wide clear gaps between them, on one
 
 The court itself is the fight's gym, as it is.
 
-### Still to make: OB4 to OB8
+### OB4 to OB8: the second batch (made)
 
-Four pictures that would let the game use what was sent as it is, where it
-now works round it (sent to the owner as one batch on 26 November 2026), and
-the pennants, which he asked for as photos the same day.
-None needs another picture attached: Stephanie's head is replaced, so only
-her uniform has to match. The other girl's pictures are right as they are,
-and a new one of her would not have the same face.
+Four pictures that let the game use what was sent as it is, where it had
+been working round it, and the pennants, which the owner asked for as
+photos. All five came back on 26 November 2026 and are in the game. None
+needed another picture attached: Stephanie's head is replaced, so only her
+uniform had to match. The other girl's pictures are right as they are, and a
+new one of her would not have the same face.
 
 OB4, Stephanie with her arms up (for the jump shot and the cheer: both arms
 whole, and clear of her head, so that neither has to be borrowed or mended):
