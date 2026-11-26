@@ -108,8 +108,9 @@ Nothing of anybody else's is changed.
 
 The two girls, the ball, the baskets and the scoreboard are photos now (the
 owner made all five sheets on 26 November 2026, from the prompts below). The
-pennants, the buttons, the slip the score is read from, the question mark
-and the words are cut paper (`art.ts`), and stay so. The paper dolls and the
+buttons, the slip the score is read from, the question mark and the words
+are cut paper (`art.ts`), and stay so. The two pennants are paper until
+their photo comes: the owner has asked for them to be photos (OB8, below). The paper dolls and the
 other girl's four paper faces are still there behind the photos, and show if
 the pictures cannot be fetched.
 
@@ -210,10 +211,11 @@ Three things photographed side by side with wide clear gaps between them, on one
 
 The court itself is the fight's gym, as it is.
 
-### Still to make: OB4 to OB7
+### Still to make: OB4 to OB8
 
 Four pictures that would let the game use what was sent as it is, where it
-now works round it (sent to the owner as one batch on 26 November 2026).
+now works round it (sent to the owner as one batch on 26 November 2026), and
+the pennants, which he asked for as photos the same day.
 None needs another picture attached: Stephanie's head is replaced, so only
 her uniform has to match. The other girl's pictures are right as they are,
 and a new one of her would not have the same face.
@@ -273,4 +275,13 @@ asked for by name):
 
 ```bash
 node tools/test/listen.cjs http://localhost:5173/ "import('/src/minis/ownbasket/sfx.ts').then((m) => m.rim())" 800
+```
+
+OB8, the two pennants over the baskets (the same shape as the paper ones,
+which are 132 by 40: the red one is over Stephanie's own basket on the left,
+the green one over the other on the right, each with its notch towards the
+middle of the court):
+
+```text
+Two felt banners from a 1970s school gymnasium, photographed flat and straight on, one above the other with a wide clear gap between them, on one plain flat light-grey background. Both are the same size and shape: a long horizontal strip of thick felt about three and a half times as wide as it is tall, with a V-shaped notch cut into one end like a swallowtail, and a narrow stitched hem all round. The top one is bright red, with its straight end on the left and its notched end on the right, and the word HOME sewn on in large cream-white felt capital block letters. The bottom one is dark green, with its notched end on the left and its straight end on the right, and the word VISITORS sewn on in large cream-white felt capital block letters. The letters fill most of each banner and are spelled exactly HOME and VISITORS. No cords, no poles, no pins, no wall, no other words. Soft even light, no shadows on the background. No borders. Wide 16:9 image.
 ```
