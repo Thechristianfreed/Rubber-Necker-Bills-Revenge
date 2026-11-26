@@ -33,14 +33,14 @@ HOME pennant. The other girl (in green, the visitors) goes left.
 
 - **It starts with the rebound.** The other girl shoots and misses, and the
   ball comes off the rim to Stephanie. The clock on the scoreboard starts
-  then: 40 seconds.
+  then: 30 seconds.
 - **The shot is the meter from Mom's workout tape**, with the tape's own
   breath in while it fills: hold to fill it, let go in the green at the top.
   What the ball then does:
 
   | Let go | What happens |
   | --- | --- |
-  | in the green (the sweet spot) | The ball goes straight backwards over her head, flat and fast, and swishes into her own basket, with the "PAH". |
+  | in the green (the sweet spot) | The ball goes straight backwards over her head, flat and fast, and swishes into her own basket. (No "PAH": the owner's decision. The breath in just stops.) |
   | too early | It sets off the right way, comes off the front of the other basket's rim, and flies the length of the court into her own. |
   | far too early | It does not even get there: it comes down on the floor short of the other basket, and bounces from there into her own. |
   | far too late (half a second past full, when it goes off by itself) | Straight up, off the scoreboard, and into her own. |
@@ -71,6 +71,12 @@ time, so that everything is seen in one game. The clumsy one never shoots
 (it dithers until the ball is taken off her) and grabs at the ball from
 much too far away: it loses.
 
+Nobody's jump is left to a tween: how far each of them is off the floor is
+worked out from the clock, a whole jump at a time (`leap`, `height`), and a
+new jump waits for her to land from the last. (Two tweens on the one number
+once left Stephanie standing in mid-air after a quick basket.) Feet are on
+the floor at all other times.
+
 The clock is the game's own, on the scoreboard, because it has to stop for
 the tip and wait for a shot that is in the air: so the game says
 `timed = false`, and the tape's clock is not shown.
@@ -82,7 +88,7 @@ At the top of `OwnbasketMini.ts`:
 - The meter: `INHALE`, `ZONE` and `TOO_LONG` are the workout's own numbers
   (they are not shared with it: change them there and they do not change
   here). `FEEBLE` is where "too early" becomes "far too early".
-- How long the game is (`GAME`), how fast each of them moves (`SPEED`,
+- How long the game is (`GAME`: 30 seconds, the owner's choice), how fast each of them moves (`SPEED`,
   `HER_SPEED`), how far Stephanie's arm reaches for a steal (`REACH`), how
   long she may hold the ball (`HOG`), and how near the basket the other girl
   comes before she shoots (`HER_RANGE`).
@@ -93,8 +99,8 @@ At the top of `OwnbasketMini.ts`:
 The gym and its bleachers (`layGym`, `bleachers`); Stephanie's faces from
 everybody's set (`head(scene, 'stephanie', ...)`: smile, laugh, angry, yell,
 shocked, worried, guilty, smug, ouch, and her own `inhale` and `hold`); the
-workout's meter (`lungs`, `breath`) and its breath in, "PAH", wheeze and
-cough; the family's "boing"; the audience's "Dawww" from the sandbox, the
+workout's meter (`lungs`, `breath`) and its breath in, wheeze and cough
+(not its "PAH"); the family's "boing"; the audience's "Dawww" from the sandbox, the
 first time she scores; `tape_m`, `shadow`, and the words `bonk` and `whiff`.
 Nothing of anybody else's is changed.
 
@@ -103,9 +109,10 @@ Nothing of anybody else's is changed.
 Everything of the game's own is cut paper so far (`art.ts`): the two girls,
 the other girl's four faces, the ball, the two baskets and their nets, the
 scoreboard, the pennants and the buttons. These are the prompts for photos
-to take their places. The uniforms are red and white for Stephanie's school
-and green for the visitors: change them to the real colours if they are
-known, and the numbers (12 and 7 are made up).
+to take their places. Stephanie's number is 01 (the owner's word). The
+uniforms are red and white for her school and green for the visitors, and
+the other girl is number 7: those are made up, to be changed to the real
+ones if they are known.
 
 The ball is a piece of its own, which the game moves: **nobody in these
 pictures is holding one**.
@@ -116,7 +123,7 @@ Her head is taken off and her own put on, so her hair is tied up out of the
 way of her neck, as in the cheer pictures.
 
 ```text
-Four full-length photographs of the same girl of about twelve side by side with wide clear gaps between them, on one plain flat light-grey studio background. A 1970s middle school girls' basketball uniform: a red sleeveless jersey with white trim and a white number 12, red shorts with a white stripe, white knee socks with red bands, white canvas high-top trainers, her hair tied up in a tight bun so her neck and shoulders are clear. Her body is turned towards the right of the picture in all four, and there is no ball in any of them. First: standing ready, knees a little bent, her right hand held low and flat in front of her as if bouncing a ball. Second: running to the right, mid-stride, the same hand low as if dribbling. Third: the same run a moment later, the other leg forward. Fourth: crouched with her knees well bent, both hands together in front of her chest as if holding a ball, about to jump. Her whole body is in frame from head to feet in every one. Soft even light, no shadows on the background. No text other than the number, no borders. Wide 16:9 image.
+Four full-length photographs of the same girl of about twelve side by side with wide clear gaps between them, on one plain flat light-grey studio background. A 1970s middle school girls' basketball uniform: a red sleeveless jersey with white trim and the number 01 on the chest in white, red shorts with a white stripe, white knee socks with red bands, white canvas high-top trainers, her hair tied up in a tight bun so her neck and shoulders are clear. Her body is turned towards the right of the picture in all four, and there is no ball in any of them. First: standing ready, knees a little bent, her right hand held low and flat in front of her as if bouncing a ball. Second: running to the right, mid-stride, the same hand low as if dribbling. Third: the same run a moment later, the other leg forward. Fourth: crouched with her knees well bent, both hands together in front of her chest as if holding a ball, about to jump. Her whole body is in frame from head to feet in every one. Soft even light, no shadows on the background. No text other than the number, no borders. Wide 16:9 image.
 ```
 
 Then, with that sheet attached:
@@ -164,8 +171,8 @@ measured where everything meets (the mouth "bonk" beside them was 0.17):
 | a hand on the ball | 0.14 |
 | the buzzer | 0.16 to 0.21 |
 
-Borrowed, and as loud as they always are: the breath in, the "PAH", the
-wheeze and the cough (the workout tape's), the "boing", the audience
+Borrowed, and as loud as they always are: the breath in, the wheeze and the
+cough (the workout tape's), the "boing", the audience
 ("Dawww", 0.18), a whoosh for a steal that misses. Nobody has heard any of
 it yet: whether each is the right sound is for the owner to say, in the
 preview.

@@ -182,7 +182,7 @@ function plate(scene: Phaser.Scene, key: string, w: number, sheet: Paper, draw: 
 }
 
 export function buildArt(scene: Phaser.Scene): void {
-  dolls(scene, 'ownbasket_steph', STEPH, HOME, '12');
+  dolls(scene, 'ownbasket_steph', STEPH, HOME, '01');
   dolls(scene, 'ownbasket_her', HER, AWAY, '7', true);
   for (const mood of MOODS) {
     makePaperArt(scene, `ownbasket_herhead_${mood}`, 76, 60, (c) => {

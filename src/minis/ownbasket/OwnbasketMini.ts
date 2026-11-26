@@ -31,7 +31,7 @@ const TOO_LONG = 0.5;
 const FEEBLE = 0.36;
 
 /** How long the game is, on the scoreboard's clock. */
-const GAME = 40;
+const GAME = 30;
 /** How fast Stephanie gets about; how fast the other girl brings the ball up, and backs off. */
 const SPEED = 205;
 const HER_SPEED = 112;
@@ -62,6 +62,9 @@ type Shot = 'sweet' | 'rim' | 'floor' | 'long';
 /** One hop of the ball: where to (which may be somebody who is moving), how far it
  *  rises above the straight line there, how long it takes, and what happens when it lands. */
 interface Leg { to: Point | (() => Point); rise: number; secs: number; then?: () => void }
+/** Somebody jumping: how high, how long each jump takes, how many are left, how far
+ *  through this one she is, and how long before the first. */
+interface Hops { high: number; secs: number; left: number; t: number; wait: number }
 
 /** Stephanie's only basket. She played basketball in middle school, and tells the
  *  story of the one time she ever scored: she got a rebound, was so excited that she
@@ -106,6 +109,8 @@ export class OwnbasketMini extends Mini {
   private worn = '';
   private jump = 0;
   private lunge = 0;
+  /** The jumps each of them is in the middle of, and what she does when she has landed. */
+  private hops: Record<Who, { now?: Hops; next?: Hops }> = { steph: {}, her: {} };
   /** How long she has had the ball, how far she has run (for her legs), and how long before she can do anything again. */
   private held = 0;
   private run = 0;
@@ -323,6 +328,37 @@ export class OwnbasketMini extends Mini {
     }
   }
 
+  /** Send somebody up in the air and down again, `times` over, starting in `wait` seconds.
+   *  If she is in the air already, it waits for her to land. */
+  private leap(who: Who, high: number, secs: number, times = 1, wait = 0): void {
+    const slot = this.hops[who], hops: Hops = { high, secs, left: times, t: 0, wait };
+    if (slot.now && slot.now.wait <= 0) slot.next = hops;
+    else slot.now = hops;
+  }
+
+  /** How far off the floor somebody is just now. It is worked out from the clock, one whole
+   *  jump at a time, so that whatever else happens she comes down where she went up from. */
+  private height(who: Who, dt: number): number {
+    const slot = this.hops[who], h = slot.now;
+    if (!h) return 0;
+    if (h.wait > 0) {
+      h.wait -= dt;
+      return 0;
+    }
+    h.t += dt;
+    if (h.t >= h.secs) {
+      // she has landed: on to whatever was waiting, or up again, or that was the last of them
+      h.t = 0;
+      h.left--;
+      if (slot.next || h.left <= 0) {
+        slot.now = slot.next;
+        slot.next = undefined;
+        return 0;
+      }
+    }
+    return h.high * Math.sin((Math.PI * h.t) / h.secs);
+  }
+
   /** Where somebody has the ball when it is thrown or bounces to her. */
   private hands(who: Who): Point {
     return who === 'steph' ? { x: this.sx + 32, y: FLOOR - 88 } : { x: this.ox - 32, y: FLOOR - 88 };
@@ -338,14 +374,15 @@ export class OwnbasketMini extends Mini {
 
   /** Up she goes, and lets it go: and whatever the meter said, it ends in her own basket. */
   private shoot(): void {
-    const s = this.scene, tw = s.tweens, W = view.W;
+    const W = view.W;
     const air = this.air, own = { x: this.own, y: RIM }, far = this.sx - this.own, across = this.theirs - this.sx;
     this.kind = air > 1 + TOO_LONG / INHALE ? 'long' : air >= ZONE ? 'sweet' : air >= FEEBLE ? 'rim' : 'floor';
     this.shots++;
     this.bounced = 0;
     // (from past half way, it is worth three: to the visitors)
     this.worth = this.sx > W / 2 ? 3 : 2;
-    if (this.kind === 'sweet') sound.pah();
+    // (in the green, the breath in just stops, and the next thing heard is the net)
+    if (this.kind === 'sweet') sound.stopBreath();
     else if (this.kind === 'long') sound.cough();
     else sound.wheeze();
     this.enter('shot');
@@ -353,11 +390,11 @@ export class OwnbasketMini extends Mini {
     this.button('shoot', false);
     this.pose = 'shoot';
     this.look = this.kind === 'sweet' ? 'yell' : this.kind === 'long' ? 'ouch' : 'worried';
-    tw.add({ targets: this, jump: 58, duration: 230, ease: 'Quad.out', yoyo: true });
+    this.leap('steph', 58, 0.46);
     sfx.squeak();
     // the other girl goes up to block it, for all the good that does
     this.herPose = 'shoot';
-    tw.add({ targets: this, hop: 46, duration: 220, ease: 'Quad.out', yoyo: true, delay: 60 });
+    this.leap('her', 46, 0.44, 1, 0.06);
     this.cue(0.5, () => { this.herPose = 'stand'; });
 
     this.at = { x: this.sx + 2, y: FLOOR - 236 };
@@ -423,7 +460,7 @@ export class OwnbasketMini extends Mini {
 
   /** In it goes. Her own basket: the only one she ever scored in. */
   private swish(): void {
-    const s = this.scene, tw = s.tweens, W = view.W;
+    const W = view.W;
     this.away += this.worth;
     this.points += this.worth;
     this.baskets++;
@@ -439,7 +476,7 @@ export class OwnbasketMini extends Mini {
     // nobody is more pleased than she is
     this.pose = 'cheer';
     this.look = 'laugh';
-    tw.add({ targets: this, jump: 26, duration: 150, ease: 'Quad.out', yoyo: true, repeat: 3 });
+    this.leap('steph', 26, 0.3, 4);
     // ...and nobody less sure what to say than the other girl, who backs off to be given the ball
     this.herPose = 'shrug';
     this.mood = 'what';
@@ -484,7 +521,7 @@ export class OwnbasketMini extends Mini {
     this.tell('');
     this.button('steal', false);
     this.herPose = 'shoot';
-    this.scene.tweens.add({ targets: this, hop: 46, duration: 220, ease: 'Quad.out', yoyo: true });
+    this.leap('her', 46, 0.44);
     this.cue(0.5, () => { this.herPose = 'stand'; });
     sfx.squeak();
     this.look = 'shocked';
@@ -518,7 +555,7 @@ export class OwnbasketMini extends Mini {
     this.herPose = 'cheer';
     this.mood = 'laugh';
     this.look = 'worried';
-    this.scene.tweens.add({ targets: this, hop: 22, duration: 150, ease: 'Quad.out', yoyo: true, repeat: 1 });
+    this.leap('her', 22, 0.3, 2);
     this.fly([
       { to: { x: this.own, y: FLOOR - BALL / 2 }, rise: 0, secs: 0.28, then: () => sfx.bounce(1.1) },
       { to: () => this.hands('steph'), rise: 64, secs: 0.6, then: () => { sfx.slap(); this.look = 'smile'; this.next('mine'); } },
@@ -600,8 +637,8 @@ export class OwnbasketMini extends Mini {
     this.look = won ? 'laugh' : 'worried';
     this.herPose = 'cheer';
     this.mood = 'laugh';
-    if (won) s.tweens.add({ targets: this, jump: 24, duration: 160, ease: 'Quad.out', yoyo: true, repeat: 5 });
-    s.tweens.add({ targets: this, hop: 20, duration: 170, ease: 'Quad.out', yoyo: true, repeat: 5, delay: 90 });
+    if (won) this.leap('steph', 24, 0.32, 6);
+    this.leap('her', 20, 0.34, 6, 0.09);
     this.cue(0.7, () => {
       // (down where the buttons were, clear of the two of them and of the stamp that is coming)
       img(s, cx, 476, 'ownbasket_slip').setDepth(95).setRotation(-0.015);
@@ -682,6 +719,8 @@ export class OwnbasketMini extends Mini {
     this.t += dt;
     this.busy -= dt;
     while (this.cues.length && this.cues[0].at <= this.t) this.cues.shift()!.run();
+    this.jump = this.height('steph', dt);
+    this.hop = this.height('her', dt);
     if (this.live && !this.over) {
       this.clock -= dt;
       if (this.clock <= 0) this.buzz();
@@ -778,8 +817,7 @@ export class OwnbasketMini extends Mini {
     if (this.body.texture.key !== key) applyArt(this.body, key);
     // (she fills up like Bill does on the carpet, and shakes with the effort of holding it)
     const wide = 1 + 0.12 * full, strain = aiming && this.air > 1 ? Math.sin(this.t * 40) * 2 : 0;
-    const shuffle = this.moving && pose === 'guard' ? Math.abs(Math.sin(this.run / 14)) * 4 : 0;
-    const x = this.sx + this.lunge + strain, y = FLOOR - this.jump - shuffle;
+    const x = this.sx + this.lunge + strain, y = FLOOR - this.jump;
     this.body.setPosition(x, y).setScale(k * wide * SIZE, k * SIZE);
     const c = this.chin('steph', pose);
     if (this.worn !== this.look) {
@@ -795,8 +833,7 @@ export class OwnbasketMini extends Mini {
     if (hers === 'dribble' && this.herMoving) hers = Math.floor(this.herRun / 30) % 2 ? 'run1' : 'run2';
     const herKey = `ownbasket_her_${hers}`;
     if (this.herBody.texture.key !== herKey) applyArt(this.herBody, herKey);
-    const herShuffle = this.herMoving && hers === 'guard' ? Math.abs(Math.sin(this.herRun / 14)) * 4 : 0;
-    const hy = FLOOR - this.hop - herShuffle;
+    const hy = FLOOR - this.hop;
     this.herBody.setPosition(this.ox, hy).setScale(k * SIZE);
     const hc = this.chin('her', hers), face = `ownbasket_herhead_${this.mood}`;
     if (this.herHead.texture.key !== face) applyArt(this.herHead, face);
