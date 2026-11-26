@@ -1,14 +1,14 @@
 import Phaser from 'phaser';
 import { H, MAX_W, TEX, view } from '../../config';
 import { BLEED } from '../../art/finish';
-import { applyArt, img } from '../../art/sticker';
+import { ART, applyArt, img } from '../../art/sticker';
 import { sound } from '../../audio/sound';
 import { bubble } from '../../ui/bubble';
 import { label } from '../../ui/text';
 import { Mini, Point } from '../Mini';
 import { FACE, face, hasLook } from '../shared/people';
 import { DEN, layDen } from '../shared/places';
-import { BODIES, DOOR, DOOR_FACE, GROUND, HEAD, KISS_AT, LOCK, LUNGE, NEED, SIZE } from './layout';
+import { DOOR_FACE, GROUND, HEAD, LUNGE, NEED, SIZE, bodyOf, isPhoto, kissAt, marksOn, porchPlan } from './layout';
 import { SOUNDS } from './sounds';
 
 type Image = Phaser.GameObjects.Image;
@@ -36,9 +36,12 @@ const BUNCH = 1.3;
 /** What the self-play bots pick: the careful one straight through, the careless one back to a key he has tried. */
 const BOT = { good: [0, 1, 2], clumsy: [2, 2, 0, 1] };
 
-/** How fast Pappy goes on his knees, and how far back from her spot his own is when his lips arrive. */
+/** How fast Pappy goes on his knees. */
 const SPEED = 400;
-const REACH = (-KISS_AT[0] + 58) * SIZE;
+/** The ring, where it is a photo (it came with its tag hanging straight down): how far above where
+ *  the keys hang its middle is, and how far round it is turned, to hang the tag out to one side. */
+const RING_UP = 27;
+const RING_TURN = 1.76;
 /** Where he comes in. */
 const START = 190;
 
@@ -71,7 +74,7 @@ class Person {
   set(pose: string, look = this.look): void {
     this.pose = pose;
     this.look = look;
-    const b = BODIES[`${this.who}_${pose}`];
+    const b = bodyOf(`${this.who}_${pose}`);
     applyArt(this.body, `homecoming_${this.who}_${pose}`);
     applyArt(this.head, faceKey(this.scene, this.who, look));
     this.head.setScale(HEAD / FACE / TEX).setPosition(b.chin[0], b.chin[1]).setRotation(b.tilt);
@@ -88,7 +91,7 @@ class Person {
 
   /** So far up the head from the chin, as a fraction of how tall the head is. */
   private up(k: number): Point {
-    const b = BODIES[`${this.who}_${this.pose}`];
+    const b = bodyOf(`${this.who}_${this.pose}`);
     return this.at(b.chin[0] + Math.sin(b.tilt) * HEAD * k, b.chin[1] - Math.cos(b.tilt) * HEAD * k);
   }
 
@@ -132,6 +135,7 @@ export class HomecomingMini extends Mini {
   // ---- at the door
   /** Everything of the porch, to be cleared away when the two of them go in. */
   private porch: Thing[] = [];
+  private plan = porchPlan(0);
   private doorX = 0;
   private door!: Image;
   /** How wide the door is drawn: 1 shut, next to nothing wide open (it is hinged on the right). */
@@ -156,6 +160,7 @@ export class HomecomingMini extends Mini {
   /** Mammy in the doorway: all of her, and her face. */
   private wife?: Box;
   private wifeFace?: Image;
+  private wifeAt: Point = { x: 0, y: 0 };
   /** She is in the middle of saying something: her mouth goes. */
   private nagging = false;
   private flap = 0;
@@ -166,6 +171,9 @@ export class HomecomingMini extends Mini {
   private mammyX = 0;
   private pappyX = START;
   private vx = 0;
+  /** How he goes at it: how far he tips forward off his knees, and how far short of her spot his own is then. */
+  private lean = 0;
+  private reach = 0;
   /** Where he is making for; whether he is making for anywhere (a tap sends him once, and a
    *  finger kept down keeps sending him); and whether a finger is down. */
   private dest = START;
@@ -194,24 +202,30 @@ export class HomecomingMini extends Mini {
       this.porch.push(thing);
       return thing;
     };
-    const strip = (key: string, y: number, tall: number, depth: number) => keep(s.add.tileSprite(-BLEED, y, (MAX_W + BLEED * 2) * TEX, tall * TEX, key).setOrigin(0, 0).setScale(1 / TEX).setDepth(depth));
-    const floor = DOOR.top + DOOR.h;
-    strip('homecoming_siding', -BLEED - 4, floor + BLEED + 4, 1);
-    strip('homecoming_boards', floor, H - floor + BLEED, 2);
-    this.doorX = cx + 96;
-    const left = this.doorX - DOOR.w / 2;
-    this.lock = { x: left + LOCK[0], y: DOOR.top + LOCK[1] };
-    keep(img(s, cx - 296, 156, 'homecoming_window').setDepth(3));
-    keep(img(s, left - 74, 132, 'homecoming_lamp').setDepth(3));
-    keep(img(s, this.doorX, floor + 22, 'homecoming_mat').setDepth(3));
-    // (it is late: everything but what the porch light falls on is dim)
-    keep(s.add.rectangle(cx, H / 2, MAX_W * 2, H * 2, 0x0c1030, 0.34).setDepth(8));
-    keep(img(s, left - 74, 150, 'homecoming_glow').setDepth(9));
-    keep(img(s, this.doorX, floor, 'homecoming_doorway').setDepth(10));
-    this.door = keep(img(s, left + DOOR.w, floor, 'homecoming_door').setDepth(12));
+    const plan = this.plan = porchPlan(cx), left = plan.left, floor = plan.top + plan.h;
+    this.doorX = left + plan.w / 2;
+    this.lock = { x: plan.lock[0], y: plan.lock[1] };
+    if (plan.photo) {
+      // the front of the house is one photo, with the door open in it; past the ends of it, the night
+      keep(s.add.rectangle(cx, H / 2, MAX_W * 2, H * 2, 0x08090c).setDepth(0.5));
+      keep(s.add.image(plan.x, plan.y, 'homecoming_porch').setOrigin(0, 0).setScale(1 / (ART.homecoming_porch.tex ?? TEX)).setDepth(1));
+    } else {
+      const strip = (key: string, y: number, tall: number, depth: number) => keep(s.add.tileSprite(-BLEED, y, (MAX_W + BLEED * 2) * TEX, tall * TEX, key).setOrigin(0, 0).setScale(1 / TEX).setDepth(depth));
+      strip('homecoming_siding', -BLEED - 4, floor + BLEED + 4, 1);
+      strip('homecoming_boards', floor, H - floor + BLEED, 2);
+      keep(img(s, cx - 296, 156, 'homecoming_window').setDepth(3));
+      keep(img(s, left - 74, 132, 'homecoming_lamp').setDepth(3));
+      keep(img(s, this.doorX, floor + 22, 'homecoming_mat').setDepth(3));
+      // (it is late: everything but what the porch light falls on is dim)
+      keep(s.add.rectangle(cx, H / 2, MAX_W * 2, H * 2, 0x0c1030, 0.34).setDepth(8));
+      keep(img(s, left - 74, 150, 'homecoming_glow').setDepth(9));
+      keep(img(s, this.doorX, floor, 'homecoming_doorway').setDepth(10));
+    }
+    // (the door, shut: hinged on the right, so that is the side it is held by)
+    this.door = keep(img(s, left + plan.w, floor, 'homecoming_door').setDepth(12));
 
     // Pappy, from behind, and the hand he will try the keys with (out of sight for now)
-    this.backAt = { x: cx - 252, y: H + 34 };
+    this.backAt = { x: cx - 252, y: isPhoto('pappy_back') ? 222 + ART.homecoming_pappy_back.h : H + 34 };
     this.back = keep(img(s, this.backAt.x, this.backAt.y, 'homecoming_pappy_back').setDepth(20));
     this.hand = keep(img(s, this.lock.x - 70, H + 240, 'homecoming_hand_key').setDepth(19));
 
@@ -219,6 +233,7 @@ export class HomecomingMini extends Mini {
     this.veil = keep(s.add.rectangle(cx, H / 2, MAX_W * 2, H * 2, 0x14121a, 0.5).setDepth(40).setAlpha(0));
     this.bunchAt = { x: Math.min(cx + 170, view.W - 190), y: 166 };
     const ring = img(s, 0, 0, 'homecoming_ring');
+    if (isPhoto('ring')) ring.setPosition(0, -RING_UP).setRotation(RING_TURN);
     this.keys = HANG.map((turn, i) => ({ im: img(s, HOOK[i][0], HOOK[i][1], `homecoming_key${i}`).setRotation(turn), tried: false }));
     this.bunch = keep(s.add.container(this.backAt.x + 150, 380, [...this.keys.map((k) => k.im), ring]).setDepth(41).setScale(0.3).setVisible(false));
     this.arrowX = this.bunchAt.x - 366;
@@ -335,16 +350,18 @@ export class HomecomingMini extends Mini {
 
   /** The door: slowly, and then not. */
   private open(): void {
-    const s = this.scene, tw = s.tweens, left = this.doorX - DOOR.w / 2, floor = DOOR.top + DOOR.h;
+    const s = this.scene, tw = s.tweens, left = this.plan.left, floor = this.plan.top + this.plan.h;
     this.phase = 'door';
     this.hush();
     tw.add({ targets: this.hand, x: this.lock.x - 70, y: H + 240, duration: 240, ease: 'Quad.in' });
     // she is there already, behind it
-    const body = img(s, 0, 0, 'homecoming_mammy_door'), chin = BODIES.mammy_door.chin;
+    const body = img(s, 0, 0, 'homecoming_mammy_door'), chin = bodyOf('mammy_door').chin, photo = isPhoto('mammy_door');
     const big = s.textures.exists('homecoming_mammy_big_angry');
     this.wifeFace = img(s, chin[0], chin[1], big ? 'homecoming_mammy_big_angry' : 'homecoming_mammy_head_mad');
     this.wifeFace.setScale(big ? 1 / LUNGE / TEX : DOOR_FACE / FACE / TEX);
-    this.wife = s.add.container(this.doorX, floor, [body, this.wifeFace]).setDepth(11).setVisible(false);
+    // (the photo of her is from the hips up, and big: she stands where the foot of it is off the page)
+    this.wifeAt = { x: this.doorX, y: photo ? 224 - chin[1] : floor };
+    this.wife = s.add.container(this.wifeAt.x, this.wifeAt.y, [body, this.wifeFace]).setDepth(11).setVisible(false);
     this.porch.push(this.wife);
     this.script([
       [0.4, () => {
@@ -353,16 +370,18 @@ export class HomecomingMini extends Mini {
       }],
       [0.9, () => {
         // somebody is up
-        this.eyes = img(s, left + 19, floor + chin[1] - DOOR_FACE * 0.52, 'eyes').setDepth(11.5).setAlpha(0);
+        this.eyes = img(s, left + 16, this.wifeAt.y + chin[1] - DOOR_FACE * 0.52, 'eyes').setDepth(11.5).setAlpha(0);
         this.porch.push(this.eyes);
         tw.add({ targets: this.eyes, alpha: 1, duration: 260 });
       }],
       [0.9, () => {
         // ...and all the way, all at once
         tw.killTweensOf(this);
-        tw.add({ targets: this, ajar: 0.05, duration: 70 });
+        // (the photo of the house has the door in it, open: the one that was shut is done with)
+        tw.add({ targets: this, ajar: 0.05, duration: 70, onComplete: () => this.door.setVisible(!this.plan.photo) });
         this.eyes?.destroy();
-        this.wife!.setVisible(true);
+        this.wife!.setVisible(true).setScale(0.86);
+        tw.add({ targets: this.wife, scale: 1, duration: 130, ease: 'Back.out' });
         SOUNDS.bang();
         s.cameras.main.shake(260, 0.014);
         const white = s.add.rectangle(this.cx, H / 2, MAX_W * 2, H * 2, 0xffffff).setDepth(60);
@@ -370,8 +389,8 @@ export class HomecomingMini extends Mini {
         tw.add({ targets: white, alpha: 0, duration: 240 });
         this.host.word('homecoming_bang', Math.min(view.W - 170, this.doorX + 250), 150, true);
         tw.add({ targets: this, sag: -1.6, duration: 90, yoyo: true });
-        for (const side of [-1, 1]) this.puff('steam', this.doorX + side * 70, floor + chin[1] - DOOR_FACE - 6, side * 60, -70, 1.3, -30, 13);
-        tw.add({ targets: this.wife, scale: 1.05, duration: 1300 });
+        for (const side of [-1, 1]) this.puff('steam', this.doorX + side * 70, this.wifeAt.y + chin[1] - DOOR_FACE - 6, side * 60, -70, 1.3, -30, 13);
+        tw.add({ targets: this.wife, scale: 1.05, duration: 1200, delay: 140 });
       }],
       [0.75, () => {
         SOUNDS.gulp();
@@ -420,9 +439,16 @@ export class HomecomingMini extends Mini {
     for (const b of this.bits) b.life = 0;
     this.phase = 'room';
     s.cameras.main.resetFX();
-    layDen(s);
-    img(s, 88, DEN.floor + 8, 'homecoming_door_in').setDepth(3);
+    if (s.textures.exists('den')) layDen(s);
+    else {
+      // (no photo of the den: its paper wall and carpet, as the workout tape lays them)
+      const strip = (key: string, y: number, tall: number) => s.add.tileSprite(-BLEED, y, (MAX_W + BLEED * 2) * TEX, tall * TEX, key).setOrigin(0, 0).setScale(1 / TEX).setDepth(1);
+      strip('den_wall', -BLEED, DEN.floor + BLEED);
+      strip('den_carpet', DEN.floor, H - DEN.floor + BLEED);
+    }
+    img(s, 94, DEN.floor + 8, 'homecoming_door_in').setDepth(3);
     this.mammyX = Math.min(cx + 170, view.W - 190);
+    this.aim();
     this.pappyX = this.dest = START;
     this.mammy = new Person(s, 'mammy', 'stand', 'yell');
     this.pappy = new Person(s, 'pappy', 'stand', 'worried');
@@ -483,7 +509,7 @@ export class HomecomingMini extends Mini {
     this.temper = s.add.graphics().setDepth(89);
     this.drawTemper();
     // an arrow, at what is wanted
-    const spot = this.mammy!.at(KISS_AT[0], KISS_AT[1]);
+    const spot = this.mammy!.at(...kissAt());
     this.pointer = img(s, spot.x - 96, spot.y - 76, 'homecoming_point').setDepth(30).setRotation(0.62);
     s.tweens.add({ targets: this.pointer, x: spot.x - 80, y: spot.y - 64, duration: 300, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
     this.nagging = true;
@@ -491,9 +517,25 @@ export class HomecomingMini extends Mini {
     this.botWait = this.host.auto === 'clumsy' ? 1.6 : 0.3;
   }
 
+  /** How he has to go at it for his lips to land where they are wanted: tipped so far forward off
+   *  his knees, with his own spot so far short of hers. (His mouth is so far up his head from his
+   *  chin; the whole of him turns about his knees.) */
+  private aim(): void {
+    const b = bodyOf('pappy_smooch'), [kx, ky] = kissAt();
+    const mx = b.chin[0] + Math.sin(b.tilt) * HEAD * 0.27, my = b.chin[1] - Math.cos(b.tilt) * HEAD * 0.27;
+    let off = Infinity;
+    for (let lean = 0; lean <= 0.8; lean += 0.01) {
+      const x = mx * Math.cos(lean) - my * Math.sin(lean), y = mx * Math.sin(lean) + my * Math.cos(lean);
+      if (Math.abs(y - ky) >= off) continue;
+      off = Math.abs(y - ky);
+      this.lean = lean;
+      this.reach = (x - kx) * SIZE;
+    }
+  }
+
   /** Where his own spot is when his lips are where they are wanted. */
   private get lipsAt(): number {
-    return this.mammyX - REACH;
+    return this.mammyX - this.reach;
   }
 
   /** Pappy, across the carpet on his knees: after a finger, or where one last was. */
@@ -517,7 +559,7 @@ export class HomecomingMini extends Mini {
 
     // knees on a carpet
     const going = this.stun <= 0 && Math.abs(this.vx) > 60;
-    pappy.box.setRotation(going ? Math.sin(this.t * 19) * 0.045 : this.stun > 0 ? -0.12 : 0);
+    pappy.box.setRotation(pappy.pose === 'smooch' ? this.lean : going ? Math.sin(this.t * 19) * 0.045 : this.stun > 0 ? -0.12 : 0);
     this.shuffleIn -= dt;
     if (going && this.shuffleIn <= 0) {
       this.shuffleIn = 0.17;
@@ -541,12 +583,13 @@ export class HomecomingMini extends Mini {
     this.pointer = undefined;
     pappy.set('smooch', 'pucker');
     SOUNDS.kiss();
-    const at = mammy.at(KISS_AT[0], KISS_AT[1]);
+    const at = mammy.at(...kissAt());
     this.host.word(`homecoming_kiss${['', '2', '3'][n % 3]}`, at.x - 46 + Math.random() * 50, at.y - 96 - Math.random() * 34);
     // (hearts, from above his head: not over his face)
     for (let i = 0; i < 2; i++) this.puff('heart', at.x - 10 + (Math.random() - 0.5) * 50, at.y - 62, (Math.random() - 0.5) * 70, -90 - Math.random() * 50, 1.1, -30, 30);
     // (the mark it leaves, on the bloomers, for good)
-    const mark = img(s, KISS_AT[0] + 10 + Math.random() * 44, KISS_AT[1] + (Math.random() - 0.5) * 62, 'homecoming_lips').setRotation(-0.5 + Math.random());
+    const [x0, y0, x1, y1] = marksOn();
+    const mark = img(s, x0 + Math.random() * (x1 - x0), y0 + Math.random() * (y1 - y0), 'homecoming_lips').setRotation(-0.5 + Math.random());
     mammy.box.add(mark);
     this.marks.push(mark);
     // she feels it
@@ -598,7 +641,8 @@ export class HomecomingMini extends Mini {
       }],
       [0.8, () => {
         pappy.face('laugh');
-        this.host.word('youdidit', Math.min(204, this.pappyX - 276), 262, true);
+        // (across the foot of the two of them: it covers nobody's face)
+        this.host.word('youdidit', Phaser.Math.Clamp((this.pappyX + this.mammyX) / 2, 226, view.W - 226), 412, true);
         sound.win();
       }],
       [2.0, () => {
@@ -664,7 +708,7 @@ export class HomecomingMini extends Mini {
 
   /** Pappy, at the door, to himself: from the back of his head. */
   private sayBack(text: string, secs: number): void {
-    const from = { x: this.backAt.x + 30, y: this.backAt.y - 330 };
+    const from = { x: this.backAt.x + 30, y: this.backAt.y - ART.homecoming_pappy_back.h + 10 };
     this.said.push({ box: bubble(this.scene, Math.max(150, from.x - 30), 168, text, from, 20), left: secs });
   }
 

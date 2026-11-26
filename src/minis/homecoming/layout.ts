@@ -1,5 +1,14 @@
-/** Where things are in "Pappy comes home": what the paper art and the game both
- *  have to agree on. Everything is in the game's own pixels (the page is 540 tall). */
+import { H } from '../../config';
+import { FROM } from '../../art/sticker';
+import { CUT } from './cut';
+
+/** Where things are in "Pappy comes home": what the art and the game both have to
+ *  agree on. Everything is in the game's own pixels (the page is 540 tall).
+ *
+ *  Each thing is in two places. What is written out here is the paper: how the
+ *  stand-ins are drawn. Where a photo has taken a stand-in's place, its numbers
+ *  come from the photo itself (cut.ts, which cut.py writes), and the functions at
+ *  the foot of this file hand over whichever is on the page. */
 
 type V = [number, number];
 
@@ -44,3 +53,46 @@ export const BODIES: Record<string, Body> = {
 export const KISS_AT: V = [-80, -124];
 /** How many kisses it takes. */
 export const NEED = 8;
+
+// ---- paper, or the photo that has taken its place ---------------------------------------------
+
+/** Whether one of this game's pictures is its photo yet (and not the paper it is drawn as until then). */
+export const isPhoto = (name: string): boolean => !!FROM[`homecoming_${name}`];
+
+/** How tall the photo of the front of the house is drawn: a little more than the page, for when it shakes. */
+export const PORCH_TALL = 572;
+/** How wide the door is drawn where it is a photo: as wide as the doorway in the photo of the house. */
+export const DOOR_WIDE = ((CUT.porch.door[2] - CUT.porch.door[0]) * PORCH_TALL) / CUT.porch.size[1];
+
+/** The front of the house, with the middle of the page at `cx`: where the photo of it goes (if
+ *  there is one), where the doorway is and how big, and where the keyhole is. */
+export function porchPlan(cx: number): { photo: boolean; x: number; y: number; left: number; top: number; w: number; h: number; lock: V } {
+  if (!isPhoto('porch')) {
+    const left = cx + 96 - DOOR.w / 2;
+    return { photo: false, x: 0, y: 0, left, top: DOOR.top, w: DOOR.w, h: DOOR.h, lock: [left + LOCK[0], DOOR.top + LOCK[1]] };
+  }
+  const P = CUT.porch, k = PORCH_TALL / P.size[1], x = cx - (P.size[0] * k) / 2, y = (H - PORCH_TALL) / 2;
+  return { photo: true, x, y, left: x + P.door[0] * k, top: y + P.door[1] * k, w: DOOR_WIDE, h: (P.door[3] - P.door[1]) * k, lock: [x + P.lock[0] * k, y + P.lock[1] * k] };
+}
+
+/** How far a head tips on each photo of a body. (The bodies came looking where they were going;
+ *  the heads that go on them look at the camera.) */
+const TIPS: Record<string, number> = { pappy_stand: 0.05, pappy_kneel: 0.05, pappy_smooch: 0.3, mammy_stand: 0, mammy_bent: -0.14, mammy_door: 0 };
+
+/** Where the chin goes on a body, from the spot it is held by, and how far the head tips. */
+export function bodyOf(name: string): { chin: V; tilt: number } {
+  if (!isPhoto(name)) return BODIES[name];
+  return { chin: (CUT.bodies as Record<string, { chin: number[] }>)[name].chin as V, tilt: TIPS[name] };
+}
+
+/** On Mammy bent over, from the spot she stands on: where a kiss lands; and the part of her
+ *  bloomers that the marks of them are left on (left, top, right, bottom). */
+export function kissAt(): V {
+  return isPhoto('mammy_bent') ? (CUT.kiss as V) : KISS_AT;
+}
+
+export function marksOn(): [number, number, number, number] {
+  if (!isPhoto('mammy_bent')) return [KISS_AT[0] + 10, KISS_AT[1] - 31, KISS_AT[0] + 54, KISS_AT[1] + 31];
+  const [x0, y0, x1, y1] = CUT.bloomers;
+  return [x0 + 5, y0 + 8, x0 + (x1 - x0) * 0.6, y1 - 12];
+}

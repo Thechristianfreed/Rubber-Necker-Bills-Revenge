@@ -31,8 +31,9 @@ Mammy and Pappy are Stephanie's mother and father.
 them says. Nobody has said yet what Mammy really shouts when Pappy is late,
 or what he says back, so the lines are the plainest that would do (`WRONG`,
 `AT_THE_DOOR`, `IN_THE_ROOM` and `AFTER_A_KISS` at the top of
-`HomecomingMini.ts`). So are the clothes, the rolling pin, the "#1 PAPPY" tag
-on his keys and the "HOME SWEET HOME" on the door.
+`HomecomingMini.ts`). So are the rolling pin, the "#1 PAPPY" written on the
+tag of his keys, and Pappy's red jacket. (Mammy's leopard-print housecoat is
+the owner's own choice: the prompt said light blue.)
 
 ## How it plays
 
@@ -71,9 +72,14 @@ and it always ends in "YOU DID IT!".
   she has to say about it. Eight kisses (`NEED` in `layout.ts`) and all is
   forgiven.
 
-**She is in bloomers,** big white ones with hearts on, not bare: Mammy is a
-real person, and the body is to be a generated photo with her own face on
-it. The housecoat goes up and the bloomers are what he gets.
+**She is in bloomers,** big white ones with red hearts on, not bare: Mammy is
+a real person, and the body is a generated photo with her own face on it.
+The housecoat goes up and the bloomers are what he gets.
+
+**He has to dive for it.** Her bloomers are lower than a kneeling man's
+mouth, so for each kiss the whole of him tips forward off his knees, feet in
+the air, until his lips are where they are wanted (`aim()` works out how far
+from where the kiss lands and where his chin is: nothing is set by hand).
 
 The two bots: the careful one tries the keys left to right and goes straight
 over. The careless one goes back to a key he has already tried, and stops
@@ -85,34 +91,57 @@ their heads are (`SIZE`, `HEAD`), where the door is and how big (`DOOR`).
 
 ## Pictures
 
-All of it is cut paper so far, except their faces, which are their own, from
-everybody's set (`docs/characters.md`): Mammy's angry, yell, talking, calm,
-smug, smile and laugh; Pappy's worried, smug, talking, shocked, ouch, smile,
-laugh, and his asleep for the kiss (see "Faces" below). Mammy's two faces in
-the doorway are bigger copies of her angry and yell, made from the same files
-(`PIECES` in `index.ts`).
+Every picture is a photo now: the owner made all nine (26 November 2026), and
+`cut.py` cut them. Their faces are their own, from everybody's set
+(`docs/characters.md`): Mammy's angry, yell, talking, calm, smug, smile and
+laugh; Pappy's worried, smug, talking, shocked, ouch, smile, laugh, and his
+`pucker` for the kiss. Mammy's two faces in the doorway are bigger copies of
+her angry and yell, made from the same files (`PIECES` in `index.ts`).
+
+The paper stand-ins are all still there, in `art.ts`, under the same names: a
+page that cannot fetch its pictures plays in paper. Where a photo has taken a
+stand-in's place its numbers (how big, where it is held, where a chin goes)
+come from the photo: `cut.py` writes them into `cut.ts`, and `layout.ts`
+hands over whichever is on the page.
 
 The front room is the den from Mom's workout tape, used as it is
-(`layDen`): a room of Mammy and Pappy's own would be a picture to ask for
-later, if the owner wants one.
+(`layDen`), with this game's own front door on its wall.
 
-A paper stand-in is replaced by registering a photo under the same name
-(`PIECES` in `index.ts`), cut by `cut.py`. For a body, its chin goes in
-`BODIES` in `layout.ts`.
+### What came back, and what was cut from it
 
-### What to ask the owner for
+All of it is kept in `art-src/games/homecoming`: each picture as it came, and
+beside it Adobe's answers (`-cutout.png`, the background off; `-headmask.png`,
+its selection of the head, where a head comes off). Seven came from the
+owner's Drive ("Additional Home Movies Game Assets"), as JPEGs 1344 pixels
+wide; PH1b came in the chat, twice that size. Full-size copies of the seven,
+if there are any, would be sharper: Pappy's back and Mammy in the doorway are
+drawn about as big as their pictures are.
 
-Nothing has been generated yet. These are the prompts, for when the game is
-right as it stands. The clothes and the year are guesses: change them to
-what the two of them really wore. Bodies are photographed whole, facing
-right where they are seen from the side, with nothing over the head or neck,
-because the head comes off and theirs goes on.
+| Picture | What it is | What was cut from it (in `assets`) |
+| --- | --- | --- |
+| `PH1-porch.jpg` | The front of the house at night, door shut | `door`: the door itself, by its place in the picture (`SHUT_DOOR` in `cut.py`). Nothing goes to Adobe. |
+| `PH1b-porch-open.webp` | The same, door open on the dark hall (an edit of PH1) | `porch.jpg`: the whole of it is the place. The door from PH1 lies over its doorway until the door flies open; after that the open door is the picture's own. |
+| `PH2-pappy-back.jpg` | Pappy from behind, and his hand with a key, each on a card of its own | `pappy-back` (whole: the back of that head is the generated man's own) and `hand-key`, held by the tip of the key. Each was cut off its card before it went to Adobe. |
+| `PH3-keys.jpg` | A key ring with a tag on a chain, and three keys | `ring`, `key0`, `key1`, `key2`. Each key is held by the hole in its head. The paper in the tag came back see-through (white, on a white sheet) and is put back; "#1 PAPPY" is written on it in the game. |
+| `PH4-mammy-door.jpg` | Mammy from the hips up, arms folded round a rolling pin | `mammy-door`, head off. She is drawn big enough that the foot of the picture is off the page. |
+| `PH5-pappy.jpg` | Pappy three times: hat in hand, on his knees, and leaning in with his arms out behind | `pappy-stand`, `pappy-kneel`, `pappy-smooch`, heads off. The two on their knees are held at the knee, so that one changes for the other without his moving. |
+| `PH6-mammy.jpg` | Mammy twice: hands on hips, and bent over with her housecoat up | `mammy-stand`, `mammy-bent`, heads off. Where a kiss lands, and the part of her bloomers the marks are left on, are found by their colour (white). |
+| `PH7-door-inside.jpg` | The front door from inside, open on the night, in the wall of a room | `door-in`: the frame and what is in it (`INSIDE` in `cut.py`). Nothing goes to Adobe. |
 
-The first prompt of PH1 and PH2 to PH7 stand alone (nothing to attach, and
-none waits on another), so the owner makes those seven as one batch. Two
-cannot go in it: the second prompt of PH1, which is an edit of the picture
-the first one gives, and Pappy's pucker ("Faces", below), which is an edit of
-his portrait.
+What went to Adobe is each figure by itself, cut off its sheet and made twice
+the size (`SENT` in `cut.py`; `cut.py send <folder>` writes them out again),
+because a head 70 pixels tall is too small for it to find a chin on. To cut
+everything again from what is kept:
+
+```bash
+.venv/bin/python src/minis/homecoming/cut.py
+```
+
+### The prompts
+
+As they were sent. The owner changed the housecoat to leopard print before
+making PH4 and PH6. PH1's first prompt and PH2 to PH7 stand alone and were
+made as one batch; PH1's second is an edit of the picture the first gave.
 
 **PH1. The front door** (two images, made as a chain, so that the door can
 open)
@@ -125,8 +154,7 @@ The front of a suburban American house at night, about 1985, photographed exactl
 Edit this picture. Keep everything exactly as it is, the same framing and light. Change one thing only: the front door is now wide open, swung inside against the wall so that it can hardly be seen, and the doorway shows a dark hallway with the light off.
 ```
 
-**PH2. Pappy from behind, and his hand** (the back of his head is its own
-question: see "Faces")
+**PH2. Pappy from behind, and his hand**
 
 ```text
 Two photographs side by side with a wide clear gap between them, on one plain flat light-grey background. First: an older man seen from directly behind, from the middle of his back up, close to the camera: broad shoulders in a red zip-up jacket with a white shirt collar showing above it, thick white hair combed back. He stands square, arms down. Second: the same man's right forearm and hand alone, in the same red sleeve with a white shirt cuff, reaching up and away from the camera towards the top right of the picture, holding a single brass house key between finger and thumb, pointing it forward as if at a keyhole. Soft even light, no shadows on the background. No text. Wide 16:9 image.
@@ -156,7 +184,7 @@ Three full-length photographs of the same older man, side by side with wide clea
 Two full-length photographs of the same grandmother, side by side with a wide clear gap between them, on one plain flat light-grey studio background. She wears a quilted light blue knee-length housecoat with a white collar and red fluffy slippers. First: facing the camera square on, hands on her hips, feet apart, very cross. Second: seen from the side and a little from behind, facing the right of the picture and bent over at the hips with her legs straight, one hand on her knee; her other hand has thrown the back of her housecoat up over her back, showing a very large pair of old-fashioned white cotton bloomers that reach half way down her thighs, with a frill at each leg and a pattern of small red hearts all over them; her head is turned to look back over her shoulder. Comic, like a seaside postcard. Her whole body is in frame from head to feet in both, her hair is tied back, and nothing covers her head or neck. Soft even light, no shadows on the background. No text, no borders. Wide 16:9 image.
 ```
 
-**PH7. The front door from inside** (only if the den is kept as the room)
+**PH7. The front door from inside**
 
 ```text
 A photograph of the inside of a suburban front door, about 1985, face-on, on a plain flat light-grey background: a white door frame, the dark green door swung open into the room against the right side of the frame, and through the doorway the night: dark blue sky, a few stars, a moon. The whole frame is in the picture from the floor to its top. Soft even light on the frame, no shadows on the background. No text. Tall 3:4 image.
@@ -164,28 +192,19 @@ A photograph of the inside of a suburban front door, about 1985, face-on, on a p
 
 ### Faces
 
-Two things are missing from everybody's set that this game would use. Both
-belong with the common pictures (`docs/characters.md`), not in this folder:
-they are for asking the owner about, once.
-
-- **The back of Pappy's head.** The game opens on it. Nobody but Bill has
-  one, and `characters.md` says to ask the owner how Bill's was made before
-  trying again; a real photo of Pappy from straight behind would be better
-  than anything generated. Until there is one, the back of his head is cut
-  paper (`homecoming_pappy_back`, which is his shoulders as well).
-- **Pappy puckering up.** A look of his own, `pucker`: eyes shut, lips pushed
-  out for a kiss. The game asks for it by that name already and shows his
-  `asleep` face (eyes shut) until it exists. An edit of his "Default"
-  portrait, as his others are:
+- **Pappy puckering up** is in everybody's set, as his own `pucker` (it is
+  with the common pictures, not in this folder: `docs/characters.md`). The
+  owner made it from Pappy's portrait with this, and sent it in the chat:
 
 ```text
 Edit this photo. Keep this man exactly as he is: the same face, age, skin, white hair and moustache, the same lighting, the same background and the same framing. Keep his head upright and facing the camera. Change one thing only, his expression: about to give somebody a kiss. Eyes gently closed, eyebrows raised, lips pushed well forward in a big pucker.
 ```
 
-### What has come back
-
-Nothing yet. When pictures come, they are kept in `art-src/games/homecoming`
-(as sent, and Adobe's cutouts of them), and this says what was cut from each.
+- **The back of Pappy's head** is still to come. What the game opens on is
+  the back of the man in PH2, who is generated: white hair, the right
+  jacket, and not Pappy. A real photo of Pappy from straight behind would
+  take the place of that head (`characters.md` says to ask the owner how
+  Bill's was made before trying to generate one).
 
 ## Sound
 

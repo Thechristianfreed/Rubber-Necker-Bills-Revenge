@@ -139,7 +139,7 @@ name of its own from the start, and is asked for like any other:
 | Chad | `chad` | 15 | | `grin` (the base photo), `angel` (smiling), `joy` (laughing), `scowl` |
 | Shane | `shane` | 15 | | `beam` (the base photo), `wary`, `smirk`, `doe` (doe eyes), `startled` (his first shocked face, from another photo) |
 | Mammy | `mammy` | 15 | | `photo` (the Christmas photo her set was made from: its own smile) |
-| Pappy | `pappy` | 15 | | `photo` (a real photo: a closed-mouth smile, in the leaf-print shirt), `silly` (tongue out, in his sunglasses) |
+| Pappy | `pappy` | 15 | | `photo` (a real photo: a closed-mouth smile, in the leaf-print shirt), `silly` (tongue out, in his sunglasses), `pucker` (eyes shut, lips out for a kiss: made for Pappy comes home) |
 | Nanner | `nanner` | 15 | | `photo` (the wedding photo her set was made from: its own smile) |
 | Christian | `christian` | 15 (his calm, smile and laugh are real photos) | | `gentle` (a gentle smile, 2021), and three made from the photo his smile is: `yell2`, `dazed2`, `worried2` (a nervous grin) |
 | Branson | `branson` | 15 (his laugh is a real photo) | | |
@@ -191,8 +191,9 @@ for):
   that person's smile. Adobe's cutouts of them are in `art-src/cast/<who>`.
 - **Bill's smile is the base photo,** a big open grin. His laugh is an edit
   of it that the owner sent in the chat on 26 November (eyes creased shut,
-  mouth wide open), as was Mammy's ouch: neither is in his Drive, so both are
-  kept here, in `art-src/generated` (`face-bill-laugh`, `face-mammy-ouch`).
+  mouth wide open), as were Mammy's ouch and Pappy's pucker: none is in his
+  Drive, so all three are kept here, in `art-src/generated`
+  (`face-bill-laugh`, `face-mammy-ouch`, `face-pappy-pucker`).
   The picture that came as Bill's calm was the same file as his talking; his
   calm is the photo of him at the lookout in Hawaii, years ago, and the owner
   has said that one is final.

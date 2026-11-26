@@ -9,11 +9,12 @@ The size is how big the picture is drawn, in the game's own pixels (the page is 
 - [Cars](#cars) (22)
 - [People: bodies](#bodies) (77)
 - [People: faces](#faces) (32)
-- [People: everybody's faces](#cast) (206)
+- [People: everybody's faces](#cast) (207)
 - [The rubberneckers, and the animals](#gawkers) (51)
 - [Effects](#effects) (25)
-- [Words on bursts](#words) (51)
+- [Words on bursts](#words) (57)
 - [The interface](#interface) (26)
+- [The quick game "homecoming"](#game-homecoming) (32)
 
 <a id="places"></a>
 
@@ -458,6 +459,7 @@ One set for each of the family, every look the same size and hung from the same 
 | `face_pappy_laugh` | 62 x 83 |  | `src/assets/scrap/face-pappy-laugh.webp` |
 | `face_pappy_ouch` | 62 x 82 |  | `src/assets/scrap/face-pappy-ouch.webp` |
 | `face_pappy_photo` | 56 x 82 |  | `src/assets/scrap/face-pappy-photo.webp` |
+| `face_pappy_pucker` | 62 x 81 |  | `src/assets/scrap/face-pappy-pucker.webp` |
 | `face_pappy_shocked` | 62 x 85 |  | `src/assets/scrap/face-pappy-shocked.webp` |
 | `face_pappy_silly` | 60 x 84 |  | `src/assets/scrap/face-pappy-silly.webp` |
 | `face_pappy_smile` | 64 x 81 |  | `src/assets/scrap/face-pappy-smile.webp` |
@@ -668,6 +670,12 @@ Shown with `this.host.word('bonk', x, y)`: the name without "word_".
 | `word_gethim` | 320 x 218 |  | paper |
 | `word_goodboy` | 118 x 80 |  | paper |
 | `word_grandslam` | 350 x 238 |  | paper |
+| `word_homecoming_bang` | 300 x 204 |  | paper |
+| `word_homecoming_click` | 130 x 88 |  | paper |
+| `word_homecoming_hmph` | 122 x 83 |  | paper |
+| `word_homecoming_kiss` | 128 x 87 |  | paper |
+| `word_homecoming_kiss2` | 128 x 87 |  | paper |
+| `word_homecoming_kiss3` | 128 x 87 |  | paper |
 | `word_homerun` | 330 x 224 |  | paper |
 | `word_inthebox` | 124 x 84 |  | paper |
 | `word_ko` | 380 x 258 |  | paper |
@@ -735,3 +743,46 @@ Buttons, tape, meters and marks.
 | `title_card` | 440 x 232 |  | paper |
 | `title_sub` | 290 x 50 |  | paper |
 | `you_are` | 250 x 44 |  | paper |
+
+<a id="game-homecoming"></a>
+
+## The quick game "homecoming"
+
+Made by `src/minis/homecoming`, and kept in its folder.
+
+![The quick game "homecoming"](game-homecoming.jpg)
+
+| Name | Size | | File |
+| --- | --- | --- | --- |
+| `homecoming_arrow` | 372 x 112 |  | paper |
+| `homecoming_boards` | 96 x 64 |  | paper |
+| `homecoming_door` | 190 x 411 |  | `src/minis/homecoming/assets/door.webp` |
+| `homecoming_door_in` | 189 x 352 |  | `src/minis/homecoming/assets/door-in.webp` |
+| `homecoming_doorway` | 268 x 452 |  | paper |
+| `homecoming_glow` | 360 x 360 |  | paper |
+| `homecoming_hand_key` | 216 x 231 |  | `src/minis/homecoming/assets/hand-key.webp` |
+| `homecoming_key0` | 81 x 182 |  | `src/minis/homecoming/assets/key0.webp` |
+| `homecoming_key1` | 77 x 179 |  | `src/minis/homecoming/assets/key1.webp` |
+| `homecoming_key2` | 87 x 186 |  | `src/minis/homecoming/assets/key2.webp` |
+| `homecoming_lamp` | 50 x 84 |  | paper |
+| `homecoming_lips` | 30 x 22 |  | paper |
+| `homecoming_mammy_bent` | 103 x 205 |  | `src/minis/homecoming/assets/mammy-bent.webp` |
+| `homecoming_mammy_big_angry` | 283 x 292 |  | `src/assets/scrap/face-mammy-angry.webp` |
+| `homecoming_mammy_big_yell` | 282 x 293 |  | `src/assets/scrap/face-mammy-yell.webp` |
+| `homecoming_mammy_door` | 310 x 349 |  | `src/minis/homecoming/assets/mammy-door.webp` |
+| `homecoming_mammy_head_glad` | 110 x 110 |  | paper |
+| `homecoming_mammy_head_mad` | 110 x 110 |  | paper |
+| `homecoming_mammy_stand` | 124 x 205 |  | `src/minis/homecoming/assets/mammy-stand.webp` |
+| `homecoming_mat` | 250 x 34 |  | paper |
+| `homecoming_pappy_back` | 470 x 464 |  | `src/minis/homecoming/assets/pappy-back.webp` |
+| `homecoming_pappy_head_glad` | 110 x 110 |  | paper |
+| `homecoming_pappy_head_sorry` | 110 x 110 |  | paper |
+| `homecoming_pappy_kneel` | 114 x 164 |  | `src/minis/homecoming/assets/pappy-kneel.webp` |
+| `homecoming_pappy_smooch` | 130 x 156 |  | `src/minis/homecoming/assets/pappy-smooch.webp` |
+| `homecoming_pappy_stand` | 71 x 215 |  | `src/minis/homecoming/assets/pappy-stand.webp` |
+| `homecoming_point` | 110 x 76 |  | paper |
+| `homecoming_porch` | 1017 x 572 | strip | `src/minis/homecoming/assets/porch.jpg` |
+| `homecoming_ring` | 62 x 196 |  | `src/minis/homecoming/assets/ring.webp` |
+| `homecoming_siding` | 64 x 44 |  | paper |
+| `homecoming_temper` | 300 x 54 |  | paper |
+| `homecoming_window` | 140 x 170 |  | paper |
