@@ -93,8 +93,16 @@ the paper piece with the same name, once it is made, cut by `cut.py` and
 listed in `PIECES` in `index.ts`. Nothing has been generated yet.
 
 As always: clean photos on a plain background, no border and no shadow
-(the game adds those), one prompt to a message, and the full-size picture
-sent back with its number.
+(the game adds those), and the full-size picture sent back with its number.
+
+Every prompt here stands by itself: nothing has to be attached, and none
+waits on another's result, so all of them can go to the generator as one
+batch. In a batch each is called by its heading and a letter, in the order
+they are written (PP1a is the room, PP1b the sign; PP7a, PP7b and PP7c the
+three courses). If a second sheet comes back not matching the first (PP6b
+beside PP6a, PP7b or PP7c beside PP7a), send that one again by itself with
+the first sheet attached, beginning it "The same framing, background and
+light as the attached picture:".
 
 ### PP1. The dining room
 
@@ -116,7 +124,7 @@ A restaurant table for three, photographed from straight in front and very sligh
 ```
 
 ```text
-The same white tablecloth, light and background: a very long banqueting table for six people side by side, photographed from straight in front and very slightly above, the cloth hanging to the floor in soft folds. Nothing on it. The whole table is in frame. No text. Very wide panoramic image, 21:9.
+A very long banqueting table for six people side by side, photographed from straight in front and very slightly above, on a plain flat light-grey background: covered in a heavy white linen tablecloth that hangs all the way to the floor in soft folds, so that no legs show. Nothing on it. The whole table is in frame. Soft even light, no shadows on the background. No text. Very wide panoramic image, 21:9.
 ```
 
 ### PP3. What stands on the table
@@ -155,7 +163,7 @@ Three photographs side by side with wide clear gaps between them, on one plain f
 ```
 
 ```text
-The same framing, background and light as the attached picture: three more photographs side by side with wide clear gaps between them, each of a man dressed for dinner at an expensive restaurant, sitting upright and facing the camera, seen from the waist up, arms down at his sides with his hands out of sight below the bottom of the picture. Left: a man of about fifty in a grey suit, white shirt and red tie. Middle: a man of about fifty in a navy jacket, pale blue shirt and white tie. Right: a man of about thirty-five in a brown tweed jacket, white shirt and mustard-yellow tie. Nothing covers anybody's head or neck. No text, no borders. Wide 16:9 image.
+Three photographs side by side with wide clear gaps between them, on one plain flat light-grey studio background, each of a man dressed for dinner at an expensive restaurant, sitting upright and facing the camera, seen from the waist up, arms down at his sides with his hands out of sight below the bottom of the picture. Left: a man of about fifty in a grey suit, white shirt and red tie. Middle: a man of about fifty in a navy jacket, pale blue shirt and white tie. Right: a man of about thirty-five in a brown tweed jacket, white shirt and mustard-yellow tie. Nothing covers anybody's head or neck. Soft even light, no shadows on the background. No text, no borders. Wide 16:9 image.
 ```
 
 (Left to right: Bill, Stephanie, Christian; then Shane, Chad, Branson.)
@@ -171,11 +179,11 @@ Four restaurant dishes photographed side by side on one plain flat light-grey ba
 ```
 
 ```text
-The same plates, angle, background and light as the attached picture: four more dishes side by side with wide clear gaps between them. Left to right: a grilled steak with a pat of butter melting on it; a fillet of salmon with a wedge of lemon and asparagus; a whole small roast chicken; a whole red lobster. No text. Wide 16:9 image.
+Four restaurant dishes photographed side by side on one plain flat light-grey background, with wide clear gaps between them, each on the same plain white plate and seen from the same angle, a little above the side. Left to right: a grilled steak with a pat of butter melting on it; a fillet of salmon with a wedge of lemon and asparagus; a whole small roast chicken; a whole red lobster. Soft even light, no shadows on the background. No text. Wide 16:9 image.
 ```
 
 ```text
-The same plates, angle, background and light as the attached picture: four desserts side by side with wide clear gaps between them. Left to right: a slice of chocolate layer cake with a cherry on top; a slice of apple tart with a lattice crust; an ice cream sundae in a tall glass with chocolate sauce and a cherry; a slice of cheesecake with strawberry sauce. No text. Wide 16:9 image.
+Four restaurant desserts photographed side by side on one plain flat light-grey background, with wide clear gaps between them, each on the same plain white plate and seen from the same angle, a little above the side. Left to right: a slice of chocolate layer cake with a cherry on top; a slice of apple tart with a lattice crust; an ice cream sundae in a tall glass with chocolate sauce and a cherry; a slice of cheesecake with strawberry sauce. Soft even light, no shadows on the background. No text. Wide 16:9 image.
 ```
 
 ## Sound

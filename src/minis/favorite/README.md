@@ -128,12 +128,13 @@ selecting "the three hands".)
 ### FV3. A heart (only if the paper one is not wanted)
 
 ```text
-Two photographs side by side with a wide clear gap between them, on one plain flat light-grey background. First: a heart cut out of glossy red card, plump and even, lying flat, seen from straight above. Second: exactly the same heart, the same size and the same way up, cut out of dull charcoal-grey card. Soft even light, no shadows on the background. No text. Wide 16:9 image.
+A heart cut out of glossy red card, plump and even, lying flat, photographed from straight above on a plain flat light-grey background. Nothing else in the picture. Soft even light, no shadows on the background. No text. Square 1:1 image.
 ```
 
-(The two have to be the same shape to the pixel, since the red one is laid
-over the grey one and cut away from the top: if they are not, make the grey
-one from the red one here, as the empty bottle is made from the full one.)
+(Only the red one is asked for. The empty heart has to be the same shape to
+the pixel, since the red one is laid over it and cut away from the top, so
+`cut.py` makes the grey one from the red one, as the empty bottle is made
+from the full one.)
 
 ## Sound
 
