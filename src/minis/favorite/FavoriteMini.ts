@@ -430,7 +430,8 @@ export class FavoriteMini extends Mini {
     if (this.hand.visible) {
       if (this.hand.texture.key !== kind) applyArt(this.hand, kind);
       if (kind === 'favorite_shh') this.hand.setPosition(mouth.x + 1, mouth.y + 12).setScale(0.8 / TEX).setRotation(bill.box.rotation * 0.6);
-      else if (kind === 'favorite_cup') this.hand.setPosition(mouth.x - side * 42, mouth.y + 12).setScale((side * 0.74) / TEX, 0.74 / TEX).setRotation(bill.box.rotation - side * 0.12);
+      // (an open hand, turned edge-on to us by drawing it narrow, and tipped in over his mouth: flat on, it is a wave)
+      else if (kind === 'favorite_cup') this.hand.setPosition(mouth.x - side * 35, mouth.y + 10).setScale((side * 0.46) / TEX, 0.76 / TEX).setRotation(bill.box.rotation + side * 0.14);
       else this.hand.setPosition(chin.x + side * 50, chin.y + 36 + Math.sin(t * 22) * 2).setScale(side / TEX, 1 / TEX).setRotation(side * -0.1);
     }
 

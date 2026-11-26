@@ -110,31 +110,66 @@ to the top of the label (`BOTTLE.glass` in `art.ts`, and `GLASS` in
 
 ### Still cut paper
 
-Bill's three hands, the hearts, the "#1" that floats off a boy who has just
-been told, and the two words on bursts. The hands would be better as photos.
-The game holds each by one point (the wrist, the finger, the palm) and turns
-it over for the other side, so one right hand does for all three.
+The "#1" that floats off a boy who has just been told, and the two words on
+bursts. Everything else of this game's is a photo now; the paper hands,
+hearts and bottle are still drawn (`art.ts`), and show only if a photo
+fails to load.
 
-### FV2. Bill's hands
+### FV2. Bill's hands (in the game)
+
+Made by the owner (26 November 2026, in the Drive folder "Additional Home
+Movies Game Assets"), and kept as it came: `FV2-hands.jpg`, 1344 by 756.
+All three are on the one background, each arm running out of the picture
+(the first off the left, the other two off the bottom), which is what cuts
+it off square. Adobe took the background off in one go
+(`FV2-hands-cutout.webp`), three separate pieces, clean.
 
 ```text
 Three photographs of the same man's right hand and wrist, side by side with wide clear gaps between them, on one plain flat light-grey background. He is about sixty, and wears a dark suit jacket with a white shirt cuff showing at the wrist. First: the arm level, coming in from the left of the picture, the hand in a loose fist with the first finger pointing straight out towards the right, as if picking somebody out across a dinner table. Second: the forearm upright, the hand in a loose fist with the first finger pointing straight up, as it is held in front of the lips to say "shh", seen from the front. Third: the forearm upright, the hand open and upright with the fingers together and curved a little, as it is held beside the mouth to whisper behind, its palm facing the right of the picture. Each arm ends a little way up the sleeve, cut off square. Soft even light, no shadows on the background. No text. Wide 16:9 image.
 ```
 
-(Each arm on the one background, not on a card of its own: background
-removal keeps the cards. If they come back on cards, the three are got by
-selecting "the three hands".)
+`cut.py` cuts the three apart, left to right, and writes `hands.ts`: for
+each, its picture, its size, and the point the game holds it by.
 
-### FV3. A heart (only if the paper one is not wanted)
+| Piece | In the game as | Held by |
+| --- | --- | --- |
+| `assets/hand-point.webp` | `favorite_point` | the wrist, where the cuff starts |
+| `assets/hand-shh.webp` | `favorite_shh` | the foot of the finger that is up: his lips are just above it, and the tip is at his nose |
+| `assets/hand-cup.webp` | `favorite_cup` | the middle of the palm |
+
+All three are one size: a hand is about as long as the paper one was (86 of
+the game's pixels from fingertip to wrist, before the game makes the two
+upright ones a little smaller, as it did the paper ones). Each is a right
+hand, and the game turns it over for the other side.
+
+What came back different from what was asked: the third hand is open and
+flat to the camera, its palm towards us, not turned to face the right.
+Beside his mouth like that it was a man waving. So the game draws it narrow
+(a little over half as wide as it is tall), which turns it edge-on to us,
+and tips it in over his mouth: the one line for it is in `pose()` in
+`FavoriteMini.ts`. A picture of the hand really seen edge-on would not need
+that.
+
+### FV3. The heart (in the game)
+
+Made by the owner the same day, and kept as `FV3-heart.webp` (it came as a
+PNG, 2048 square, and is kept as a WebP): one glossy red card heart, a
+little wider than tall. Adobe's cutout of it is `FV3-heart-cutout.webp`:
+clean, and without the faint shadow that was under it.
 
 ```text
 A heart cut out of glossy red card, plump and even, lying flat, photographed from straight above on a plain flat light-grey background. Nothing else in the picture. Soft even light, no shadows on the background. No text. Square 1:1 image.
 ```
 
-(Only the red one is asked for. The empty heart has to be the same shape to
-the pixel, since the red one is laid over it and cut away from the top, so
-`cut.py` makes the grey one from the red one, as the empty bottle is made
-from the full one.)
+Only the red one was asked for. `cut.py` makes two pieces from it:
+
+| Piece | In the game as | What it is |
+| --- | --- | --- |
+| `assets/heart.webp` | `favorite_heart` | the heart, full |
+| `assets/heart-empty.webp` | `favorite_heart_empty` | the very same shape, to the pixel, in charcoal-grey card, with half the red one's shine kept |
+
+The game lays the red one over the grey one and cuts it away from the top
+as a boy feels less special, as it does the bottle.
 
 ## Sound
 
