@@ -39,6 +39,26 @@ const SLIPS_AFTER = 0.3;
 const photo = (key: string): boolean => !!FROM[key];
 /** How far short of its far end an arm is taken to stop: the round of an elbow, on the one that has one. */
 const ARM_END: Record<string, number> = { veggies_arm_steph: 13 };
+/** How much bigger than they were cut his mother's arm and hands are drawn, when they are photos: as big
+ *  as her head makes them. (Cut to the size of her body they were half the length they had to be, and were
+ *  pulled out to twice it: a long thin tube with a hand on the end.) */
+const STEPH_ARM = 1.45;
+
+/** How long a piece of an arm is, from where it is pinned to where the next piece is pinned on it. */
+function span(key: string): number {
+  const a = ART[key];
+  return a.w - a.ax - (photo(key) ? ARM_END[key] ?? 6 : 6);
+}
+
+/** Where an elbow is: an upper arm `a` long from the shoulder, a forearm `b` long to the wrist. It is
+ *  held up and out, on her own side of the line between them. Too far to reach, and the arm is straight. */
+function elbowOf(from: Point, to: Point, a: number, b: number): Point {
+  const dx = to.x - from.x, dy = to.y - from.y, d = Math.max(1, Math.hypot(dx, dy));
+  if (d >= a + b) return { x: from.x + (dx * a) / (a + b), y: from.y + (dy * a) / (a + b) };
+  const along = Phaser.Math.Clamp((a * a - b * b + d * d) / (2 * d), -a, a), off = Math.sqrt(Math.max(0, a * a - along * along));
+  const ux = dx / d, uy = dy / d;
+  return { x: from.x + ux * along - uy * off, y: from.y + uy * along + ux * off };
+}
 
 /** How wide his mouth has to open for a vegetable: how far the top of his head tips back,
  *  and how far his jaw drops. */
@@ -662,6 +682,12 @@ export class VeggiesMini extends Mini {
   }
 
   /** Lay an arm from one spot to another: it is as long as that takes. */
+  /** Lay a piece of his mother's arm from one point to another: as long as that takes, and `size` times as thick as it was cut. */
+  private limb(arm: Image, from: Point, to: Point, size: number): void {
+    const dx = to.x - from.x, dy = to.y - from.y;
+    arm.setPosition(from.x, from.y).setRotation(Math.atan2(dy, dx)).setScale(Math.hypot(dx, dy) / span(arm.texture.key) / TEX, size / TEX);
+  }
+
   private reach(arm: Image, from: Point, to: Point): void {
     const key = arm.texture.key, dx = to.x - from.x, dy = to.y - from.y;
     const a = ART[key], long = a.w - a.ax - (photo(key) ? ARM_END[key] ?? 6 : 6);
@@ -726,28 +752,32 @@ export class VeggiesMini extends Mini {
       this.reach(arm, this.shoulder(this.bill, 1, i === 1), { x: at.x - ux * cuff, y: at.y - uy * cuff });
     }
 
-    // his mother's hand: on his nose, off it, and then holding the top of his head back
+    // his mother's hand: on his nose until the vegetable is in, and then holding the top of his head back
     const hold = this.phase === 'jam' || this.phase === 'cram';
-    const to = hold ? head.onTop(-36, -(BIG + head.hy) + 14) : this.phase === 'gasp' ? { x: hx + 112, y: CHIN - BIG + 6 } : this.nose();
+    const to = hold ? head.onTop(-36, -(BIG + head.hy) + 14) : this.nose();
     const k = ease(this.phase === 'pinch' && this.t > 0 ? 40 : 16);
     this.stephAt = { x: this.stephAt.x + (to.x - this.stephAt.x) * k, y: this.stephAt.y + (to.y - this.stephAt.y) * k };
     const showHand = playing;
     for (const o of [this.upper, this.forearm, this.hand]) o.setVisible(showHand);
     if (showHand) {
       const from = this.shoulder(this.steph, -1), at = this.stephAt;
-      const elbow = hold ? { x: (from.x + at.x) / 2 + 30, y: Math.min(from.y, at.y) + 40 } : { x: from.x - 36, y: at.y - 14 };
       const key = hold ? 'veggies_palm' : 'veggies_pinch';
       if (this.hand.texture.key !== key) applyArt(this.hand, key);
-      this.reach(this.upper, from, elbow);
-      if (photo(key)) {
-        // a photo of a hand has a wrist: it is turned so that the wrist is on the way to her elbow, and her forearm stops there
-        const w = FIT.hands[hold ? 'palm' : 'pinch'].wrist, way = Math.atan2(elbow.y - at.y, elbow.x - at.x), far = Math.hypot(w[0], w[1]);
-        this.hand.setPosition(at.x, at.y).setRotation(way - Math.atan2(w[1], w[0]));
-        this.reach(this.forearm, elbow, { x: at.x + Math.cos(way) * far, y: at.y + Math.sin(way) * far });
-      } else {
-        this.hand.setPosition(at.x, at.y).setRotation(hold ? this.theta - 0.5 : 0);
-        this.reach(this.forearm, elbow, { x: at.x + (hold ? 0 : 14), y: at.y + (hold ? 6 : 0) });
+      const size = photo(key) ? STEPH_ARM : 1;
+      const a = span('veggies_arm_steph') * size, b = span('veggies_forearm') * size;
+      // a hand has a wrist, which is where her forearm stops: the hand is turned so that its wrist is on the
+      // way to her elbow, and the elbow is wherever an arm that long has to have it
+      const w = photo(key) ? FIT.hands[hold ? 'palm' : 'pinch'].wrist : [hold ? 0 : 14, hold ? 6 : 0];
+      const far = Math.hypot(w[0], w[1]) * size;
+      let way = Math.atan2(from.y - at.y, from.x - at.x), wrist = at, elbow = from;
+      for (let i = 0; i < 3; i++) {
+        wrist = { x: at.x + Math.cos(way) * far, y: at.y + Math.sin(way) * far };
+        elbow = elbowOf(from, wrist, a, b);
+        way = Math.atan2(elbow.y - at.y, elbow.x - at.x);
       }
+      this.hand.setPosition(at.x, at.y).setScale(size / TEX).setRotation(photo(key) ? way - Math.atan2(w[1], w[0]) : hold ? this.theta - 0.5 : 0);
+      this.limb(this.upper, from, elbow, size);
+      this.limb(this.forearm, elbow, wrist, size);
     }
 
     // the rest of him: his arms, his neck, and what goes down it

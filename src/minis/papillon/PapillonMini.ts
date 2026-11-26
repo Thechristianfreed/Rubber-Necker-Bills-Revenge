@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { ART, img } from '../../art/sticker';
 import { sound } from '../../audio/sound';
-import { view } from '../../config';
+import { DEPTH, view } from '../../config';
 import { written } from '../../ui/text';
 import { Mini, Point } from '../Mini';
 import { Diner, LAYER, PAPILLON, Talk, Waiter, layPapillon, onTable, setTable } from '../shared/papillon';
@@ -18,6 +18,9 @@ const BOT = { good: ['second', 'second', 'second'], clumsy: ['second', 'first', 
 
 /** The middle of what can be seen of the tablecloth: bare, and so where a word on a burst goes. */
 const CLOTH = 474;
+
+/** How long WHAT A CRAZY COINCIDENCE! stays up, in seconds, before it goes (the scene's own words get 0.8). */
+const COINCIDENCE = 1.8;
 
 type Phase = 'play' | 'pick' | 'done';
 
@@ -294,11 +297,11 @@ export class PapillonMini extends Mini {
       }],
       [0.55, () => {
         this.beat = 'coincidence';
-        // (on the cloth, where it is over nobody's face)
-        this.host.word('papillon_coincidence', this.tx, CLOTH, true);
+        // (on the cloth, where it is over nobody's face; and a second longer than a word usually gets)
+        this.linger('papillon_coincidence', this.tx, CLOTH, COINCIDENCE);
         sound.cash();
       }],
-      [1.75, () => {
+      [COINCIDENCE + 0.95, () => {
         this.talk.hush();
         if (this.course === 0) this.amuse();
         else if (last) this.finale();
@@ -429,6 +432,15 @@ export class PapillonMini extends Mini {
   }
 
   // ---- odds and ends --------------------------------------------------------------------------
+
+  /** A word on a burst, as the scene pops one (`this.host.word`), but staying up for as long as it is told to. */
+  private linger(word: string, x: number, y: number, secs: number): void {
+    const s = this.scene, im = img(s, x, y, `word_${word}`).setDepth(DEPTH.fx + 8).setRotation((Math.random() - 0.5) * 0.3);
+    const full = im.scale;
+    im.setScale(full * 0.3).setAlpha(0);
+    s.tweens.add({ targets: im, scale: full, alpha: 1, duration: 110, ease: 'Back.out' });
+    s.tweens.add({ targets: im, y: y - 36, alpha: 0, duration: 320, delay: secs * 1000, onComplete: () => im.destroy() });
+  }
 
   /** Something small in the air: it flies, falls (or floats up) and is gone. One that sways flutters as it goes. */
   private puff(key: string, x: number, y: number, vx: number, vy: number, life: number, drop: number, sway = 0): void {

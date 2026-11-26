@@ -187,8 +187,17 @@ A photograph of a man's right arm in the sleeve of a black dinner jacket, a whit
 
 ### VG5. Stephanie's arm and hands
 
-Her arm has an elbow in the game: an upper arm and a forearm, each of which
-stretches, and a hand that is one of two.
+Her arm has an elbow in the game: an upper arm, a forearm, and a hand that
+is one of two. The pieces are drawn as big as her head makes them (`STEPH_ARM`
+in `VeggiesMini.ts`, 1.45 of the size they were cut), each at its own
+length, and the elbow is wherever an arm that long has to bend to get her
+hand where it is going (`elbowOf`): held up and out, on her own side. She
+has his nose until the vegetable is in, and then the top of his head.
+
+(As first fitted the pieces were the size of her body, which made the arm
+half as long as it had to be, so each piece was pulled out to twice its
+length: a long thin tube with a hand on the end, flung straight up when he
+gasped. The owner's words for it were "wonky and gross looking".)
 
 ```text
 Three photographs of the same woman's bare right arm and hand, side by side with wide clear gaps between them, on one plain flat light-grey studio background. First: the whole arm stretched straight out level towards the left of the picture, from a short royal-blue sleeve at the shoulder to the wrist, the hand open and relaxed, seen from the side; it ends at the shoulder, cut off square. Second: just her hand and wrist, the first finger and thumb pinched tightly together and pointing towards the left of the picture, the other fingers curled, as if pinching somebody's nose shut. Third: just her hand and wrist, the hand held up flat with the fingers together and pointing up, the palm towards the camera, as if pressing down on something. Soft even light, no shadows on the background. No text, no borders. Wide 16:9 image.

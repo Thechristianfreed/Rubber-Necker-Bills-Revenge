@@ -74,8 +74,11 @@ her second choice. The careless one gets the first course right, which
 shows the amuse-bouche, and then orders what she is having.
 
 What can be changed easily: how long each thought stays up (`THINKS` in
-`PapillonMini.ts`), and the menu (`MENU` in `art.ts`: each dish is a short
-name, which is its picture, and what the card says).
+`PapillonMini.ts`), how long WHAT A CRAZY COINCIDENCE! stays on the cloth
+(`COINCIDENCE`, beside it: 1.8 seconds, a second longer than a word on a
+burst usually gets, which is what the owner asked for), and the menu (`MENU`
+in `art.ts`: each dish is a short name, which is its picture, and what the
+card says).
 
 ## Who is in it
 
