@@ -22,7 +22,10 @@ for the PAH), the tour bus (tap whoever is on the phone) and the sleepover
 (bop DJ exactly as many times as asked), payback (Chad, a baseball bat, and
 the brother who had it coming), pocket sand (the same brothers, a sandbox,
 and their mother's answer to it) and the fight after school (which
-Stephanie cannot win, and which does not count). See `docs/minigames.md`.
+Stephanie cannot win, and which does not count). A seventh has a folder of
+its own, as every new one will: Stephanie's only basket (one against one in
+the school gym, and every shot she takes goes in her own). See
+`docs/minigames.md`.
 
 ## Play it
 
@@ -39,7 +42,7 @@ Open the printed address on a phone held sideways, or on a computer.
 | Duck | hold the DUCK button | Down arrow or S |
 | Road Rage special | RAGE button when the ring is full | R or Enter |
 
-Add `?auto` to the address to watch the game play itself (`?auto=clumsy` plays badly), and `&level=street`, `&level=highway`, `&level=locker` or `&level=sleepover` to pick the level. `&level=minis` plays the quick games, and `&mini=workout`, `&mini=phone`, `&mini=bop`, `&mini=bat`, `&mini=sand` or `&mini=fight` keeps to one of them.
+Add `?auto` to the address to watch the game play itself (`?auto=clumsy` plays badly), and `&level=street`, `&level=highway`, `&level=locker` or `&level=sleepover` to pick the level. `&level=minis` plays the quick games, and `&mini=workout`, `&mini=phone`, `&mini=bop`, `&mini=bat`, `&mini=sand`, `&mini=ownbasket` or `&mini=fight` keeps to one of them.
 
 ## Build
 

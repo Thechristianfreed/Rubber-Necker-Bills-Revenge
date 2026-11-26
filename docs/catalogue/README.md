@@ -12,8 +12,9 @@ The size is how big the picture is drawn, in the game's own pixels (the page is 
 - [People: everybody's faces](#cast) (206)
 - [The rubberneckers, and the animals](#gawkers) (51)
 - [Effects](#effects) (25)
-- [Words on bursts](#words) (51)
+- [Words on bursts](#words) (59)
 - [The interface](#interface) (26)
+- [The quick game "ownbasket"](#game-ownbasket) (34)
 
 <a id="places"></a>
 
@@ -678,6 +679,14 @@ Shown with `this.host.word('bonk', x, y)`: the name without "word_".
 | `word_noeffect` | 136 x 92 |  | paper |
 | `word_nope` | 104 x 71 |  | paper |
 | `word_ow` | 86 x 58 |  | paper |
+| `word_ownbasket_boing` | 128 x 87 |  | paper |
+| `word_ownbasket_buzzer` | 150 x 102 |  | paper |
+| `word_ownbasket_clank` | 128 x 87 |  | paper |
+| `word_ownbasket_rebound` | 164 x 112 |  | paper |
+| `word_ownbasket_steal` | 128 x 87 |  | paper |
+| `word_ownbasket_stolen` | 136 x 92 |  | paper |
+| `word_ownbasket_swish` | 170 x 116 |  | paper |
+| `word_ownbasket_wrong` | 236 x 160 |  | paper |
 | `word_pah` | 300 x 204 |  | paper |
 | `word_perfect` | 124 x 84 |  | `src/assets/scrap/word-perfect.webp` |
 | `word_pff` | 120 x 82 |  | paper |
@@ -735,3 +744,48 @@ Buttons, tape, meters and marks.
 | `title_card` | 440 x 232 |  | paper |
 | `title_sub` | 290 x 50 |  | paper |
 | `you_are` | 250 x 44 |  | paper |
+
+<a id="game-ownbasket"></a>
+
+## The quick game "ownbasket"
+
+Made by `src/minis/ownbasket`, and kept in its folder.
+
+![The quick game "ownbasket"](game-ownbasket.jpg)
+
+| Name | Size | | File |
+| --- | --- | --- | --- |
+| `ownbasket_away` | 132 x 40 |  | paper |
+| `ownbasket_ball` | 30 x 30 |  | paper |
+| `ownbasket_board` | 320 x 78 |  | paper |
+| `ownbasket_btn_back` | 84 x 76 |  | paper |
+| `ownbasket_btn_fwd` | 84 x 76 |  | paper |
+| `ownbasket_btn_shoot` | 168 x 76 |  | paper |
+| `ownbasket_btn_steal` | 168 x 76 |  | paper |
+| `ownbasket_her_cheer` | 200 x 244 |  | paper |
+| `ownbasket_her_dribble` | 200 x 244 |  | paper |
+| `ownbasket_her_guard` | 200 x 244 |  | paper |
+| `ownbasket_her_run1` | 200 x 244 |  | paper |
+| `ownbasket_her_run2` | 200 x 244 |  | paper |
+| `ownbasket_her_shoot` | 200 x 244 |  | paper |
+| `ownbasket_her_shrug` | 200 x 244 |  | paper |
+| `ownbasket_her_stand` | 200 x 244 |  | paper |
+| `ownbasket_her_steal` | 200 x 244 |  | paper |
+| `ownbasket_herhead_laugh` | 76 x 60 |  | paper |
+| `ownbasket_herhead_plain` | 76 x 60 |  | paper |
+| `ownbasket_herhead_set` | 76 x 60 |  | paper |
+| `ownbasket_herhead_what` | 76 x 60 |  | paper |
+| `ownbasket_home` | 132 x 40 |  | paper |
+| `ownbasket_hoop` | 150 x 340 |  | paper |
+| `ownbasket_net` | 52 x 50 |  | paper |
+| `ownbasket_qmark` | 30 x 40 |  | paper |
+| `ownbasket_slip` | 430 x 112 |  | paper |
+| `ownbasket_steph_aim` | 200 x 244 |  | paper |
+| `ownbasket_steph_cheer` | 200 x 244 |  | paper |
+| `ownbasket_steph_dribble` | 200 x 244 |  | paper |
+| `ownbasket_steph_guard` | 200 x 244 |  | paper |
+| `ownbasket_steph_run1` | 200 x 244 |  | paper |
+| `ownbasket_steph_run2` | 200 x 244 |  | paper |
+| `ownbasket_steph_shoot` | 200 x 244 |  | paper |
+| `ownbasket_steph_stand` | 200 x 244 |  | paper |
+| `ownbasket_steph_steal` | 200 x 244 |  | paper |
