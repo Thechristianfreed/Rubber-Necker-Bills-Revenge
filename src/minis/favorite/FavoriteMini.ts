@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { H, TEX, view } from '../../config';
 import { ART, applyArt, img } from '../../art/sticker';
 import { sound } from '../../audio/sound';
+import { written } from '../../ui/text';
 import { Mini, Point } from '../Mini';
 import { Diner, LAYER, PAPILLON, Talk, layPapillon, onTable, setTable } from '../shared/papillon';
 import { BOTTLE } from './art';
@@ -13,7 +14,7 @@ const SECONDS = 20;
 /** Who sits where, left to right: the boys at the ends, their parents in the middle. */
 const SEATS = ['shane', 'chad', 'bill', 'stephanie', 'christian', 'branson'];
 /** How special each boy feels to begin with (in the order they sit). */
-const START = [0.62, 0.5, 0.56, 0.68];
+const START = [0.74, 0.6, 0.67, 0.8];
 /** How fast that runs down by itself, a second: at the start of the evening, and how much more by the end of it. */
 const FADES = 0.066, FADES_MORE = 0.108;
 /** ...and how much goes when he hears his father tell one of the others. (It never takes the last of it.) */
@@ -143,6 +144,8 @@ export class FavoriteMini extends Mini {
   private toast = 0;
   private bottle!: Image;
   private endIn = 0;
+  /** What to do, on a strip of tape on the cloth, until it has been done once. */
+  private hint: (Image | Phaser.GameObjects.Text)[] = [];
   private finished = false;
   private botIn = 0.6;
 
@@ -199,6 +202,10 @@ export class FavoriteMini extends Mini {
     this.glassAt = { x: this.bill.x - 50, y: P.table + 14 };
     this.glass = img(s, this.glassAt.x, this.glassAt.y, 'papillon_glass_red').setDepth(LAYER.held);
     this.hand = img(s, 0, 0, 'favorite_point').setDepth(LAYER.diner + 2.5).setVisible(false);
+    const words = written(s, cx, 492, "TAP A BOY TO TELL HIM HE'S THE FAVORITE", 19).setDepth(LAYER.held + 1).setRotation(-0.012);
+    const tape = img(s, cx, 492, 'tape_l').setDepth(LAYER.held).setRotation(-0.012);
+    tape.setScale((tape.scale * (words.width + 44)) / ART.tape_l.w, tape.scale);
+    this.hint = [tape, words];
     this.pose(0);
   }
 
@@ -227,6 +234,7 @@ export class FavoriteMini extends Mini {
     // which of the three things he says
     const shh = this.tells > 0 && i !== this.last && this.since < SOON && !this.shushed;
     const line = this.tells === 0 ? LINES.know : shh ? LINES.shh : LINES.plain;
+    if (this.tells === 0) tw.add({ targets: this.hint, alpha: 0, y: 520, duration: 260, delay: 500 });
     this.tells++;
     this.last = i;
     this.since = 0;
