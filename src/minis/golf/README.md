@@ -136,14 +136,15 @@ When a picture comes back it is kept in `art-src/games/golf` under its number
 
 #### GF1. Chad, with a golf club (one sheet)
 
-Attach one of his sheets from Payback (`art-src/generated/PB1...`), so that it
-is the same boy. He faces the camera, as golfers do on television, with the
-fairway off to the right of the picture. The club is in the picture (the
+The prompt stands by itself, so that it can go in a batch; where a picture
+can be attached, one of his sheets from Payback (`art-src/generated/PB1...`)
+makes it the same boy. He faces the camera, as golfers do on television, with
+the fairway off to the right of the picture. The club is in the picture (the
 game's paper club is only for the stand-ins), so with this sheet he holds the
 same club whichever was picked; a second sheet with an iron would give both.
 
 ```text
-The same small boy exactly, about five years old, in the same light blue T-shirt, navy shorts, white socks and white trainers, in the same light. Three full-length photographs of him side by side with wide clear gaps between them, all on one continuous plain flat light-grey studio background with no dividing lines or panels. In all three he faces the camera and is holding a child's golf club, a driver with a big wooden head, far too big for him. First: standing over an imaginary ball, feet apart, both hands together on the grip in front of his waist, the club head resting on the ground a little to the right of his feet. Second: at the top of his backswing: both hands lifted up beside his right shoulder, on the left of the picture, the club going up and over behind his head. Third: just after the swing: his weight on the foot nearer the right of the picture, both hands finishing high beside his other shoulder, the club wrapped round behind his neck. His whole body and the whole club are in frame in every one, and nothing covers his face or neck: his hands and the club stay clear of his head. Soft even light, no shadows on the background. No text, no borders. Wide 16:9 image.
+Three full-length photographs of the same small boy, about five years old, side by side with wide clear gaps between them, all on one continuous plain flat light-grey studio background with no dividing lines or panels. He wears a light blue T-shirt, navy shorts, white socks and white trainers, in the style of about 1990, and has short hair. In all three he faces the camera and is holding a child's golf club, a driver with a big wooden head, far too big for him. First: standing over an imaginary ball, feet apart, both hands together on the grip in front of his waist, the club head resting on the ground a little to the right of his feet. Second: at the top of his backswing: both hands lifted up beside his right shoulder, on the left of the picture, the club going up and over behind his head. Third: just after the swing: his weight on the foot nearer the right of the picture, both hands finishing high beside his other shoulder, the club wrapped round behind his neck. His whole body and the whole club are in frame in every one, and nothing covers his face or neck: his hands and the club stay clear of his head. Soft even light, no shadows on the background. No text, no borders. Wide 16:9 image.
 ```
 
 #### GF2. Bill, at the tee (one sheet)
@@ -173,13 +174,14 @@ Five things photographed straight on, side by side with wide clear gaps between 
 
 #### GF5. The entrance to the Iron Horse Trail
 
-Attach the three Street View pictures (`REF1` to `REF3`). Those look down the
+The prompt stands by itself; where pictures can be attached, the three
+Street View ones (`REF1` to `REF3`) show the place. Those look down the
 trail; the game is seen from the side, with people going past from left to
 right and right to left, so the path has to run across the picture. What
 stands at the entrance (GF6) is left out of this one, and put in by the game.
 
 ```text
-A photograph of the Iron Horse Regional Trail where it leaves Hartford Road in Danville, California, on a sunny autumn day about 1990, like the attached pictures of the same place but seen from the side instead of looking down it. An old paved path of dark grey tarmac runs dead level across the whole width of the picture, seen exactly side-on with no perspective slant, a third of the way up from the bottom. In front of it, filling the bottom of the picture, and behind it, is bare brown ground thick with dry fallen leaves. Behind the far verge a weathered grey-brown wooden board fence runs level across the whole width, with ivy growing along its foot. Behind and above the fence, tall leafy trees (ash, oak, eucalyptus) fill the whole top half of the picture and meet overhead, with only small patches of blue sky showing through, and dappled sunlight falling on the path and the leaves. Nobody in it: no people, no bicycles, no signs, no gates, no posts. No text. Very wide 21:9 image.
+A photograph of the Iron Horse Regional Trail where it leaves Hartford Road in Danville, California, on a sunny autumn day about 1990, seen from the side. An old paved path of dark grey tarmac runs dead level across the whole width of the picture, seen exactly side-on with no perspective slant, a third of the way up from the bottom. In front of it, filling the bottom of the picture, and behind it, is bare brown ground thick with dry fallen leaves. Behind the far verge a weathered grey-brown wooden board fence runs level across the whole width, with ivy growing along its foot. Behind and above the fence, tall leafy trees (ash, oak, eucalyptus) fill the whole top half of the picture and meet overhead, with only small patches of blue sky showing through, and dappled sunlight falling on the path and the leaves. Nobody in it: no people, no bicycles, no signs, no gates, no posts. No text. Very wide 21:9 image.
 ```
 
 #### GF6. What stands at the entrance
@@ -201,23 +203,49 @@ Four things photographed straight on, side by side with wide clear gaps between 
 
 #### GF8. The people on the trail (six sheets, last of all)
 
-Their heads come off and the rubberneckers' go on, so these can be anybody.
-The paper ones will do for a good while: this is the lowest of these. Each
-sheet is one person in the two halves of a stride. Three walk and three run;
-change the words in brackets for each.
+Their heads come off and the rubberneckers' go on, so these can be anybody,
+but their arms and legs are bare, so each is the colour of the heads that
+wear it (which head wears which is `WEARS` in `poses.ts`: only the man with
+the afro wears the last). The paper ones will do for a good while: this is
+the lowest of these. Each sheet is one person in two moments of a stride,
+legs apart and legs together, which is what went wrong with the brothers'
+first running sheets (both were the same stride).
+
+GF8a (walks, outfit 0):
 
 ```text
-Two full-length photographs of the same person side by side with a wide clear gap between them, on one continuous plain flat light-grey studio background with no dividing lines or panels. [A man of about fifty out for a walk about 1990, in a green polo shirt, grey trousers and white trainers.] Each is seen exactly from the side, facing the right of the picture. First: in the middle of a stride, [walking briskly], the front leg reaching forward and the back leg behind, arms swinging. Second: the same a moment later with the legs the other way round. The whole body is in frame from head to feet in both, the hands are empty, and nothing covers the head or neck. Soft even light, no shadows on the background. No text, no borders. Wide 16:9 image.
+Two full-length photographs of the same person side by side with a wide clear gap between them, on one continuous plain flat light-grey studio background with no dividing lines or panels. A white man of about fifty out for a walk about 1990, in a green short-sleeved polo shirt, grey trousers and white trainers. Each is seen exactly from the side, facing the right of the picture, walking briskly. First: in the middle of a long stride, the front leg reaching forward with its heel just touching down and the back leg stretched out behind, legs wide apart, arms swinging. Second: the same walk a moment later: standing on one straight leg directly under the body with the other foot just passing it, legs close together, arms by the sides. The whole body is in frame from head to feet in both, the hands are empty, and nothing covers the head or neck. Soft even light, no shadows on the background. No text, no borders. Wide 16:9 image.
 ```
 
-The other five: `[A woman of about sixty, in a red blouse, blue slacks and
-white trainers]`, `[An old man in a cream cardigan and brown trousers]`,
-all three `[walking briskly]`; and `[A teenager in a yellow T-shirt, blue
-running shorts, white tube socks and trainers]`, `[A man of about forty in a
-white vest, red running shorts, a towelling headband round his wrist, and
-trainers]`, `[A man of about thirty in a green T-shirt, grey running shorts
-and trainers]`, all three `[running flat out, both feet off the ground]`.
-(Which head wears which is `WEARS` in `poses.ts`.)
+GF8b (walks, outfit 1):
+
+```text
+Two full-length photographs of the same person side by side with a wide clear gap between them, on one continuous plain flat light-grey studio background with no dividing lines or panels. A white woman of about sixty out for a walk about 1990, in a red short-sleeved blouse, blue slacks and white trainers. Each is seen exactly from the side, facing the right of the picture, walking briskly. First: in the middle of a long stride, the front leg reaching forward with its heel just touching down and the back leg stretched out behind, legs wide apart, arms swinging. Second: the same walk a moment later: standing on one straight leg directly under the body with the other foot just passing it, legs close together, arms by the sides. The whole body is in frame from head to feet in both, the hands are empty, and nothing covers the head or neck. Soft even light, no shadows on the background. No text, no borders. Wide 16:9 image.
+```
+
+GF8c (walks, outfit 2):
+
+```text
+Two full-length photographs of the same person side by side with a wide clear gap between them, on one continuous plain flat light-grey studio background with no dividing lines or panels. An old white man out for a walk about 1990, in a cream cardigan, brown trousers and brown shoes. Each is seen exactly from the side, facing the right of the picture, walking briskly. First: in the middle of a long stride, the front leg reaching forward with its heel just touching down and the back leg stretched out behind, legs wide apart, arms swinging. Second: the same walk a moment later: standing on one straight leg directly under the body with the other foot just passing it, legs close together, arms by the sides. The whole body is in frame from head to feet in both, the hands are empty, and nothing covers the head or neck. Soft even light, no shadows on the background. No text, no borders. Wide 16:9 image.
+```
+
+GF8d (runs, outfit 3):
+
+```text
+Two full-length photographs of the same person side by side with a wide clear gap between them, on one continuous plain flat light-grey studio background with no dividing lines or panels. A white teenager out for a run about 1990, in a yellow T-shirt, blue running shorts, white tube socks and trainers. Each is seen exactly from the side, running flat out towards the right of the picture with arms pumping. First: at full stretch, both feet off the ground, the front leg reaching far forward and the back leg stretched far out behind, legs wide apart like open scissors. Second: the same run a moment later: standing on one straight leg directly under the body with the other knee lifted high in front, legs close together. The whole body is in frame from head to feet in both, the hands are empty, and nothing covers the head or neck. Soft even light, no shadows on the background. No text, no borders. Wide 16:9 image.
+```
+
+GF8e (runs, outfit 4):
+
+```text
+Two full-length photographs of the same person side by side with a wide clear gap between them, on one continuous plain flat light-grey studio background with no dividing lines or panels. A white man of about forty out for a run about 1990, in a white sleeveless running top, short red running shorts, white socks and trainers. Each is seen exactly from the side, running flat out towards the right of the picture with arms pumping. First: at full stretch, both feet off the ground, the front leg reaching far forward and the back leg stretched far out behind, legs wide apart like open scissors. Second: the same run a moment later: standing on one straight leg directly under the body with the other knee lifted high in front, legs close together. The whole body is in frame from head to feet in both, the hands are empty, and nothing covers the head or neck. Soft even light, no shadows on the background. No text, no borders. Wide 16:9 image.
+```
+
+GF8f (runs, outfit 5):
+
+```text
+Two full-length photographs of the same person side by side with a wide clear gap between them, on one continuous plain flat light-grey studio background with no dividing lines or panels. A Black man of about thirty out for a run about 1990, in a green T-shirt, grey running shorts, white socks and trainers. Each is seen exactly from the side, running flat out towards the right of the picture with arms pumping. First: at full stretch, both feet off the ground, the front leg reaching far forward and the back leg stretched far out behind, legs wide apart like open scissors. Second: the same run a moment later: standing on one straight leg directly under the body with the other knee lifted high in front, legs close together. The whole body is in frame from head to feet in both, the hands are empty, and nothing covers the head or neck. Soft even light, no shadows on the background. No text, no borders. Wide 16:9 image.
+```
 
 #### GF9. Windows R Us
 
