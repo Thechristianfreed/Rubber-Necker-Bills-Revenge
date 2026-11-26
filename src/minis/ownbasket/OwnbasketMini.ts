@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { TEX, view } from '../../config';
-import { ART, applyArt, img, originOf } from '../../art/sticker';
+import { ART, FROM, applyArt, img, originOf } from '../../art/sticker';
 import { sound } from '../../audio/sound';
 import { bubble } from '../../ui/bubble';
 import { label, written } from '../../ui/text';
@@ -8,7 +8,7 @@ import { Mini, Point } from '../Mini';
 import { head, setLook } from '../shared/people';
 import { GYM, layGym } from '../shared/places';
 import { BALL, HEAD_R, HER, HOOP, Mood, RIM_W, STEPH } from './art';
-import { BODIES } from './bodies';
+import { BODIES, Body, THINGS } from './bodies';
 import * as sfx from './sfx';
 
 type Image = Phaser.GameObjects.Image;
@@ -118,6 +118,8 @@ export class OwnbasketMini extends Mini {
   private moving = false;
   private body!: Image;
   private head!: Image;
+  /** Her arms, in the photos that have them up: a piece of their own, laid over her head. */
+  private arms!: Image;
 
   // the other girl
   private ox = 0;
@@ -132,6 +134,9 @@ export class OwnbasketMini extends Mini {
   private herBody!: Image;
   private herHead!: Image;
   private what!: Image;
+  /** Where her chin is on the page just now, and how tall her head is: for what she says to come from. */
+  private herChin: Point = { x: 0, y: 0 };
+  private herTall = HEAD_R * 2 * SIZE;
 
   // the ball
   private ball!: Image;
@@ -154,6 +159,9 @@ export class OwnbasketMini extends Mini {
 
   // the court, the scoreboard and the buttons
   private nets: Image[] = [];
+  /** How far across a rim is, and where the bottom of the scoreboard is: the photos' are not the paper ones'. */
+  private rimWide = RIM_W;
+  private boardFoot = 132;
   private board!: Image;
   private homeText!: Text;
   private awayText!: Text;
@@ -183,12 +191,23 @@ export class OwnbasketMini extends Mini {
     layGym(s);
     img(s, cx, FLOOR - 16, 'bleachers').setDepth(4);
 
-    // the scoreboard
-    this.board = img(s, cx, 86, 'ownbasket_board').setDepth(3);
-    const lit = (x: number, colour: string) => label(s, x, 98, '0', 31, colour, 0).setDepth(3.5);
-    this.homeText = lit(cx - 102, '#f6c430');
-    this.clockText = lit(cx + 2, '#ff6a4c');
-    this.awayText = lit(cx + 102, '#f6c430');
+    // The scoreboard. The photo of one has three panels for its lights (the middle one is small: it
+    // gets the seconds, and no more); the paper one has a window for each number.
+    const panels = FROM.ownbasket_board ? THINGS.board : undefined;
+    if (panels) {
+      const top = 40, lit = (i: number, size: number, colour: string) => label(s, cx + (panels.panels[i][0] - 0.5) * panels.w, top + panels.panels[i][1] * panels.tall + 1, '0', size, colour, 0).setDepth(3.5);
+      this.board = img(s, cx, top + panels.tall / 2, 'ownbasket_board').setDepth(3);
+      this.homeText = lit(0, 40, '#ffb52e');
+      this.clockText = lit(1, 26, '#ff5a3c');
+      this.awayText = lit(2, 40, '#ffb52e');
+      this.boardFoot = top + panels.tall - 6;
+    } else {
+      this.board = img(s, cx, 86, 'ownbasket_board').setDepth(3);
+      const lit = (x: number, colour: string) => label(s, x, 98, '0', 31, colour, 0).setDepth(3.5);
+      this.homeText = lit(cx - 102, '#f6c430');
+      this.clockText = lit(cx + 2, '#ff6a4c');
+      this.awayText = lit(cx + 102, '#f6c430');
+    }
 
     // a basket at each end, and whose it is
     const post = (x: number, turned: boolean) => {
@@ -199,6 +218,10 @@ export class OwnbasketMini extends Mini {
     post(HOOP_X, false);
     post(W - HOOP_X, true);
     this.nets = [img(s, this.own, RIM, 'ownbasket_net').setDepth(22), img(s, this.theirs, RIM, 'ownbasket_net').setDepth(22)];
+    // (the photo of the rim has the bracket that holds it to the board on one side: the far one is turned round)
+    const [nx, ny] = originOf('ownbasket_net');
+    this.nets[1].setFlipX(true).setOrigin(1 - nx, ny);
+    if (FROM.ownbasket_hoop && THINGS.hoop) this.rimWide = THINGS.hoop.wide;
     img(s, 80, 72, 'ownbasket_home').setDepth(3).setRotation(-0.03);
     img(s, W - 80, 72, 'ownbasket_away').setDepth(3).setRotation(0.03);
 
@@ -209,6 +232,7 @@ export class OwnbasketMini extends Mini {
     this.what = img(s, 0, 0, 'ownbasket_qmark').setDepth(11).setVisible(false);
     this.body = img(s, 0, 0, 'ownbasket_steph_guard').setDepth(12);
     this.head = head(s, 'stephanie', 'calm', 0, 0, STEPH_HEAD).setDepth(13);
+    this.arms = s.add.image(0, 0, 'ownbasket_ball').setDepth(13.5).setVisible(false);
     this.ball = img(s, 0, 0, 'ownbasket_ball').setDepth(16);
 
     // the meter from the workout tape
@@ -395,9 +419,14 @@ export class OwnbasketMini extends Mini {
     // the other girl goes up to block it, for all the good that does
     this.herPose = 'shoot';
     this.leap('her', 46, 0.44, 1, 0.06);
-    this.cue(0.5, () => { this.herPose = 'stand'; });
+    this.cue(0.5, () => {
+      this.herPose = this.mood === 'what' ? 'shrug' : 'stand';
+      // (and she is down again herself, watching it go)
+      if (this.phase === 'shot') this.pose = 'stand';
+    });
 
-    this.at = { x: this.sx + 2, y: FLOOR - 236 };
+    const up = this.photo('steph', 'shoot')?.hand;
+    this.at = up ? { x: this.sx + up[0] * SIZE, y: FLOOR + up[1] * SIZE - BALL / 2 } : { x: this.sx + 2, y: FLOOR - 236 };
     const swish = () => this.swish();
     if (this.kind === 'sweet') {
       // straight back over her head, flat and fast
@@ -406,7 +435,7 @@ export class OwnbasketMini extends Mini {
     } else if (this.kind === 'rim') {
       // the right way, at least: off the front of the other rim, and all the way back
       this.fly([
-        { to: { x: this.theirs - RIM_W / 2 + 2, y: RIM - 7 }, rise: 96 + across * 0.1, secs: 0.5 + across / 800, then: () => this.clank(this.theirs) },
+        { to: { x: this.theirs - this.rimWide / 2 + 2, y: RIM - 7 }, rise: 96 + across * 0.1, secs: 0.5 + across / 800, then: () => this.clank(this.theirs) },
         { to: own, rise: 118, secs: 1.2, then: swish },
       ]);
     } else if (this.kind === 'floor') {
@@ -419,7 +448,7 @@ export class OwnbasketMini extends Mini {
     } else {
       // held on to far too long: straight up, and off the scoreboard
       this.fly([
-        { to: { x: W / 2, y: 132 }, rise: 28, secs: 0.5, then: () => this.offTheBoard() },
+        { to: { x: W / 2, y: this.boardFoot }, rise: 28, secs: 0.5, then: () => this.offTheBoard() },
         { to: own, rise: 50, secs: 0.85, then: swish },
       ]);
     }
@@ -434,8 +463,14 @@ export class OwnbasketMini extends Mini {
     this.scene.tweens.add({ targets: net, x: net.x + 3, duration: 40, yoyo: true, repeat: 3 });
     if (this.phase === 'shot') {
       this.look = 'shocked';
-      this.mood = 'what';
+      this.baffled();
     }
+  }
+
+  /** The other girl has seen something she cannot account for. */
+  private baffled(): void {
+    this.mood = 'what';
+    if (this.herPose === 'stand') this.herPose = 'shrug';
   }
 
   /** Off the floor, a great deal harder than it came down. */
@@ -445,17 +480,17 @@ export class OwnbasketMini extends Mini {
     sound.boing();
     this.host.word('ownbasket_boing', this.at.x, FLOOR - 70);
     this.look = 'shocked';
-    this.mood = 'what';
+    this.baffled();
   }
 
   private offTheBoard(): void {
     this.bounced++;
     sfx.board();
-    this.host.word('bonk', view.W / 2 + 90, 150);
+    this.host.word('bonk', view.W / 2 + 90, this.boardFoot + 18);
     this.scene.tweens.add({ targets: this.board, rotation: 0.07, duration: 60, yoyo: true, repeat: 2 });
     this.scene.cameras.main.shake(120, 0.005);
     this.look = 'shocked';
-    this.mood = 'what';
+    this.baffled();
   }
 
   /** In it goes. Her own basket: the only one she ever scored in. */
@@ -525,13 +560,14 @@ export class OwnbasketMini extends Mini {
     this.cue(0.5, () => { this.herPose = 'stand'; });
     sfx.squeak();
     this.look = 'shocked';
-    this.at = { x: this.ox - 2, y: FLOOR - 236 };
+    const up = this.photo('her', 'shoot')?.hand;
+    this.at = up ? { x: this.ox + up[0] * SIZE, y: FLOOR + up[1] * SIZE - BALL / 2 } : { x: this.ox - 2, y: FLOOR - 236 };
     if (makes) {
       this.fly([{ to: { x: this.own, y: RIM }, rise, secs, then: () => this.herBasket() }]);
     } else {
       // off the rim, and down to Stephanie: REBOUND!
       this.fly([
-        { to: { x: this.own + RIM_W / 2 - 2, y: RIM - 7 }, rise, secs, then: () => this.clank(this.own) },
+        { to: { x: this.own + this.rimWide / 2 - 2, y: RIM - 7 }, rise, secs, then: () => this.clank(this.own) },
         { to: () => this.hands('steph'), rise: 84, secs: 0.7, then: () => this.rebound() },
       ]);
     }
@@ -656,18 +692,20 @@ export class OwnbasketMini extends Mini {
 
   /** The top of somebody's head, and her mouth. */
   private top(who: Who): Point {
-    return who === 'steph' ? { x: this.head.x, y: this.head.y - STEPH_HEAD } : { x: this.herHead.x, y: this.herHead.y - HEAD_R * 2 * SIZE };
+    return who === 'steph' ? { x: this.head.x, y: this.head.y - STEPH_HEAD } : { x: this.herChin.x, y: this.herChin.y - this.herTall };
   }
 
   private mouth(who: Who): Point {
-    return who === 'steph' ? { x: this.head.x, y: this.head.y - STEPH_HEAD * 0.26 } : { x: this.herHead.x, y: this.herHead.y - HEAD_R * 0.5 * SIZE };
+    return who === 'steph' ? { x: this.head.x, y: this.head.y - STEPH_HEAD * 0.26 } : { x: this.herChin.x, y: this.herChin.y - this.herTall * 0.25 };
   }
 
   /** Something said, on a scrap of paper over the head of whoever said it, which goes where she goes. */
   private say(who: Who, text: string, secs: number): void {
     this.said = this.said.filter((b) => (b.who === who ? (b.box.destroy(), false) : true));
     const top = this.top(who), out = who === 'steph' ? -1 : 1;
-    const x = Phaser.Math.Clamp(top.x + out * 26, 130, view.W - 130), y = Math.max(150, top.y - (who === 'steph' ? 30 : 64));
+    // (clear of the scoreboard, and of her own arms when they are up over her head)
+    const up = who === 'steph' ? (this.arms.visible ? 58 : 30) : 64;
+    const x = Phaser.Math.Clamp(top.x + out * 26, 130, view.W - 130), y = Math.max(this.boardFoot + 30, top.y - up);
     const box = bubble(this.scene, x, y, text, this.mouth(who));
     this.said.push({ who, box, dx: x - top.x, dy: y - top.y, left: secs });
   }
@@ -802,7 +840,7 @@ export class OwnbasketMini extends Mini {
     else this.ox = Math.max(this.sx + GAP, this.ox - HER_SPEED * dt);
     if (this.ox - this.own < HER_RANGE || this.stall > 0.9) {
       this.windup = HER_WINDUP;
-      this.herPose = 'stand';
+      this.herPose = 'shoot';
     }
   }
 
@@ -825,6 +863,9 @@ export class OwnbasketMini extends Mini {
       this.worn = this.look;
     }
     this.head.setPosition(x + c.x * wide * SIZE, y + c.y * SIZE - full * 5).setRotation(c.tilt - full * 0.14);
+    const up = this.photo('steph', pose)?.arms ? `${key}_arms` : '';
+    if (up && this.arms.texture.key !== up) applyArt(this.arms, up);
+    this.arms.setVisible(!!up).setPosition(x, y).setScale(k * SIZE);
     const red = Math.round(255 - Math.min(1, Math.max(0, this.air - 0.9) * 1.6) * 70 * (aiming ? 1 : 0));
     this.head.setTint((255 << 16) | (red << 8) | red);
 
@@ -835,20 +876,30 @@ export class OwnbasketMini extends Mini {
     if (this.herBody.texture.key !== herKey) applyArt(this.herBody, herKey);
     const hy = FLOOR - this.hop;
     this.herBody.setPosition(this.ox, hy).setScale(k * SIZE);
-    const hc = this.chin('her', hers), face = `ownbasket_herhead_${this.mood}`;
+    // (in a photo she has her own head, with what she thinks of it all on it; the paper doll has one hung on)
+    const hc = this.chin('her', hers), face = `ownbasket_herhead_${this.mood}`, own = this.photo('her', hers);
     if (this.herHead.texture.key !== face) applyArt(this.herHead, face);
-    this.herHead.setPosition(this.ox + hc.x * SIZE, hy + hc.y * SIZE).setRotation(hc.tilt).setScale(k * SIZE);
-    this.what.setPosition(this.herHead.x + 36, this.herHead.y - HEAD_R * 2 * SIZE - 14);
+    this.herChin = { x: this.ox + hc.x * SIZE, y: hy + hc.y * SIZE };
+    this.herTall = (own?.tall ?? HEAD_R * 2) * SIZE;
+    this.herHead.setPosition(this.herChin.x, this.herChin.y).setRotation(hc.tilt).setScale(k * SIZE).setVisible(!own);
+    this.what.setPosition(this.herChin.x + 30, this.herChin.y - this.herTall - 16);
 
     // the ball
-    const bounce = Math.abs(Math.sin(this.drib * Math.PI)) * 54;
+    // (bounced under the hand that is out for it; held where the hands are, in a pose that holds it)
+    const beat = Math.abs(Math.sin(this.drib * Math.PI));
+    const under = (hand: [number, number] | undefined, side: number, cx: number): Point => {
+      const out = hand ? hand[0] * SIZE + side * 4 : side * 38, high = hand ? Math.max(30, -hand[1] * SIZE - BALL - 2) : 54;
+      return { x: cx + out, y: FLOOR - BALL / 2 - beat * high };
+    };
     if (this.holder === 'steph') {
-      if (pose === 'aim') this.at = { x: x + 12, y: y - 92 - full * 4 };
-      else if (pose === 'dribble' || pose === 'run1' || pose === 'run2') this.at = { x: x + 38, y: FLOOR - BALL / 2 - bounce };
+      const held = this.photo('steph', pose)?.hand;
+      if (pose === 'aim') this.at = held ? { x: x + held[0] * wide * SIZE - 6, y: y + held[1] * SIZE - full * 4 } : { x: x + 12, y: y - 92 - full * 4 };
+      else if (pose === 'dribble' || pose === 'run1' || pose === 'run2') this.at = under(this.photo('steph', 'dribble')?.hand, 1, x);
       else this.at = { x: x + 32, y: y - 88 };
     } else if (this.holder === 'her') {
-      if (hers === 'dribble' || hers === 'run1' || hers === 'run2') this.at = { x: this.ox - 38, y: FLOOR - BALL / 2 - bounce };
-      else if (this.windup > 0) this.at = { x: this.ox - 8, y: hy - 190 + this.windup * 190 };
+      const held = this.photo('her', hers)?.hand;
+      if (hers === 'dribble' || hers === 'run1' || hers === 'run2') this.at = under(this.photo('her', 'dribble')?.hand, -1, this.ox);
+      else if (this.windup > 0) this.at = held ? { x: this.ox + held[0] * SIZE, y: hy + held[1] * SIZE - BALL / 2 } : { x: this.ox - 8, y: hy - 190 + this.windup * 190 };
       else this.at = { x: this.ox - 32, y: hy - 88 };
     }
     this.ball.setPosition(this.at.x, this.at.y).setRotation(this.spin + (this.holder ? this.drib * 2 : 0))
@@ -867,16 +918,22 @@ export class OwnbasketMini extends Mini {
     const left = Math.ceil(Math.max(0, this.clock));
     this.homeText.setText(`${this.home}`);
     this.awayText.setText(`${this.away}`);
-    this.clockText.setText(`0:${String(left).padStart(2, '0')}`).setVisible(!this.over || Math.floor(this.t * 3) % 2 === 0);
+    this.clockText.setText(FROM.ownbasket_board ? `${left}` : `0:${String(left).padStart(2, '0')}`).setVisible(!this.over || Math.floor(this.t * 3) % 2 === 0);
   }
 
   /** Where somebody's chin is in a pose, from the spot she stands on, and how far her head
    *  tips: from the photo of the pose if there is one, otherwise from the paper doll. */
   private chin(who: Who, pose: string): { x: number; y: number; tilt: number } {
-    const photo = BODIES[who]?.[pose];
+    const photo = this.photo(who, pose);
     if (photo) return { x: photo.chin[0], y: photo.chin[1], tilt: photo.tilt };
     const d = (who === 'steph' ? STEPH : HER)[pose], side = who === 'steph' ? 1 : -1;
     return { x: side * (d.head[0] - Math.sin(d.tilt) * HEAD_R), y: d.head[1] + Math.cos(d.tilt) * HEAD_R, tilt: side * d.tilt };
+  }
+
+  /** What the table says about the photo of somebody in a pose: if there is one, and it came.
+   *  (If the pictures could not be fetched she is a paper doll, and is measured as one.) */
+  private photo(who: Who, pose: string): Body | undefined {
+    return FROM[`ownbasket_${who}_${pose}`] ? BODIES[who]?.[pose] : undefined;
   }
 
   timeUp(): boolean {

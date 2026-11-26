@@ -14,7 +14,7 @@ The size is how big the picture is drawn, in the game's own pixels (the page is 
 - [Effects](#effects) (25)
 - [Words on bursts](#words) (59)
 - [The interface](#interface) (26)
-- [The quick game "ownbasket"](#game-ownbasket) (34)
+- [The quick game "ownbasket"](#game-ownbasket) (36)
 
 <a id="places"></a>
 
@@ -756,36 +756,38 @@ Made by `src/minis/ownbasket`, and kept in its folder.
 | Name | Size | | File |
 | --- | --- | --- | --- |
 | `ownbasket_away` | 132 x 40 |  | paper |
-| `ownbasket_ball` | 30 x 30 |  | paper |
-| `ownbasket_board` | 320 x 78 |  | paper |
+| `ownbasket_ball` | 30 x 30 |  | `src/minis/ownbasket/assets/ball.webp` |
+| `ownbasket_board` | 270 x 118 |  | `src/minis/ownbasket/assets/board.webp` |
 | `ownbasket_btn_back` | 84 x 76 |  | paper |
 | `ownbasket_btn_fwd` | 84 x 76 |  | paper |
 | `ownbasket_btn_shoot` | 168 x 76 |  | paper |
 | `ownbasket_btn_steal` | 168 x 76 |  | paper |
-| `ownbasket_her_cheer` | 200 x 244 |  | paper |
-| `ownbasket_her_dribble` | 200 x 244 |  | paper |
-| `ownbasket_her_guard` | 200 x 244 |  | paper |
-| `ownbasket_her_run1` | 200 x 244 |  | paper |
-| `ownbasket_her_run2` | 200 x 244 |  | paper |
-| `ownbasket_her_shoot` | 200 x 244 |  | paper |
-| `ownbasket_her_shrug` | 200 x 244 |  | paper |
-| `ownbasket_her_stand` | 200 x 244 |  | paper |
-| `ownbasket_her_steal` | 200 x 244 |  | paper |
+| `ownbasket_her_cheer` | 60 x 163 |  | `src/minis/ownbasket/assets/her-cheer.webp` |
+| `ownbasket_her_dribble` | 67 x 149 |  | `src/minis/ownbasket/assets/her-dribble.webp` |
+| `ownbasket_her_guard` | 88 x 127 |  | `src/minis/ownbasket/assets/her-guard.webp` |
+| `ownbasket_her_run1` | 85 x 136 |  | `src/minis/ownbasket/assets/her-run1.webp` |
+| `ownbasket_her_run2` | 83 x 146 |  | `src/minis/ownbasket/assets/her-run2.webp` |
+| `ownbasket_her_shoot` | 62 x 180 |  | `src/minis/ownbasket/assets/her-shoot.webp` |
+| `ownbasket_her_shrug` | 62 x 151 |  | `src/minis/ownbasket/assets/her-shrug.webp` |
+| `ownbasket_her_stand` | 67 x 149 |  | `src/minis/ownbasket/assets/her-dribble.webp` |
+| `ownbasket_her_steal` | 106 x 134 |  | `src/minis/ownbasket/assets/her-steal.webp` |
 | `ownbasket_herhead_laugh` | 76 x 60 |  | paper |
 | `ownbasket_herhead_plain` | 76 x 60 |  | paper |
 | `ownbasket_herhead_set` | 76 x 60 |  | paper |
 | `ownbasket_herhead_what` | 76 x 60 |  | paper |
 | `ownbasket_home` | 132 x 40 |  | paper |
-| `ownbasket_hoop` | 150 x 340 |  | paper |
-| `ownbasket_net` | 52 x 50 |  | paper |
+| `ownbasket_hoop` | 264 x 336 |  | `src/minis/ownbasket/assets/hoop.webp` |
+| `ownbasket_net` | 59 x 49 |  | `src/minis/ownbasket/assets/net.webp` |
 | `ownbasket_qmark` | 30 x 40 |  | paper |
 | `ownbasket_slip` | 430 x 112 |  | paper |
-| `ownbasket_steph_aim` | 200 x 244 |  | paper |
-| `ownbasket_steph_cheer` | 200 x 244 |  | paper |
-| `ownbasket_steph_dribble` | 200 x 244 |  | paper |
-| `ownbasket_steph_guard` | 200 x 244 |  | paper |
-| `ownbasket_steph_run1` | 200 x 244 |  | paper |
-| `ownbasket_steph_run2` | 200 x 244 |  | paper |
-| `ownbasket_steph_shoot` | 200 x 244 |  | paper |
-| `ownbasket_steph_stand` | 200 x 244 |  | paper |
-| `ownbasket_steph_steal` | 200 x 244 |  | paper |
+| `ownbasket_steph_aim` | 55 x 111 |  | `src/minis/ownbasket/assets/steph-aim.webp` |
+| `ownbasket_steph_cheer` | 36 x 117 |  | `src/minis/ownbasket/assets/steph-cheer.webp` |
+| `ownbasket_steph_cheer_arms` | 72 x 59 |  | `src/minis/ownbasket/assets/steph-cheer-arms.webp` |
+| `ownbasket_steph_dribble` | 47 x 120 |  | `src/minis/ownbasket/assets/steph-stand.webp` |
+| `ownbasket_steph_guard` | 98 x 103 |  | `src/minis/ownbasket/assets/steph-guard.webp` |
+| `ownbasket_steph_run1` | 58 x 112 |  | `src/minis/ownbasket/assets/steph-run1.webp` |
+| `ownbasket_steph_run2` | 68 x 117 |  | `src/minis/ownbasket/assets/steph-run2.webp` |
+| `ownbasket_steph_shoot` | 36 x 121 |  | `src/minis/ownbasket/assets/steph-shoot.webp` |
+| `ownbasket_steph_shoot_arms` | 90 x 52 |  | `src/minis/ownbasket/assets/steph-shoot-arms.webp` |
+| `ownbasket_steph_stand` | 47 x 120 |  | `src/minis/ownbasket/assets/steph-stand.webp` |
+| `ownbasket_steph_steal` | 111 x 108 |  | `src/minis/ownbasket/assets/steph-steal.webp` |

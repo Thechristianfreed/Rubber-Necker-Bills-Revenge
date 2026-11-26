@@ -106,18 +106,73 @@ Nothing of anybody else's is changed.
 
 ## Pictures
 
-Everything of the game's own is cut paper so far (`art.ts`): the two girls,
-the other girl's four faces, the ball, the two baskets and their nets, the
-scoreboard, the pennants and the buttons. These are the prompts for photos
-to take their places. Stephanie's number is 01 (the owner's word). The
-uniforms are red and white for her school and green for the visitors, and
-the other girl is number 7: those are made up, to be changed to the real
-ones if they are known.
+The two girls, the ball, the baskets and the scoreboard are photos now (the
+owner made all five sheets on 26 November 2026, from the prompts below). The
+pennants, the buttons, the slip the score is read from, the question mark
+and the words are cut paper (`art.ts`), and stay so. The paper dolls and the
+other girl's four paper faces are still there behind the photos, and show if
+the pictures cannot be fetched.
+
+Stephanie's number is 01 (the owner's word). The uniforms are red and white
+for her school and green for the visitors, and the other girl is number 7:
+those are made up, to be changed to the real ones if they are known.
 
 The ball is a piece of its own, which the game moves: **nobody in these
 pictures is holding one**.
 
-### OB1. Stephanie, in her basketball uniform (two sheets)
+### What came back, and what was cut from it
+
+All of it is in `art-src/games/ownbasket`: the owner's picture (`.webp`),
+Adobe's cutout of it (`-cutout.png`) and Adobe's selection of the heads or
+faces on it (`-headmask.png`, `-facemask.png`). `cut.py` makes the pieces in
+`assets` from those, and writes `bodies.ts`, the table of where everything
+is in them (chins, hands, the rim, the scoreboard's panels).
+
+```bash
+.venv/bin/python src/minis/ownbasket/cut.py
+```
+
+| Sheet | Who is on it, left to right | Pieces |
+| --- | --- | --- |
+| `OB1a-steph-moves` | Stephanie: standing with a hand out for the ball, running, running, crouched to shoot | `steph-stand` (which is also her bouncing the ball where she stands), `steph-run1`, `steph-run2`, `steph-aim` |
+| `OB1b-steph-shots` | Stephanie: the jump shot, on defense, lunging for the ball, jumping for joy | `steph-shoot`, `steph-guard`, `steph-steal`, `steph-cheer`, and `steph-shoot-arms`, `steph-cheer-arms` |
+| `OB2a-her-moves` | The other girl: bouncing the ball, running, running, the jump shot | `her-dribble` (also her standing), `her-run1`, `her-run2`, `her-shoot` |
+| `OB2b-her-feelings` | The other girl: on defense (scowling), lunging, baffled, jumping for joy | `her-guard`, `her-steal`, `her-shrug`, `her-cheer` |
+| `OB3-things` | The basket from the side, the ball, the scoreboard | `hoop`, `net`, `ball`, `board` |
+
+What was decided in the cutting, and why:
+
+- **Stephanie's bodies lose their heads** and hers is hung on by the chin, as
+  in every game. Hers is face on, so it sits over the neck: most of the way
+  back from the tip of the chin that was there.
+- **Her head is two and a half times the size of the one that came off,** so
+  arms held up beside the small one are behind the big one. In the jump shot
+  and the cheer her arms, from the chin up, are a piece of their own that is
+  laid over her head: each moved out sideways until it is clear of her face,
+  and made half as long again, so that her hands still get above it
+  (`ARMS_UP` in `cut.py`).
+- **In the jump shot her near arm crosses in front of her face,** and Adobe's
+  selection of her head takes a bite out of it. The far arm is used for
+  both, turned round for the other side.
+- **Her head stays level as she runs.** One of the two running pictures is
+  lower than the other; it is lifted off the floor by the difference (she is
+  in mid-stride in it), so that her head does not bob. The same for the
+  other girl.
+- **The other girl keeps her own head,** and what she thinks is on it: she
+  scowls on defense, is baffled with her hands out, laughs when she jumps
+  for joy. So the game shows how she feels by which picture it shows. Her
+  faces were selected only to know where her head is, for what she says to
+  come from. She is drawn a little bigger than Stephanie's body is, since
+  her head is a real one and small (`HER_TALL`).
+- **The basket's post is further back from its rim than there is room for,**
+  and is off the edge of the page: what shows is the arm, the board, the rim
+  and the net. The rim is where the paper one's was. The rim and net are a
+  piece of their own, in front of the ball, so that it goes down behind
+  them.
+- **The scoreboard's middle panel is a small one,** and gets the seconds
+  left and no more; the scores are in the two big ones.
+
+### OB1. Stephanie, in her basketball uniform (two sheets: made)
 
 Her head is taken off and her own put on, so her hair is tied up out of the
 way of her neck, as in the cheer pictures.
@@ -132,7 +187,7 @@ Then, with that sheet attached:
 The same girl in the same uniform, on the same background in the same light: four more full-length photographs side by side with wide clear gaps between them, her body turned towards the right of the picture, no ball in any of them. First: at the top of a jump shot, feet off the ground, both arms stretched up above her head, wrists flicked forward. Second: a low defensive stance, feet wide apart, knees bent, both arms held out wide to the sides. Third: lunging forward to the right, one arm stretched out as far as it will go, reaching to slap a ball away. Fourth: jumping for joy, both fists thrown up in the air, feet off the ground. Her whole body is in frame from head to feet in every one. No text other than the number, no borders. Wide 16:9 image.
 ```
 
-### OB2. The other girl (two sheets)
+### OB2. The other girl (two sheets: made)
 
 She keeps her own head, so her face matters: say what she is like if the
 story has somebody in mind. She faces the other way from Stephanie.
@@ -147,7 +202,7 @@ Then, with that sheet attached:
 The same girl in the same uniform, on the same background in the same light: four more full-length photographs side by side with wide clear gaps between them, her body turned towards the left of the picture, no ball in any of them. First: a low defensive stance, feet wide apart, both arms held out wide, scowling. Second: lunging forward to the left, one arm stretched out, reaching to slap a ball away. Third: standing with both hands held out palms up and her shoulders shrugged, her mouth a little open, completely baffled by what she has just seen. Fourth: jumping for joy, both fists in the air, laughing. Her whole body is in frame from head to feet in every one. No text other than the number, no borders. Wide 16:9 image.
 ```
 
-### OB3. The basket, the ball and the scoreboard
+### OB3. The basket, the ball and the scoreboard (made)
 
 ```text
 Three things photographed side by side with wide clear gaps between them, on one plain flat light-grey background. First: a school gymnasium basketball goal seen exactly from the side, in profile: a grey steel post on a heavy black base at the left, an arm reaching out to the right from the top of the post, a white backboard seen edge on, and an orange rim with a white net sticking out to the right of the backboard. All of it in frame from the base on the floor to the top of the backboard. Second: a worn orange leather basketball. Third: an old electric gymnasium scoreboard of the 1970s, a wide black metal box seen straight on, with the words HOME and VISITORS across the top and three dark blank panels below them where the lit numbers go, all switched off. Soft even light, no shadows on the background. Wide 16:9 image.

@@ -304,7 +304,9 @@ cheerleader in the fight, the mother at the back door.
   and white with pom-poms (`cheer_*`, seven poses); at the back door, about
   1990, in a yellow short-sleeved blouse and high-waisted jeans
   (`batmom_akimbo`); the same seen from below, with a forearm that wags
-  (`mom_below`, `mom_forearm`).
+  (`mom_below`, `mom_forearm`); and at twelve, in her basketball uniform,
+  red and white, number 01 (`ownbasket_steph_*`, eight poses, in that game's
+  own folder: `src/minis/ownbasket`).
 
 ### Chad
 
@@ -364,6 +366,7 @@ Shane's "sweet" is his beam), which is why one file can have two names.
 | Who | What there is | Needs more? |
 | --- | --- | --- |
 | **Trouble**, the other girl in the fight | Seven whole figures, her own face on each: walking up, pointing, charging, flicking, flinching, hulked out, arms folded (`rival_*`), and an arm that swings | No. She is generated, and in one game. |
+| **The other girl at basketball** (Stephanie's only basket) | Eight whole figures, her own face on each: bouncing the ball, running (two), shooting, on defense, lunging, baffled, jumping for joy (`ownbasket_her_*`, in that game's folder) | No. She is generated, and in one game. Who she was has not been said: she has no name. |
 | **The rubberneckers** | Twelve heads, each gawking and each dazed (`head0` to `head11`) | No |
 | **The mailman** | A whole figure, twice: with a letter, and shaking his fist | No |
 | **The boys at the sleepover:** DJ, Neil, Forrest, Christian, and Alex's dad | Cut paper only. The prompts for photos are written (HC1 to HC6 in `art-prompts.md`) and none is made. | Only when that level gets its photos |
