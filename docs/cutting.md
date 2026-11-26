@@ -216,6 +216,14 @@ tool; a new look of somebody is only its two files. Nothing else changes:
 - **What a whole batch needs** (a head that is tipped in the portrait, a
   far eyebrow at the edge of a turned face, hair to trim) is said once for
   the person, in `SETS`.
+- **A shoulder in a head** is what Shorty's had: long hair that lies over
+  a shoulder brings the jacket under it into Adobe's selection of the hair,
+  and a whole band of denim showed through. Hers is trimmed at the chin
+  (`below: 0.02`). The trim is one line for the whole batch, under the
+  shut-mouth chin, and it never cuts the face: a jaw that drops below the
+  line, in a yell, stays whole. This is done when the owner asks for it and
+  not otherwise: he has said Nanner's and Mammy's long hair is right as it
+  is, though a little of a collar can be found at its ends.
 - **Look at the whole set on one line,** chins level (step 5): a head that
   is the wrong size or hangs wrong shows at once beside its fourteen
   neighbours.

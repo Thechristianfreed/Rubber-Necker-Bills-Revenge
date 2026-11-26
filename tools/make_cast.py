@@ -116,7 +116,7 @@ PHOTOS = {
     "christian": {"calm": {"base": True, "seal": 0.03, "turn": 10}, "smile": {}, "laugh": {"size": 0.95}, "gentle": {"seal": 0.03},
                   "yell2": {}, "dazed2": {}, "worried2": {}},
     "branson": {"laugh": {"seal": 0.03, "size": 0.95}},
-    "shorty": {"smile": {"base": True, "below": 0.27}, "pout": {}},
+    "shorty": {"smile": {"base": True, "below": 0.02}, "pout": {"size": 1.0274}},
     "mammy": {"photo": {"size": 0.9}},
     "pappy": {"photo": {"seal": 0.03, "size": 0.9}, "silly": {"seal": 0.03, "size": 0.9}},
     "nanner": {"photo": {"size": 0.87}},
@@ -136,7 +136,7 @@ SETS = {
     "nanner": {"below": 0.4},
     "christian": {"seal": 0.05, "turn": 10},
     "branson": {"seal": 0.06, "turn": -6},
-    "shorty": {"below": 0.27},
+    "shorty": {"below": 0.02},
     "sabra": {"below": 0.05},
 }
 
@@ -196,7 +196,7 @@ def sources(who):
     return found
 
 
-def head_of(cut, mask, turn=0, jaw=0, seal=0, above=0, below=0, face=None, also=None):
+def head_of(cut, mask, turn=0, jaw=0, seal=0, above=0, below=0, face=None, also=None, own=None):
     """The head alone: Adobe's cutout where its selection of the head says, the holes it
     leaves at the eyes and mouth filled in, and only the one biggest piece of it. Then, where
     the picture needs it, the jaw drawn out to where the chin really is, and the head set straight."""
@@ -234,7 +234,14 @@ def head_of(cut, mask, turn=0, jaw=0, seal=0, above=0, below=0, face=None, also=
         # lowest in the middle and higher at the sides, as hair that has been cut is
         edge = fy.max() + below * tall - 0.1 * tall * ((xs - (fx.min() + fx.max()) / 2) / (0.6 * tall)) ** 2
         rows_ = np.arange(head.shape[0], dtype=np.float32)[:, None]
-        head[..., 3] *= np.clip(edge[None, :] - rows_ + 0.5, 0, 1)
+        kept = np.clip(edge[None, :] - rows_ + 0.5, 0, 1)
+        if own:
+            # (it is hair that is trimmed, never the face: a jaw that has dropped below the line stays whole)
+            outline, _ = cv2.findContours(face_of(own).astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+            inside = np.zeros(head.shape[:2], np.uint8)
+            cv2.drawContours(inside, outline, -1, 1, thickness=cv2.FILLED)
+            kept = np.maximum(kept, cv2.GaussianBlur(cv2.dilate(inside, np.ones((3, 3), np.uint8)).astype(np.float32), (0, 0), 1.0))
+        head[..., 3] *= kept
     if jaw:
         # from the mouth down the outline is made the shape of a jaw, with nothing cut into it,
         # and that shape is drawn out downwards as far as the chin really goes
@@ -302,7 +309,7 @@ def cast(who):
     # (hair that is trimmed is trimmed along one line for a whole batch, under that chin: a
     # mouth that drops open must not take the hair down with it)
     heads = {look: head_of(cut, mask, how.get("turn", 0), how.get("jaw", 0), how.get("seal", 0), how.get("above", 0),
-                           how.get("below", 0), found[ref][2] if look in batch else face, how.get("also"))
+                           how.get("below", 0), found[ref][2] if look in batch else face, how.get("also"), face)
              for look, (cut, mask, face, _, how) in found.items()}
     at = {look: measured(head) for look, head in heads.items()}
     top, wide, middle, _ = at[ref]

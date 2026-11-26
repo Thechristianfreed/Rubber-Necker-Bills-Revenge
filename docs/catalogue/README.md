@@ -9,7 +9,7 @@ The size is how big the picture is drawn, in the game's own pixels (the page is 
 - [Cars](#cars) (22)
 - [People: bodies](#bodies) (77)
 - [People: faces](#faces) (32)
-- [People: everybody's faces](#cast) (204)
+- [People: everybody's faces](#cast) (206)
 - [The rubberneckers, and the animals](#gawkers) (51)
 - [Effects](#effects) (25)
 - [Words on bursts](#words) (51)
@@ -338,6 +338,7 @@ One set for each of the family, every look the same size and hung from the same 
 | `face_bill_guilty` | 62 x 81 |  | `src/assets/scrap/face-bill-guilty.webp` |
 | `face_bill_hold` | 63 x 84 |  | `src/assets/scrap/face-bill-hold.webp` |
 | `face_bill_inhale` | 63 x 85 |  | `src/assets/scrap/face-bill-inhale.webp` |
+| `face_bill_laugh` | 62 x 84 |  | `src/assets/scrap/face-bill-laugh.webp` |
 | `face_bill_ouch` | 62 x 82 |  | `src/assets/scrap/face-bill-ouch.webp` |
 | `face_bill_shocked` | 62 x 84 |  | `src/assets/scrap/face-bill-shocked.webp` |
 | `face_bill_sideeye` | 61 x 87 |  | `src/assets/scrap/face-bill-sideeye.webp` |
@@ -423,6 +424,7 @@ One set for each of the family, every look the same size and hung from the same 
 | `face_mammy_disgusted` | 104 x 108 |  | `src/assets/scrap/face-mammy-disgusted.webp` |
 | `face_mammy_guilty` | 104 x 108 |  | `src/assets/scrap/face-mammy-guilty.webp` |
 | `face_mammy_laugh` | 104 x 107 |  | `src/assets/scrap/face-mammy-laugh.webp` |
+| `face_mammy_ouch` | 104 x 107 |  | `src/assets/scrap/face-mammy-ouch.webp` |
 | `face_mammy_photo` | 93 x 120 |  | `src/assets/scrap/face-mammy-photo.webp` |
 | `face_mammy_shocked` | 104 x 108 |  | `src/assets/scrap/face-mammy-shocked.webp` |
 | `face_mammy_smile` | 104 x 108 |  | `src/assets/scrap/face-mammy-smile.webp` |
@@ -478,7 +480,7 @@ One set for each of the family, every look the same size and hung from the same 
 | `face_sabra_smug` | 65 x 83 |  | `src/assets/scrap/face-sabra-smug.webp` |
 | `face_sabra_talking` | 65 x 83 |  | `src/assets/scrap/face-sabra-talking.webp` |
 | `face_sabra_worried` | 65 x 83 |  | `src/assets/scrap/face-sabra-worried.webp` |
-| `face_sabra_yell` | 66 x 85 |  | `src/assets/scrap/face-sabra-yell.webp` |
+| `face_sabra_yell` | 66 x 86 |  | `src/assets/scrap/face-sabra-yell.webp` |
 | `face_shane_angry` | 53 x 81 |  | `src/assets/scrap/face-shane-angry.webp` |
 | `face_shane_asleep` | 53 x 81 |  | `src/assets/scrap/face-shane-asleep.webp` |
 | `face_shane_beam` | 50 x 79 |  | `src/assets/scrap/face-shane-beam.webp` |
@@ -499,22 +501,22 @@ One set for each of the family, every look the same size and hung from the same 
 | `face_shane_wary` | 53 x 76 |  | `src/assets/scrap/face-shane-wary.webp` |
 | `face_shane_worried` | 53 x 81 |  | `src/assets/scrap/face-shane-worried.webp` |
 | `face_shane_yell` | 53 x 86 |  | `src/assets/scrap/face-shane-yell.webp` |
-| `face_shorty_angry` | 98 x 102 |  | `src/assets/scrap/face-shorty-angry.webp` |
-| `face_shorty_asleep` | 98 x 102 |  | `src/assets/scrap/face-shorty-asleep.webp` |
-| `face_shorty_calm` | 98 x 102 |  | `src/assets/scrap/face-shorty-calm.webp` |
-| `face_shorty_cry` | 98 x 102 |  | `src/assets/scrap/face-shorty-cry.webp` |
-| `face_shorty_dazed` | 98 x 102 |  | `src/assets/scrap/face-shorty-dazed.webp` |
-| `face_shorty_disgusted` | 98 x 102 |  | `src/assets/scrap/face-shorty-disgusted.webp` |
-| `face_shorty_guilty` | 98 x 102 |  | `src/assets/scrap/face-shorty-guilty.webp` |
-| `face_shorty_laugh` | 98 x 102 |  | `src/assets/scrap/face-shorty-laugh.webp` |
-| `face_shorty_ouch` | 98 x 102 |  | `src/assets/scrap/face-shorty-ouch.webp` |
+| `face_shorty_angry` | 90 x 82 |  | `src/assets/scrap/face-shorty-angry.webp` |
+| `face_shorty_asleep` | 90 x 82 |  | `src/assets/scrap/face-shorty-asleep.webp` |
+| `face_shorty_calm` | 90 x 82 |  | `src/assets/scrap/face-shorty-calm.webp` |
+| `face_shorty_cry` | 90 x 82 |  | `src/assets/scrap/face-shorty-cry.webp` |
+| `face_shorty_dazed` | 90 x 82 |  | `src/assets/scrap/face-shorty-dazed.webp` |
+| `face_shorty_disgusted` | 90 x 82 |  | `src/assets/scrap/face-shorty-disgusted.webp` |
+| `face_shorty_guilty` | 90 x 82 |  | `src/assets/scrap/face-shorty-guilty.webp` |
+| `face_shorty_laugh` | 90 x 84 |  | `src/assets/scrap/face-shorty-laugh.webp` |
+| `face_shorty_ouch` | 90 x 82 |  | `src/assets/scrap/face-shorty-ouch.webp` |
 | `face_shorty_pout` | 96 x 100 |  | `src/assets/scrap/face-shorty-pout.webp` |
-| `face_shorty_shocked` | 98 x 102 |  | `src/assets/scrap/face-shorty-shocked.webp` |
-| `face_shorty_smile` | 99 x 106 |  | `src/assets/scrap/face-shorty-smile.webp` |
-| `face_shorty_smug` | 98 x 102 |  | `src/assets/scrap/face-shorty-smug.webp` |
-| `face_shorty_talking` | 98 x 102 |  | `src/assets/scrap/face-shorty-talking.webp` |
-| `face_shorty_worried` | 98 x 102 |  | `src/assets/scrap/face-shorty-worried.webp` |
-| `face_shorty_yell` | 98 x 102 |  | `src/assets/scrap/face-shorty-yell.webp` |
+| `face_shorty_shocked` | 90 x 86 |  | `src/assets/scrap/face-shorty-shocked.webp` |
+| `face_shorty_smile` | 92 x 85 |  | `src/assets/scrap/face-shorty-smile.webp` |
+| `face_shorty_smug` | 90 x 82 |  | `src/assets/scrap/face-shorty-smug.webp` |
+| `face_shorty_talking` | 90 x 82 |  | `src/assets/scrap/face-shorty-talking.webp` |
+| `face_shorty_worried` | 90 x 82 |  | `src/assets/scrap/face-shorty-worried.webp` |
+| `face_shorty_yell` | 90 x 85 |  | `src/assets/scrap/face-shorty-yell.webp` |
 | `face_stephanie_angry` | 115 x 128 |  | `src/assets/scrap/face-stephanie-angry.webp` |
 | `face_stephanie_asleep` | 116 x 129 |  | `src/assets/scrap/face-stephanie-asleep.webp` |
 | `face_stephanie_calm` | 115 x 128 |  | `src/assets/scrap/face-stephanie-calm.webp` |

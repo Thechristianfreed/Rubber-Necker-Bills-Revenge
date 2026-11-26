@@ -134,11 +134,11 @@ name of its own from the start, and is asked for like any other:
 
 | Who | Called | Of the fifteen | Missing | And of their own |
 | --- | --- | --- | --- | --- |
-| Bill | `bill` | 14 (his calm is a photo of him years ago, with a moustache and no beard) | laugh | `inhale` (the breath in), `hold` (holding it), `sideeye`, `glare` |
+| Bill | `bill` | 15 (his calm is a photo of him years ago, with a moustache and no beard: the owner has said that is his calm, for good) | | `inhale` (the breath in), `hold` (holding it), `sideeye`, `glare` |
 | Stephanie | `stephanie` | 15 | | `inhale` (the breath in), `hold` (holding it: her cross, lips-pressed face) |
 | Chad | `chad` | 15 | | `grin` (the base photo), `angel` (smiling), `joy` (laughing), `scowl` |
 | Shane | `shane` | 15 | | `beam` (the base photo), `wary`, `smirk`, `doe` (doe eyes), `startled` (his first shocked face, from another photo) |
-| Mammy | `mammy` | 14 | ouch | `photo` (the Christmas photo her set was made from: its own smile) |
+| Mammy | `mammy` | 15 | | `photo` (the Christmas photo her set was made from: its own smile) |
 | Pappy | `pappy` | 15 | | `photo` (a real photo: a closed-mouth smile, in the leaf-print shirt), `silly` (tongue out, in his sunglasses) |
 | Nanner | `nanner` | 15 | | `photo` (the wedding photo her set was made from: its own smile) |
 | Christian | `christian` | 15 (his calm, smile and laugh are real photos) | | `gentle` (a gentle smile, 2021), and three made from the photo his smile is: `yell2`, `dazed2`, `worried2` (a nervous grin) |
@@ -189,9 +189,13 @@ for):
   Expression Repo", a folder for each person, each file called by the person
   and the look ("Chad Guilty.png"). "Default" is the photo itself, and is
   that person's smile. Adobe's cutouts of them are in `art-src/cast/<who>`.
-- **Bill's smile is the base photo,** a big open grin: it serves as his
-  laugh as well. The picture that came as his calm was the same file as his
-  talking, so he has no calm yet.
+- **Bill's smile is the base photo,** a big open grin. His laugh is an edit
+  of it that the owner sent in the chat on 26 November (eyes creased shut,
+  mouth wide open), as was Mammy's ouch: neither is in his Drive, so both are
+  kept here, in `art-src/generated` (`face-bill-laugh`, `face-mammy-ouch`).
+  The picture that came as Bill's calm was the same file as his talking; his
+  calm is the photo of him at the lookout in Hawaii, years ago, and the owner
+  has said that one is final.
 - **Within a batch they match,** being edits of one photo with one framing.
   An earlier picture that is an edit of the same photo sits well beside
   them. One from **another photo** does not (different light, sometimes a
@@ -201,7 +205,7 @@ for):
   their own chins, as they always were.
 - **Mammy's, Pappy's and Nanner's came the same way** (25 November 2026),
   with Stephanie's shocked and a shocked for Shane that matches his set.
-  Mammy has no ouch yet: it was not in the folder. Her other thirteen came
+  Mammy's ouch came later, in the chat. Her other thirteen came
   as small copies (480 by 639, where her "Default" is 1792 by 2388): they
   are big enough for a head in the game, a little softer than her smile, and
   full-size copies would replace them if the owner has them.
@@ -213,8 +217,12 @@ for):
   photo, the green T-shirt one his smile is: they are his own `yell2`,
   `dazed2` and `worried2`. Two of Branson's files were both called "Calm": one
   was his smug. His dazed came as a small picture blown up, and is soft.
-  Shorty's hair runs out of her photo, and so out of every edit: all are
-  trimmed under the chin along one line, as her smile was.
+  Shorty's hair runs out of her photo and lies over her shoulder, and her
+  denim jacket showed through it: every look of hers, and her smile, is
+  trimmed at the chin, which takes the shoulder off (the owner asked for
+  this). **That is Shorty's and nobody else's.** Nanner's and Mammy's long
+  hair is right as it is, the owner has said (26 November): do not trim
+  anybody else's hair unless he asks.
 - **Sabra's and Curt's came on 26 November,** each a portrait ("Default")
   and thirteen edits of it. Sabra's portrait was made from her restaurant
   photo; Curt's from his wedding photo, the owner's choice, so his set is
@@ -375,7 +383,7 @@ evenly lit, the biggest copy there is, nobody else in it.
 
 | Who | Who they are | Faces |
 | --- | --- | --- |
-| **Mammy** | Stephanie's mother | all fifteen: she has fourteen (ouch is to come) |
+| **Mammy** | Stephanie's mother | all fifteen: she has them |
 | **Pappy** | Stephanie's father | all fifteen: he has them |
 | **Nanner** | Stephanie's sister | all fifteen: she has them |
 | **Curt** | Stephanie's brother | all fifteen: he has them |
@@ -521,7 +529,7 @@ sets: Chad's yell, cry and calm, Shane's startled, cry and doe eyes.)
 
 | Photo | What it shows | What became of it |
 | --- | --- | --- |
-| `shorty-1` (…110606) | Smiling, outdoors, a denim jacket | Her base: **smile**, and the fourteen edits of it (her hair runs out of the picture, and is trimmed under her chin in all of them) |
+| `shorty-1` (…110606) | Smiling, outdoors, a denim jacket | Her base: **smile**, and the fourteen edits of it (her hair runs out of the picture and over her shoulder, and is trimmed at her chin in all of them) |
 | `shorty-3` (the cut-out one) | A pout, hands up by her head | **pout** (her own) |
 | The studio portrait | Smiling over her shoulder, lighter hair | Not cut: another smile, turned well away |
 
@@ -627,11 +635,11 @@ photo so that it matches the rest:
 
 | | Missing | Could be done again to match |
 | --- | --- | --- |
-| Bill | laugh, if his grin will not do for it | calm (his is a photo from years ago, with no beard; what came as his calm in the batch was his talking again), yell (his is the "PAH", head tipped back) |
+| Bill | | yell (his is the "PAH", head tipped back). His calm is settled: the owner has chosen the Hawaii photo for it. |
 | Stephanie | | yell and angry (hers are the "PAH" and the scolding) |
 | Chad | | calm, yell, cry (his are from the earlier pictures: the same photo, framed closer) |
 | Shane | | cry (his is from the earlier pictures) |
-| Mammy | ouch | the thirteen that came small, if there are full-size copies |
+| Mammy | | the thirteen that came small, if there are full-size copies |
 | Curt | | laugh (his is a photo of him as he is now; the rest are him years younger) |
 | Sabra | | calm (hers is a photo of her looking away) |
 
