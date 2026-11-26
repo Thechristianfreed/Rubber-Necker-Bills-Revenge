@@ -128,6 +128,7 @@ export const CAST: Record<string, Record<string, CastFace>> = {
     dazed: { file: 'face-branson-dazed.png', tall: 1.022, chin: [0.343, 0.982] },
     disgusted: { file: 'face-branson-disgusted.png', tall: 1.008, chin: [0.344, 0.994] },
     asleep: { file: 'face-branson-asleep.png', tall: 1.008, chin: [0.342, 0.995] },
+    stuffed: { file: 'face-branson-stuffed.png', tall: 1.008, chin: [0.373, 0.997] },
   },
   shorty: {
     calm: { file: 'face-shorty-calm.png', tall: 1.028, chin: [0.732, 0.976] },
