@@ -279,6 +279,8 @@ function cats(scene: Phaser.Scene): void {
     for (const how of ['mad', 'out', 'wet'] as const) {
       makePaperArt(scene, `catbath_cat${i}_${how}`, 150, 190, (c) => { c.translate(75, 66); catHanging(c, k, how); }, { border: 2.2, ax: 75, ay: 66 });
     }
+    // ...soaked and pegged on the line by the top of its head
+    makePaperArt(scene, `catbath_cat${i}_line`, 150, 190, (c) => { c.translate(75, 66); catHanging(c, k, 'wet'); }, { border: 2.2, ax: 75, ay: 14 });
     // ...and soaked, held by the middle (at the washboard, where the photo of it is held so)
     makePaperArt(scene, `catbath_cat${i}_soak`, 150, 190, (c) => { c.translate(75, 66); catHanging(c, k, 'wet'); }, { border: 2.2, ax: 75, ay: 100 });
     makePaperArt(scene, `catbath_cat${i}_wrung`, 230, 70, (c) => { c.translate(10, 34); catWrung(c, k, dice(i + 2)); }, { border: 2.2, ax: 110, ay: 34 });

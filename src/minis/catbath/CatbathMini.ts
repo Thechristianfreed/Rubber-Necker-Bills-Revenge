@@ -45,7 +45,9 @@ const TURNS = [3, 2.5, 2];
 /** How far the finger has to go one way before going back counts as another scrub. */
 const STROKE = 30;
 /** The cats are drawn this much bigger than their pictures: in his hands, and sitting about. */
-const HELD = 1.15;
+const HELD_PAPER = 1.15;
+/** (a photo of a cat is drawn bigger in his hands, so that its face shows over his fist) */
+const HELD_PHOTO = 1.38;
 const SITTING = 1.1;
 /** The poses he holds a cat in: his fists go in front of it. */
 const FISTS = ['choke', 'scrub', 'wring', 'hang'];
@@ -173,6 +175,8 @@ export class CatbathMini extends Mini {
    *  what he holds), or paper. */
   private range: V = [0, 0];
   private photo = false;
+  /** How much bigger than its picture a cat is drawn in his hands. */
+  private big = HELD_PAPER;
   private dir = 0;
   private travel = 0;
   private lastY = 0;
@@ -262,6 +266,7 @@ export class CatbathMini extends Mini {
     this.px = cx - 70;
     this.sx = this.px + sinkOff();
     this.photo = isPhoto('pappy_choke');
+    this.big = this.photo ? HELD_PHOTO : HELD_PAPER;
     this.range = scrubRange();
     this.scrubY = this.range[1];
     if (isPhoto('kitchen')) {
@@ -319,7 +324,7 @@ export class CatbathMini extends Mini {
     this.held = cat;
     cat.where = 'held';
     applyArt(cat.im, `catbath_cat${cat.i}_mad`);
-    cat.im.setScale(HELD / TEX).setDepth(26).setFlipX(false);
+    cat.im.setScale(this.big / TEX).setDepth(26).setFlipX(false);
     this.stinky[cat.i] = { x: -999, y: -999 };
     const from = { x: cat.im.x, y: cat.im.y - 70 };
     this.holdAt = from;
@@ -348,7 +353,7 @@ export class CatbathMini extends Mini {
     this.fight = Math.max(0, this.fight - DECAY[this.n]);
     SOUNDS.gurk(Math.round((1 - this.fight) * 10));
     this.pappy!.face('yell');
-    s.tweens.add({ targets: cat.im, scaleX: (HELD * 0.86) / TEX, scaleY: (HELD * 1.1) / TEX, duration: 50, yoyo: true });
+    s.tweens.add({ targets: cat.im, scaleX: (this.big * 0.86) / TEX, scaleY: (this.big * 1.1) / TEX, duration: 50, yoyo: true });
     if (this.fight <= 0) this.knockedOut();
   }
 
@@ -360,7 +365,7 @@ export class CatbathMini extends Mini {
     this.caption?.destroy();
     this.hideBar();
     applyArt(cat.im, `catbath_cat${cat.i}_out`);
-    cat.im.setScale(HELD / TEX).setRotation(0);
+    cat.im.setScale(this.big / TEX).setRotation(0);
     SOUNDS.conk();
     this.host.word('catbath_out', this.holdAt.x + 10, this.holdAt.y - 120);
     for (let i = 0; i < 5; i++) {
@@ -387,7 +392,7 @@ export class CatbathMini extends Mini {
       for (let i = 0; i < 14; i++) this.puff('catbath_drop', this.sx + (Math.random() - 0.5) * 120, RIM - 20, (Math.random() - 0.5) * 600, -250 - Math.random() * 350, 1.0, 1100, 45, 1.4);
       // (soaked: held by the middle on a photo, so that the top of it is up out of the suds)
       applyArt(cat.im, `catbath_cat${cat.i}_${this.photo ? 'soak' : 'wet'}`);
-      cat.im.setScale(HELD / TEX);
+      cat.im.setScale(this.big / TEX);
       s.cameras.main.shake(100, 0.004);
     });
     // dunked again, for good measure
@@ -530,7 +535,7 @@ export class CatbathMini extends Mini {
     p.set('choke', 'smug');
     applyArt(cat.im, `catbath_cat${cat.i}_wet`);
     // (held out over the sink, dripping into it: what hangs below the rim is behind the counter)
-    cat.im.setScale(HELD / TEX).setFlipY(false).setDepth(19.5).setRotation(0);
+    cat.im.setScale(this.big / TEX).setFlipY(false).setDepth(19.5).setRotation(0);
     const grip = bodyOf('choke').grip, to = p.at(grip[0], grip[1]);
     this.scene.tweens.add({ targets: this.holdAt, x: to.x, y: to.y, duration: 200 });
     SOUNDS.mew();
@@ -556,7 +561,9 @@ export class CatbathMini extends Mini {
     this.after(0.65, () => {
       cat.where = 'line';
       this.held = undefined;
-      cat.im.setPosition(spot.x, spot.y + 6);
+      // (pegged by the top of its head now, not held by the neck)
+      applyArt(cat.im, `catbath_cat${cat.i}_line`);
+      cat.im.setScale(this.big / TEX).setPosition(spot.x, spot.y + 6);
       cat.pegs = [-16, 16].map((dx, k) => {
         const peg = this.keep(img(s, spot.x + dx, spot.y, 'catbath_peg').setDepth(5));
         this.after(k * 0.12, () => SOUNDS.peg());
@@ -858,10 +865,12 @@ export class CatbathMini extends Mini {
     if (this.photo) {
       // his own fists, cut from the photo of him in this pose, where they are on it
       const pose = FISTS.includes(p.pose) ? p.pose : 'choke', b = bodyOf(pose);
+      const top = b.hands[0][1] <= b.hands[1][1] ? 0 : 1;
       b.hands.forEach(([hx, hy], k) => {
         const h = this.hands[k], at = p.at(hx, hy);
         if (h.texture.key !== `catbath_fist_${pose}_${k}`) applyArt(h, `catbath_fist_${pose}_${k}`);
-        h.setScale(AT_SINK / TEX).setPosition(at.x, at.y);
+        // (choking it, the bottom fist is behind it, on its chest)
+        h.setScale(AT_SINK / TEX).setPosition(at.x, at.y).setDepth(pose === 'choke' && k !== top ? 25.9 : 27);
       });
       return;
     }

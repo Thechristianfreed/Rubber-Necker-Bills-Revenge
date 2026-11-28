@@ -37,6 +37,12 @@ export const CUT = {
       85
     ]
   },
+  "slider": {
+    "size": [
+      441,
+      633
+    ]
+  },
   "bodies": {
     "steph_stand": {
       "h": 137.4,

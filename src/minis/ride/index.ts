@@ -41,6 +41,8 @@ const PIECES: Piece[] = [
   { key: 'ride_can', file: 'can.png', h: 62, border: 2.2, anchor: [0.5, 0.97] },
   { key: 'ride_bottle', file: 'bottle.png', h: 96, border: 2, anchor: [0.5, 0.7] },
   { key: 'ride_glass', file: 'glass.png', h: 52, border: 1.6, anchor: [0.5, 0.5] },
+  // the sliding door, shut, from inside: made from the photo of the inside of the van (cut.py)
+  { key: 'ride_slider', file: 'slider.jpg', w: CUT.slider.size[0] * INSIDE_PHOTO.k, border: 0, anchor: [0, 0] },
   // inside the van, its doorway cut out (the edge of town shows through it)
   { key: 'ride_inside', file: 'inside.png', w: CUT.inside.size[0] * INSIDE_PHOTO.k, border: 0, anchor: [0, 0] },
   // Roger, sitting (the common picture, as it is), and his head with his tongue out for the window

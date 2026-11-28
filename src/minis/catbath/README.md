@@ -131,7 +131,15 @@ thighs) would show over the counter.
 How they came: CB4 is six photos side by side, each with its own framing.
 The fourth of each cat's five came lying limp on its side, not twisted like
 a towel: it is held up by his two fists, and squeezed and turned over as he
-twists. Another go at only that one would make it a twisted towel.
+twists. CB8 (below) asks for the three of them again, twisted, and `cut.py`
+uses it in their place as soon as it is here.
+
+**Where he has hold of a cat** is round its neck, just under its chin
+(`NECK` in `cut.py`, read off the pictures), with the cat drawn a little
+bigger in his hands than on the counter, so that its face shows over his
+fist. Choking it, his fists are one above the other: the top one is round its
+neck and the bottom one is behind it, on its chest. On the clothesline it
+hangs by the top of its head, where the pegs are (`_line`).
 
 Still cut from paper, and meant to be: the clothesline, its hooks, the sink
 basin, the claw marks, the smell, the flies, the bubbles and the drops, the
@@ -185,6 +193,15 @@ Edit this picture. Keep all five photographs exactly as they are: the same five 
 
 ```text
 Edit this picture. Keep all five photographs exactly as they are: the same five poses, the same framing, the same background and the same light. Change one thing only: in all five the cat is now a grey cat with a white face, white chest and white paws, instead of an orange tabby. No text, no borders. Wide 16:9 image.
+```
+
+**CB8. The three cats, wrung out like towels** (three on one sheet, one above another; it takes the
+place of the fourth of each cat's five in CB6, which came lying limp on its side. Asked for 28 November
+2026. When it comes it goes in `art-src/games/catbath` as `CB8-wrung.jpg`, Adobe takes its background
+off as the others', and `cut.py` uses it by itself)
+
+```text
+Three photographs, one above another with wide clear gaps between them, on one plain flat light-grey studio background, comic, like a cartoon. In each one a soaking-wet cat has been twisted up like a wet bath towel being wrung out: its body is stretched out very long and lies sideways across the picture, and it is twisted round and round along its whole length like a rope, so that its wet fur winds round it in tight spirals. Its head is at the left end, eyes squeezed shut and ears flat, and its tail hangs from the right end. Water drips from it. Nothing is holding it, and no hands are in the picture. Top: an orange tabby. Middle: a black cat. Bottom: a grey cat with a white face, white chest and white paws. The whole of each cat is in frame, all three about the same size. Soft even light, no shadows on the background. No text, no borders. Wide 16:9 image.
 ```
 
 **CB7. A clothes peg**

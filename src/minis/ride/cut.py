@@ -111,6 +111,36 @@ def places():
     OUT["edge"] = dict(size=[edge.shape[1], edge.shape[0]], road=ROAD, moon=list(MOON))
 
 
+# The sliding door, shut, from inside, is made out of RD7 itself, so that it is the same wood in
+# the same light: the wall with the window in it (above the bench) over the panelling under the
+# chrome strip, as tall and wide as the doorway it covers.
+WINDOW_WALL = (682, 168, 925, 335)
+PANELLING = (690, 388, 790, 496)
+
+
+def slider():
+    inside = mc.original("RD7-inside.jpg")
+    x0, y0, x1, y1 = WINDOW_WALL
+    top = inside[y0:y1, x0:x1]
+    x0, y0, x1, y1 = PANELLING
+    wood = inside[y0:y1, x0:x1]
+    xs = [p[0] for p in DOORWAY]
+    ys = [p[1] for p in DOORWAY]
+    w, h = max(xs) - min(xs) + 16, max(ys) - min(ys) + 16
+    top = cv2.resize(top, (w, round(top.shape[0] * w / top.shape[1])), interpolation=cv2.INTER_CUBIC)
+    row = np.concatenate([wood, wood[:, ::-1]] * (w // (wood.shape[1] * 2) + 1), axis=1)[:, :w]
+    door = np.concatenate([top, cv2.resize(row, (w, h - top.shape[0]), interpolation=cv2.INTER_CUBIC)], axis=0)
+    # a little darker towards its edges, as a door in its frame is, and a handle
+    yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
+    edge = np.minimum(np.minimum(xx, w - 1 - xx), np.minimum(yy, h - 1 - yy))
+    door = door * (0.72 + 0.28 * np.clip(edge / 40, 0, 1))[..., None]
+    hx, hy = w - 46, int(h * 0.55)
+    cv2.rectangle(door, (hx, hy - 10), (hx + 26, hy + 10), (0.72, 0.72, 0.74), -1)
+    cv2.rectangle(door, (hx, hy - 10), (hx + 26, hy + 10), (0.3, 0.3, 0.32), 2)
+    jpeg("slider.jpg", door)
+    OUT["slider"] = dict(size=[w, h])
+
+
 def roger():
     """Roger is one of the dogs (the owner's wish): sitting, he is the common picture as it is
     (`roger-sit.png`, registered under this game's own name in index.ts); out of the van window
@@ -249,6 +279,7 @@ def things():
 def cut():
     import json
     places()
+    slider()
     roger()
     people()
     animals()

@@ -80,6 +80,15 @@ const BESIDE_DOOR = 100;
 const PETS = ['dog0', 'dog1', 'dog2', 'roger', 'duck'] as const;
 type Pet = (typeof PETS)[number];
 
+/** The men in the photos of Pappy in the van were looking down at the floor, and so their chins
+ *  are forward of their shoulders: his own head, which looks straight out, goes this much further
+ *  back (he faces left, so back is to the right). */
+const HEAD_BACK: Record<string, number> = { pappy_wait: 17, pappy_ready: 9, pappy_kick: 6 };
+/** Mr. Quacks in Stephanie's arms, where her photo has him: in front of her, under her chin (his
+ *  own head in the photo is behind hers), and a little smaller than when he is on the floor. */
+const DUCK_HELD: V = [6, -60];
+const DUCK_HELD_SIZE = 0.88;
+
 /** Paper heads, for a page that could not fetch its photos. */
 const PAPER_HEAD: Record<Who, string> = { pappy: 'ride_head_pappy', mammy: 'ride_head_mammy', stephanie: 'ride_head_steph', curt: 'ride_head_curt' };
 
@@ -100,7 +109,9 @@ function poseOf(scene: Phaser.Scene, name: string): { key: string; chin: V; tilt
   // (without the other game's pictures, the nearest of this game's own)
   const own = name === 'homecoming_pappy_stand' ? 'pappy_kiss' : name === 'homecoming_mammy_stand' ? 'mammy_glass' : name;
   const b = BODIES[own], photo = isPhoto(own) ? (CUT.bodies as Record<string, { chin: number[] }>)[own] : undefined;
-  return { key: `ride_${own}`, chin: photo ? (photo.chin as V) : b.chin, tilt: photo ? 0 : b.tilt, head: b.head };
+  if (!photo) return { key: `ride_${own}`, chin: b.chin, tilt: b.tilt, head: b.head };
+  const back = HEAD_BACK[own] ?? 0;
+  return { key: `ride_${own}`, chin: [photo.chin[0] + back, photo.chin[1]], tilt: 0, head: b.head };
 }
 
 /** Where a spot on one of the photos is, or on the paper that stands in for it. */
@@ -281,8 +292,7 @@ export class RideMini extends Mini {
     const arms = this.steph.at(ARMS[0], ARMS[1]);
     this.pets.duck = this.keep(img(s, arms.x, arms.y + 30, 'ride_duck').setDepth(10.6).setScale(PET_SIZE / TEX).setFlipX(true));
     this.duckHeld = true;
-    // (the photo of her has him in her arms already: his own picture waits until she puts him down)
-    this.pets.duck.setVisible(!isPhoto('steph_hold'));
+    if (isPhoto('steph_hold')) this.pets.duck.setScale((PET_SIZE * DUCK_HELD_SIZE) / TEX);
 
     const both = (): Point => ({ x: (this.curt!.mouth.x + this.steph!.mouth.x) / 2, y: this.steph!.mouth.y });
     const kids = (look: string) => { this.curt!.face(look); this.steph!.face(look); };
@@ -396,7 +406,7 @@ export class RideMini extends Mini {
 
   /** Stephanie hugs her duck tighter (each time a little more), and he says so. */
   private squeeze(n: number): void {
-    const duck = this.pets.duck!, k = PET_SIZE / TEX, box = this.steph!.box;
+    const duck = this.pets.duck!, k = (PET_SIZE * (isPhoto('steph_hold') ? DUCK_HELD_SIZE : 1)) / TEX, box = this.steph!.box;
     this.steph!.face('smile');
     if (duck.visible) this.scene.tweens.add({ targets: duck, scaleX: k * (1.15 + n * 0.08), scaleY: k * (0.72 - n * 0.06), duration: 110, yoyo: true, ease: 'Quad.out' });
     else this.scene.tweens.add({ targets: box, scaleX: SIZE * (0.94 - n * 0.02), scaleY: SIZE * (1.04 + n * 0.02), duration: 110, yoyo: true, ease: 'Quad.out' });
@@ -411,7 +421,7 @@ export class RideMini extends Mini {
     this.duckHeld = false;
     this.steph!.set('steph_stand');
     duck.setDepth(15.2).setVisible(true);
-    s.tweens.add({ targets: duck, x: duck.x + 46, duration: 360, ease: 'Sine.inOut' });
+    s.tweens.add({ targets: duck, x: duck.x + 46, scale: PET_SIZE / TEX, duration: 360, ease: 'Sine.inOut' });
     s.tweens.add({ targets: duck, y: GROUND + 30, duration: 360, ease: 'Bounce.out' });
     SOUNDS.quack();
   }
@@ -636,8 +646,9 @@ export class RideMini extends Mini {
     }
     const owl = this.keep(img(s, dr.l + 250, 236, 'ride_owl').setDepth(1.6));
     s.tweens.add({ targets: owl, alpha: { from: 1, to: 0 }, duration: 90, yoyo: true, repeat: -1, repeatDelay: 2300 });
+    // (the door is made as big as the doorway it covers: paper or photo, by its drawing, not its shadow)
     this.slider = this.keep(img(s, dr.l - 4, dr.t - 4, 'ride_slider').setDepth(4));
-    this.slider.setDisplaySize(dr.r - dr.l + 8, dr.b - dr.t + 8);
+    this.slider.setScale((dr.r - dr.l + 8) / ART.ride_slider.w / TEX, (dr.b - dr.t + 8) / ART.ride_slider.h / TEX);
     if (dr.photo) this.keep(img(s, INSIDE_PHOTO.x, INSIDE_PHOTO.y, 'ride_inside').setDepth(5));
     else this.keep(img(s, -BLEED, -BLEED, 'ride_inside').setDepth(5));
 
@@ -1017,8 +1028,8 @@ export class RideMini extends Mini {
 
     if (this.stage === 'home' && this.duckHeld && this.steph && this.pets.duck) {
       // the duck stays in her arms
-      const a = this.steph.at(ARMS[0], ARMS[1]);
-      this.pets.duck.setPosition(a.x, a.y + 30);
+      const photo = isPhoto('steph_hold'), a = photo ? this.steph.at(DUCK_HELD[0], DUCK_HELD[1]) : this.steph.at(ARMS[0], ARMS[1]);
+      this.pets.duck.setPosition(a.x, photo ? a.y : a.y + 30);
     }
     if (this.stage === 'drive') this.drive(dt);
     if (this.stage === 'kick' && this.holding) {

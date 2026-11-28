@@ -39,6 +39,7 @@ PEOPLE = {
     "CB4f-pappy-hang": ("CB4-pappy.jpg", (1120, 196, 1344, 560), "the man"),
 }
 WHOLE = ["CB3-sink.jpg", "CB5-cats.jpg", "CB6a-tabby.jpg", "CB6b-black.jpg", "CB6c-grey.jpg", "CB7-peg.jpg"]
+# (and CB8-wrung.jpg, when it comes: the three cats twisted like towels, sent whole for its background)
 # (he is small on his sheet, a head about 40 pixels tall: three times the size)
 DOUBLED = 3
 
@@ -130,9 +131,12 @@ def pappy():
         spot = (cx, cy + TO_CHIN / k)
         to = lambda p: [round((p[0] - spot[0]) * k, 1), round((p[1] - spot[1]) * k, 1)]
         fists = FISTS[pose]
+        # a cat is held between his fists; but choking one, his fists are one above the other, and
+        # the top one is round its neck (the bottom one is on its chest, behind it)
+        grip = min(fists, key=lambda f: f[1]) if pose == "choke" else ((fists[0][0] + fists[1][0]) / 2, (fists[0][1] + fists[1][1]) / 2)
         OUT["bodies"][pose] = dict(
             h=round((y1 - y0) * k, 1), at=[round((spot[0] - x0) / (x1 - x0), 4), round((spot[1] - y0) / (y1 - y0), 4)],
-            chin=to((cx, cy)), hands=[to(f) for f in fists], grip=to(((fists[0][0] + fists[1][0]) / 2, (fists[0][1] + fists[1][1]) / 2)),
+            chin=to((cx, cy)), hands=[to(f) for f in fists], grip=to(grip),
             turn=round(float(np.arctan2(fists[1][1] - fists[0][1], fists[1][0] - fists[0][0])), 3), fist=round(FIST_R * 2 * k, 1))
         # the fists again, by themselves, to go in front of whatever he holds
         if pose in ("choke", "scrub", "wring", "hang"):
@@ -157,12 +161,30 @@ def sink():
 
 
 def top_middle(piece):
-    """Where a cat held up by the scruff is held: the top of its head, in the middle."""
+    """Where a cat hanging on the line is pegged: the top of its head, in the middle."""
     a = piece[..., 3] > 0.5
     h, w = a.shape
     cols = slice(int(w * 0.32), int(w * 0.68))
     ys = np.where(a[:, cols].any(axis=1))[0]
     return 0.5, round(float(ys.min()) / h, 4)
+
+
+# How far down each cat held up in his hands its neck is, read off the pictures with a ruled grid
+# (its chin is at 0.21, 0.20 and 0.17): the same on all three, which are one sheet with the cat
+# changed. It is held half a fist below the chin, so that his fist is round its neck and not over
+# its mouth.
+NECK = {"mad": 0.27, "out": 0.26, "wet": 0.23}
+
+
+def neck_of(piece, how):
+    """Where he has hold of a cat: round its neck, in the middle of it at that height (the middle
+    third across, clear of the paws it holds up beside its head)."""
+    a = piece[..., 3] > 0.5
+    h, w = a.shape
+    y = int(NECK[how] * h)
+    row = np.where(a[y, int(w * 0.3):int(w * 0.7)])[0] + int(w * 0.3)
+    x = float(row.mean()) / w if len(row) else 0.5
+    return round(x, 4), NECK[how]
 
 
 def cats():
@@ -178,8 +200,23 @@ def cats():
         held = {}
         for name, (_, _, piece) in zip(("mad", "out", "wet", "wrung", "dry"), five):
             mc.save(f"cat{i}-{name}.png", mc.smaller(piece, 0.7))
-            held[name] = top_middle(piece)
+            # held by the neck in his hands; pegged by the top of the head on the line
+            held[name] = neck_of(piece, name) if name in NECK else top_middle(piece)
+            if name == "wet":
+                held["line"] = top_middle(piece)
         OUT["cats"][i] = held
+
+
+def wrung():
+    """CB8, if it has come: the three cats twisted like towels, one above another (the orange tabby,
+    the black, the grey), in place of the fourth of each one's five, which came lying limp on its
+    side. Its background off by Adobe like the rest, as CB8-wrung-cutout.png."""
+    if not has("CB8-wrung-cutout.png"):
+        return
+    three = sorted(mc.pieces(mc.load("CB8-wrung-cutout.png"), 3000), key=lambda p: p[1])
+    assert len(three) == 3, f"{len(three)} cats on CB8: there should be three"
+    for i, (_, _, piece) in enumerate(three):
+        mc.save(f"cat{i}-wrung.png", mc.smaller(piece, 0.7))
 
 
 def peg():
@@ -193,6 +230,7 @@ def cut():
     pappy()
     sink()
     cats()
+    wrung()
     peg()
     table = os.path.join(HERE, "cut.ts")
     with open(table, "w") as f:

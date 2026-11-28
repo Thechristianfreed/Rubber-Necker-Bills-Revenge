@@ -17,13 +17,15 @@ const PIECES: Piece[] = [
     { key: `catbath_pappy_${pose}`, file: `pappy-${pose}.png`, h: B[pose].h, border: 2.5, anchor: B[pose].at as [number, number] })),
   ...['choke', 'scrub', 'wring', 'hang'].flatMap((pose) => [0, 1].map((k): Piece => (
     { key: `catbath_fist_${pose}_${k}`, file: `pappy-${pose}-fist${k}.png`, w: B[pose].fist, border: 0 }))),
-  // the three cats: sitting about; held up by the scruff (hissing, out cold, soaked: held at the top
-  // of the head), soaked and held by the middle, lying limp to be wrung, and dried out
+  // the three cats: sitting about; held up in his hands (hissing, out cold, soaked: held by the
+  // neck), soaked and held by the middle, soaked and pegged on the line by the top of its head,
+  // lying limp to be wrung, and dried out (on the line)
   ...[0, 1, 2].flatMap((i): Piece[] => [
     { key: `catbath_cat${i}_sit`, file: `cat${i}-sit.png`, h: 115, border: 2.2, anchor: [0.5, 0.98] },
     ...['mad', 'out', 'wet', 'dry'].map((how): Piece => (
       { key: `catbath_cat${i}_${how}`, file: `cat${i}-${how}.png`, h: how === 'dry' ? 160 : 150, border: 2.2, anchor: CATS[i][how] as [number, number] })),
     { key: `catbath_cat${i}_soak`, file: `cat${i}-wet.png`, h: 150, border: 2.2, anchor: [0.5, 0.4] },
+    { key: `catbath_cat${i}_line`, file: `cat${i}-wet.png`, h: 150, border: 2.2, anchor: CATS[i].line as [number, number] },
     { key: `catbath_cat${i}_wrung`, file: `cat${i}-wrung.png`, w: 200, border: 2.2, anchor: [0.5, 0.5] },
   ]),
   // what is at the sink

@@ -147,8 +147,22 @@ in RD2 and RD3 are not dressed alike (a track jacket, then a Harrington):
 their heads are Pappy's own either way. RD3's kiss is arms open rather than
 leaning in, and Mammy's glass is a flute.
 
+**The sliding door** is made out of RD7 too, so that it is the same wood in
+the same light (`slider()` in `cut.py`): the wall with the window in it, over
+the panelling under the chrome strip, as big as the doorway, a little darker
+at its edges, with a handle. It rolls back off the doorway at the start, and
+shut again at the end.
+
+**Mr. Quacks in Stephanie's arms** is his own photo, in front of her and under
+her chin (`DUCK_HELD` in `RideMini.ts`): the duck in her picture has his head
+up beside her face, and her face (hung on at the chin, and bigger than the
+girl's own) covered him.
+
+**Pappy's head in the van** is put further back on his shoulders than the
+chin of the man in RD2 (`HEAD_BACK`): that man was looking down at the floor,
+with his chin forward, and Pappy's own face looks straight out.
+
 Still cut from paper, and meant to be: the meter, the headlamp's beam, the
-sliding door from inside (it rolls back over the photo's doorway), the
 pothole, the moon over the town, the owl's eyes, the bits of rubbish, the
 cork and the fizz, and the words.
 
